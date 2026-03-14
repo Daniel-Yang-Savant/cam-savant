@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { MDXRemote } from 'next-mdx-remote/rsc'
+// next-mdx-remote v6: MDXRemote 仍從 /rsc 匯入，API 向下相容
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import { getAllSlugs, getPostBySlug, CATEGORY_LABELS } from '@/lib/posts'
