@@ -37,11 +37,11 @@ export function generateMetadata({ params }: Props): Metadata {
 
 // ── Page ───────────────────────────────────────────────────────────────────
 
-export default function PostPage({ params }: Props) {
+export default async function PostPage({ params }: Props) {
   const post = getPostBySlug(params.slug)
   if (!post) notFound()
 
-  const { frontmatter, content } = post
+  const { frontmatter, content } = post!
   const categoryLabel = CATEGORY_LABELS[frontmatter.category] ?? frontmatter.category
   const categoryHref  = `/${frontmatter.category}`
   const formattedDate = format(new Date(frontmatter.date), 'yyyy年M月d日', {
