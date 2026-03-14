@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont,
+      'Segoe UI', sans-serif;
+    @apply bg-white text-neutral-900 antialiased;
+  }
+}
+
+@layer components {
+  /* Reusable category pill */
+  .tag {
+    @apply inline-block px-2.5 py-0.5 text-[0.65rem] tracking-widest uppercase font-medium border border-neutral-300 text-neutral-500;
+  }
+  .tag-filled {
+    @apply tag bg-neutral-950 text-white border-neutral-950;
+  }
+}
