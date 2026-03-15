@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "publish-post": "tsx scripts/publish-from-pdf.ts"
+    "publish-post": "tsx scripts/publish-from-pdf.ts",
+    "prompts": "ts-node scripts/today-tasks.ts",
+    "draft": "ts-node scripts/convert-drafts.ts",
+    "publish": "ts-node scripts/publish.ts",
+    "add-topic": "ts-node -e \"const fs=require('fs'); const t=JSON.parse(fs.readFileSync('scripts/topics.json')); t.push({slug:process.argv[3], title:process.argv[1], query:process.argv[2], done:false}); fs.writeFileSync('scripts/topics.json', JSON.stringify(t, null, 2));\""
   },
   "ts-node": {
     "transpileOnly": true,
@@ -17,20 +21,20 @@
     }
   },
   "dependencies": {
-    "next": "14.2.5",
-    "react": "^18",
-    "react-dom": "^18",
-    "next-mdx-remote": "^6.0.0",
-    "gray-matter": "^4.0.3",
-    "date-fns": "^3.6.0",
-    "clsx": "^2.1.1",
     "@anthropic-ai/sdk": "^0.36.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",
-    "node-fetch": "^2.7.0"
+    "gray-matter": "^4.0.3",
+    "next": "14.2.5",
+    "next-mdx-remote": "^6.0.0",
+    "node-fetch": "^2.7.0",
+    "react": "^18",
+    "react-dom": "^18"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.13",
-    "@types/node": "^20",
+    "@types/node": "^20.19.37",
     "@types/node-fetch": "^2.6.11",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -39,8 +43,8 @@
     "eslint-config-next": "14.2.5",
     "postcss": "^8",
     "tailwindcss": "^3.4.4",
-    "typescript": "^5",
+    "ts-node": "^10.9.2",
     "tsx": "^4.7.0",
-    "ts-node": "^10.9.2"
+    "typescript": "^5.9.3"
   }
 }

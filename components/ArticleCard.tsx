@@ -1,9 +1,9 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import type { Post } from '@/lib/posts'
 import { CATEGORY_LABELS } from '@/lib/posts'
+import CoverImage from '@/components/CoverImage'
 
 interface ArticleCardProps {
   post: Post
@@ -24,20 +24,19 @@ export default function ArticleCard({ post, large = false }: ArticleCardProps) {
 
         {/* ── Cover image ── */}
         <div
-          className={`relative overflow-hidden bg-neutral-100 ${
+          className={`relative overflow-hidden ${
             large ? 'aspect-[16/9]' : 'aspect-[4/3]'
           }`}
         >
           {frontmatter.coverImage ? (
-            <Image
+            <CoverImage
               src={frontmatter.coverImage}
               alt={frontmatter.title}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              categoryLabel={categoryLabel}
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-xs tracking-widest uppercase text-neutral-300">
+            <div className="absolute inset-0 bg-neutral-800 flex items-center justify-center">
+              <span className="text-sm text-neutral-400 tracking-widest uppercase">
                 {categoryLabel}
               </span>
             </div>
