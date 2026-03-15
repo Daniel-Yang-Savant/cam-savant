@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const TOKEN = process.env.NEXT_PUBLIC_PERIOP_ACCESS_TOKEN
+const TOKEN = process.env.PERIOP_ACCESS_TOKEN
 
 export function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
@@ -29,7 +29,8 @@ export function middleware(request: NextRequest) {
     response.cookies.set('periop_access', '1', {
       maxAge: 60 * 60 * 24 * 30,
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
       path: '/',
     })
     return response
