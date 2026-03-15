@@ -1,20 +1,26 @@
 #!/usr/bin/env ts-node
 /**
  * publish-from-pdf.ts
- * PDF → Claude 改寫繁體中文 → Unsplash 封面選圖 → .mdx → git push 自動部署
+ * PDF → Claude 改寫繁體中文 → Unsplash / Pexels 封面選圖 → .mdx → git push 自動部署
  *
  * 使用方式：
  *   npx ts-node scripts/publish-from-pdf.ts ./論文.pdf
+ *
+ * 圖片搜尋邏輯：
+ *   1. 優先使用 Unsplash（需設定 UNSPLASH_ACCESS_KEY）
+ *   2. Unsplash 未設定或失敗時，自動切換到 Pexels（需設定 PEXELS_API_KEY）
  */
 
 import Anthropic from '@anthropic-ai/sdk'
+import nodeFetch from 'node-fetch'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as readline from 'readline'
 import { execSync } from 'child_process'
 import * as dotenv from 'dotenv'
 
-// 載入 .env.local
+// 載入環境變數（.env 優先，.env.local 可覆蓋）
+dotenv.config({ path: path.resolve(process.cwd(), '.env') })
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -28,11 +34,34 @@ interface ArticleData {
   searchQuery: string
 }
 
+/** 統一格式，Unsplash / Pexels 都轉換成這個結構 */
+interface PhotoResult {
+  label: string
+  photographer: string
+  previewUrl: string   // 小尺寸預覽，終端機顯示用
+  fullUrl: string      // 大尺寸，寫入 MDX 用
+  source: 'Unsplash' | 'Pexels'
+}
+
+// Unsplash raw response
 interface UnsplashPhoto {
   description: string | null
   alt_description: string | null
   urls: { regular: string; small: string }
   user: { name: string }
+}
+
+// Pexels raw response
+interface PexelsPhoto {
+  alt: string | null
+  photographer: string
+  src: {
+    original: string
+    large2x: string
+    large: string
+    medium: string
+    small: string
+  }
 }
 
 // ── Utilities ─────────────────────────────────────────────────────────────
@@ -48,13 +77,14 @@ function ask(question: string): Promise<string> {
 }
 
 function checkEnv() {
-  const missing: string[] = []
-  if (!process.env.ANTHROPIC_API_KEY) missing.push('ANTHROPIC_API_KEY')
-  if (!process.env.UNSPLASH_ACCESS_KEY) missing.push('UNSPLASH_ACCESS_KEY')
-  if (missing.length > 0) {
-    console.error(`\n❌ 缺少環境變數：${missing.join(', ')}`)
-    console.error('   請複製 .env.example 為 .env.local 並填入 API 金鑰\n')
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.error('\n❌ 缺少環境變數：ANTHROPIC_API_KEY')
+    console.error('   請在 .env 填入 API 金鑰\n')
     process.exit(1)
+  }
+  if (!process.env.UNSPLASH_ACCESS_KEY && !process.env.PEXELS_API_KEY) {
+    console.warn('\n⚠️  UNSPLASH_ACCESS_KEY 與 PEXELS_API_KEY 均未設定')
+    console.warn('   將略過封面圖片搜尋，請稍後手動填入\n')
   }
 }
 
@@ -133,20 +163,81 @@ async function processPDF(pdfPath: string): Promise<ArticleData> {
   return JSON.parse(match[0]) as ArticleData
 }
 
-// ── Step 2：Unsplash 搜尋封面圖片 ─────────────────────────────────────────
+// ── Step 2a：Unsplash 搜尋 ─────────────────────────────────────────────────
 
-async function searchUnsplash(query: string): Promise<UnsplashPhoto[]> {
+async function searchUnsplash(query: string): Promise<PhotoResult[]> {
   const url =
     `https://api.unsplash.com/search/photos` +
     `?query=${encodeURIComponent(query)}&per_page=3&orientation=landscape&content_filter=high`
 
-  const res = await fetch(url, {
+  const res = await nodeFetch(url, {
     headers: { Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}` },
   })
 
   if (!res.ok) throw new Error(`Unsplash API 錯誤：${res.status} ${res.statusText}`)
   const data = (await res.json()) as { results: UnsplashPhoto[] }
-  return data.results ?? []
+
+  return (data.results ?? []).map(p => ({
+    label: (p.description || p.alt_description || '無描述').slice(0, 60),
+    photographer: p.user.name,
+    previewUrl: p.urls.small,
+    fullUrl: p.urls.regular,
+    source: 'Unsplash' as const,
+  }))
+}
+
+// ── Step 2b：Pexels 搜尋（備用）──────────────────────────────────────────
+
+async function searchPexels(query: string): Promise<PhotoResult[]> {
+  const url =
+    `https://api.pexels.com/v1/search` +
+    `?query=${encodeURIComponent(query)}&per_page=3&orientation=landscape`
+
+  const res = await nodeFetch(url, {
+    headers: { Authorization: process.env.PEXELS_API_KEY! },
+  })
+
+  if (!res.ok) throw new Error(`Pexels API 錯誤：${res.status} ${res.statusText}`)
+  const data = (await res.json()) as { photos: PexelsPhoto[] }
+
+  return (data.photos ?? []).map(p => ({
+    label: (p.alt || '無描述').slice(0, 60),
+    photographer: p.photographer,
+    previewUrl: p.src.small,
+    fullUrl: p.src.large2x || p.src.large,
+    source: 'Pexels' as const,
+  }))
+}
+
+// ── Step 2：雙來源搜尋（Unsplash → Pexels fallback）───────────────────────
+
+async function searchPhotos(query: string): Promise<{ photos: PhotoResult[]; source: string }> {
+  // 優先 Unsplash
+  if (process.env.UNSPLASH_ACCESS_KEY) {
+    try {
+      const photos = await searchUnsplash(query)
+      if (photos.length > 0) return { photos, source: 'Unsplash' }
+      console.warn('   ⚠️  Unsplash 搜尋結果為空，切換到 Pexels...')
+    } catch (e: any) {
+      console.warn(`   ⚠️  Unsplash 搜尋失敗：${e.message}，切換到 Pexels...`)
+    }
+  } else {
+    console.log('   ℹ️  UNSPLASH_ACCESS_KEY 未設定，使用 Pexels...')
+  }
+
+  // 備用 Pexels
+  if (process.env.PEXELS_API_KEY) {
+    try {
+      const photos = await searchPexels(query)
+      return { photos, source: 'Pexels（Unsplash 備用）' }
+    } catch (e: any) {
+      console.warn(`   ⚠️  Pexels 搜尋失敗：${e.message}`)
+    }
+  } else {
+    console.warn('   ⚠️  PEXELS_API_KEY 未設定，無法搜尋備用圖片')
+  }
+
+  return { photos: [], source: '無' }
 }
 
 // ── Step 3：建立 .mdx 檔案 ────────────────────────────────────────────────
@@ -208,25 +299,20 @@ async function main() {
   console.log(`   分類：${article.category}`)
   console.log(`   Slug：${article.slug}`)
 
-  // ── 2. Unsplash 搜尋
+  // ── 2. 搜尋封面圖片（Unsplash → Pexels fallback）
   console.log(`\n🔍 搜尋封面圖片（關鍵字：${article.searchQuery}）...\n`)
 
-  let photos: UnsplashPhoto[] = []
-  try {
-    photos = await searchUnsplash(article.searchQuery)
-  } catch (e: any) {
-    console.warn(`   ⚠️  Unsplash 搜尋失敗：${e.message}`)
-  }
+  const { photos, source } = await searchPhotos(article.searchQuery)
 
   // ── 3. 顯示選項
   let coverImage = ''
 
   if (photos.length > 0) {
+    console.log(`   圖片來源：${source}\n`)
     photos.forEach((photo, i) => {
-      const label = (photo.description || photo.alt_description || '無描述').slice(0, 60)
-      console.log(`  [${i + 1}] ${label}`)
-      console.log(`       📷 ${photo.user.name}`)
-      console.log(`       🔗 ${photo.urls.small}\n`)
+      console.log(`  [${i + 1}] ${photo.label}`)
+      console.log(`       📷 ${photo.photographer}`)
+      console.log(`       🔗 ${photo.previewUrl}\n`)
     })
     console.log('  [0] 不選，我自己上傳圖片\n')
 
@@ -234,10 +320,10 @@ async function main() {
     const num = parseInt(choice)
 
     if (num >= 1 && num <= photos.length) {
-      coverImage = photos[num - 1].urls.regular
-      console.log(`\n✅ 已選擇圖片`)
+      coverImage = photos[num - 1].fullUrl
+      console.log(`\n✅ 已選擇圖片（來源：${source}）`)
     } else {
-      console.log('\n⚠️  coverImage 留空，請稍後在 .mdx 填入 /public/images/posts/ 的本地路徑')
+      console.log('\n⚠️  coverImage 留空，請稍後在 .mdx 填入圖片路徑')
     }
   } else {
     console.log('⚠️  無圖片結果，coverImage 留空')
