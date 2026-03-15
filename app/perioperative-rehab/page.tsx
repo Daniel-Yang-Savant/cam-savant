@@ -72,7 +72,6 @@ const categories: Category[] = [
         name: 'PCL 重建術後復健',
         nameEn: 'PCL Reconstruction Rehab',
         summary: '後十字韌帶重建後的股四頭肌強化與步態訓練',
-        coming: true,
       },
       {
         slug: 'rotator-cuff-slap-rehab',
