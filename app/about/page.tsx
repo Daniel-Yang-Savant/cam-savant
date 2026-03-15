@@ -1,65 +1,133 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 
 export const metadata: Metadata = {
-  title: '關於',
-  description: '關於 CAM Savant ── 整合醫學知識平台',
+  title: 'Our Team | CAM Savant',
+  description: '認識 CAM Savant 醫療團隊',
 }
+
+// ── Team data ──────────────────────────────────────────────────────────────
+
+const team = [
+  {
+    name: '楊育愷',
+    nameEn: 'Yu-Kai Yang, MD',
+    photo: '/images/team/yu-kai-yang.jpg',
+    credentials: [
+      '復健科專科醫師',
+      '骨質疏鬆專科醫師',
+      '增生醫學會會員',
+    ],
+  },
+  {
+    name: '楊育彰',
+    nameEn: 'Yu-Chang Yang, MD',
+    photo: '/images/team/yu-chang-yang.jpg',
+    credentials: [
+      '家庭醫學科專科醫師',
+      '骨質疏鬆專科醫師',
+      'SCOPE 國際肥胖專科認證',
+      '糖尿病 CDE 認證',
+    ],
+  },
+  {
+    name: '賴玟衛',
+    nameEn: 'Wen-Wei Lai, MD',
+    photo: '/images/team/wen-wei-lai.jpg',
+    credentials: [
+      '復健科醫師',
+      '骨鬆醫學會會員',
+      '增生醫學會會員',
+    ],
+  },
+  {
+    name: '黃雅琦',
+    nameEn: 'Yachi Huang, MD',
+    photo: '/images/team/yachi-huang.jpg',
+    credentials: [
+      '復健科醫師',
+    ],
+  },
+]
+
+// ── Page ───────────────────────────────────────────────────────────────────
 
 export default function AboutPage() {
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-      {/* ── Header ── */}
-      <div className="mb-12">
-        <span className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
-          About
-        </span>
-        <h1 className="mt-2 text-4xl md:text-5xl font-bold text-neutral-950 leading-tight">
-          關於 CAM Savant
-        </h1>
-        <div className="mt-4 h-px bg-neutral-200 w-16" />
-      </div>
+    <div className="min-h-screen bg-[#f5f0e8]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
 
-      {/* ── Content ── */}
-      <div className="prose prose-neutral max-w-none">
-        <p>
-          CAM Savant 是一個專注於整合醫學（Complementary and Alternative
-          Medicine）知識分享的平台，涵蓋<strong>運動醫學</strong>、
-          <strong>功能醫學</strong>與
-          <strong>頻率特異性微電流（FSM）</strong>三大核心領域。
-        </p>
+        {/* ── Header ── */}
+        <div className="text-center mb-16">
+          <span className="text-xs font-semibold tracking-[0.2em] uppercase text-neutral-400">
+            Meet the Doctors
+          </span>
+          <h1 className="mt-3 text-4xl md:text-5xl font-bold text-neutral-950 tracking-tight">
+            Our Team
+          </h1>
+          <div className="mt-5 h-px w-12 bg-neutral-300 mx-auto" />
+        </div>
 
-        <p>
-          我們相信，現代醫療的未來在於整合──在實證科學的基礎上，融合不同醫學系統的洞見，
-          為患者提供更全面、更個人化的照護。
-        </p>
+        {/* ── Team Grid ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          {team.map((member) => (
+            <div
+              key={member.nameEn}
+              className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 px-6 pt-10 pb-8 flex flex-col items-center text-center"
+            >
+              {/* Arch photo frame */}
+              <div
+                className="relative overflow-hidden bg-neutral-200 mb-6 flex-shrink-0"
+                style={{
+                  width: 160,
+                  height: 200,
+                  borderRadius: '9999px 9999px 0 0',
+                }}
+              >
+                <Image
+                  src={member.photo}
+                  alt={member.name}
+                  fill
+                  className="object-cover object-top"
+                  sizes="160px"
+                />
+              </div>
 
-        <h2>核心領域</h2>
+              {/* Name */}
+              <h3 className="text-xl font-bold text-neutral-900 leading-tight">
+                {member.name}
+              </h3>
+              <p className="mt-1 text-xs text-neutral-400 tracking-widest uppercase">
+                {member.nameEn}
+              </p>
 
-        <h3>運動醫學 Sports Medicine</h3>
-        <p>
-          探討運動傷害的預防、診斷與復健策略。從急性損傷的初期處置、組織癒合的生物學，
-          到長期功能恢復與重返運動的標準化評估，以最新實證為導向，結合現代復健科學。
-        </p>
+              {/* Divider */}
+              <div className="mt-4 mb-4 h-px w-8 bg-neutral-200" />
 
-        <h3>功能醫學 Functional Medicine</h3>
-        <p>
-          以系統生物學視角探討慢性疾病的根本成因。關注腸道微生物體、荷爾蒙失衡、
-          粒線體功能、神經發炎等核心機制，透過個人化的評估工具與介入策略，
-          協助臨床工作者超越對症治療，真正解決疾病根源。
-        </p>
+              {/* Credentials */}
+              <ul className="space-y-1.5 w-full">
+                {member.credentials.map((c) => (
+                  <li
+                    key={c}
+                    className="text-xs text-neutral-500 leading-relaxed"
+                  >
+                    {c}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
 
-        <h3>頻率特異性微電流 FSM</h3>
-        <p>
-          介紹 Frequency Specific Microcurrent 的理論基礎、臨床研究與實務應用。
-          涵蓋疼痛管理、組織修復、神經系統調節等領域，以及最新的頻率協議與案例分析。
-        </p>
+        {/* ── Mission blurb ── */}
+        <div className="mt-20 max-w-2xl mx-auto text-center">
+          <p className="text-sm text-neutral-500 leading-relaxed">
+            CAM Savant 整合復健科、家庭醫學科與功能醫學的跨領域專業，
+            致力於為患者提供以實證為基礎的整合醫療照護。
+            本站所有內容僅供醫療專業人員學習參考，不構成個別診療建議。
+          </p>
+        </div>
 
-        <h2>內容聲明</h2>
-        <p>
-          本站所有文章內容僅供具備醫療執照的專業人員學習參考，
-          不構成針對個別患者的診療建議。臨床決策應基於患者的具體情況，
-          並由具備相關執照的醫療提供者做出最終判斷。
-        </p>
       </div>
     </div>
   )
