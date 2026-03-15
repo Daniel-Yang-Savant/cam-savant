@@ -19,9 +19,10 @@ import * as dotenv from 'dotenv'
 import * as path from 'path'
 import fetch from 'node-fetch'
 
-// 載入 .env.local（優先）與 .env
-dotenv.config({ path: path.resolve(__dirname, '../.env.local') })
-dotenv.config({ path: path.resolve(__dirname, '../.env') })
+// 載入 .env.local（優先）與 .env（從專案根目錄相對路徑載入）
+const root = process.cwd()
+dotenv.config({ path: path.resolve(root, '.env.local') })
+dotenv.config({ path: path.resolve(root, '.env') })
 
 // ── Config ──────────────────────────────────────────────────────────────────
 
