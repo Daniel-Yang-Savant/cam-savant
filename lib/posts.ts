@@ -11,6 +11,7 @@ export interface PostFrontmatter {
   date: string
   category: string
   excerpt: string
+  author?: string
   coverImage?: string
 }
 
@@ -23,15 +24,17 @@ export interface Post {
 // ── Constants ──────────────────────────────────────────────────────────────
 
 export const CATEGORY_LABELS: Record<string, string> = {
-  'sports-medicine':      '運動醫學',
-  'functional-medicine':  '功能醫學',
-  'fsm':                  'FSM',
+  'sports-medicine':     '運動醫學',
+  'functional-medicine': '功能醫學',
+  'fsm':                 'FSM',
+  'perioperative-rehab': '術後復健',
 }
 
 export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   'sports-medicine':     '運動傷害的預防、診斷與復健——以實證醫學為基礎的臨床應用。',
   'functional-medicine': '從根本原因探討慢性疾病，整合腸道、荷爾蒙與粒線體的系統性思維。',
   'fsm':                 '頻率特異性微電流（Frequency Specific Microcurrent）的臨床研究與應用。',
+  'perioperative-rehab': '骨科、腫瘤科與心血管手術的個別化術前術後復健計畫。',
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
