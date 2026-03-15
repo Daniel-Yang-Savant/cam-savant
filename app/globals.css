@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+::selection {
+  background: transparent;
+}
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+img {
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
 @layer base {
   html {
     @apply scroll-smooth;

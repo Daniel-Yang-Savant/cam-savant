@@ -75,6 +75,13 @@ export default function Footer() {
             © {year} CAM Savant．本站內容僅供醫療專業人員學習參考，不構成個別診療建議。
           </p>
         </div>
+
+        {/* ── Copyright ── */}
+        <div className="mt-4 border-t border-neutral-200 pt-4">
+          <p className="text-xs text-neutral-400 text-center">
+            © {year} CAM Savant．本網站所有內容（文字、圖片、復健計畫）著作權均歸 CAM Savant 醫療團隊所有，未經書面授權禁止轉載、複製或商業使用。
+          </p>
+        </div>
       </div>
     </footer>
   )

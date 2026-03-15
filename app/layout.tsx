@@ -103,6 +103,18 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col bg-white">
+        <script dangerouslySetInnerHTML={{ __html: `
+  document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+  document.addEventListener('keydown', function(e) {
+    if (
+      (e.ctrlKey || e.metaKey) &&
+      ['c','u','s','a','p'].includes(e.key.toLowerCase())
+    ) {
+      e.preventDefault();
+    }
+    if (e.key === 'F12') e.preventDefault();
+  });
+` }} />
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
