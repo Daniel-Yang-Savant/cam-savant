@@ -6,11 +6,12 @@ import { useState } from 'react'
 import clsx from 'clsx'
 
 const NAV_LINKS = [
-  { href: '/',                    label: 'Home'    },
-  { href: '/about',               label: '關於'    },
-  { href: '/fsm',                 label: 'FSM'     },
-  { href: '/sports-medicine',     label: '運動醫學' },
-  { href: '/functional-medicine', label: '功能醫學' },
+  { href: '/',                       label: 'Home'    },
+  { href: '/about',                  label: '關於'    },
+  { href: '/fsm',                    label: 'FSM'     },
+  { href: '/sports-medicine',        label: '運動醫學' },
+  { href: '/functional-medicine',    label: '功能醫學' },
+  { href: '/perioperative-rehab',    label: '術後復健' },
 ]
 
 export default function Navbar() {
