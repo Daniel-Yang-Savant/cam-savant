@@ -11,7 +11,8 @@
     "prompts": "ts-node scripts/today-tasks.ts",
     "draft": "ts-node scripts/convert-drafts.ts",
     "publish": "ts-node scripts/publish.ts",
-    "add-topic": "ts-node -e \"const fs=require('fs'); const t=JSON.parse(fs.readFileSync('scripts/topics.json')); t.push({slug:process.argv[3], title:process.argv[1], query:process.argv[2], done:false}); fs.writeFileSync('scripts/topics.json', JSON.stringify(t, null, 2));\""
+    "add-topic": "ts-node -e \"const fs=require('fs'); const t=JSON.parse(fs.readFileSync('scripts/topics.json')); t.push({slug:process.argv[3], title:process.argv[1], query:process.argv[2], done:false}); fs.writeFileSync('scripts/topics.json', JSON.stringify(t, null, 2));\"",
+    "rotate-token": "ts-node scripts/rotate-token.ts"
   },
   "ts-node": {
     "transpileOnly": true,
