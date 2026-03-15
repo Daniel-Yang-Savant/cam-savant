@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 
 export const metadata: Metadata = {
-  title: 'Our Team | CAM Savant',
+  title: 'Our Team',
   description: '認識 CAM Savant 醫療團隊',
 }
 
@@ -13,42 +13,61 @@ const team = [
     name: '楊育愷',
     nameEn: 'Yu-Kai Yang, MD',
     photo: '/images/team/yu-kai-yang.jpg',
-    credentials: [
-      '復健科專科醫師',
-      '骨質疏鬆專科醫師',
-      '增生醫學會會員',
-    ],
+    title: '復健科主治醫師',
+    location: '彰化縣・南投縣',
+    specialties: ['增生療法', 'PRP治療', '運動醫學', '骨質疏鬆', '超音波導引注射', 'FSM'],
+    credentials: ['骨質疏鬆專科醫師', '增生醫學會會員'],
   },
   {
     name: '楊育彰',
     nameEn: 'Yu-Chang Yang, MD',
     photo: '/images/team/yu-chang-yang.jpg',
-    credentials: [
-      '家庭醫學科專科醫師',
-      '骨質疏鬆專科醫師',
-      'SCOPE 國際肥胖專科認證',
-      '糖尿病 CDE 認證',
-    ],
+    title: '家庭醫學科專科醫師',
+    location: '台北・桃園',
+    specialties: ['針灸', '減重', '醫美', '家庭醫學'],
+    credentials: ['骨質疏鬆專科醫師', 'SCOPE 國際肥胖專科認證', '糖尿病 CDE 認證'],
   },
   {
     name: '賴玟衛',
     nameEn: 'Wen-Wei Lai, MD',
     photo: '/images/team/wen-wei-lai.jpg',
-    credentials: [
-      '復健科醫師',
-      '骨鬆醫學會會員',
-      '增生醫學會會員',
-    ],
+    title: '復健科醫師',
+    location: '彰化基督教醫院',
+    specialties: ['復健醫學'],
+    credentials: ['骨鬆醫學會會員', '增生醫學會會員'],
   },
   {
     name: '黃雅琦',
     nameEn: 'Yachi Huang, MD',
     photo: '/images/team/yachi-huang.jpg',
-    credentials: [
-      '復健科醫師',
-    ],
+    title: '復健科醫師',
+    location: '彰化基督教醫院',
+    specialties: [],
+    credentials: [],
   },
 ]
+
+// ── MapPin icon ────────────────────────────────────────────────────────────
+
+function MapPin() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="11"
+      height="11"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="inline-block flex-shrink-0 text-neutral-400"
+    >
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  )
+}
 
 // ── Page ───────────────────────────────────────────────────────────────────
 
@@ -77,10 +96,10 @@ export default function AboutPage() {
             >
               {/* Arch photo frame */}
               <div
-                className="relative overflow-hidden bg-neutral-200 mb-6 flex-shrink-0"
+                className="relative overflow-hidden bg-neutral-200 mb-5 flex-shrink-0"
                 style={{
-                  width: 160,
-                  height: 200,
+                  width: 152,
+                  height: 190,
                   borderRadius: '9999px 9999px 0 0',
                 }}
               >
@@ -89,7 +108,7 @@ export default function AboutPage() {
                   alt={member.name}
                   fill
                   className="object-cover object-top"
-                  sizes="160px"
+                  sizes="152px"
                 />
               </div>
 
@@ -97,24 +116,51 @@ export default function AboutPage() {
               <h3 className="text-xl font-bold text-neutral-900 leading-tight">
                 {member.name}
               </h3>
-              <p className="mt-1 text-xs text-neutral-400 tracking-widest uppercase">
+              <p className="mt-0.5 text-xs text-neutral-400 tracking-widest uppercase">
                 {member.nameEn}
               </p>
 
               {/* Divider */}
-              <div className="mt-4 mb-4 h-px w-8 bg-neutral-200" />
+              <div className="my-3 h-px w-8 bg-neutral-100" />
+
+              {/* Title */}
+              <p className="text-sm font-medium text-neutral-700">
+                {member.title}
+              </p>
+
+              {/* Location */}
+              <div className="mt-1.5 flex items-center gap-1 text-xs text-neutral-400">
+                <MapPin />
+                <span>{member.location}</span>
+              </div>
+
+              {/* Specialty badges */}
+              {member.specialties.length > 0 && (
+                <div className="mt-4 flex flex-wrap justify-center gap-1.5">
+                  {member.specialties.map((s) => (
+                    <span
+                      key={s}
+                      className="inline-block bg-neutral-100 text-neutral-600 text-[10px] font-medium px-2.5 py-1 rounded-full leading-none"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               {/* Credentials */}
-              <ul className="space-y-1.5 w-full">
-                {member.credentials.map((c) => (
-                  <li
-                    key={c}
-                    className="text-xs text-neutral-500 leading-relaxed"
-                  >
-                    {c}
-                  </li>
-                ))}
-              </ul>
+              {member.credentials.length > 0 && (
+                <ul className="mt-4 space-y-1 w-full border-t border-neutral-100 pt-4">
+                  {member.credentials.map((c) => (
+                    <li
+                      key={c}
+                      className="text-[11px] text-neutral-500 leading-relaxed before:content-['·'] before:mr-1.5 before:text-neutral-300"
+                    >
+                      {c}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           ))}
         </div>
