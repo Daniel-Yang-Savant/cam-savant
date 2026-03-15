@@ -106,8 +106,15 @@ export default async function PostPage({ params }: Props) {
           <MDXRemote source={content} />
         </div>
 
+        {/* ── Brand signature ── */}
+        <div className="mt-12 pt-6 border-t border-neutral-100 text-center">
+          <p className="text-xs text-neutral-400 leading-relaxed">
+            CAM Savant 醫療團隊 | 彰化・南投・台中・雲林 復健科・運動醫學・功能醫學
+          </p>
+        </div>
+
         {/* ── Back link ── */}
-        <div className="mt-16 pt-8 border-t border-neutral-100">
+        <div className="mt-8 pt-6 border-t border-neutral-100">
           <Link
             href={categoryHref}
             className="text-sm text-neutral-500 hover:text-neutral-950 transition-colors"

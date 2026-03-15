@@ -165,11 +165,18 @@ export default function AboutPage() {
           ))}
         </div>
 
-        {/* ── Mission blurb ── */}
+        {/* ── SEO description（對爬蟲友善純文字）── */}
         <div className="mt-20 max-w-2xl mx-auto text-center">
           <p className="text-sm text-neutral-500 leading-relaxed">
-            CAM Savant 整合復健科、家庭醫學科與功能醫學的跨領域專業，
-            致力於為患者提供以實證為基礎的整合醫療照護。
+            CAM Savant 是一個專注於復健醫學與輔助醫療的知識分享平台，
+            服務涵蓋彰化縣、南投縣、台中市及雲林縣地區。
+            核心專長包含：運動醫學（Sports Medicine）、
+            增生療法（Prolotherapy）、PRP治療（Platelet-Rich Plasma）、
+            骨質疏鬆症（Osteoporosis）、肌肉骨骼超音波導引注射、
+            FSM頻率共振微電流療法（Frequency Specific Microcurrent）
+            及功能醫學（Functional Medicine）。
+          </p>
+          <p className="mt-4 text-xs text-neutral-400">
             本站所有內容僅供醫療專業人員學習參考，不構成個別診療建議。
           </p>
         </div>
