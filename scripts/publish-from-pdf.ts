@@ -1,11 +1,10 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env ts-node
 /**
  * publish-from-pdf.ts
  * PDF → Claude 改寫繁體中文 → Unsplash 封面選圖 → .mdx → git push 自動部署
  *
  * 使用方式：
- *   npm run publish-post <PDF路徑>
- *   npx tsx scripts/publish-from-pdf.ts <PDF路徑>
+ *   npx ts-node scripts/publish-from-pdf.ts ./論文.pdf
  */
 
 import Anthropic from '@anthropic-ai/sdk'
@@ -78,9 +77,32 @@ async function processPDF(pdfPath: string): Promise<ArticleData> {
           } as any,
           {
             type: 'text',
-            text: `請閱讀這份文件，將其改寫為一篇高品質的繁體中文醫學知識文章。
+            text: `你是一位復健科主治醫師，擅長運動醫學、功能醫學與輔助醫學。
+請將以下論文改寫為繁體中文醫學知識文章，風格規範如下：
 
-請直接輸出一個 JSON 物件（不要有其他說明文字）：
+【結構】
+- 開頭：用一個臨床情境或新聞事件帶入主題
+- 主體：用 H2/H3 標題分段，每段聚焦一個核心概念
+- 結尾：總結臨床重點，加上 References 列出原始論文
+
+【語言風格】
+- 保留英文醫學術語，第一次出現時加中文說明
+  例如：心室顫動 Ventricular Fibrillation (VF)
+- 重要數據、臨床建議用粗體標示
+- 引用具體期刊名稱與研究數據
+- 適當使用條列式整理臨床標準或步驟
+
+【tone】
+- 知識性：保留關鍵醫學資訊，不過度簡化
+- 可讀性：一般民眾能理解，但不失專業深度
+- 有個人觀點：可加入臨床視角的評論
+- 不說教：提供資訊而非命令
+
+【長度】1500～3000 字
+
+---
+
+改寫完成後，請直接輸出一個 JSON 物件（不要有其他說明文字）：
 {
   "title": "文章標題（繁體中文，具吸引力）",
   "excerpt": "文章摘要（80-120字，繁體中文，概述核心內容）",
@@ -167,7 +189,7 @@ async function main() {
   const pdfPath = process.argv[2]
 
   if (!pdfPath) {
-    console.error('\n使用方式：npm run publish-post <PDF路徑>\n')
+    console.error('\n使用方式：npx ts-node scripts/publish-from-pdf.ts ./論文.pdf\n')
     process.exit(1)
   }
   if (!fs.existsSync(pdfPath)) {
