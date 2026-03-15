@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { getAllPosts } from '@/lib/posts'
+import { getPublicPosts } from '@/lib/posts'
 import PostList from '@/components/PostList'
 
 export const metadata: Metadata = {
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 }
 
 export default function PostsPage() {
-  const posts = getAllPosts()
+  const posts = getPublicPosts()
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">

@@ -1,11 +1,11 @@
 import Hero from '@/components/Hero'
 import ArticleCard from '@/components/ArticleCard'
 import FeaturedReadingList from '@/components/FeaturedReadingList'
-import { getAllPosts } from '@/lib/posts'
+import { getPublicPosts } from '@/lib/posts'
 import Link from 'next/link'
 
 export default function HomePage() {
-  const allPosts = getAllPosts()
+  const allPosts = getPublicPosts()
 
   if (allPosts.length === 0) {
     return (

@@ -1,10 +1,10 @@
 import { MetadataRoute } from 'next'
-import { getAllPosts } from '@/lib/posts'
+import { getPublicPosts } from '@/lib/posts'
 
 const BASE_URL = 'https://cam-savant.vercel.app'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const posts = getAllPosts()
+  const posts = getPublicPosts()
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
@@ -33,12 +33,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${BASE_URL}/fsm`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${BASE_URL}/perioperative-rehab`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.9,

@@ -52,6 +52,11 @@ function readPost(fileName: string): Post {
   }
 }
 
+// ── Protected categories ────────────────────────────────────────────────────
+
+/** 需要存取授權、不對外公開的分類。 */
+export const PROTECTED_CATEGORIES = ['perioperative-rehab']
+
 // ── Public API ─────────────────────────────────────────────────────────────
 
 /** 取得全部文章，依日期降序排列（最新在前）。 */
@@ -80,6 +85,13 @@ export function getPostBySlug(slug: string): Post | null {
     }
   }
   return null
+}
+
+/** 取得公開文章（排除受保護分類），依日期降序排列。 */
+export function getPublicPosts(): Post[] {
+  return getAllPosts().filter(
+    (post) => !PROTECTED_CATEGORIES.includes(post.frontmatter.category)
+  )
 }
 
 /** 依分類取得文章列表。 */
