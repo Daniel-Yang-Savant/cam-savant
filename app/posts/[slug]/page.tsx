@@ -7,6 +7,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import { getAllSlugs, getPostBySlug, CATEGORY_LABELS } from '@/lib/posts'
+import ConsultForm from '@/components/ConsultForm'
 
 interface Props {
   params: { slug: string }
@@ -105,6 +106,9 @@ export default async function PostPage({ params }: Props) {
         <div className="prose prose-neutral max-w-none">
           <MDXRemote source={content} />
         </div>
+
+        {/* ── Consultation form ── */}
+        <ConsultForm articleTitle={frontmatter.title} />
 
         {/* ── Brand signature ── */}
         <div className="mt-12 pt-6 border-t border-neutral-100 text-center">
