@@ -35,7 +35,7 @@ export default function ArticleCard({ post, large = false }: ArticleCardProps) {
               categoryLabel={categoryLabel}
             />
           ) : (
-            <div className="absolute inset-0 bg-neutral-800 flex items-center justify-center">
+            <div className="absolute inset-0 bg-neutral-800 dark:bg-neutral-700 flex items-center justify-center">
               <span className="text-sm text-neutral-400 tracking-widest uppercase">
                 {categoryLabel}
               </span>
@@ -46,13 +46,13 @@ export default function ArticleCard({ post, large = false }: ArticleCardProps) {
         {/* ── Body ── */}
         <div className="pt-4 flex flex-col flex-1">
           {/* Category */}
-          <span className="text-[0.65rem] tracking-widest uppercase font-medium text-neutral-400 mb-1.5">
+          <span className="text-[0.65rem] tracking-widest uppercase font-medium text-neutral-400 dark:text-neutral-500 mb-1.5">
             {categoryLabel}
           </span>
 
           {/* Title */}
           <h2
-            className={`font-bold text-neutral-950 leading-snug group-hover:text-neutral-500 transition-colors ${
+            className={`font-bold text-neutral-950 dark:text-neutral-100 leading-snug group-hover:text-neutral-500 dark:group-hover:text-neutral-400 transition-colors ${
               large ? 'text-xl md:text-2xl' : 'text-base md:text-lg'
             }`}
           >
@@ -60,12 +60,12 @@ export default function ArticleCard({ post, large = false }: ArticleCardProps) {
           </h2>
 
           {/* Excerpt */}
-          <p className="mt-2 text-sm text-neutral-500 leading-relaxed line-clamp-3 flex-1">
+          <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed line-clamp-3 flex-1">
             {frontmatter.excerpt}
           </p>
 
           {/* Date */}
-          <p className="mt-3 text-xs text-neutral-400 font-mono">{formattedDate}</p>
+          <p className="mt-3 text-xs text-neutral-400 dark:text-neutral-500 font-mono">{formattedDate}</p>
         </div>
       </Link>
     </article>

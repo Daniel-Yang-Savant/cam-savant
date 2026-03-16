@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLang } from '@/lib/i18n'
 
 interface Props {
   articleTitle?: string
@@ -16,17 +17,18 @@ export default function ConsultForm({ articleTitle }: Props) {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const { t } = useLang()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
 
     if (!question.trim()) {
-      setError('請填寫您想了解的內容。')
+      setError(t('errorContent'))
       return
     }
     if (!contact.trim()) {
-      setError('請填寫聯絡方式（電話或 Email）。')
+      setError(t('errorContact'))
       return
     }
 
@@ -38,7 +40,7 @@ export default function ConsultForm({ articleTitle }: Props) {
     body.append('entry.1305016048', contact.trim())
 
     try {
-      // Google Forms 不支援 CORS，使用 no-cors 模式送出
+      // Google Forms doesn't support CORS; use no-cors (opaque response)
       await fetch(FORM_ACTION, {
         method: 'POST',
         mode: 'no-cors',
@@ -47,9 +49,7 @@ export default function ConsultForm({ articleTitle }: Props) {
       })
       setSubmitted(true)
     } catch {
-      // no-cors 模式下 fetch 不會拋出錯誤（opaque response），
-      // 若真的發生網路錯誤才會到此處
-      setError('送出失敗，請稍後再試或直接致電診所。')
+      setError(t('errorNetwork'))
     } finally {
       setLoading(false)
     }
@@ -57,107 +57,113 @@ export default function ConsultForm({ articleTitle }: Props) {
 
   if (submitted) {
     return (
-      <div className="mt-12 rounded-2xl bg-[#f5f0e8] px-8 py-10 text-center">
+      <div className="ConsultForm mt-12 rounded-2xl bg-[#f5f0e8] dark:bg-neutral-800 px-8 py-10 text-center">
         <div className="mb-3 text-2xl">✓</div>
-        <p className="text-base font-semibold text-neutral-800">
-          感謝您的留言，我們將盡快回覆。
+        <p className="text-base font-semibold text-neutral-800 dark:text-neutral-100">
+          {t('consultSuccess')}
         </p>
-        <p className="mt-2 text-sm text-neutral-500">
-          醫療團隊將於門診時間內透過您留下的聯絡方式與您聯繫。
+        <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+          {t('consultSuccessNote')}
         </p>
       </div>
     )
   }
 
   return (
-    <div className="mt-12 rounded-2xl bg-[#f5f0e8] px-8 py-10">
-      {/* 標題 */}
-      <h2 className="text-xl font-bold text-neutral-900">有問題想諮詢？</h2>
-      <p className="mt-2 text-sm text-neutral-600 leading-relaxed">
-        歡迎留下您想了解的復健或醫療相關問題，醫療團隊將於門診時間內回覆。
+    <div className="ConsultForm mt-12 rounded-2xl bg-[#f5f0e8] dark:bg-neutral-800 px-8 py-10">
+      {/* Title */}
+      <h2 className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
+        {t('consultTitle')}
+      </h2>
+      <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+        {t('consultDesc')}
       </p>
 
       {articleTitle && (
-        <p className="mt-1 text-xs text-neutral-400">
-          參考文章：{articleTitle}
+        <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
+          {t('consultRef')}{articleTitle}
         </p>
       )}
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
-        {/* 姓名（選填） */}
+        {/* Name (optional) */}
         <div>
           <label
             htmlFor="consult-name"
-            className="block text-sm font-medium text-neutral-700 mb-1"
+            className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
           >
-            姓名
-            <span className="ml-1 text-xs text-neutral-400">（選填）</span>
+            {t('consultName')}
+            <span className="ml-1 text-xs text-neutral-400">
+              {t('consultNameOptional')}
+            </span>
           </label>
           <input
             id="consult-name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="您的稱呼"
-            className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-800 placeholder-neutral-400 focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-400 transition"
+            placeholder={t('consultNamePlaceholder')}
+            className="w-full rounded-xl border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 px-4 py-2.5 text-sm text-neutral-800 dark:text-neutral-100 placeholder-neutral-400 focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-400 transition"
           />
         </div>
 
-        {/* 想了解的內容（必填） */}
+        {/* Question (required) */}
         <div>
           <label
             htmlFor="consult-question"
-            className="block text-sm font-medium text-neutral-700 mb-1"
+            className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
           >
-            想了解的內容
-            <span className="ml-1 text-xs text-red-400">（必填）</span>
+            {t('consultContent')}
+            <span className="ml-1 text-xs text-red-400">
+              {t('consultRequired')}
+            </span>
           </label>
           <textarea
             id="consult-question"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="請描述您的症狀、疑問或想了解的復健主題…"
+            placeholder={t('consultContentPlaceholder')}
             rows={4}
-            className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-800 placeholder-neutral-400 focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-400 transition resize-none"
+            className="w-full rounded-xl border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 px-4 py-2.5 text-sm text-neutral-800 dark:text-neutral-100 placeholder-neutral-400 focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-400 transition resize-none"
           />
         </div>
 
-        {/* 聯絡方式（必填） */}
+        {/* Contact (required) */}
         <div>
           <label
             htmlFor="consult-contact"
-            className="block text-sm font-medium text-neutral-700 mb-1"
+            className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
           >
-            聯絡方式（電話或 Email）
-            <span className="ml-1 text-xs text-red-400">（必填）</span>
+            {t('consultContact')}
+            <span className="ml-1 text-xs text-red-400">
+              {t('consultRequired')}
+            </span>
           </label>
           <input
             id="consult-contact"
             type="text"
             value={contact}
             onChange={(e) => setContact(e.target.value)}
-            placeholder="0912-345-678 或 example@email.com"
-            className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-800 placeholder-neutral-400 focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-400 transition"
+            placeholder={t('consultContactPlaceholder')}
+            className="w-full rounded-xl border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 px-4 py-2.5 text-sm text-neutral-800 dark:text-neutral-100 placeholder-neutral-400 focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-400 transition"
           />
         </div>
 
-        {/* 錯誤提示 */}
-        {error && (
-          <p className="text-sm text-red-500">{error}</p>
-        )}
+        {/* Error message */}
+        {error && <p className="text-sm text-red-500">{error}</p>}
 
-        {/* 送出按鈕 */}
+        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-neutral-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full rounded-xl bg-neutral-900 dark:bg-neutral-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? '送出中…' : '送出諮詢'}
+          {loading ? t('consultSubmitting') : t('consultSubmit')}
         </button>
 
-        {/* 免責聲明 */}
-        <p className="text-xs text-neutral-400 leading-relaxed text-center pt-1">
-          本表單僅供衛教諮詢，不構成個別診療建議。
+        {/* Disclaimer */}
+        <p className="text-xs text-neutral-400 dark:text-neutral-500 leading-relaxed text-center pt-1">
+          {t('disclaimer')}
         </p>
       </form>
     </div>

@@ -4,7 +4,7 @@ export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="border-t border-neutral-200 mt-auto">
+    <footer className="border-t border-neutral-200 dark:border-neutral-800 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col md:flex-row justify-between gap-10">
 
@@ -12,11 +12,11 @@ export default function Footer() {
           <div className="max-w-xs">
             <Link
               href="/"
-              className="text-base font-bold tracking-[0.18em] text-neutral-950"
+              className="text-base font-bold tracking-[0.18em] text-neutral-950 dark:text-neutral-100"
             >
               CAM SAVANT
             </Link>
-            <p className="mt-2 text-sm text-neutral-500 leading-relaxed">
+            <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
               整合醫學知識平台，深入探索運動醫學、功能醫學與 FSM 頻率特異性微電流的臨床實證。
             </p>
           </div>
@@ -24,7 +24,7 @@ export default function Footer() {
           {/* ── Links ── */}
           <div className="flex gap-14">
             <div>
-              <h3 className="text-xs font-semibold tracking-widest uppercase text-neutral-400 mb-4">
+              <h3 className="text-xs font-semibold tracking-widest uppercase text-neutral-400 dark:text-neutral-500 mb-4">
                 分類
               </h3>
               <ul className="space-y-2.5">
@@ -36,7 +36,7 @@ export default function Footer() {
                   <li key={href}>
                     <Link
                       href={href}
-                      className="text-sm text-neutral-500 hover:text-neutral-950 transition-colors"
+                      className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
                     >
                       {label}
                     </Link>
@@ -46,7 +46,7 @@ export default function Footer() {
             </div>
 
             <div>
-              <h3 className="text-xs font-semibold tracking-widest uppercase text-neutral-400 mb-4">
+              <h3 className="text-xs font-semibold tracking-widest uppercase text-neutral-400 dark:text-neutral-500 mb-4">
                 網站
               </h3>
               <ul className="space-y-2.5">
@@ -58,7 +58,7 @@ export default function Footer() {
                   <li key={href}>
                     <Link
                       href={href}
-                      className="text-sm text-neutral-500 hover:text-neutral-950 transition-colors"
+                      className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
                     >
                       {label}
                     </Link>
@@ -70,15 +70,15 @@ export default function Footer() {
         </div>
 
         {/* ── Bottom bar ── */}
-        <div className="mt-10 pt-6 border-t border-neutral-100">
-          <p className="text-xs text-neutral-400">
+        <div className="mt-10 pt-6 border-t border-neutral-100 dark:border-neutral-800">
+          <p className="text-xs text-neutral-400 dark:text-neutral-500">
             © {year} CAM Savant．本站內容僅供醫療專業人員學習參考，不構成個別診療建議。
           </p>
         </div>
 
         {/* ── Copyright ── */}
-        <div className="mt-4 border-t border-neutral-200 pt-4">
-          <p className="text-xs text-neutral-400 text-center">
+        <div className="mt-4 border-t border-neutral-200 dark:border-neutral-800 pt-4">
+          <p className="text-xs text-neutral-400 dark:text-neutral-500 text-center">
             © {year} CAM Savant．本網站所有內容（文字、圖片、復健計畫）著作權均歸 CAM Savant 醫療團隊所有，未經書面授權禁止轉載、複製或商業使用。
           </p>
         </div>

@@ -24,7 +24,7 @@ img {
   body {
     font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont,
       'Segoe UI', sans-serif;
-    @apply bg-white text-neutral-900 antialiased;
+    @apply bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 antialiased;
   }
 }
 
@@ -35,5 +35,68 @@ img {
   }
   .tag-filled {
     @apply tag bg-neutral-950 text-white border-neutral-950;
+  }
+}
+
+/* ── Print styles ─────────────────────────────────────────────────────────── */
+
+@media print {
+  /* Hide elements that shouldn't be printed */
+  nav,
+  footer,
+  aside,
+  .ReadingProgress,
+  .PrintButton,
+  .ConsultForm,
+  .TableOfContents {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt;
+    line-height: 1.6;
+  }
+
+  article {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  h1 {
+    font-size: 18pt;
+    margin-bottom: 12pt;
+  }
+  h2 {
+    font-size: 14pt;
+    margin-top: 16pt;
+    border-bottom: 1pt solid #ccc;
+    padding-bottom: 4pt;
+  }
+  h3 {
+    font-size: 12pt;
+    margin-top: 12pt;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th,
+  td {
+    border: 1pt solid #ccc;
+    padding: 4pt 8pt;
+  }
+
+  /* Prevent heading from being isolated at bottom of page */
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+
+  @page {
+    margin: 2cm;
   }
 }
