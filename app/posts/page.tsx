@@ -17,7 +17,7 @@ export default function PostsPage() {
         <span className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
           Articles
         </span>
-        <h1 className="mt-2 text-3xl md:text-4xl font-bold text-neutral-950">
+        <h1 className="mt-2 text-3xl md:text-4xl font-bold text-neutral-950 dark:text-neutral-100">
           所有文章
         </h1>
       </div>

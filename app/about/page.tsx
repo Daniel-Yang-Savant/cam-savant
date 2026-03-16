@@ -73,7 +73,7 @@ function MapPin() {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-[#f5f0e8]">
+    <div className="min-h-screen bg-[#f5f0e8] dark:bg-neutral-900">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
 
         {/* ── Header ── */}
@@ -81,10 +81,10 @@ export default function AboutPage() {
           <span className="text-xs font-semibold tracking-[0.2em] uppercase text-neutral-400">
             Meet the Doctors
           </span>
-          <h1 className="mt-3 text-4xl md:text-5xl font-bold text-neutral-950 tracking-tight">
+          <h1 className="mt-3 text-4xl md:text-5xl font-bold text-neutral-950 dark:text-neutral-100 tracking-tight">
             Our Team
           </h1>
-          <div className="mt-5 h-px w-12 bg-neutral-300 mx-auto" />
+          <div className="mt-5 h-px w-12 bg-neutral-300 dark:bg-neutral-600 mx-auto" />
         </div>
 
         {/* ── Team Grid ── */}
@@ -92,11 +92,11 @@ export default function AboutPage() {
           {team.map((member) => (
             <div
               key={member.nameEn}
-              className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 px-6 pt-10 pb-8 flex flex-col items-center text-center"
+              className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 px-6 pt-10 pb-8 flex flex-col items-center text-center"
             >
               {/* Arch photo frame */}
               <div
-                className="relative overflow-hidden bg-neutral-200 mb-5 flex-shrink-0"
+                className="relative overflow-hidden bg-neutral-200 dark:bg-neutral-700 mb-5 flex-shrink-0"
                 style={{
                   width: 152,
                   height: 190,
@@ -113,23 +113,23 @@ export default function AboutPage() {
               </div>
 
               {/* Name */}
-              <h3 className="text-xl font-bold text-neutral-900 leading-tight">
+              <h3 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 leading-tight">
                 {member.name}
               </h3>
-              <p className="mt-0.5 text-xs text-neutral-400 tracking-widest uppercase">
+              <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500 tracking-widest uppercase">
                 {member.nameEn}
               </p>
 
               {/* Divider */}
-              <div className="my-3 h-px w-8 bg-neutral-100" />
+              <div className="my-3 h-px w-8 bg-neutral-100 dark:bg-neutral-700" />
 
               {/* Title */}
-              <p className="text-sm font-medium text-neutral-700">
+              <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 {member.title}
               </p>
 
               {/* Location */}
-              <div className="mt-1.5 flex items-center gap-1 text-xs text-neutral-400">
+              <div className="mt-1.5 flex items-center gap-1 text-xs text-neutral-400 dark:text-neutral-500">
                 <MapPin />
                 <span>{member.location}</span>
               </div>
@@ -140,7 +140,7 @@ export default function AboutPage() {
                   {member.specialties.map((s) => (
                     <span
                       key={s}
-                      className="inline-block bg-neutral-100 text-neutral-600 text-[10px] font-medium px-2.5 py-1 rounded-full leading-none"
+                      className="inline-block bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-[10px] font-medium px-2.5 py-1 rounded-full leading-none"
                     >
                       {s}
                     </span>
@@ -150,11 +150,11 @@ export default function AboutPage() {
 
               {/* Credentials */}
               {member.credentials.length > 0 && (
-                <ul className="mt-4 space-y-1 w-full border-t border-neutral-100 pt-4">
+                <ul className="mt-4 space-y-1 w-full border-t border-neutral-100 dark:border-neutral-700 pt-4">
                   {member.credentials.map((c) => (
                     <li
                       key={c}
-                      className="text-[11px] text-neutral-500 leading-relaxed before:content-['·'] before:mr-1.5 before:text-neutral-300"
+                      className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-relaxed before:content-['·'] before:mr-1.5 before:text-neutral-300 dark:before:text-neutral-600"
                     >
                       {c}
                     </li>
@@ -167,7 +167,7 @@ export default function AboutPage() {
 
         {/* ── SEO description（對爬蟲友善純文字）── */}
         <div className="mt-20 max-w-2xl mx-auto text-center">
-          <p className="text-sm text-neutral-500 leading-relaxed">
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
             CAM Savant 是一個專注於復健醫學與輔助醫療的知識分享平台，
             服務涵蓋彰化縣、南投縣、台中市及雲林縣地區。
             核心專長包含：運動醫學（Sports Medicine）、
@@ -176,7 +176,7 @@ export default function AboutPage() {
             FSM頻率共振微電流療法（Frequency Specific Microcurrent）
             及功能醫學（Functional Medicine）。
           </p>
-          <p className="mt-4 text-xs text-neutral-400">
+          <p className="mt-4 text-xs text-neutral-400 dark:text-neutral-500">
             本站所有內容僅供醫療專業人員學習參考，不構成個別診療建議。
           </p>
         </div>

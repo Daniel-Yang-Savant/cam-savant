@@ -9,10 +9,10 @@ interface PostListProps {
 }
 
 const CATEGORY_TABS = [
-  { key: 'all',                href: '/posts',              label: '全部'  },
-  { key: 'sports-medicine',    href: '/sports-medicine',    label: '運動醫學' },
-  { key: 'functional-medicine',href: '/functional-medicine',label: '功能醫學' },
-  { key: 'fsm',                href: '/fsm',                label: 'FSM' },
+  { key: 'all',                 href: '/posts',              label: '全部'   },
+  { key: 'sports-medicine',     href: '/sports-medicine',    label: '運動醫學' },
+  { key: 'functional-medicine', href: '/functional-medicine',label: '功能醫學' },
+  { key: 'fsm',                 href: '/fsm',                label: 'FSM'   },
 ]
 
 export default function PostList({
@@ -30,8 +30,8 @@ export default function PostList({
             className={clsx(
               'px-4 py-1.5 text-xs tracking-widest uppercase font-medium border transition-colors',
               activeCategory === key
-                ? 'bg-neutral-950 text-white border-neutral-950'
-                : 'bg-white text-neutral-500 border-neutral-300 hover:border-neutral-950 hover:text-neutral-950'
+                ? 'bg-neutral-950 text-white border-neutral-950 dark:bg-neutral-100 dark:text-neutral-950 dark:border-neutral-100'
+                : 'bg-white dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border-neutral-300 dark:border-neutral-700 hover:border-neutral-950 dark:hover:border-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100'
             )}
           >
             {label}
@@ -48,7 +48,7 @@ export default function PostList({
         </div>
       ) : (
         <div className="py-24 text-center">
-          <p className="text-neutral-400 text-sm">此分類目前尚無文章。</p>
+          <p className="text-neutral-400 dark:text-neutral-500 text-sm">此分類目前尚無文章。</p>
         </div>
       )}
     </div>

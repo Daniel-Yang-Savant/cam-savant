@@ -16,8 +16,8 @@ export default function SportsMedicinePage() {
         <span className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
           Category
         </span>
-        <h1 className="mt-2 text-3xl md:text-4xl font-bold text-neutral-950">運動醫學</h1>
-        <p className="mt-2 text-neutral-500 max-w-xl">
+        <h1 className="mt-2 text-3xl md:text-4xl font-bold text-neutral-950 dark:text-neutral-100">運動醫學</h1>
+        <p className="mt-2 text-neutral-500 dark:text-neutral-400 max-w-xl">
           {CATEGORY_DESCRIPTIONS['sports-medicine']}
         </p>
       </div>
