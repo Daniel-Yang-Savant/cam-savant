@@ -10,6 +10,7 @@ import { getAllSlugs, getPostBySlug, CATEGORY_LABELS } from '@/lib/posts'
 import ConsultForm from '@/components/ConsultForm'
 import ReadingProgress from '@/components/ReadingProgress'
 import TableOfContents from '@/components/TableOfContents'
+import { generateArticleSchema, generateBreadcrumbSchema } from '@/lib/schema'
 
 interface Props {
   params: { slug: string }
@@ -86,8 +87,39 @@ export default async function PostPage({ params }: Props) {
     locale: zhTW,
   })
 
+  const BASE_URL = 'https://cam-savant.vercel.app'
+
   return (
     <>
+      {/* ── JSON-LD: MedicalWebPage + BreadcrumbList ── */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            generateArticleSchema({
+              title: frontmatter.title,
+              excerpt: frontmatter.excerpt,
+              date: frontmatter.date,
+              slug: post!.slug,
+              category: frontmatter.category,
+              coverImage: frontmatter.coverImage,
+            })
+          ),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            generateBreadcrumbSchema([
+              { name: '首頁', url: BASE_URL },
+              { name: categoryLabel, url: `${BASE_URL}/${frontmatter.category}` },
+              { name: frontmatter.title, url: `${BASE_URL}/posts/${post!.slug}` },
+            ])
+          ),
+        }}
+      />
+
       <ReadingProgress />
 
       {/* ── Cover image (full-width) ── */}

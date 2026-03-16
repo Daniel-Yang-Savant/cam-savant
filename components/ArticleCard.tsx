@@ -33,6 +33,11 @@ export default function ArticleCard({ post, large = false }: ArticleCardProps) {
               src={frontmatter.coverImage}
               alt={frontmatter.title}
               categoryLabel={categoryLabel}
+              sizes={
+                large
+                  ? '(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 800px'
+                  : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
+              }
             />
           ) : (
             <div className="absolute inset-0 bg-neutral-800 dark:bg-neutral-700 flex items-center justify-center">

@@ -30,6 +30,7 @@ export default function Hero({ post }: HeroProps) {
                   alt={frontmatter.title}
                   categoryLabel={categoryLabel}
                   priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   imageClassName="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                 />
               ) : (

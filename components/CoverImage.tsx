@@ -10,6 +10,11 @@ interface CoverImageProps {
   priority?: boolean
   /** Tailwind classes appended to the Image (e.g. transition / hover scale) */
   imageClassName?: string
+  /**
+   * Passed to <Image sizes> so Next.js generates correct srcset for
+   * the given layout context. Defaults to a sensible 3-column grid value.
+   */
+  sizes?: string
 }
 
 export default function CoverImage({
@@ -18,6 +23,7 @@ export default function CoverImage({
   categoryLabel,
   priority = false,
   imageClassName = 'object-cover transition-transform duration-500 group-hover:scale-105',
+  sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
 }: CoverImageProps) {
   const [errored, setErrored] = useState(false)
 
@@ -37,6 +43,7 @@ export default function CoverImage({
       alt={alt}
       fill
       priority={priority}
+      sizes={sizes}
       className={imageClassName}
       onError={() => setErrored(true)}
     />
