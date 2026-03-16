@@ -51,9 +51,11 @@ export default function Footer() {
               </h3>
               <ul className="space-y-2.5">
                 {[
-                  ['/',       '首頁'],
-                  ['/posts',  '所有文章'],
-                  ['/about',  '關於'],
+                  ['/',         '首頁'],
+                  ['/posts',    '所有文章'],
+                  ['/about',    '關於'],
+                  ['/privacy',  '隱私權政策'],
+                  ['/terms',    '使用條款'],
                 ].map(([href, label]) => (
                   <li key={href}>
                     <Link
@@ -77,10 +79,19 @@ export default function Footer() {
         </div>
 
         {/* ── Copyright ── */}
-        <div className="mt-4 border-t border-neutral-200 dark:border-neutral-800 pt-4">
-          <p className="text-xs text-neutral-400 dark:text-neutral-500 text-center">
+        <div className="mt-4 border-t border-neutral-200 dark:border-neutral-800 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="text-xs text-neutral-400 dark:text-neutral-500 text-center sm:text-left">
             © {year} CAM Savant．本網站所有內容（文字、圖片、復健計畫）著作權均歸 CAM Savant 醫療團隊所有，未經書面授權禁止轉載、複製或商業使用。
           </p>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link href="/privacy" className="text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
+              隱私權政策
+            </Link>
+            <span className="text-neutral-300 dark:text-neutral-600">·</span>
+            <Link href="/terms" className="text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
+              使用條款
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

@@ -148,6 +148,13 @@ export default async function PerioperativeRehabArticlePage({ params }: Props) {
               </div>
             </header>
 
+            {/* ── Medical disclaimer ── */}
+            <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl px-5 py-4 mb-8 text-sm text-amber-800 dark:text-amber-200 leading-relaxed">
+              <strong>⚠️ 重要提醒：</strong>
+              本復健計劃僅供參考，實際進程須由您的主責醫師依個別狀況評估調整。
+              如有疼痛加劇、腫脹異常或其他不適，請立即停止並回診。
+            </div>
+
             {/* Print button */}
             <PrintButton />
 
