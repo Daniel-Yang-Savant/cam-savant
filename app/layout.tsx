@@ -32,6 +32,9 @@ export const metadata: Metadata = {
     description:
       '彰化、南投、台中、雲林地區復健科與運動醫學專業團隊，提供增生療法、PRP治療、骨質疏鬆、超音波導引注射、FSM及功能醫學服務。',
   },
+  verification: {
+    google: 'euJh5fYdcIMwx-LX8iKntpCQVj2mSrlYckDt1f_wYew',
+  },
 }
 
 // ── JSON-LD Structured Data ────────────────────────────────────────────────
