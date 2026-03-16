@@ -72,6 +72,46 @@ const config: Config = {
             },
           },
         },
+        // ── Dark mode overrides (applied via dark:prose-invert) ──────────
+        // Necessary because our DEFAULT has hardcoded hex colors that
+        // would otherwise override the invert palette's CSS variables.
+        invert: {
+          css: {
+            color: '#E5E5E5',
+            h1: { color: '#FAFAFA' },
+            h2: { color: '#FAFAFA' },
+            h3: { color: '#F5F5F5' },
+            h4: { color: '#F5F5F5' },
+            strong: { color: '#FAFAFA' },
+            a: {
+              color: '#F5F5F5',
+              '&:hover': { color: '#A3A3A3' },
+            },
+            blockquote: {
+              borderLeftColor: '#525252',
+              color: '#A3A3A3',
+            },
+            hr: { borderColor: '#404040' },
+            code: {
+              backgroundColor: '#262626',
+              color: '#E5E5E5',
+            },
+            pre: {
+              backgroundColor: '#171717',
+              color: '#E5E5E5',
+            },
+            'thead th': {
+              color: '#FAFAFA',
+              borderBottomColor: '#525252',
+            },
+            'tbody td': {
+              borderBottomColor: '#404040',
+            },
+            'tbody tr': {
+              borderBottomColor: '#404040',
+            },
+          },
+        },
       },
     },
   },
