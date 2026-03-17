@@ -164,13 +164,20 @@ export default async function PostPage({ params }: Props) {
               {frontmatter.excerpt}
             </p>
 
-            <div className="mt-6 pt-6 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between">
-              <time className="text-sm text-neutral-400 dark:text-neutral-500 font-mono" dateTime={frontmatter.date}>
-                {formattedDate}
-              </time>
+            <div className="mt-6 pt-6 border-t border-neutral-100 dark:border-neutral-700 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-4">
+                <time className="text-sm text-neutral-400 dark:text-neutral-500 font-mono" dateTime={frontmatter.date}>
+                  {formattedDate}
+                </time>
+                {frontmatter.author && (
+                  <span className="text-sm text-neutral-400 dark:text-neutral-500">
+                    {frontmatter.author}
+                  </span>
+                )}
+              </div>
               <Link
                 href={categoryHref}
-                className="tag hover:bg-neutral-950 hover:text-white hover:border-neutral-950 transition-colors dark:border-neutral-700 dark:text-neutral-400"
+                className="text-xs font-semibold tracking-widest uppercase px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-600 hover:bg-neutral-950 hover:text-white hover:border-neutral-950 transition-colors"
               >
                 {categoryLabel}
               </Link>
