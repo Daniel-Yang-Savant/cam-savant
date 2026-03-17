@@ -71,17 +71,10 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* ── Bottom bar ── */}
-        <div className="mt-10 pt-6 border-t border-neutral-100 dark:border-neutral-800">
-          <p className="text-xs text-neutral-400 dark:text-neutral-500">
-            © {year} CAM Savant．本站內容僅供醫療專業人員學習參考，不構成個別診療建議。
-          </p>
-        </div>
-
         {/* ── Copyright ── */}
-        <div className="mt-4 border-t border-neutral-200 dark:border-neutral-800 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="mt-10 pt-6 border-t border-neutral-200 dark:border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-neutral-400 dark:text-neutral-500 text-center sm:text-left">
-            © {year} CAM Savant．本網站所有內容（文字、圖片、復健計畫）著作權均歸 CAM Savant 醫療團隊所有，未經書面授權禁止轉載、複製或商業使用。
+            © {year} CAM Savant 醫療團隊 · 本站內容僅供醫療專業人員學習參考，不構成個別診療建議，未經書面授權禁止轉載、複製或商業使用。
           </p>
           <div className="flex items-center gap-2 shrink-0">
             <Link href="/privacy" className="text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
