@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const TOKEN = process.env.PERIOP_ACCESS_TOKEN
+const ADMIN_SECRET = process.env.ADMIN_SECRET
 
 export function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
+
+  // ── Admin PE Generator: separate admin_token check ──
+  if (pathname === '/perioperative-rehab/pe-generator') {
+    const adminCookie = request.cookies.get('admin_token')
+    if (ADMIN_SECRET && adminCookie?.value === ADMIN_SECRET) {
+      return NextResponse.next()
+    }
+    return new NextResponse(null, { status: 404 })
+  }
 
   // Allow the locked page and access route to pass through without auth check
   if (
