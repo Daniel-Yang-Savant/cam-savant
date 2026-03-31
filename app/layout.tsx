@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { Analytics } from '@vercel/analytics/react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import FloatingChatButton from '@/components/FloatingChatButton'
@@ -129,6 +130,7 @@ export default function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
         <FloatingChatButton />
+        <Analytics />
       </body>
     </html>
   )
