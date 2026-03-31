@@ -39,7 +39,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop nav links */}
-          <ul className="hidden md:flex items-center gap-7">
+          <ul className="hidden md:flex items-center gap-8">
             {NAV_LINKS.map(({ href, label }) => {
               const active =
                 href === '/' ? pathname === '/' : pathname.startsWith(href)
@@ -50,7 +50,7 @@ export default function Navbar() {
                     className={clsx(
                       'text-sm tracking-wide transition-colors',
                       active
-                        ? 'text-neutral-950 dark:text-neutral-100 font-medium'
+                        ? 'text-accent-700 dark:text-accent-400 font-medium'
                         : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100'
                     )}
                   >
@@ -158,7 +158,7 @@ export default function Navbar() {
                     className={clsx(
                       'block text-sm tracking-wide py-1 transition-colors',
                       pathname === href
-                        ? 'text-neutral-950 dark:text-neutral-100 font-medium'
+                        ? 'text-accent-700 dark:text-accent-400 font-medium'
                         : 'text-neutral-500 dark:text-neutral-400'
                     )}
                   >

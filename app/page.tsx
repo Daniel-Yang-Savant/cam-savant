@@ -25,12 +25,12 @@ export default function HomePage() {
       <Hero post={heroPost} />
 
       {/* ── Body ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="grid lg:grid-cols-3 gap-12 lg:gap-16">
 
           {/* ── Latest articles (2/3) ── */}
           <section className="lg:col-span-2">
-            <div className="flex items-baseline justify-between mb-7">
+            <div className="flex items-baseline justify-between mb-8">
               <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
                 最新文章
               </h2>
@@ -50,7 +50,7 @@ export default function HomePage() {
           </section>
 
           {/* ── Featured reading list (1/3) ── */}
-          <aside className="lg:border-l lg:border-neutral-100 lg:pl-12">
+          <aside className="lg:border-l lg:border-neutral-100 dark:lg:border-neutral-800 lg:pl-12">
             <FeaturedReadingList posts={featuredList} />
           </aside>
 

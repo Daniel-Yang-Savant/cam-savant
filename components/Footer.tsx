@@ -22,7 +22,7 @@ export default function Footer() {
           </div>
 
           {/* ── Links ── */}
-          <div className="flex gap-14">
+          <div className="flex gap-16">
             <div>
               <h3 className="text-xs font-semibold tracking-widest uppercase text-neutral-400 dark:text-neutral-500 mb-4">
                 分類

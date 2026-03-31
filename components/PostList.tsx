@@ -22,7 +22,7 @@ export default function PostList({
   return (
     <div>
       {/* ── Category filter ── */}
-      <div className="flex flex-wrap gap-2 mb-10">
+      <div className="flex flex-wrap gap-2 mb-8">
         {CATEGORY_TABS.map(({ key, href, label }) => (
           <Link
             key={key}
@@ -30,7 +30,7 @@ export default function PostList({
             className={clsx(
               'px-4 py-1.5 text-xs tracking-widest uppercase font-medium border transition-colors',
               activeCategory === key
-                ? 'bg-neutral-950 text-white border-neutral-950 dark:bg-neutral-100 dark:text-neutral-950 dark:border-neutral-100'
+                ? 'bg-accent-700 text-white border-accent-700 dark:bg-accent-500 dark:text-neutral-950 dark:border-accent-500'
                 : 'bg-white dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border-neutral-300 dark:border-neutral-700 hover:border-neutral-950 dark:hover:border-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100'
             )}
           >

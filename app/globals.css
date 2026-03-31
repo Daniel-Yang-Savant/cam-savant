@@ -22,9 +22,19 @@ img {
   }
 
   body {
-    font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont,
-      'Segoe UI', sans-serif;
+    font-family: var(--font-inter), var(--font-noto-tc), system-ui, -apple-system,
+      BlinkMacSystemFont, 'Segoe UI', sans-serif;
     @apply bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 antialiased;
+  }
+
+  /* ── Focus-visible: accessible keyboard navigation ring ── */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent-500;
+  }
+
+  /* Remove default focus outline for mouse/touch */
+  *:focus:not(:focus-visible) {
+    outline: none;
   }
 }
 
@@ -36,6 +46,25 @@ img {
   .tag-filled {
     @apply tag bg-neutral-950 text-white border-neutral-950;
   }
+}
+
+/* ── Skeleton loading animation ───────────────────────────────────────────── */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  @apply bg-neutral-200 dark:bg-neutral-800 rounded;
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
 }
 
 /* ── Print styles ─────────────────────────────────────────────────────────── */

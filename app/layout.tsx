@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Noto_Sans_TC } from 'next/font/google'
 import './globals.css'
 import { Analytics } from '@vercel/analytics/react'
 import Navbar from '@/components/Navbar'
@@ -12,7 +12,17 @@ const inter = Inter({
   display: 'swap',
 })
 
+const notoSansTC = Noto_Sans_TC({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-noto-tc',
+  display: 'swap',
+})
+
+const BASE_URL = 'https://cam-savant.vercel.app'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
   title: {
     default: 'CAM Savant | 彰化・南投・台中・雲林 復健科・運動醫學・增生療法・PRP・FSM',
     template: '%s | CAM Savant',
@@ -26,6 +36,9 @@ export const metadata: Metadata = {
     '術後復健', '術前復健', 'ACL復健', '旋轉肌復健',
     '頭頸癌復健', '心肺復健', 'CABG術後', '肺癌手術復健', '彰化術後復健',
   ],
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     type: 'website',
     locale: 'zh_TW',
@@ -33,6 +46,18 @@ export const metadata: Metadata = {
     title: 'CAM Savant | 彰化・南投・台中・雲林 復健科・運動醫學・增生療法・PRP・FSM',
     description:
       '彰化、南投、台中、雲林地區復健科與運動醫學專業團隊，提供增生療法、PRP治療、骨質疏鬆、超音波導引注射、FSM及功能醫學服務。',
+    images: [
+      {
+        url: '/images/og-default.png',
+        width: 1200,
+        height: 630,
+        alt: 'CAM Savant 整合醫學知識平台',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['/images/og-default.png'],
   },
   verification: {
     google: 'euJh5fYdcIMwx-LX8iKntpCQVj2mSrlYckDt1f_wYew',
@@ -100,7 +125,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh-TW" className={inter.variable} suppressHydrationWarning>
+    <html lang="zh-TW" className={`${inter.variable} ${notoSansTC.variable}`} suppressHydrationWarning>
       <head>
         {/* ── Dark-mode detection: runs before paint to prevent FOUC ── */}
         <script

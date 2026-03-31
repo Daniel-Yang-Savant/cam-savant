@@ -67,7 +67,7 @@ export default function TableOfContents() {
               }}
               className={`block text-sm leading-snug transition-colors ${
                 activeId === h.id
-                  ? 'text-neutral-950 dark:text-neutral-100 font-medium border-l-2 border-neutral-950 dark:border-neutral-100 pl-2'
+                  ? 'text-accent-700 dark:text-accent-400 font-medium border-l-2 border-accent-600 dark:border-accent-400 pl-2'
                   : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100'
               }`}
             >

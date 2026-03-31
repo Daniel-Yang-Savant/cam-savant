@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['var(--font-inter)', 'var(--font-noto-tc)', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
         neutral: {
@@ -26,6 +26,19 @@ const config: Config = {
           900: '#171717',
           950: '#0A0A0A',
         },
+        accent: {
+          50:  '#f0fdfa',
+          100: '#ccfbf1',
+          200: '#99f6e4',
+          300: '#5eead4',
+          400: '#2dd4bf',
+          500: '#14b8a6',
+          600: '#0d9488',
+          700: '#0f766e',
+          800: '#115e59',
+          900: '#134e4a',
+          950: '#042f2e',
+        },
       },
       typography: {
         DEFAULT: {
@@ -37,9 +50,9 @@ const config: Config = {
             h3: { color: '#0A0A0A', fontWeight: '600' },
             h4: { color: '#0A0A0A', fontWeight: '600' },
             a: {
-              color: '#0A0A0A',
+              color: '#0f766e',
               textDecoration: 'underline',
-              '&:hover': { color: '#525252' },
+              '&:hover': { color: '#0d9488' },
             },
             blockquote: {
               borderLeftColor: '#D4D4D4',
@@ -84,8 +97,8 @@ const config: Config = {
             h4: { color: '#F5F5F5' },
             strong: { color: '#FAFAFA' },
             a: {
-              color: '#F5F5F5',
-              '&:hover': { color: '#A3A3A3' },
+              color: '#2dd4bf',
+              '&:hover': { color: '#5eead4' },
             },
             blockquote: {
               borderLeftColor: '#525252',

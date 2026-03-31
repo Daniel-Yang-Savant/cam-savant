@@ -55,6 +55,9 @@ export function generateMetadata({ params }: Props): Metadata {
   return {
     title: post.frontmatter.title,
     description: post.frontmatter.excerpt,
+    alternates: {
+      canonical: `/posts/${params.slug}`,
+    },
     openGraph: {
       title: post.frontmatter.title,
       description: post.frontmatter.excerpt,
@@ -177,7 +180,7 @@ export default async function PostPage({ params }: Props) {
               </div>
               <Link
                 href={categoryHref}
-                className="text-xs font-semibold tracking-widest uppercase px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-600 hover:bg-neutral-950 hover:text-white hover:border-neutral-950 transition-colors"
+                className="text-xs font-semibold tracking-widest uppercase px-2.5 py-1 rounded-full bg-accent-50 dark:bg-accent-950 text-accent-700 dark:text-accent-400 border border-accent-200 dark:border-accent-800 hover:bg-accent-700 hover:text-white hover:border-accent-700 dark:hover:bg-accent-500 dark:hover:text-neutral-950 transition-colors"
               >
                 {categoryLabel}
               </Link>

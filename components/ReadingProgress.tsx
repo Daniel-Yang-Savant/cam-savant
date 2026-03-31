@@ -20,7 +20,7 @@ export default function ReadingProgress() {
 
   return (
     <div
-      className="ReadingProgress fixed top-0 left-0 z-[60] h-0.5 bg-neutral-950 dark:bg-neutral-100 transition-all duration-100"
+      className="ReadingProgress fixed top-0 left-0 z-[60] h-0.5 bg-accent-600 dark:bg-accent-400 transition-all duration-100"
       style={{ width: `${progress}%` }}
       aria-hidden="true"
     />
