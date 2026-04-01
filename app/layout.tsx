@@ -127,6 +127,8 @@ export default function RootLayout({
   return (
     <html lang="zh-TW" className={`${inter.variable} ${notoSansTC.variable}`} suppressHydrationWarning>
       <head>
+        {/* ── RSS feed discovery ── */}
+        <link rel="alternate" type="application/rss+xml" title="CAM Savant RSS" href="/feed.xml" />
         {/* ── Dark-mode detection: runs before paint to prevent FOUC ── */}
         <script
           dangerouslySetInnerHTML={{

@@ -10,7 +10,8 @@ import { getAllSlugs, getPostBySlug, CATEGORY_LABELS } from '@/lib/posts'
 import ConsultForm from '@/components/ConsultForm'
 import ReadingProgress from '@/components/ReadingProgress'
 import TableOfContents from '@/components/TableOfContents'
-import { generateArticleSchema, generateBreadcrumbSchema } from '@/lib/schema'
+import { generateArticleSchema, generateBreadcrumbSchema, generateFAQSchema } from '@/lib/schema'
+import { extractFAQsFromMDX } from '@/lib/extract-faqs'
 
 interface Props {
   params: { slug: string }
@@ -91,23 +92,29 @@ export default async function PostPage({ params }: Props) {
   })
 
   const BASE_URL = 'https://cam-savant.vercel.app'
+  const faqs = extractFAQsFromMDX(content)
+  const faqSchema = generateFAQSchema(faqs)
 
   return (
     <>
-      {/* ── JSON-LD: MedicalWebPage + BreadcrumbList ── */}
+      {/* ── JSON-LD: MedicalWebPage + BreadcrumbList + FAQ + Speakable ── */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
-            generateArticleSchema({
+          __html: JSON.stringify({
+            ...generateArticleSchema({
               title: frontmatter.title,
               excerpt: frontmatter.excerpt,
               date: frontmatter.date,
               slug: post!.slug,
               category: frontmatter.category,
               coverImage: frontmatter.coverImage,
-            })
-          ),
+            }),
+            speakable: {
+              '@type': 'SpeakableSpecification',
+              cssSelector: ['article h1', 'article header p', 'article .prose h2', 'article .prose > p:first-of-type'],
+            },
+          }),
         }}
       />
       <script
@@ -122,6 +129,12 @@ export default async function PostPage({ params }: Props) {
           ),
         }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
 
       <ReadingProgress />
 

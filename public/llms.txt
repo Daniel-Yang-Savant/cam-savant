@@ -1,0 +1,75 @@
+# CAM Savant
+
+> CAM Savant 是台灣中部（彰化、南投、台中、雲林）的整合醫學知識平台，由復健科與運動醫學專科醫師團隊主筆，提供以實證為基礎的醫療衛教內容。
+
+## 網站資訊
+
+- 網址: https://cam-savant.vercel.app
+- 語言: 繁體中文 (zh-TW)
+- 類型: 醫療衛教知識平台
+- 對象: 醫療專業人員、復健科患者、運動愛好者
+
+## 團隊
+
+- 楊育愷醫師 (Yu-Kai Yang, MD) — 復健科主治醫師，專長：增生療法、PRP、運動醫學、骨質疏鬆、FSM
+- 楊育彰醫師 (Yu-Chang Yang, MD) — 家庭醫學科專科醫師，專長：針灸、減重、醫美
+- 賴玟衛醫師 (Wen-Wei Lai, MD) — 復健科醫師，專長：復健醫學、骨質疏鬆、增生療法
+- 黃雅琦醫師 (Yachi Huang, MD) — 復健科醫師
+
+## 內容分類
+
+### 運動醫學 (Sports Medicine)
+運動傷害的預防、診斷與復健——以實證醫學為基礎的臨床應用。
+- URL: https://cam-savant.vercel.app/sports-medicine
+
+### 功能醫學 (Functional Medicine)
+從根本原因探討慢性疾病，整合腸道、荷爾蒙與粒線體的系統性思維。
+- URL: https://cam-savant.vercel.app/functional-medicine
+
+### FSM 頻率特異性微電流 (Frequency Specific Microcurrent)
+FSM 的臨床研究與應用，由 Dr. Carolyn McMakin 系統化發展的生物電療法。
+- URL: https://cam-savant.vercel.app/fsm
+
+## 主要文章索引
+
+### 運動醫學
+- [網球肘（外上髁炎）：保守治療、復健訓練與回場計劃](https://cam-savant.vercel.app/posts/lateral-epicondylitis-rehab)
+- [內上髁炎：保守治療、復健訓練與回場計劃](https://cam-savant.vercel.app/posts/medial-epicondylitis-rehab)
+- [退化性膝關節炎的保守治療指南：運動、減重與注射療法](https://cam-savant.vercel.app/posts/knee-osteoarthritis-conservative-treatment)
+- [腳踝外側扭傷完全解析：從急性處理到安全回場](https://cam-savant.vercel.app/posts/lateral-ankle-sprain-rehab)
+- [骨質疏鬆患者怎麼運動才安全？完整運動處方與注意事項](https://cam-savant.vercel.app/posts/osteoporosis-exercise-rehabilitation)
+- [旋轉肌袖部分撕裂：保守治療與回場完整說明](https://cam-savant.vercel.app/posts/partial-rotator-cuff-tear-rehab)
+- [足底筋膜炎的完整治療指南：從保守療法到體外震波](https://cam-savant.vercel.app/posts/plantar-fasciitis-treatment)
+- [手腕尺側疼痛是 TFCC 損傷？保守治療與復健完整說明](https://cam-savant.vercel.app/posts/tfcc-injury-diagnosis-conservative-treatment)
+- [血友病兒童與運動：從禁止到鼓勵](https://cam-savant.vercel.app/posts/hemophilia-children-sports)
+- [運動前你「評估」了嗎？德國最新指引](https://cam-savant.vercel.app/posts/pre-exercise-assessment-germany)
+- [運動醫學新浪潮：解密「體外震波療法」的應用之道](https://cam-savant.vercel.app/posts/eswt-shockwave-therapy)
+
+### 功能醫學
+- [每天喝咖啡或茶，真的能降低失智風險嗎？JAMA 最新研究解析](https://cam-savant.vercel.app/posts/coffee-tea-dementia-risk-cognitive-function)
+- [迷走神經：功能醫學中的「總指揮官」](https://cam-savant.vercel.app/posts/vagus-nerve-functional-medicine)
+- [腸道微生物體與慢性發炎：功能醫學的評估與介入](https://cam-savant.vercel.app/posts/gut-microbiome-functional-medicine)
+
+### FSM 頻率特異性微電流
+- [認識頻率特異性微電流（FSM）：臨床應用入門](https://cam-savant.vercel.app/posts/introduction-to-fsm)
+- [慢性纖維肌痛症的治療曙光](https://cam-savant.vercel.app/posts/fsm-fibromyalgia-tendon)
+- [FSM 頻率療法：Dr. McMakin 與 George 的實證之路](https://cam-savant.vercel.app/posts/fsm-frequency-therapy-mcmakin)
+- [突破「不可逆」的界限：FSM 如何重塑神經與情緒的復原力](https://cam-savant.vercel.app/posts/fsm-neurological-emotional-recovery)
+- [帕金森氏症治療與 FSM 應用](https://cam-savant.vercel.app/posts/parkinsons-fsm-treatment)
+- [COVID-19 後遺症與 FSM 治療](https://cam-savant.vercel.app/posts/covid-19-long-haul-fsm)
+- [FSM 處理頸部椎間盤疼痛之應用](https://cam-savant.vercel.app/posts/fsm-cervical-disc-pain)
+- [革新自體免疫治療策略](https://cam-savant.vercel.app/posts/fsm-autoimmune-treatment)
+- [解鎖踝關節扭傷的癒合力量](https://cam-savant.vercel.app/posts/fsm-ankle-sprain-healing)
+- [黴菌引發的慢性疲勞何以拯救？](https://cam-savant.vercel.app/posts/fsm-mold-chronic-fatigue)
+- [情感創傷及腎上腺修復](https://cam-savant.vercel.app/posts/fsm-adrenal-emotional-trauma)
+- [肌肉骨骼損傷的修復力量](https://cam-savant.vercel.app/posts/fsm-musculoskeletal-recovery)
+
+## 引用與授權
+
+本站內容僅供醫療專業人員學習參考，不構成個別診療建議。引用本站內容時請標註來源為「CAM Savant 醫療團隊」並附上原文連結。未經書面授權禁止轉載、複製或商業使用。
+
+## 延伸資料
+
+- 完整文章索引: https://cam-savant.vercel.app/llms-full.txt
+- RSS 訂閱: https://cam-savant.vercel.app/feed.xml
+- 網站地圖: https://cam-savant.vercel.app/sitemap.xml
