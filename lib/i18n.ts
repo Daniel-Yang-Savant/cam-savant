@@ -15,6 +15,7 @@ export const translations = {
     navFunctionalMedicine: '功能醫學',
     navFsm: 'FSM',
     navPerioperativeRehab: '術後復健',
+    navContact: '看診資訊',
     consultTitle: '有問題想諮詢？',
     consultDesc:
       '歡迎留下您想了解的復健或醫療相關問題，醫療團隊將於門診時間內回覆。',
@@ -51,6 +52,7 @@ export const translations = {
     navFunctionalMedicine: 'Functional Medicine',
     navFsm: 'FSM',
     navPerioperativeRehab: 'Perioperative Rehab',
+    navContact: 'Clinic Info',
     consultTitle: 'Have a Question?',
     consultDesc:
       'Leave your rehabilitation or medical questions and our team will reply during clinic hours.',

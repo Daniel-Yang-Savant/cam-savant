@@ -13,6 +13,7 @@ import TableOfContents from '@/components/TableOfContents'
 import { generateArticleSchema, generateBreadcrumbSchema, generateFAQSchema } from '@/lib/schema'
 import { extractFAQsFromMDX } from '@/lib/extract-faqs'
 import RelatedArticles from '@/components/RelatedArticles'
+import { getReadingTime } from '@/lib/reading-time'
 
 interface Props {
   params: { slug: string }
@@ -93,6 +94,7 @@ export default async function PostPage({ params }: Props) {
   })
 
   const BASE_URL = 'https://cam-savant.vercel.app'
+  const readingTime = getReadingTime(content)
   const faqs = extractFAQsFromMDX(content)
   const faqSchema = generateFAQSchema(faqs)
 
@@ -183,7 +185,7 @@ export default async function PostPage({ params }: Props) {
             </p>
 
             <div className="mt-6 pt-6 border-t border-neutral-100 dark:border-neutral-700 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 flex-wrap">
                 <time className="text-sm text-neutral-400 dark:text-neutral-500 font-mono" dateTime={frontmatter.date}>
                   {formattedDate}
                 </time>
@@ -192,6 +194,8 @@ export default async function PostPage({ params }: Props) {
                     {frontmatter.author}
                   </span>
                 )}
+                <span className="text-sm text-neutral-400 dark:text-neutral-500">·</span>
+                <span className="text-sm text-neutral-400 dark:text-neutral-500">約 {readingTime} 分鐘閱讀</span>
               </div>
               <div className="flex items-center gap-2">
                 {/* LINE share button */}

@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Our Team',
-  description: '認識 CAM Savant 醫療團隊',
+  title: '醫療團隊',
+  description: 'CAM Savant 團隊成員——楊育愷醫師（復健科）、楊育彰醫師（家庭醫學科）、賴玟衛醫師及黃雅琦醫師，服務彰化、南投、台中、雲林地區。',
+  alternates: { canonical: '/about' },
 }
 
 // ── Team data ──────────────────────────────────────────────────────────────
@@ -79,12 +81,21 @@ export default function AboutPage() {
         {/* ── Header ── */}
         <div className="text-center mb-16">
           <span className="text-xs font-semibold tracking-[0.2em] uppercase text-neutral-400">
-            Meet the Doctors
+            醫療團隊
           </span>
           <h1 className="mt-3 text-4xl md:text-5xl font-bold text-neutral-950 dark:text-neutral-100 tracking-tight">
-            Our Team
+            團隊成員
           </h1>
           <div className="mt-5 h-px w-12 bg-neutral-300 dark:bg-neutral-600 mx-auto" />
+          <p className="mt-6 text-neutral-500 dark:text-neutral-400 max-w-lg mx-auto text-sm leading-relaxed">
+            CAM Savant 由復健科與家庭醫學科專科醫師組成，服務涵蓋彰化縣、南投縣、台中市及雲林縣。
+          </p>
+          <Link
+            href="/contact"
+            className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950 text-sm font-semibold hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors"
+          >
+            看診資訊 &amp; 預約掛號 →
+          </Link>
         </div>
 
         {/* ── Team Grid ── */}
@@ -160,6 +171,16 @@ export default function AboutPage() {
                     </li>
                   ))}
                 </ul>
+              )}
+
+              {/* 看診資訊 link for 楊育愷 */}
+              {member.nameEn === 'Yu-Kai Yang, MD' && (
+                <Link
+                  href="/contact"
+                  className="mt-4 w-full text-center text-[11px] font-semibold py-2 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:border-neutral-950 dark:hover:border-neutral-100 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
+                >
+                  看診資訊 →
+                </Link>
               )}
             </div>
           ))}

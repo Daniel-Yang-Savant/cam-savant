@@ -5,6 +5,7 @@ import { Analytics } from '@vercel/analytics/react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import FloatingChatButton from '@/components/FloatingChatButton'
+import BackToTop from '@/components/BackToTop'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -196,6 +197,20 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        {/* ── Google Analytics 4 ── */}
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}',{page_path:window.location.pathname});`,
+              }}
+            />
+          </>
+        )}
       </head>
       <body className="min-h-screen flex flex-col bg-white dark:bg-neutral-900">
         <script dangerouslySetInnerHTML={{ __html: `
@@ -214,6 +229,7 @@ export default function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
         <FloatingChatButton />
+        <BackToTop />
         <Analytics />
       </body>
     </html>

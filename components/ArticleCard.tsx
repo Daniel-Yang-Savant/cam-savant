@@ -4,6 +4,7 @@ import { zhTW } from 'date-fns/locale'
 import type { Post } from '@/lib/posts'
 import { CATEGORY_LABELS } from '@/lib/posts'
 import CoverImage from '@/components/CoverImage'
+import { getReadingTime } from '@/lib/reading-time'
 
 interface ArticleCardProps {
   post: Post
@@ -12,11 +13,12 @@ interface ArticleCardProps {
 }
 
 export default function ArticleCard({ post, large = false }: ArticleCardProps) {
-  const { slug, frontmatter } = post
+  const { slug, frontmatter, content } = post
   const categoryLabel = CATEGORY_LABELS[frontmatter.category] ?? frontmatter.category
   const formattedDate = format(new Date(frontmatter.date), 'yyyy.MM.dd', {
     locale: zhTW,
   })
+  const readingTime = getReadingTime(content)
 
   return (
     <article className="group flex flex-col">
@@ -70,8 +72,12 @@ export default function ArticleCard({ post, large = false }: ArticleCardProps) {
             {frontmatter.excerpt}
           </p>
 
-          {/* Date */}
-          <p className="mt-3 text-xs text-neutral-400 dark:text-neutral-500 font-mono">{formattedDate}</p>
+          {/* Date + reading time */}
+          <div className="mt-3 flex items-center gap-2 text-xs text-neutral-400 dark:text-neutral-500 font-mono">
+            <span>{formattedDate}</span>
+            <span>·</span>
+            <span>約 {readingTime} 分鐘</span>
+          </div>
         </div>
       </Link>
     </article>
