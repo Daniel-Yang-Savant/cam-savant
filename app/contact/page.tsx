@@ -106,7 +106,7 @@ export default function ContactPage() {
           <h2 className="text-xl font-bold text-neutral-950 dark:text-neutral-100">楊育愷 醫師</h2>
           <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">復健科主治醫師 · Yu-Kai Yang, MD</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            {['骨質疏鬆專科醫師', '增生醫學會會員'].map((c) => (
+            {['骨質疏鬆專科醫師', '增生醫學會會員', '台灣運動醫學醫學會會員'].map((c) => (
               <span key={c} className="text-[11px] px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
                 {c}
               </span>
