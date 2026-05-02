@@ -80,22 +80,10 @@ export default function AboutPage() {
 
         {/* ── Header ── */}
         <div className="text-center mb-16">
-          <span className="text-xs font-semibold tracking-[0.2em] uppercase text-neutral-400">
+          <h1 className="text-4xl md:text-5xl font-bold text-neutral-950 dark:text-neutral-100 tracking-tight">
             醫療團隊
-          </span>
-          <h1 className="mt-3 text-4xl md:text-5xl font-bold text-neutral-950 dark:text-neutral-100 tracking-tight">
-            團隊成員
           </h1>
           <div className="mt-5 h-px w-12 bg-neutral-300 dark:bg-neutral-600 mx-auto" />
-          <p className="mt-6 text-neutral-500 dark:text-neutral-400 max-w-lg mx-auto text-sm leading-relaxed">
-            CAM Savant 由復健科與家庭醫學科專科醫師組成，服務涵蓋彰化縣、南投縣、台中市及雲林縣。
-          </p>
-          <Link
-            href="/contact"
-            className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950 text-sm font-semibold hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors"
-          >
-            看診資訊 &amp; 預約掛號 →
-          </Link>
         </div>
 
         {/* ── Team Grid ── */}
@@ -184,6 +172,16 @@ export default function AboutPage() {
               )}
             </div>
           ))}
+        </div>
+
+        {/* ── 看診資訊 CTA ── */}
+        <div className="mt-12 text-center">
+          <Link
+            href="/contact"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950 text-sm font-semibold hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors"
+          >
+            看診資訊 &amp; 預約掛號 →
+          </Link>
         </div>
 
         {/* ── SEO description（對爬蟲友善純文字）── */}
