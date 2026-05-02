@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import { getPostsByCategory, CATEGORY_DESCRIPTIONS } from '@/lib/posts'
+import { generateCollectionPageSchema } from '@/lib/schema'
 import PostList from '@/components/PostList'
+
+const BASE_URL = 'https://cam-savant.vercel.app'
 
 export const metadata: Metadata = {
   title: 'FSM',
@@ -11,6 +14,20 @@ export default function FSMPage() {
   const posts = getPostsByCategory('fsm')
 
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            generateCollectionPageSchema({
+              name: 'FSM 頻率特異性微電流',
+              description: CATEGORY_DESCRIPTIONS['fsm'],
+              url: `${BASE_URL}/fsm`,
+              specialty: 'PhysicalTherapy',
+            })
+          ),
+        }}
+      />
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
       <div className="mb-12">
         <span className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
@@ -57,5 +74,6 @@ export default function FSMPage() {
 
       <PostList posts={posts} activeCategory="fsm" />
     </div>
+    </>
   )
 }

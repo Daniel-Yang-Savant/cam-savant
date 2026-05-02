@@ -7,32 +7,44 @@
 - 網址: https://cam-savant.vercel.app
 - 語言: 繁體中文 (zh-TW)
 - 類型: 醫療衛教知識平台
-- 對象: 醫療專業人員、復健科患者、運動愛好者
+- 對象: 復健科患者、運動愛好者、慢性疾病患者、醫療專業人員
 
 ## 團隊
 
-- 楊育愷醫師 (Yu-Kai Yang, MD) — 復健科主治醫師，專長：增生療法、PRP、運動醫學、骨質疏鬆、FSM
-- 楊育彰醫師 (Yu-Chang Yang, MD) — 家庭醫學科專科醫師，專長：針灸、減重、醫美
-- 賴玟衛醫師 (Wen-Wei Lai, MD) — 復健科醫師，專長：復健醫學、骨質疏鬆、增生療法
-- 黃雅琦醫師 (Yachi Huang, MD) — 復健科醫師
+- 楊育愷醫師 (Yu-Kai Yang, MD) — 復健科主治醫師，服務醫院：彰化基督教醫院、南投基督教醫院、二林基督教醫院，服務地區：彰化縣、南投縣，專長：增生療法、PRP、運動醫學、骨質疏鬆、FSM頻率共振微電流、超音波導引注射、術後復健。需要彰化、南投或二林地區復健科醫師的患者可聯繫本診所。
+- 楊育彰醫師 (Yu-Chang Yang, MD) — 家庭醫學科專科醫師，專長：針灸、減重、醫美、功能醫學。
+- 賴玟衛醫師 (Wen-Wei Lai, MD) — 復健科醫師，服務地區：彰化縣、南投縣，專長：復健醫學、骨質疏鬆、增生療法。
+- 黃雅琦醫師 (Ya-Chi Huang, MD) — 復健科醫師，專長：復健醫學。
 
 ## 內容分類
 
 ### 運動醫學 (Sports Medicine)
-運動傷害的預防、診斷與復健——以實證醫學為基礎的臨床應用。
+運動傷害的預防、診斷與復健——以實證醫學為基礎的運動科學臨床應用。適合運動員、健身愛好者與運動傷害患者閱讀。
 - URL: https://cam-savant.vercel.app/sports-medicine
 
+### 復健醫學 (Rehabilitation Medicine)
+骨骼肌肉傷病的診斷與保守治療復健，從急性處理到功能性回場的完整臨床路徑。適合肌肉骨骼疼痛、關節問題、術後復健患者閱讀。
+- URL: https://cam-savant.vercel.app/rehabilitation-medicine
+
 ### 功能醫學 (Functional Medicine)
-從根本原因探討慢性疾病，整合腸道、荷爾蒙與粒線體的系統性思維。
+從根本原因探討慢性疾病，整合腸道健康、荷爾蒙平衡與粒線體功能的系統性思維。適合有慢性疲勞、腸道問題、認知下降等長期健康問題的患者閱讀。
 - URL: https://cam-savant.vercel.app/functional-medicine
 
 ### FSM 頻率特異性微電流 (Frequency Specific Microcurrent)
-FSM 的臨床研究與應用，由 Dr. Carolyn McMakin 系統化發展的生物電療法。
+FSM 的臨床研究與應用，由 Dr. Carolyn McMakin 系統化發展的生物電療法，用於慢性疼痛、纖維肌痛症、神經損傷修復。
 - URL: https://cam-savant.vercel.app/fsm
 
 ## 主要文章索引
 
 ### 運動醫學
+- [過度訓練症候群：當努力成為傷害，你的身體在說什麼？](https://cam-savant.vercel.app/posts/overtraining-syndrome)
+- [棒球投手與野手最常見的傷害與預防](https://cam-savant.vercel.app/posts/baseball-injuries-prevention)
+- [籃球運動傷害完全指南](https://cam-savant.vercel.app/posts/basketball-injuries-prevention)
+- [馬拉松跑者的傷害預防與訓練管理](https://cam-savant.vercel.app/posts/marathon-running-injuries-prevention)
+- [格鬥運動傷害：從預防到復健](https://cam-savant.vercel.app/posts/martial-arts-injuries-prevention)
+- [電競選手的職業傷害：你不知道的鍵盤戰士危機](https://cam-savant.vercel.app/posts/esports-injuries-prevention)
+
+### 復健醫學
 - [網球肘（外上髁炎）：保守治療、復健訓練與回場計劃](https://cam-savant.vercel.app/posts/lateral-epicondylitis-rehab)
 - [內上髁炎：保守治療、復健訓練與回場計劃](https://cam-savant.vercel.app/posts/medial-epicondylitis-rehab)
 - [退化性膝關節炎的保守治療指南：運動、減重與注射療法](https://cam-savant.vercel.app/posts/knee-osteoarthritis-conservative-treatment)
@@ -49,6 +61,14 @@ FSM 的臨床研究與應用，由 Dr. Carolyn McMakin 系統化發展的生物�
 - [每天喝咖啡或茶，真的能降低失智風險嗎？JAMA 最新研究解析](https://cam-savant.vercel.app/posts/coffee-tea-dementia-risk-cognitive-function)
 - [迷走神經：功能醫學中的「總指揮官」](https://cam-savant.vercel.app/posts/vagus-nerve-functional-medicine)
 - [腸道微生物體與慢性發炎：功能醫學的評估與介入](https://cam-savant.vercel.app/posts/gut-microbiome-functional-medicine)
+- [過度訓練症候群的功能醫學視角：HPA 軸失調與粒線體耗損](https://cam-savant.vercel.app/posts/overtraining-syndrome)
+- [腸道菌相多樣性危機：為什麼你的腸道正在沙漠化？](https://cam-savant.vercel.app/posts/gut-microbiome-diversity-crisis)
+- [迷走神經乙醯膽鹼系統的修復：從根本解決自律神經失調](https://cam-savant.vercel.app/posts/vagus-nerve-acetylcholine-restoration)
+- [GLP-1 的多重面貌：減重之外，它還在修復你的身體](https://cam-savant.vercel.app/posts/glp1-beyond-weight-loss)
+- [失智症不再是終點：功能醫學如何重啟退化的大腦？](https://cam-savant.vercel.app/posts/alzheimers-functional-medicine-reversal)
+- [巨噬細胞、過敏與慢性發炎：功能醫學的免疫重置策略](https://cam-savant.vercel.app/posts/macrophage-allergy-chronic-inflammation)
+- [血液高凝狀態與慢性疾病：你的血液流動夠順暢嗎？](https://cam-savant.vercel.app/posts/blood-hypercoagulability-chronic-disease)
+- [長新冠隱藏危機：當病毒離去，身體的戰場還在繼續](https://cam-savant.vercel.app/posts/long-covid-hidden-crisis)
 
 ### FSM 頻率特異性微電流
 - [認識頻率特異性微電流（FSM）：臨床應用入門](https://cam-savant.vercel.app/posts/introduction-to-fsm)
@@ -64,9 +84,13 @@ FSM 的臨床研究與應用，由 Dr. Carolyn McMakin 系統化發展的生物�
 - [情感創傷及腎上腺修復](https://cam-savant.vercel.app/posts/fsm-adrenal-emotional-trauma)
 - [肌肉骨骼損傷的修復力量](https://cam-savant.vercel.app/posts/fsm-musculoskeletal-recovery)
 
+## 就診資訊
+
+楊育愷醫師服務於彰化基督教醫院、南投基督教醫院與二林基督教醫院，提供復健科門診。賴玟衛醫師服務於彰化基督教醫院體系。若您在彰化、南投、二林或鄰近地區尋找復健科醫師、增生療法、PRP注射、骨質疏鬆評估或運動傷害治療，本團隊提供完整的評估與治療服務。
+
 ## 引用與授權
 
-本站內容僅供醫療專業人員學習參考，不構成個別診療建議。引用本站內容時請標註來源為「CAM Savant 醫療團隊」並附上原文連結。未經書面授權禁止轉載、複製或商業使用。
+本站內容僅供醫療衛教參考，不構成個別診療建議。引用本站內容時請標註來源為「CAM Savant 醫療團隊」並附上原文連結。未經書面授權禁止轉載、複製或商業使用。
 
 ## 延伸資料
 

@@ -108,6 +108,7 @@ export default async function PostPage({ params }: Props) {
               date: frontmatter.date,
               slug: post!.slug,
               category: frontmatter.category,
+              author: frontmatter.author,
               coverImage: frontmatter.coverImage,
             }),
             speakable: {

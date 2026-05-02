@@ -1,5 +1,24 @@
 const BASE_URL = 'https://cam-savant.vercel.app'
 
+// ── Author map ─────────────────────────────────────────────────────────────
+
+const AUTHOR_MAP: Record<string, { name: string; jobTitle: string }> = {
+  '楊育愷醫師': { name: '楊育愷', jobTitle: '復健科主治醫師' },
+  '楊育彰醫師': { name: '楊育彰', jobTitle: '家庭醫學科專科醫師' },
+  '賴玟衛醫師': { name: '賴玟衛', jobTitle: '復健科醫師' },
+  '黃雅琦醫師': { name: '黃雅琦', jobTitle: '復健科醫師' },
+}
+
+// ── Category → MedicalSpecialty map ───────────────────────────────────────
+
+const SPECIALTY_MAP: Record<string, string> = {
+  'sports-medicine':        'SportsMedicine',
+  'rehabilitation-medicine': 'PhysicalMedicineAndRehabilitation',
+  'functional-medicine':    'InternalMedicine',
+  'fsm':                    'PhysicalTherapy',
+  'perioperative-rehab':    'PhysicalMedicineAndRehabilitation',
+}
+
 // ── MedicalWebPage schema ──────────────────────────────────────────────────
 
 export function generateArticleSchema(post: {
@@ -8,8 +27,13 @@ export function generateArticleSchema(post: {
   date: string
   slug: string
   category: string
+  author?: string
   coverImage?: string
 }) {
+  const authorDetails =
+    (post.author ? AUTHOR_MAP[post.author] : undefined) ??
+    { name: '楊育愷', jobTitle: '復健科主治醫師' }
+
   return {
     '@context': 'https://schema.org',
     '@type': 'MedicalWebPage',
@@ -21,8 +45,8 @@ export function generateArticleSchema(post: {
     inLanguage: 'zh-TW',
     author: {
       '@type': 'Physician',
-      name: '楊育愷',
-      jobTitle: '復健科主治醫師',
+      name: authorDetails.name,
+      jobTitle: authorDetails.jobTitle,
       url: `${BASE_URL}/about`,
     },
     publisher: {
@@ -39,11 +63,11 @@ export function generateArticleSchema(post: {
       : `${BASE_URL}/images/covers/${post.category}.jpg`,
     medicalAudience: {
       '@type': 'MedicalAudience',
-      audienceType: 'Clinician',
+      audienceType: 'Patient',
     },
     specialty: {
       '@type': 'MedicalSpecialty',
-      name: 'PhysicalTherapy',
+      name: SPECIALTY_MAP[post.category] ?? 'PhysicalMedicineAndRehabilitation',
     },
   }
 }
@@ -82,5 +106,32 @@ export function generateBreadcrumbSchema(
       name: item.name,
       item: item.url,
     })),
+  }
+}
+
+// ── CollectionPage schema (for category pages) ────────────────────────────
+
+export function generateCollectionPageSchema(opts: {
+  name: string
+  description: string
+  url: string
+  specialty: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: opts.name,
+    description: opts.description,
+    url: opts.url,
+    inLanguage: 'zh-TW',
+    isPartOf: {
+      '@type': 'MedicalOrganization',
+      name: 'CAM Savant',
+      url: BASE_URL,
+    },
+    about: {
+      '@type': 'MedicalSpecialty',
+      name: opts.specialty,
+    },
   }
 }
