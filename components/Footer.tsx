@@ -17,7 +17,7 @@ export default function Footer() {
               CAM SAVANT
             </Link>
             <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
-              整合醫學知識平台，深入探索運動醫學、功能醫學與 FSM 頻率特異性微電流的臨床實證。
+              整合醫學知識平台，深入探索復健醫學、運動醫學、功能醫學與 FSM 頻率特異性微電流的臨床實證。
             </p>
           </div>
 
@@ -29,9 +29,10 @@ export default function Footer() {
               </h3>
               <ul className="space-y-2.5">
                 {[
-                  ['/sports-medicine',     '運動醫學'],
-                  ['/functional-medicine', '功能醫學'],
-                  ['/fsm',                 'FSM'],
+                  ['/sports-medicine',          '運動醫學'],
+                  ['/rehabilitation-medicine',   '復健醫學'],
+                  ['/functional-medicine',       '功能醫學'],
+                  ['/fsm',                       'FSM'],
                 ].map(([href, label]) => (
                   <li key={href}>
                     <Link

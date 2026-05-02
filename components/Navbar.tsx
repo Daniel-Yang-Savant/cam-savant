@@ -15,12 +15,13 @@ export default function Navbar() {
   const { lang, toggleLang, t } = useLang()
 
   const NAV_LINKS = [
-    { href: '/',                    label: t('home')                  },
-    { href: '/about',               label: t('about')                 },
-    { href: '/fsm',                 label: t('navFsm')                },
-    { href: '/sports-medicine',     label: t('navSportsMedicine')     },
-    { href: '/functional-medicine', label: t('navFunctionalMedicine') },
-    { href: '/perioperative-rehab', label: t('navPerioperativeRehab') },
+    { href: '/',                        label: t('home')                  },
+    { href: '/about',                   label: t('about')                 },
+    { href: '/sports-medicine',         label: t('navSportsMedicine')     },
+    { href: '/rehabilitation-medicine', label: t('navRehabMedicine')      },
+    { href: '/functional-medicine',     label: t('navFunctionalMedicine') },
+    { href: '/fsm',                     label: t('navFsm')                },
+    { href: '/perioperative-rehab',     label: t('navPerioperativeRehab') },
   ]
 
   return (
