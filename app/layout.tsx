@@ -185,6 +185,12 @@ export default function RootLayout({
   return (
     <html lang="zh-TW" className={`${inter.variable} ${notoSansTC.variable}`} suppressHydrationWarning>
       <head>
+        {/* ── PWA / App icons ── */}
+        <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="CAM Savant" />
+        <meta name="theme-color" content="#0f766e" />
         {/* ── RSS feed discovery ── */}
         <link rel="alternate" type="application/rss+xml" title="CAM Savant RSS" href="/feed.xml" />
         {/* ── Dark-mode detection: runs before paint to prevent FOUC ── */}
