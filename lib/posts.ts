@@ -23,11 +23,9 @@ const PostFrontmatterSchema = z.object({
     .refine((s) => !Number.isNaN(new Date(s).getTime()), {
       message: 'date 不是有效日期',
     }),
-  category: z.enum(CATEGORY_KEYS, {
-    errorMap: () => ({
-      message: `category 必須為下列其一: ${CATEGORY_KEYS.join(', ')}`,
+    category: z.enum(CATEGORY_KEYS, {
+    message: `category 必須為下列其一: ${CATEGORY_KEYS.join(', ')}`,
     }),
-  }),
   excerpt: z
     .string()
     .min(10, 'excerpt 至少 10 字（SEO meta description 用）')
