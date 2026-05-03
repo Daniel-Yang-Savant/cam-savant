@@ -22,7 +22,6 @@ export default function Navbar() {
     { href: '/functional-medicine',     label: t('navFunctionalMedicine') },
     { href: '/fsm',                     label: t('navFsm')                },
     { href: '/perioperative-rehab',     label: t('navPerioperativeRehab') },
-    { href: '/contact',                  label: t('navContact')             },
   ]
 
   return (
