@@ -30,7 +30,7 @@ export default function RehabMedicinePage() {
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
         <div className="mb-12">
-          <span className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
+          <span className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
             Category
           </span>
           <h1 className="mt-2 text-3xl md:text-4xl font-bold text-neutral-950 dark:text-neutral-100">復健醫學</h1>

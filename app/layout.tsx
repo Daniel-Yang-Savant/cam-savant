@@ -11,13 +11,15 @@ const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
   display: 'swap',
+  preload: true,
 })
 
 const notoSansTC = Noto_Sans_TC({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500'],
   variable: '--font-noto-tc',
   display: 'swap',
+  preload: false, // CJK 字型龐大，不 preload 避免阻塞渲染
 })
 
 const BASE_URL = 'https://cam-savant.vercel.app'

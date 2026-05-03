@@ -12,12 +12,12 @@ export default function FeaturedReadingList({ posts }: FeaturedReadingListProps)
     <section>
       {/* ── Section header ── */}
       <div className="flex items-baseline justify-between mb-5">
-        <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
+        <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
           精選閱讀
         </h2>
         <Link
           href="/posts"
-          className="text-xs text-neutral-500 hover:text-neutral-950 transition-colors"
+          className="text-xs text-neutral-400 hover:text-neutral-950 transition-colors"
         >
           所有文章 →
         </Link>
@@ -44,9 +44,9 @@ export default function FeaturedReadingList({ posts }: FeaturedReadingListProps)
                     {post.frontmatter.title}
                   </p>
                   <div className="mt-1 flex items-center gap-2.5">
-                    <span className="text-xs text-neutral-500">{categoryLabel}</span>
+                    <span className="text-xs text-neutral-400">{categoryLabel}</span>
                     <span className="text-neutral-300 text-xs">·</span>
-                    <span className="text-xs text-neutral-500 font-mono">{dateStr}</span>
+                    <span className="text-xs text-neutral-400 font-mono">{dateStr}</span>
                   </div>
                 </div>
               </Link>

@@ -10,7 +10,7 @@ export default function HomePage() {
   if (allPosts.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-24 text-center">
-        <p className="text-neutral-500 text-sm">尚無文章。</p>
+        <p className="text-neutral-400 text-sm">尚無文章。</p>
       </div>
     )
   }
@@ -31,12 +31,12 @@ export default function HomePage() {
           {/* ── Latest articles (2/3) ── */}
           <section className="lg:col-span-2">
             <div className="flex items-baseline justify-between mb-8">
-              <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
+              <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
                 最新文章
               </h2>
               <Link
                 href="/posts"
-                className="text-xs text-neutral-500 hover:text-neutral-950 transition-colors"
+                className="text-xs text-neutral-400 hover:text-neutral-950 transition-colors"
               >
                 更多 →
               </Link>

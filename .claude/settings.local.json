@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.\\(json|js|ts\\)$\")",
+      "Bash(npx next:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(find /Users/daniel/Desktop/cam-savant -type f -name robots.txt -o -name sitemap.* -o -name llms*.txt)",
+      "Bash(find /Users/daniel/Desktop/cam-savant/public -name *.png -o -name *.jpg)",
+      "Bash(find /Users/daniel/Desktop/cam-savant/components -type f -name *.tsx)",
+      "Bash(xargs ls:*)",
+      "Bash(node -e \":*)",
+      "Bash(npx tsx -e \":*)"
+    ]
+  }
+}

@@ -132,13 +132,13 @@ export default function PerioperativeRehabPage() {
       {/* ── Hero ── */}
       <section className="bg-neutral-950 text-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 text-center">
-          <span className="text-xs font-semibold tracking-[0.2em] uppercase text-neutral-500">
+          <span className="text-xs font-semibold tracking-[0.2em] uppercase text-neutral-400">
             Perioperative Rehabilitation
           </span>
           <h1 className="mt-3 text-4xl md:text-5xl font-bold tracking-tight">
             術前・術後復健專區
           </h1>
-          <p className="mt-5 max-w-2xl mx-auto text-base md:text-lg text-neutral-500 leading-relaxed">
+          <p className="mt-5 max-w-2xl mx-auto text-base md:text-lg text-neutral-400 leading-relaxed">
             從手術前體能預備到術後各階段功能恢復，
             CAM Savant 醫療團隊提供骨科、腫瘤科與心血管手術的個別化復健計畫。
           </p>
@@ -173,7 +173,7 @@ export default function PerioperativeRehabPage() {
                     <h3 className="text-lg font-bold text-neutral-900 leading-snug">
                       {cond.name}
                     </h3>
-                    <p className="mt-1 text-xs text-neutral-500 tracking-widest uppercase">
+                    <p className="mt-1 text-xs text-neutral-400 tracking-widest uppercase">
                       {cond.nameEn}
                     </p>
                     <p className="mt-3 text-sm text-neutral-600 leading-relaxed">
@@ -183,7 +183,7 @@ export default function PerioperativeRehabPage() {
 
                   {cond.coming ? (
                     /* Coming-soon badge — no navigation */
-                    <div className="mt-5 inline-flex items-center justify-center w-full rounded-xl bg-neutral-100 text-neutral-500 text-xs font-medium tracking-wide py-2.5 cursor-default select-none">
+                    <div className="mt-5 inline-flex items-center justify-center w-full rounded-xl bg-neutral-100 text-neutral-400 text-xs font-medium tracking-wide py-2.5 cursor-default select-none">
                       內容籌備中
                     </div>
                   ) : (
@@ -216,7 +216,7 @@ export default function PerioperativeRehabPage() {
 
       {/* ── Disclaimer ── */}
       <div className="max-w-2xl mx-auto px-4 pb-16 text-center">
-        <p className="text-xs text-neutral-500 leading-relaxed">
+        <p className="text-xs text-neutral-400 leading-relaxed">
           本頁內容僅供醫療專業人員學習參考，不構成個別診療建議。
           實際復健計畫須由主責醫師依個別病況評估後制定。
         </p>

@@ -30,7 +30,7 @@ export default function FSMPage() {
       />
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
       <div className="mb-12">
-        <span className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
+        <span className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
           Category
         </span>
         <h1 className="mt-2 text-3xl md:text-4xl font-bold text-neutral-950 dark:text-neutral-100">FSM</h1>
@@ -64,7 +64,7 @@ export default function FSMPage() {
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-neutral-500 dark:text-neutral-500 group-hover:text-[#1DB954] transition-colors"
+          className="text-neutral-400 dark:text-neutral-500 group-hover:text-[#1DB954] transition-colors"
         >
           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
           <polyline points="15 3 21 3 21 9" />

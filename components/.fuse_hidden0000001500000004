@@ -75,7 +75,7 @@ export default function SearchBar({ fullWidth = false }: Props) {
       {/* Search input */}
       <div className="relative flex items-center">
         <svg
-          className="absolute left-2.5 text-neutral-500 pointer-events-none"
+          className="absolute left-2.5 text-neutral-400 pointer-events-none"
           xmlns="http://www.w3.org/2000/svg"
           width="13"
           height="13"
@@ -102,7 +102,7 @@ export default function SearchBar({ fullWidth = false }: Props) {
       {open && (
         <div className="absolute top-full mt-1 left-0 right-0 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-lg z-50 max-h-80 overflow-y-auto">
           {results.length === 0 ? (
-            <p className="px-4 py-3 text-sm text-neutral-500">
+            <p className="px-4 py-3 text-sm text-neutral-400">
               {t('searchNoResults')}
             </p>
           ) : (
@@ -114,7 +114,7 @@ export default function SearchBar({ fullWidth = false }: Props) {
                     onClick={clear}
                     className="block px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors border-b border-neutral-100 dark:border-neutral-800 last:border-0"
                   >
-                    <span className="text-[0.6rem] tracking-widest uppercase text-neutral-500 font-medium">
+                    <span className="text-[0.6rem] tracking-widest uppercase text-neutral-400 font-medium">
                       {item.categoryLabel}
                     </span>
                     <p className="text-sm font-medium text-neutral-950 dark:text-neutral-100 leading-snug line-clamp-1 mt-0.5">

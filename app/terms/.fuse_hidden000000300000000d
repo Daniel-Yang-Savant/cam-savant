@@ -8,7 +8,7 @@ export default function TermsPage() {
     <div className="min-h-screen bg-white dark:bg-neutral-900">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h1 className="text-3xl font-bold text-neutral-950 dark:text-neutral-100 mb-2">使用條款</h1>
-        <p className="text-sm text-neutral-500 mb-10">最後更新：2026年3月</p>
+        <p className="text-sm text-neutral-400 mb-10">最後更新：2026年3月</p>
         <div className="prose prose-neutral dark:prose-invert max-w-none">
           <h2>一、網站性質聲明</h2>
           <p>CAM Savant（以下簡稱「本網站」）提供之所有內容，包含文章、復健計劃、衛教資訊等，均為醫療衛教資訊，目的在於提升醫療知識，不構成任何醫療診斷、治療建議或醫病關係之建立。</p>
