@@ -23,7 +23,7 @@ const clinics = [
     mapUrl: 'https://maps.google.com/?q=彰化基督教醫院',
     bookingUrl: 'https://www1.cch.org.tw/opd/service-e.aspx?id=1400&Page=11&#p',
     phone: '(04) 723-8595',
-    scheduleNote: '門診時間請至醫院官網查詢或來電確認',
+    schedule: ['週三 下午', '週五 上午', '週六 上午'],
     color: 'blue',
   },
   {
@@ -34,7 +34,7 @@ const clinics = [
     mapUrl: 'https://maps.google.com/?q=南投基督教醫院',
     bookingUrl: 'https://ny.cch.org.tw/nyrg/opd/service-e.aspx?id=1400&Page=11&#p',
     phone: '(049) 222-2595',
-    scheduleNote: '門診時間請至醫院官網查詢或來電確認',
+    schedule: ['週一 上午', '週四 上午'],
     color: 'green',
   },
   {
@@ -45,7 +45,7 @@ const clinics = [
     mapUrl: 'https://maps.google.com/?q=二林基督教醫院',
     bookingUrl: 'https://erhlin.cch.org.tw/20rg/opd/service-e.aspx?id=1400&Page=11&#p',
     phone: '(04) 896-3111',
-    scheduleNote: '門診時間請至醫院官網查詢或來電確認',
+    schedule: ['週三 上午'],
     color: 'amber',
   },
 ]
@@ -158,10 +158,16 @@ export default function ContactPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   {/* Clock icon */}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`mt-0.5 flex-shrink-0 ${c.icon}`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`mt-1 flex-shrink-0 ${c.icon}`}>
                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                   </svg>
-                  <span className="text-neutral-500 dark:text-neutral-500 text-xs">{clinic.scheduleNote}</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {clinic.schedule.map((s) => (
+                      <span key={s} className={`text-xs font-medium px-2 py-0.5 rounded-full ${c.badge}`}>
+                        {s}
+                      </span>
+                    ))}
+                  </div>
                 </li>
               </ul>
 
