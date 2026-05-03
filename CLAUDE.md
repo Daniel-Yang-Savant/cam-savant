@@ -22,6 +22,49 @@
 
 ---
 
+## 封面圖片風格規範（運動醫學 & 復健醫學）
+
+適用文章類別：`sports-medicine`、`rehabilitation`、以及所有運動傷害防治、復健科相關文章。
+
+### 整體視覺風格
+- **攝影等級**：達商業廣告 / 醫學期刊封面水準，photorealistic
+- **色調**：以暖金色（golden hour）為基調，或電影感冷藍色（醫療/解剖題材）；避免過度飽和的卡通色彩
+- **構圖**：橫幅 16:9，主體清晰、背景適度虛化（淺景深）
+- **格式**：輸出 JPG，命名與文章 slug 完全一致，存放於 `/public/images/covers/`
+
+### 三種核心圖像類型（各文章選擇最合適的一種）
+
+**① 戲劇性運動攝影**（適合運動項目傷害防治、訓練相關文章）
+- 運動員在真實場景中的高張力動作瞬間
+- 黃金時刻側光或逆光，戲劇感強
+- 例：足球大力射門、馬拉松人群、攀岩粉筆特寫
+- 提示詞關鍵字：`cinematic sports photography, golden hour lighting, motion blur, shallow depth of field, photorealistic`
+
+**② 臨床醫療場景**（適合治療、復健、評估相關文章）
+- 醫師或物理治療師與患者互動的真實診間/治療室場景
+- 明亮自然採光，乾淨專業環境
+- 例：貼紮、衝擊波治療、手法治療
+- 提示詞關鍵字：`sports medicine clinic, natural window light, professional medical photography, Asian doctor, photorealistic`
+
+**③ 解剖 3D 渲染**（適合生理機制、症候群、免疫/神經相關文章）
+- 透明/半透明人體，可見骨骼、肌肉、器官或免疫細胞
+- 深色背景（深褐或深海軍藍），發光效果突顯重點結構
+- 例：過度訓練（肌肉發光）、免疫力（免疫細胞巡邏）
+- 提示詞關鍵字：`3D medical illustration render, transparent human body, glowing anatomy, dark navy background, cinematic`
+
+### 差異化原則（同批文章之間）
+- 同一批次的圖片，三種類型應均勻分配，避免連續多張同類型
+- 主角性別、年齡、族裔應多元輪替（女性、男性、中高齡、不同族裔）
+- 主色調輪替：暖金 → 冷藍 → 暗棕 → 戶外自然綠
+- 景別輪替：全身動作 → 局部特寫 → 靜物平鋪 → 環境場景
+
+### 生成工具建議
+- 使用 **Google Gemini**（AI Studio）生成，解析度 1792×1024（16:9）
+- 生成後以 PIL 轉為 JPG（quality=90）並依 slug 命名
+- 提示詞一律用**英文**撰寫
+
+---
+
 ## MDX 內容規則
 
 **RULE: Never use Markdown tables (`|` syntax) in MDX files.**
