@@ -2,6 +2,9 @@
 const nextConfig = {
   compress: true,
   poweredByHeader: false,
+  experimental: {
+    optimizeCss: true, // Critters: inline critical CSS, defer rest → 修復 render-blocking
+  },
   async headers() {
     return [
       {
