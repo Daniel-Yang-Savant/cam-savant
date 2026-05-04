@@ -139,6 +139,24 @@ export function getPostsByCategory(category: string): Post[] {
   )
 }
 
+export function getPostsByTag(tag: string): Post[] {
+  return getAllPosts().filter(
+    (post) => post.frontmatter.tags?.includes(tag)
+  )
+}
+
+export function getAllTags(): { tag: string; count: number }[] {
+  const counts: Record<string, number> = {}
+  for (const post of getAllPosts()) {
+    for (const tag of post.frontmatter.tags ?? []) {
+      counts[tag] = (counts[tag] ?? 0) + 1
+    }
+  }
+  return Object.entries(counts)
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count)
+}
+
 export function getAllSlugs(): { slug: string }[] {
   return getAllPosts().map((post) => ({ slug: post.slug }))
 }

@@ -237,12 +237,13 @@ export default async function PostPage({ params }: Props) {
             {frontmatter.tags && frontmatter.tags.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
                 {frontmatter.tags.map((tag) => (
-                  <span
+                  <Link
                     key={tag}
-                    className="text-[11px] px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700"
+                    href={`/tags/${encodeURIComponent(tag)}`}
+                    className="text-[11px] px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
                   >
                     #{tag}
-                  </span>
+                  </Link>
                 ))}
               </div>
             )}
