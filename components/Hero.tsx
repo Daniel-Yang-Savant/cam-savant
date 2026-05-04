@@ -17,7 +17,7 @@ export default function Hero({ post }: HeroProps) {
   })
 
   return (
-    <section className="border-b border-neutral-200 bg-white">
+    <section className="border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
         <Link href={`/posts/${slug}`} className="group block">
           <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-center">
@@ -49,11 +49,11 @@ export default function Hero({ post }: HeroProps) {
                 精選文章 &middot; {categoryLabel}
               </p>
 
-              <h1 className="text-3xl md:text-4xl lg:text-[2.6rem] font-bold text-neutral-950 leading-tight group-hover:text-neutral-600 transition-colors">
+              <h1 className="text-3xl md:text-4xl lg:text-[2.6rem] font-bold text-neutral-950 dark:text-neutral-100 leading-tight group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
                 {frontmatter.title}
               </h1>
 
-              <p className="mt-5 text-base md:text-lg text-neutral-500 leading-relaxed">
+              <p className="mt-5 text-base md:text-lg text-neutral-500 dark:text-neutral-400 leading-relaxed">
                 {frontmatter.excerpt}
               </p>
 

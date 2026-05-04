@@ -53,7 +53,7 @@ export function generateMetadata({ params }: Props): Metadata {
 
   const ogImage =
     post.frontmatter.coverImage ||
-    `/images/covers/${post.frontmatter.category}.jpg`
+    '/images/og-default.png'
 
   return {
     title: post.frontmatter.title,
@@ -68,7 +68,7 @@ export function generateMetadata({ params }: Props): Metadata {
         {
           url: ogImage,
           width: 1200,
-          height: 800,
+          height: 630,
           alt: post.frontmatter.title,
         },
       ],
@@ -232,6 +232,20 @@ export default async function PostPage({ params }: Props) {
                 </Link>
               </div>
             </div>
+
+            {/* Tags */}
+            {frontmatter.tags && frontmatter.tags.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {frontmatter.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-[11px] px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </header>
 
           {/* MDX content */}
