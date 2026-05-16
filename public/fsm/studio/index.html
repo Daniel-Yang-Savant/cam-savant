@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d1117">
+<title>FSM Studio</title>
+<link rel="manifest" href='data:application/manifest+json,{"name":"FSM Studio","short_name":"FSM","start_url":".","display":"standalone","background_color":"%230d1117","theme_color":"%230d1117"}'>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root {
+  --bg: #0d1117; --bg-elev: #161b22; --bg-elev-2: #1c232e;
+  --border: #2d3441; --border-strong: #3d4452;
+  --text: #e6edf3; --text-dim: #8b949e; --text-very-dim: #545d68;
+  --accent: #00d9a3; --accent-dim: #00a37c;
+  --accent-glow: rgba(0, 217, 163, 0.15);
+  --warning: #ffa657; --danger: #f85149; --info: #58a6ff;
+  --polA: #ffa657; --polB: #58a6ff;
+  --shadow-sm: 0 1px 0 rgba(255,255,255,0.04) inset, 0 1px 2px rgba(0,0,0,0.4);
+  --radius: 6px; --radius-lg: 10px;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.5; height: 100%; overflow: hidden; -webkit-font-smoothing: antialiased; }
+body { background-image: radial-gradient(ellipse at top, rgba(0,217,163,0.04), transparent 50%), radial-gradient(ellipse at bottom right, rgba(88,166,255,0.03), transparent 50%); }
+#app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; padding-top: max(14px, env(safe-area-inset-top)); background: var(--bg-elev); border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 10px; }
+.brand { font-family: var(--mono); font-size: 15px; font-weight: 600; letter-spacing: 0.5px; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+.brand::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.brand.running::before { animation: pulseRun 0.8s ease-in-out infinite; }
+@keyframes pulseRun { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.3); } }
+.header-right { display: flex; align-items: center; gap: 8px; }
+.user-chip { display: flex; align-items: center; gap: 6px; padding: 4px 8px 4px 4px; background: var(--bg-elev-2); border: 1px solid var(--border); border-radius: 20px; font-size: 11px; color: var(--text-dim); }
+.user-chip img { width: 20px; height: 20px; border-radius: 50%; }
+.user-chip .logout { background: none; border: none; color: var(--text-very-dim); cursor: pointer; font-size: 14px; margin-left: 4px; padding: 0 4px; }
+.user-chip .logout:hover { color: var(--danger); }
+.lang-toggle { background: transparent; border: 1px solid var(--border-strong); color: var(--text-dim); padding: 4px 10px; border-radius: var(--radius); font-family: var(--mono); font-size: 11px; cursor: pointer; letter-spacing: 0.5px; }
+.lang-toggle:hover { color: var(--text); border-color: var(--accent); }
+
+.tabs { display: flex; background: var(--bg-elev); border-bottom: 1px solid var(--border); padding: 0 4px; flex-shrink: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex: 1; min-width: 70px; padding: 12px 6px; text-align: center; background: transparent; border: none; color: var(--text-dim); font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; white-space: nowrap; position: relative; }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab:not(.active):hover { color: var(--text); }
+.tab.locked::after { content: '🔒'; font-size: 9px; margin-left: 4px; opacity: 0.6; }
+.tab.locked.active::after { opacity: 1; }
+
+main { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding-bottom: env(safe-area-inset-bottom); }
+.view { display: none; padding: 16px; }
+.view.active { display: block; }
+
+.freq-display { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.freq-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 12px; position: relative; overflow: visible; }
+.freq-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+.freq-card.chA::before { background: var(--polA); }
+.freq-card.chB::before { background: var(--polB); }
+.freq-label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+.freq-card.chA .freq-label { color: var(--polA); }
+.freq-card.chB .freq-label { color: var(--polB); }
+.freq-value { font-family: var(--mono); font-size: 32px; font-weight: 600; line-height: 1; letter-spacing: -1px; margin-bottom: 6px; }
+.freq-name { font-size: 11px; color: var(--text-dim); line-height: 1.3; min-height: 28px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.freq-card input.freq-input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 14px; padding: 6px 8px; border-radius: var(--radius); margin-top: 6px; -moz-appearance: textfield; }
+.freq-card input.freq-input::-webkit-outer-spin-button, .freq-card input.freq-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.freq-card input.freq-input:focus { outline: none; border-color: var(--accent); }
+
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.control-group { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px; }
+.control-group.full { grid-column: 1 / -1; }
+.control-label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-very-dim); margin-bottom: 8px; }
+.btn-group { display: flex; gap: 4px; }
+.btn-seg { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text-dim); padding: 8px 4px; border-radius: var(--radius); font-family: var(--mono); font-size: 11px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.5px; }
+.btn-seg.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+.btn-seg:not(.active):hover { color: var(--text); border-color: var(--border-strong); }
+
+.slider-row { display: flex; align-items: center; gap: 10px; }
+.slider { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; background: var(--bg); border-radius: 2px; border: 1px solid var(--border); }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 0 6px var(--accent-glow); }
+.slider::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; border: none; }
+.slider-value { font-family: var(--mono); font-size: 13px; color: var(--accent); min-width: 56px; text-align: right; }
+
+.timer-section { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; }
+.timer-display { font-family: var(--mono); font-size: 38px; font-weight: 500; text-align: center; letter-spacing: 2px; margin-bottom: 4px; }
+.timer-elapsed { text-align: center; font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin-bottom: 12px; letter-spacing: 0.5px; }
+.timer-controls { display: flex; gap: 8px; }
+.btn-run { flex: 1; padding: 14px; border-radius: var(--radius-lg); font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; border: none; transition: all 0.15s; }
+.btn-run.start { background: var(--accent); color: var(--bg); }
+.btn-run.start:hover { background: #00f0b5; }
+.btn-run.stop { background: var(--danger); color: white; }
+.btn-run.stop:hover { background: #ff6259; }
+
+.protocol-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; margin-bottom: 10px; cursor: pointer; transition: all 0.15s; }
+.protocol-card:hover { border-color: var(--accent); }
+.protocol-card.loaded { border-color: var(--accent); background: linear-gradient(180deg, var(--accent-glow), var(--bg-elev) 40%); }
+.protocol-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.protocol-cat { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; background: var(--bg); border: 1px solid var(--border); color: var(--text-very-dim); padding: 2px 6px; border-radius: 3px; }
+.protocol-indication { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; line-height: 1.4; }
+.protocol-meta { display: flex; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 10px; color: var(--text-very-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+.steps-list { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; display: none; }
+.protocol-card.loaded .steps-list { display: block; }
+.step-row { display: grid; grid-template-columns: 24px 1fr auto; gap: 10px; align-items: center; padding: 8px 0; font-family: var(--mono); font-size: 12px; border-bottom: 1px solid var(--border); }
+.step-row:last-child { border-bottom: none; }
+.step-row.current { background: var(--accent-glow); margin: 0 -14px; padding: 8px 14px; border-left: 2px solid var(--accent); }
+.step-num { font-size: 10px; color: var(--text-very-dim); text-align: right; }
+.step-freq .sep { color: var(--text-very-dim); margin: 0 2px; }
+.step-time { color: var(--accent); font-size: 11px; }
+.step-tags { font-size: 10px; color: var(--text-very-dim); margin-left: 8px; font-family: var(--sans); }
+
+.warning-banner { background: rgba(255, 166, 87, 0.1); border: 1px solid rgba(255, 166, 87, 0.4); border-left: 3px solid var(--warning); color: var(--warning); padding: 10px 12px; border-radius: var(--radius); margin-bottom: 8px; font-size: 12px; line-height: 1.5; }
+.warning-banner.danger { background: rgba(248, 81, 73, 0.1); border-color: rgba(248, 81, 73, 0.4); border-left-color: var(--danger); color: var(--danger); }
+.warning-banner.info { background: rgba(88, 166, 255, 0.1); border-color: rgba(88, 166, 255, 0.4); border-left-color: var(--info); color: var(--info); }
+
+.search-bar { position: sticky; top: 0; z-index: 10; background: var(--bg); padding: 0 0 12px; }
+.search-input { width: 100%; background: var(--bg-elev); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: var(--radius-lg); font-family: var(--mono); font-size: 13px; }
+.search-input:focus { outline: none; border-color: var(--accent); }
+.search-input::placeholder { color: var(--text-very-dim); }
+
+.lib-row { display: grid; grid-template-columns: 60px 1fr; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; align-items: center; }
+.lib-row:hover { background: var(--bg-elev); }
+.lib-freq { font-family: var(--mono); font-weight: 600; font-size: 14px; color: var(--accent); }
+.lib-name { font-size: 12px; line-height: 1.4; }
+
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.modal-bg.show { display: flex; }
+.modal { background: var(--bg-elev); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); padding: 20px; width: 100%; max-width: 420px; max-height: 85vh; overflow-y: auto; }
+.modal-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+.modal-body { font-size: 13px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.5; }
+.modal-actions { display: flex; gap: 8px; }
+.modal-actions button { flex: 1; padding: 10px; border-radius: var(--radius); font-family: var(--mono); font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+.modal-actions button.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+
+.info-block { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+.info-block h3 { font-family: var(--mono); font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin: 16px 0 6px; }
+.info-block h3:first-child { margin-top: 0; }
+.info-block code { font-family: var(--mono); font-size: 11px; background: var(--bg); padding: 1px 5px; border-radius: 3px; border: 1px solid var(--border); }
+
+.run-overlay { position: fixed; inset: 0; background: rgba(13,17,23,0.97); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 50; display: none; flex-direction: column; padding: 24px; padding-top: max(24px, env(safe-area-inset-top)); }
+.run-overlay.show { display: flex; }
+.run-overlay-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.run-overlay-title { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 1.5px; text-transform: uppercase; }
+.run-overlay-close { background: transparent; border: none; color: var(--text-dim); font-size: 28px; cursor: pointer; line-height: 1; padding: 4px 8px; }
+.run-overlay-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.run-overlay-big-freq { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
+.run-overlay-freq-num { font-family: var(--mono); font-size: 56px; font-weight: 500; letter-spacing: -2px; line-height: 1; }
+.run-overlay-freq-num.chA { color: var(--polA); }
+.run-overlay-freq-num.chB { color: var(--polB); }
+.run-overlay-freq-lbl { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-very-dim); margin-bottom: 4px; }
+.run-overlay-freq-name { font-size: 11px; color: var(--text-dim); margin-top: 4px; min-height: 28px; }
+.run-overlay-timer { font-family: var(--mono); font-size: 64px; text-align: center; letter-spacing: 3px; margin-bottom: 8px; }
+.run-overlay-step-info { text-align: center; font-family: var(--mono); font-size: 11px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; min-height: 14px; }
+.run-overlay-controls { display: flex; gap: 8px; }
+
+.audio-status { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 10px 12px; margin-bottom: 12px; font-size: 11px; font-family: var(--mono); color: var(--text-dim); display: flex; align-items: center; gap: 10px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-very-dim); }
+.status-dot.live { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+
+.suggest { position: absolute; top: 100%; left: 12px; right: 12px; background: var(--bg-elev-2); border: 1px solid var(--border-strong); border-radius: var(--radius); max-height: 240px; overflow-y: auto; z-index: 20; display: none; margin-top: 2px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); }
+.suggest.show { display: block; }
+.suggest-item { padding: 8px 10px; font-size: 12px; cursor: pointer; border-bottom: 1px solid var(--border); font-family: var(--mono); }
+.suggest-item:last-child { border-bottom: none; }
+.suggest-item:hover, .suggest-item:active { background: var(--accent-glow); color: var(--accent); }
+.suggest-item .sf { color: var(--accent); margin-right: 6px; font-weight: 600; }
+
+.subtabs { display: flex; gap: 4px; margin-bottom: 12px; padding: 4px; background: var(--bg-elev); border-radius: var(--radius-lg); }
+.subtab { flex: 1; padding: 8px 4px; text-align: center; background: transparent; border: none; color: var(--text-dim); font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.5px; cursor: pointer; border-radius: var(--radius); text-transform: uppercase; }
+.subtab.active { color: var(--bg); background: var(--accent); }
+.libtabs { display: flex; padding: 0; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+.libtab { flex: 1; padding: 10px 8px; background: transparent; border: none; color: var(--text-dim); font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 1px; cursor: pointer; border-bottom: 2px solid transparent; }
+.libtab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; margin-bottom: 12px; }
+.card-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+
+.session-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px; margin-bottom: 8px; }
+.session-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px; }
+.session-patient { font-size: 14px; font-weight: 600; }
+.session-date { font-family: var(--mono); font-size: 11px; color: var(--text-very-dim); }
+.session-summary { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; }
+.session-meta { display: flex; gap: 12px; flex-wrap: wrap; font-family: var(--mono); font-size: 10px; color: var(--text-very-dim); }
+.session-actions { display: flex; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.session-actions button { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text-dim); padding: 6px; border-radius: var(--radius); font-family: var(--mono); font-size: 10px; cursor: pointer; letter-spacing: 0.5px; }
+.session-actions button:hover { color: var(--text); border-color: var(--accent); }
+.session-actions button.danger:hover { color: var(--danger); border-color: var(--danger); }
+
+.form-group { margin-bottom: 12px; }
+.form-label { display: block; font-family: var(--mono); font-size: 10px; color: var(--text-very-dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+.form-input, .form-textarea, .form-select { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: var(--radius); font-family: var(--sans); font-size: 13px; }
+.form-input:focus, .form-textarea:focus, .form-select:focus { outline: none; border-color: var(--accent); }
+.form-textarea { resize: vertical; min-height: 60px; }
+.rating-row { display: flex; gap: 4px; }
+.rating-row button { flex: 1; padding: 8px 4px; background: var(--bg); border: 1px solid var(--border); color: var(--text-dim); border-radius: var(--radius); font-family: var(--mono); font-size: 12px; cursor: pointer; }
+.rating-row button.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-very-dim); font-family: var(--mono); font-size: 12px; }
+.empty-state p { line-height: 1.6; }
+
+.btn-primary { background: var(--accent); color: var(--bg); border: none; padding: 12px 16px; border-radius: var(--radius-lg); font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 1px; cursor: pointer; width: 100%; margin-bottom: 12px; text-transform: uppercase; }
+.btn-primary:hover { background: #00f0b5; }
+.btn-secondary { background: var(--bg); color: var(--text-dim); border: 1px solid var(--border); padding: 10px 14px; border-radius: var(--radius); font-family: var(--mono); font-size: 12px; cursor: pointer; letter-spacing: 0.5px; }
+.btn-secondary:hover { color: var(--text); border-color: var(--accent); }
+
+/* LOGIN GATE */
+.gate { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; padding: 40px 20px; text-align: center; }
+.gate-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+.gate-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+.gate-subtitle { font-size: 13px; color: var(--text-dim); margin-bottom: 24px; max-width: 320px; line-height: 1.6; }
+.gate-login-btn { margin-bottom: 16px; }
+.gate-features { font-size: 11px; color: var(--text-very-dim); margin-top: 24px; line-height: 1.8; font-family: var(--mono); }
+.gate-features ul { list-style: none; padding: 0; }
+.gate-features li::before { content: '· '; opacity: 0.5; }
+.gate-error { background: rgba(248, 81, 73, 0.1); border: 1px solid rgba(248, 81, 73, 0.4); color: var(--danger); padding: 10px 14px; border-radius: var(--radius); font-size: 12px; margin-top: 16px; max-width: 320px; line-height: 1.5; }
+
+#googleSignInDiv { display: flex; justify-content: center; margin: 16px 0; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand" id="brand">FSM STUDIO</div>
+    <div class="header-right">
+      <div class="user-chip" id="userChip" style="display:none">
+        <img id="userPic" alt="">
+        <span id="userEmail"></span>
+        <button class="logout" id="logoutBtn" title="登出">×</button>
+      </div>
+      <button class="lang-toggle" id="langToggle">EN / 中</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-view="manual" data-i18n="tab_manual">手動</button>
+    <button class="tab locked" data-view="protocols" data-i18n="tab_protocols" data-requires-auth="true">協定</button>
+    <button class="tab locked" data-view="library" data-i18n="tab_library" data-requires-auth="true">頻率庫</button>
+    <button class="tab locked" data-view="music" data-i18n="tab_music" data-requires-auth="true">音樂</button>
+    <button class="tab locked" data-view="records" data-i18n="tab_records" data-requires-auth="true">紀錄</button>
+    <button class="tab locked" data-view="info" data-i18n="tab_info" data-requires-auth="true">說明</button>
+  </div>
+
+  <main>
+    <!-- PUBLIC: MANUAL VIEW -->
+    <section class="view active" id="view-manual">
+      <div class="audio-status" id="audioStatus">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText" data-i18n="status_idle">待機 — 點 START 開始輸出</span>
+      </div>
+      <div id="warningArea"></div>
+      <div class="freq-display">
+        <div class="freq-card chA">
+          <div class="freq-label">CH A</div>
+          <div class="freq-value" id="freqAVal">40</div>
+          <div class="freq-name" id="freqAName">—</div>
+          <input type="number" class="freq-input" id="freqAInput" value="40" min="0.1" max="970" step="0.1" inputmode="decimal">
+          <div class="suggest" id="suggestA"></div>
+        </div>
+        <div class="freq-card chB">
+          <div class="freq-label">CH B</div>
+          <div class="freq-value" id="freqBVal">116</div>
+          <div class="freq-name" id="freqBName">—</div>
+          <input type="number" class="freq-input" id="freqBInput" value="116" min="0.1" max="970" step="0.1" inputmode="decimal">
+          <div class="suggest" id="suggestB"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="control-group">
+          <div class="control-label" data-i18n="ctrl_polarity">極性</div>
+          <div class="btn-group" id="polGroup">
+            <button class="btn-seg active" data-pol="Alternating">+/-</button>
+            <button class="btn-seg" data-pol="Positive">+→</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label" data-i18n="ctrl_wave">波形</div>
+          <div class="btn-group" id="waveGroup">
+            <button class="btn-seg" data-wave="Sharp" data-i18n="wave_sharp">銳</button>
+            <button class="btn-seg active" data-wave="Medium" data-i18n="wave_med">中</button>
+            <button class="btn-seg" data-wave="Gentle" data-i18n="wave_gentle">緩</button>
+          </div>
+        </div>
+        <div class="control-group full">
+          <div class="control-label">
+            <span data-i18n="ctrl_current">電流強度</span> · <span id="currentValLabel">200 μA</span>
+          </div>
+          <div class="slider-row">
+            <input type="range" class="slider" id="currentSlider" min="20" max="500" step="20" value="200">
+            <div class="slider-value" id="currentVal">200 μA</div>
+          </div>
+        </div>
+        <div class="control-group full">
+          <div class="control-label" data-i18n="ctrl_duration">時長 (分鐘)</div>
+          <div class="slider-row">
+            <input type="range" class="slider" id="durSlider" min="1" max="60" step="1" value="4">
+            <div class="slider-value" id="durVal">4 min</div>
+          </div>
+        </div>
+      </div>
+      <div class="timer-section">
+        <div class="timer-display" id="timerDisplay">04:00</div>
+        <div class="timer-elapsed" id="timerElapsed" data-i18n="timer_remaining">剩餘時間</div>
+        <div class="timer-controls">
+          <button class="btn-run start" id="runBtn" data-i18n="btn_start">▶ START</button>
+        </div>
+      </div>
+      <div id="guestNotice" class="info-block" style="margin-top: 16px; padding: 14px; background: var(--bg-elev); border-radius: var(--radius-lg); border: 1px dashed var(--border-strong);">
+        <p style="color: var(--text-dim); font-size: 12px;" data-i18n="guest_notice">
+          ℹ 訪客模式：可使用手動雙頻產生器。登入後可使用協定庫、Mode Bank、音樂輸出、患者紀錄等進階功能。
+        </p>
+      </div>
+    </section>
+
+    <!-- PROTECTED VIEWS -->
+    <section class="view" id="view-protocols"></section>
+    <section class="view" id="view-library"></section>
+    <section class="view" id="view-music"></section>
+    <section class="view" id="view-records"></section>
+    <section class="view" id="view-info"></section>
+  </main>
+
+  <div class="run-overlay" id="runOverlay">
+    <div class="run-overlay-header">
+      <div class="run-overlay-title" id="runOverlayTitle">RUNNING</div>
+      <button class="run-overlay-close" id="runClose">×</button>
+    </div>
+    <div class="run-overlay-content">
+      <div class="run-overlay-big-freq">
+        <div>
+          <div class="run-overlay-freq-lbl">CH A</div>
+          <div class="run-overlay-freq-num chA" id="ovFreqA">40</div>
+          <div class="run-overlay-freq-name" id="ovFreqAName">—</div>
+        </div>
+        <div>
+          <div class="run-overlay-freq-lbl">CH B</div>
+          <div class="run-overlay-freq-num chB" id="ovFreqB">116</div>
+          <div class="run-overlay-freq-name" id="ovFreqBName">—</div>
+        </div>
+      </div>
+      <div class="run-overlay-timer" id="ovTimer">04:00</div>
+      <div class="run-overlay-step-info" id="ovStepInfo"></div>
+      <div class="run-overlay-controls">
+        <button class="btn-run stop" id="ovStop">■ STOP</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="loadModal">
+    <div class="modal">
+      <div class="modal-title" id="modalTitle">載入協定</div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions">
+        <button id="modalCancel" data-i18n="modal_cancel">取消</button>
+        <button id="modalConfirm" class="primary" data-i18n="modal_confirm">載入並開始</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="sessionModal">
+    <div class="modal">
+      <div class="modal-title" id="sessionModalTitle">新增治療紀錄</div>
+      <div class="form-group"><label class="form-label" data-i18n="session_patient">患者</label><input type="text" class="form-input" id="sessionPatient"></div>
+      <div class="form-group"><label class="form-label" data-i18n="session_complaint">主訴 / 部位</label><input type="text" class="form-input" id="sessionComplaint"></div>
+      <div class="form-group"><label class="form-label" data-i18n="session_protocol">使用協定</label><input type="text" class="form-input" id="sessionProtocol"></div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="session_pain_before">治療前 VAS (0–10)</label>
+        <div class="rating-row" id="ratingBefore">
+          <button data-rating="0">0</button><button data-rating="1">1</button><button data-rating="2">2</button><button data-rating="3">3</button><button data-rating="4">4</button><button data-rating="5">5</button><button data-rating="6">6</button><button data-rating="7">7</button><button data-rating="8">8</button><button data-rating="9">9</button><button data-rating="10">10</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="session_pain_after">治療後 VAS (0–10)</label>
+        <div class="rating-row" id="ratingAfter">
+          <button data-rating="0">0</button><button data-rating="1">1</button><button data-rating="2">2</button><button data-rating="3">3</button><button data-rating="4">4</button><button data-rating="5">5</button><button data-rating="6">6</button><button data-rating="7">7</button><button data-rating="8">8</button><button data-rating="9">9</button><button data-rating="10">10</button>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label" data-i18n="session_response">組織反應 / 觀察</label><textarea class="form-textarea" id="sessionResponse"></textarea></div>
+      <div class="form-group"><label class="form-label" data-i18n="session_notes">備註 / 下次計畫</label><textarea class="form-textarea" id="sessionNotes"></textarea></div>
+      <div class="modal-actions">
+        <button id="sessionCancel" data-i18n="modal_cancel">取消</button>
+        <button id="sessionSave" class="primary" data-i18n="session_save">儲存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG — set by build/deployment
+// ============================================================
+const GOOGLE_CLIENT_ID = '753627700752-rra259kisjdhhd2i7p4nrv04fcrbf7jf.apps.googleusercontent.com';
+const API_BASE = '/api';  // e.g. '/api' (relative) or 'https://your-domain.vercel.app/api'
+
+// ============================================================
+// PUBLIC LIBRARY (Channel A/B freq dictionaries shown only in manual mode)
+// ============================================================
+const PUBLIC_FREQ_MAP_A = {"40": "Inflammation - remove & increase", "13": "Scar tissue", "49": "Vitality", "81": "Secretions", "91": "Calcium ions", "94": "Trauma", "124": "Torn/broken", "284": "Sclerosis remove", "321": "Paralysis", "970": "Vitality (Reisman)", "18": "Bleeding stop", "9": "Allergy", "35": "Copper, diabetes, Chakra Balance"};
+const PUBLIC_FREQ_MAP_B = {"10": "Spinal cord", "62": "Artery", "77": "Connective tissue", "100": "Ligaments", "116": "Immune system", "142": "Fascia", "157": "Cartilage", "191": "Tendons", "195": "Bursa", "200": "Forebrain/midbrain", "396": "Nerves", "480": "Joint capsule", "630": "Disc", "710": "Disc annulus", "330": "Disc nucleus", "783": "Periosteum/cartilage", "94": "Medulla", "310": "Limbic system"};
+
+// Holders for protected data — populated only after auth
+let CHANNEL_A = null;
+let CHANNEL_B = null;
+let PROTOCOLS_CURATED = null;
+let PROTOCOLS_FULL = null;
+let FREQ_A_MAP = PUBLIC_FREQ_MAP_A;
+let FREQ_B_MAP = PUBLIC_FREQ_MAP_B;
+
+// ============================================================
+// I18N
+// ============================================================
+const I18N = {
+  zh: {
+    tab_manual: '手動', tab_protocols: '協定', tab_library: '頻率庫', tab_music: '音樂', tab_records: '紀錄', tab_info: '說明',
+    ctrl_polarity: '極性', ctrl_wave: '波形', ctrl_current: '電流強度', ctrl_duration: '時長 (分鐘)',
+    wave_sharp: '銳', wave_med: '中', wave_gentle: '緩',
+    btn_start: '▶ START', btn_stop: '■ STOP',
+    timer_remaining: '剩餘時間',
+    status_idle: '待機 — 點 START 開始輸出',
+    status_running: '輸出中 — 訊號透過耳機孔送出',
+    search_protocols: '搜尋協定...',
+    search_library: '搜尋頻率 (數字或關鍵字)...',
+    search_records: '搜尋患者或備註...',
+    modal_cancel: '取消', modal_confirm: '載入並開始',
+    modal_load_body: '將會載入 {n} 個步驟，總時長 {t}。確認開始治療？',
+    warn_13_scar: '⚠ 頻率 13 (Scar tissue) — 確認損傷已超過 6 週',
+    warn_79_dvt: '⚠ 頻率 79 (Veins) — 下肢使用前須排除 DVT',
+    warn_pol_stenosis: 'ℹ 極化正電流 — 椎管狹窄患者若疼痛加重請立即切回 AC',
+    step_label: '步驟',
+    subtab_mine: '我的協定', subtab_modebank: 'MODE BANK · 273',
+    btn_new_session: '+ 新增治療紀錄',
+    session_new_title: '新增治療紀錄', session_edit_title: '編輯治療紀錄',
+    session_patient: '患者', session_complaint: '主訴 / 部位', session_protocol: '使用協定',
+    session_pain_before: '治療前 VAS 疼痛 (0–10)', session_pain_after: '治療後 VAS 疼痛 (0–10)',
+    session_response: '組織反應 / 觀察', session_notes: '備註 / 下次計畫', session_save: '儲存',
+    record_export_pdf: 'PDF', record_edit: '編輯', record_delete: '刪除',
+    record_empty: '尚無治療紀錄。\n點上方按鈕新增第一筆。',
+    record_confirm_delete: '確定刪除此紀錄？此操作無法復原。',
+    btn_export_protocol_pdf: '匯出 PDF 給患者',
+    btn_export_records_encrypted: '🔒 加密匯出所有紀錄',
+    btn_import_records_encrypted: '📥 匯入加密備份',
+    encrypt_prompt_password: '請設定密碼以加密備份檔案 (請務必牢記，遺失無法復原)：',
+    decrypt_prompt_password: '請輸入備份檔案的密碼：',
+    encrypt_password_too_short: '密碼至少需要 6 個字元',
+    encrypt_success: '已加密匯出 {n} 筆紀錄',
+    decrypt_failed: '解密失敗 — 密碼錯誤或檔案損壞',
+    decrypt_merged: '已合併 {n} 筆紀錄（重複的依較新者保留）',
+    music_intro: '將 FSM 雙頻訊號嵌入背景音樂，匯出 WAV 或 MP3。患者可用任何播放器搭配 iCare-Pad 或電極片在家使用。',
+    music_source: '音源', music_src_manual: '手動雙頻', music_src_protocol: '完整協定',
+    music_duration: '時長 (分鐘)', music_select_protocol: '選擇協定',
+    music_style: '背景音樂風格',
+    music_style_ambient: '空靈環境', music_style_binaural: '雙耳節拍', music_style_nature: '自然聲', music_style_silent: '純治療頻率',
+    music_style_desc_ambient: '空靈環境：低頻 drone + 緩慢音符，最適合放鬆/睡眠',
+    music_style_desc_binaural: '雙耳節拍：左右耳輕微頻率差，輔助腦波同步',
+    music_style_desc_nature: '自然聲：雨聲、海浪等粉紅噪音模擬，遮蔽治療頻率的金屬感',
+    music_style_desc_silent: '純治療頻率：無背景音樂，僅 FSM 雙頻 — 接電極片用',
+    music_mix: '混音比例',
+    music_treatment_level: '治療訊號音量', music_bg_level: '背景音樂音量',
+    music_format: '輸出格式',
+    music_format_wav_desc: 'WAV：無損音質、精確頻率（檔案較大）',
+    music_format_mp3_desc: 'MP3 192k：壓縮 10 倍、適合 LINE 傳送（音質夠用）',
+    music_size_estimate: '預計檔案大小', music_generate: '▼ 生成並下載',
+    music_generating: '生成中...', music_progress_init: '初始化音訊...',
+    music_progress_render: '渲染中 {pct}%', music_progress_encode: '編碼中...',
+    music_progress_done: '完成！正在下載...', music_generate_failed: '生成失敗',
+    info_hardware_title: '硬體設定',
+    info_hardware_body: '手機 → USB-C 轉 3.5mm 音源轉接頭 → iCare-Pad 或自製電極片導線。Channel A 走左聲道，Channel B 走右聲道，共用 Sleeve 接地。',
+    info_polarity_title: '極性說明',
+    info_polarity_body: '<strong>+/- 交流</strong>：肌肉、內臟、所有 Alternating 協定使用。<br><strong>+→ 極化正</strong>：神經、脊髓、淋巴系統使用。',
+    info_warnings_title: '禁忌症警示',
+    info_warnings_body: '· 頻率 13 (Scar tissue) — 損傷後 6 週內慎用<br>· 頻率 79 (Veins) — DVT 未排除前避免下肢使用<br>· 極化正電流 — 椎管狹窄患者疼痛加重時立即切回 AC<br>· 孕婦、癌症腫瘤部位 — 絕對禁忌',
+    info_audio_title: '關於音頻 FSM',
+    info_audio_body: '透過手機耳機輸出產生 FSM 雙頻訊號。<br>· 低頻 (&lt;20 Hz) 採用 AM 振幅調變<br>· 波形 slope 透過 envelope 包絡實現<br>· 電流量依使用者下游電阻決定',
+    info_data_title: '資料儲存與備份',
+    info_data_body: '治療紀錄僅儲存於本機瀏覽器 (localStorage)。<br>· 從不上傳至伺服器<br>· 用「加密匯出」定期備份到雲端或隨身碟<br>· 加密採 AES-GCM 256-bit，密碼遺失無法復原',
+    info_disclaimer_title: '免責聲明',
+    info_disclaimer_body: '本工具為 FSM 治療師專業使用設計，依據 Carolyn McMakin 的 FSM 頻率系統與 Mode Bank 3.0 資料。使用前須完成 FSM Core 訓練。任何治療決策由治療師依臨床判斷負責。',
+    guest_notice: 'ℹ 訪客模式：可使用手動雙頻產生器。登入後可使用協定庫、Mode Bank、音樂輸出、患者紀錄等進階功能。',
+    gate_title: '進階功能需要登入',
+    gate_subtitle: '此功能僅開放給已授權的 FSM 治療師使用。請以 Google 帳號登入。',
+    gate_features_title: '登入後可使用',
+    gate_feat_1: '我的協定庫（10 個常用模板）',
+    gate_feat_2: 'Mode Bank 完整查詢（273 個協定 / 373 個頻率）',
+    gate_feat_3: '音樂治療版輸出（WAV / MP3）',
+    gate_feat_4: '患者治療紀錄 + 加密備份',
+    gate_feat_5: '協定與紀錄 PDF 匯出',
+    gate_pending: '您的帳號 ({email}) 尚未授權。請聯絡管理員加入白名單。',
+    gate_error: '登入失敗，請稍後再試',
+    logout_confirm: '確定登出？已儲存的治療紀錄保留在本機。',
+  },
+  en: {
+    tab_manual: 'Manual', tab_protocols: 'Protocols', tab_library: 'Library', tab_music: 'Music', tab_records: 'Records', tab_info: 'Info',
+    ctrl_polarity: 'Polarity', ctrl_wave: 'Waveshape', ctrl_current: 'Current', ctrl_duration: 'Duration (min)',
+    wave_sharp: 'Sharp', wave_med: 'Medium', wave_gentle: 'Gentle',
+    btn_start: '▶ START', btn_stop: '■ STOP',
+    timer_remaining: 'Time remaining',
+    status_idle: 'Idle — Tap START to begin output',
+    status_running: 'Running — Signal active on audio output',
+    search_protocols: 'Search protocols...',
+    search_library: 'Search frequencies...',
+    search_records: 'Search patient or notes...',
+    modal_cancel: 'Cancel', modal_confirm: 'Load & Start',
+    modal_load_body: 'Will load {n} steps, total duration {t}. Begin treatment?',
+    warn_13_scar: '⚠ Frequency 13 (Scar tissue) — confirm injury is >6 weeks old',
+    warn_79_dvt: '⚠ Frequency 79 (Veins) — rule out DVT first',
+    warn_pol_stenosis: 'ℹ Polarized + — switch to AC if stenosis patient reports increased pain',
+    step_label: 'Step',
+    subtab_mine: 'My Protocols', subtab_modebank: 'MODE BANK · 273',
+    btn_new_session: '+ New session',
+    session_new_title: 'New session', session_edit_title: 'Edit session',
+    session_patient: 'Patient', session_complaint: 'Complaint', session_protocol: 'Protocol',
+    session_pain_before: 'Pre-treatment VAS (0–10)', session_pain_after: 'Post-treatment VAS (0–10)',
+    session_response: 'Tissue response', session_notes: 'Notes / Next plan', session_save: 'Save',
+    record_export_pdf: 'PDF', record_edit: 'Edit', record_delete: 'Delete',
+    record_empty: 'No records yet.\nTap above to add the first one.',
+    record_confirm_delete: 'Delete this record? Cannot be undone.',
+    btn_export_protocol_pdf: 'Export PDF for patient',
+    btn_export_records_encrypted: '🔒 Export encrypted backup',
+    btn_import_records_encrypted: '📥 Import encrypted backup',
+    encrypt_prompt_password: 'Set a password to encrypt the backup (remember it — cannot be recovered if lost):',
+    decrypt_prompt_password: 'Enter the backup file password:',
+    encrypt_password_too_short: 'Password must be at least 6 characters',
+    encrypt_success: 'Encrypted {n} records',
+    decrypt_failed: 'Decryption failed — wrong password or corrupted file',
+    decrypt_merged: 'Merged {n} records (kept newer versions for duplicates)',
+    music_intro: 'Embed FSM dual-frequency signals into background music; export as WAV or MP3.',
+    music_source: 'Source', music_src_manual: 'Manual dual-freq', music_src_protocol: 'Full protocol',
+    music_duration: 'Duration (min)', music_select_protocol: 'Select protocol',
+    music_style: 'Background style',
+    music_style_ambient: 'Ambient', music_style_binaural: 'Binaural', music_style_nature: 'Nature', music_style_silent: 'Pure treatment',
+    music_style_desc_ambient: 'Ambient: low drone + slow notes, ideal for relaxation/sleep',
+    music_style_desc_binaural: 'Binaural: slight L/R offset for brainwave entrainment',
+    music_style_desc_nature: 'Nature: pink-noise rain/ocean texture, masks pure-tone harshness',
+    music_style_desc_silent: 'Pure treatment: no music, only FSM dual frequencies',
+    music_mix: 'Mix levels',
+    music_treatment_level: 'Treatment signal level', music_bg_level: 'Background music level',
+    music_format: 'Output format',
+    music_format_wav_desc: 'WAV: lossless, exact frequency (larger files)',
+    music_format_mp3_desc: 'MP3 192k: 10× smaller, fine for messaging apps',
+    music_size_estimate: 'Estimated size', music_generate: '▼ Generate & download',
+    music_generating: 'Generating...', music_progress_init: 'Initializing...',
+    music_progress_render: 'Rendering {pct}%', music_progress_encode: 'Encoding...',
+    music_progress_done: 'Done! Downloading...', music_generate_failed: 'Generation failed',
+    info_hardware_title: 'Hardware setup',
+    info_hardware_body: 'Phone → USB-C to 3.5mm adapter → iCare-Pad or DIY electrode cable.',
+    info_polarity_title: 'Polarity',
+    info_polarity_body: '<strong>+/- AC</strong>: muscles, viscera, Alternating protocols.<br><strong>+→ Polarized+</strong>: nerves, spinal cord, lymphatics.',
+    info_warnings_title: 'Contraindication warnings',
+    info_warnings_body: '· Frequency 13 — caution within 6 weeks post-injury<br>· Frequency 79 — rule out DVT first<br>· Polarized+ — switch to AC if stenosis patient pain increases<br>· Pregnancy, cancer tumor sites — absolute contraindication',
+    info_audio_title: 'About audio-FSM',
+    info_audio_body: 'Phone audio output generates FSM dual frequencies.<br>· Low freq (&lt;20 Hz) via AM modulation<br>· Waveshape via envelope<br>· Current set by downstream resistor',
+    info_data_title: 'Data storage & backup',
+    info_data_body: 'Session records stored only in your local browser (localStorage).<br>· Never uploaded to server<br>· Use Encrypted Export to back up<br>· AES-GCM 256-bit encryption — lost password cannot be recovered',
+    info_disclaimer_title: 'Disclaimer',
+    info_disclaimer_body: 'For use by trained FSM practitioners. Based on Carolyn McMakin\'s frequency system and Mode Bank 3.0. FSM Core training required.',
+    guest_notice: 'ℹ Guest mode: manual dual-frequency generator available. Sign in for protocols, Mode Bank, music export, session records.',
+    gate_title: 'Sign in required',
+    gate_subtitle: 'This feature is for authorized FSM practitioners. Please sign in with Google.',
+    gate_features_title: 'After sign-in you can access',
+    gate_feat_1: 'My Protocols (10 curated templates)',
+    gate_feat_2: 'Full Mode Bank (273 protocols / 373 frequencies)',
+    gate_feat_3: 'Music export (WAV / MP3)',
+    gate_feat_4: 'Patient records + encrypted backup',
+    gate_feat_5: 'Protocol & record PDF export',
+    gate_pending: 'Your account ({email}) is not authorized yet. Please contact the administrator.',
+    gate_error: 'Sign-in failed, please try again',
+    logout_confirm: 'Sign out? Saved session records remain on this device.',
+  }
+};
+let LANG = localStorage.getItem('fsm_lang') || 'zh';
+function t(k) { return I18N[LANG][k] || k; }
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if (I18N[LANG][k]) el.innerHTML = I18N[LANG][k];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const k = el.getAttribute('data-i18n-placeholder');
+    if (I18N[LANG][k]) el.placeholder = I18N[LANG][k];
+  });
+}
+
+// ============================================================
+// AUTH STATE
+// ============================================================
+const auth = {
+  user: null,       // { email, name, picture, token }
+  isAuthed() { return !!this.user; },
+  save() {
+    if (this.user) localStorage.setItem('fsm_auth', JSON.stringify(this.user));
+    else localStorage.removeItem('fsm_auth');
+  },
+  load() {
+    try {
+      const raw = localStorage.getItem('fsm_auth');
+      if (raw) this.user = JSON.parse(raw);
+    } catch(e) { this.user = null; }
+  },
+  async logout() {
+    if (!confirm(t('logout_confirm'))) return;
+    this.user = null;
+    this.save();
+    CHANNEL_A = null; CHANNEL_B = null;
+    PROTOCOLS_CURATED = null; PROTOCOLS_FULL = null;
+    FREQ_A_MAP = PUBLIC_FREQ_MAP_A;
+    FREQ_B_MAP = PUBLIC_FREQ_MAP_B;
+    if (window.google && google.accounts && google.accounts.id) {
+      try { google.accounts.id.disableAutoSelect(); } catch(e) {}
+    }
+    updateAuthUI();
+    // Switch back to public manual view
+    switchToView('manual');
+  }
+};
+auth.load();
+
+// Google Sign-in callback (window-scoped for the GSI library)
+window.handleGoogleCredential = async function(response) {
+  try {
+    const r = await fetch(API_BASE + '/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential: response.credential })
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      if (data.error === 'pending_approval') {
+        showGateError(t('gate_pending').replace('{email}', data.email || ''));
+      } else {
+        showGateError(t('gate_error') + ': ' + (data.error || r.status));
+      }
+      return;
+    }
+    auth.user = data;
+    auth.save();
+    updateAuthUI();
+    // Fetch protected data
+    await loadProtectedData();
+    // Re-render the active view
+    const active = document.querySelector('.tab.active');
+    if (active) switchToView(active.getAttribute('data-view'));
+  } catch (e) {
+    console.error(e);
+    showGateError(t('gate_error') + ': ' + e.message);
+  }
+};
+
+async function loadProtectedData() {
+  if (!auth.user || !auth.user.token) return;
+  try {
+    const r = await fetch(API_BASE + '/protected-data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + auth.user.token
+      }
+    });
+    if (!r.ok) {
+      if (r.status === 401 || r.status === 403) {
+        auth.user = null;
+        auth.save();
+        updateAuthUI();
+      }
+      return;
+    }
+    const data = await r.json();
+    CHANNEL_A = data.data.channel_a;
+    CHANNEL_B = data.data.channel_b;
+    PROTOCOLS_CURATED = data.data.curated;
+    PROTOCOLS_FULL = data.data.full;
+    FREQ_A_MAP = Object.fromEntries(CHANNEL_A.map(f => [f.freq, f.name]));
+    FREQ_B_MAP = Object.fromEntries(CHANNEL_B.map(f => [f.freq, f.name]));
+    updateFreqDisplay();
+  } catch (e) {
+    console.error('Failed to load protected data:', e);
+  }
+}
+
+function updateAuthUI() {
+  const chip = document.getElementById('userChip');
+  if (auth.isAuthed()) {
+    chip.style.display = 'flex';
+    document.getElementById('userEmail').textContent = auth.user.email;
+    if (auth.user.picture) {
+      document.getElementById('userPic').src = auth.user.picture;
+      document.getElementById('userPic').style.display = '';
+    } else {
+      document.getElementById('userPic').style.display = 'none';
+    }
+    // Remove locked indicators
+    document.querySelectorAll('.tab.locked').forEach(t => {
+      t.classList.remove('locked');
+    });
+    // Show guest notice only when logged out
+    const gn = document.getElementById('guestNotice');
+    if (gn) gn.style.display = 'none';
+  } else {
+    chip.style.display = 'none';
+    document.querySelectorAll('.tab[data-requires-auth]').forEach(t => {
+      t.classList.add('locked');
+    });
+    const gn = document.getElementById('guestNotice');
+    if (gn) gn.style.display = '';
+  }
+}
+
+document.getElementById('logoutBtn').addEventListener('click', () => auth.logout());
+
+function showGateError(msg) {
+  const errEl = document.getElementById('gateError');
+  if (errEl) {
+    errEl.textContent = msg;
+    errEl.style.display = '';
+  } else {
+    alert(msg);
+  }
+}
+
+// Render login gate inside a view
+function renderGate(viewId) {
+  const view = document.getElementById(viewId);
+  view.innerHTML = `
+    <div class="gate">
+      <div class="gate-icon">🔒</div>
+      <div class="gate-title">${t('gate_title')}</div>
+      <div class="gate-subtitle">${t('gate_subtitle')}</div>
+      <div id="googleSignInDiv"></div>
+      <div class="gate-error" id="gateError" style="display:none"></div>
+      <div class="gate-features">
+        <div style="margin-bottom: 8px; font-weight: 600; color: var(--text-dim);">${t('gate_features_title')}:</div>
+        <ul>
+          <li>${t('gate_feat_1')}</li>
+          <li>${t('gate_feat_2')}</li>
+          <li>${t('gate_feat_3')}</li>
+          <li>${t('gate_feat_4')}</li>
+          <li>${t('gate_feat_5')}</li>
+        </ul>
+      </div>
+    </div>
+  `;
+  // Initialize the Google sign-in button after the div is in DOM
+  if (window.google && google.accounts && google.accounts.id) {
+    try {
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: window.handleGoogleCredential,
+      });
+      google.accounts.id.renderButton(
+        document.getElementById('googleSignInDiv'),
+        { theme: 'filled_black', size: 'large', text: 'signin_with', shape: 'pill' }
+      );
+    } catch (e) {
+      console.error('Google sign-in init failed:', e);
+    }
+  } else {
+    // Wait for script to load
+    setTimeout(() => renderGate(viewId), 500);
+  }
+}
+
+// ============================================================
+// AUDIO ENGINE
+// ============================================================
+class FSMAudio {
+  constructor() { this.ctx = null; this.running = false; }
+  start(freqA, freqB, polarity, waveshape, currentPct) {
+    if (this.running) this.stop();
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 48000 });
+    const now = this.ctx.currentTime;
+    let attack = 0.15;
+    if (waveshape === 'Sharp') attack = 0.02;
+    else if (waveshape === 'Gentle') attack = 0.4;
+    this.master = this.ctx.createGain();
+    this.master.gain.setValueAtTime(0, now);
+    this.master.gain.linearRampToValueAtTime(currentPct / 100 * 0.6, now + attack);
+    this.merger = this.ctx.createChannelMerger(2);
+    const buildChannel = (freq, idx) => {
+      const chGain = this.ctx.createGain();
+      chGain.gain.value = 1.0;
+      let stops = [];
+      if (freq < 20) {
+        const carrier = this.ctx.createOscillator();
+        carrier.type = (waveshape === 'Sharp') ? 'square' : 'sine';
+        carrier.frequency.value = 200;
+        const mod = this.ctx.createOscillator();
+        mod.type = 'sine';
+        mod.frequency.value = freq;
+        const modGain = this.ctx.createGain();
+        modGain.gain.value = 0.5;
+        const offset = this.ctx.createConstantSource();
+        offset.offset.value = 0.5;
+        mod.connect(modGain);
+        modGain.connect(chGain.gain);
+        offset.connect(chGain.gain);
+        carrier.connect(chGain);
+        carrier.start(); mod.start(); offset.start();
+        stops.push(() => { try { carrier.stop(); mod.stop(); offset.stop(); } catch(e){} });
+      } else {
+        const osc = this.ctx.createOscillator();
+        osc.type = (waveshape === 'Sharp') ? 'square' : 'sine';
+        osc.frequency.value = freq;
+        osc.connect(chGain);
+        osc.start();
+        stops.push(() => { try { osc.stop(); } catch(e){} });
+      }
+      if (polarity === 'Positive') {
+        const dc = this.ctx.createConstantSource();
+        dc.offset.value = 0.3;
+        const dcG = this.ctx.createGain();
+        dcG.gain.value = 0.5;
+        dc.connect(dcG); dcG.connect(chGain);
+        dc.start();
+        stops.push(() => { try { dc.stop(); } catch(e){} });
+      }
+      chGain.connect(this.merger, 0, idx);
+      return { stop: () => stops.forEach(s => s()) };
+    };
+    this.sourceA = buildChannel(freqA, 0);
+    this.sourceB = buildChannel(freqB, 1);
+    this.merger.connect(this.master);
+    this.master.connect(this.ctx.destination);
+    this.running = true;
+  }
+  stop() {
+    if (!this.running || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    try {
+      this.master.gain.cancelScheduledValues(now);
+      this.master.gain.setValueAtTime(this.master.gain.value, now);
+      this.master.gain.linearRampToValueAtTime(0, now + 0.1);
+    } catch(e){}
+    const ctxToClose = this.ctx;
+    const a = this.sourceA, b = this.sourceB;
+    setTimeout(() => {
+      try { if (a) a.stop(); if (b) b.stop(); if (ctxToClose) ctxToClose.close(); } catch(e){}
+    }, 150);
+    this.running = false;
+  }
+}
+const audio = new FSMAudio();
+
+const state = {
+  freqA: 40, freqB: 116,
+  polarity: 'Alternating', waveshape: 'Medium',
+  current: 200, duration: 4,
+  running: false, timerInterval: null, remainingSec: 0,
+  loadedProtocol: null, currentStepIndex: 0, wakeLock: null,
+  protocolSet: 'curated',
+  editingSessionId: null,
+};
+
+function $(id) { return document.getElementById(id); }
+function fmtTime(sec) { sec = Math.max(0, Math.floor(sec)); const m = Math.floor(sec / 60); const s = sec % 60; return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0'); }
+function updateFreqDisplay() {
+  $('freqAVal').textContent = state.freqA;
+  $('freqBVal').textContent = state.freqB;
+  $('freqAName').textContent = FREQ_A_MAP[state.freqA] || '—';
+  $('freqBName').textContent = FREQ_B_MAP[state.freqB] || '—';
+  $('freqAInput').value = state.freqA;
+  $('freqBInput').value = state.freqB;
+  checkWarnings();
+}
+function updateTimerDisplay() {
+  if (state.running) {
+    $('timerDisplay').textContent = fmtTime(state.remainingSec);
+    $('ovTimer').textContent = fmtTime(state.remainingSec);
+  } else {
+    $('timerDisplay').textContent = fmtTime(state.duration * 60);
+  }
+}
+function checkWarnings() {
+  const w = [];
+  if (state.freqA === 13 || state.freqB === 13) w.push({lvl:'warn', txt: t('warn_13_scar')});
+  if (state.freqA === 79 || state.freqB === 79) w.push({lvl:'warn', txt: t('warn_79_dvt')});
+  if (state.polarity === 'Positive') w.push({lvl:'info', txt: t('warn_pol_stenosis')});
+  $('warningArea').innerHTML = w.map(x =>
+    '<div class="warning-banner ' + (x.lvl==='warn'?'danger':'') + '">' + x.txt + '</div>'
+  ).join('');
+}
+
+$('freqAInput').addEventListener('input', e => {
+  const v = parseFloat(e.target.value);
+  if (!isNaN(v) && v > 0) { state.freqA = v; updateFreqDisplay(); showSuggest('A', v); }
+});
+$('freqBInput').addEventListener('input', e => {
+  const v = parseFloat(e.target.value);
+  if (!isNaN(v) && v > 0) { state.freqB = v; updateFreqDisplay(); showSuggest('B', v); }
+});
+$('freqAInput').addEventListener('focus', e => showSuggest('A', parseFloat(e.target.value) || 0));
+$('freqBInput').addEventListener('focus', e => showSuggest('B', parseFloat(e.target.value) || 0));
+document.addEventListener('click', e => {
+  if (!e.target.closest('.freq-card')) {
+    $('suggestA').classList.remove('show');
+    $('suggestB').classList.remove('show');
+  }
+});
+function showSuggest(channel, val) {
+  // Use public freq map for suggestions in manual mode (only most common freqs shown to guests)
+  const list = channel === 'A'
+    ? (CHANNEL_A || Object.entries(PUBLIC_FREQ_MAP_A).map(([f, n]) => ({freq: parseFloat(f), name: n})))
+    : (CHANNEL_B || Object.entries(PUBLIC_FREQ_MAP_B).map(([f, n]) => ({freq: parseFloat(f), name: n})));
+  const elem = $('suggest' + channel);
+  const prefix = String(Math.floor(val));
+  const matches = list.filter(f => String(f.freq).startsWith(prefix)).slice(0, 6);
+  if (matches.length === 0) { elem.classList.remove('show'); return; }
+  elem.innerHTML = matches.map(f =>
+    '<div class="suggest-item" data-freq="' + f.freq + '"><span class="sf">' + f.freq + '</span>' + f.name + '</div>'
+  ).join('');
+  elem.classList.add('show');
+  elem.querySelectorAll('.suggest-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const f = parseFloat(item.getAttribute('data-freq'));
+      if (channel === 'A') state.freqA = f; else state.freqB = f;
+      updateFreqDisplay();
+      elem.classList.remove('show');
+    });
+  });
+}
+
+document.querySelectorAll('#polGroup .btn-seg').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#polGroup .btn-seg').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.polarity = btn.getAttribute('data-pol');
+    checkWarnings();
+  });
+});
+document.querySelectorAll('#waveGroup .btn-seg').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#waveGroup .btn-seg').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.waveshape = btn.getAttribute('data-wave');
+  });
+});
+$('currentSlider').addEventListener('input', e => {
+  state.current = parseInt(e.target.value);
+  $('currentVal').textContent = state.current + ' μA';
+  $('currentValLabel').textContent = state.current + ' μA';
+});
+$('durSlider').addEventListener('input', e => {
+  state.duration = parseInt(e.target.value);
+  $('durVal').textContent = state.duration + ' min';
+  if (!state.running) updateTimerDisplay();
+});
+
+$('runBtn').addEventListener('click', () => {
+  if (state.running) stopRun();
+  else startManualRun();
+});
+$('ovStop').addEventListener('click', stopRun);
+$('runClose').addEventListener('click', stopRun);
+
+function startManualRun() {
+  state.loadedProtocol = null;
+  state.currentStepIndex = 0;
+  startStep({
+    freq_a: state.freqA, freq_b: state.freqB,
+    polarity: state.polarity, wave: state.waveshape,
+    current: state.current, duration: state.duration
+  }, false);
+}
+
+function startStep(step, isProtocol) {
+  state.freqA = step.freq_a;
+  state.freqB = step.freq_b;
+  state.polarity = step.polarity;
+  state.waveshape = step.wave;
+  state.current = step.current || state.current;
+  state.remainingSec = step.duration * 60;
+  updateFreqDisplay();
+  reflectControlState();
+  audio.start(step.freq_a, step.freq_b, step.polarity, step.wave, state.current);
+  state.running = true;
+  $('brand').classList.add('running');
+  $('statusDot').classList.add('live');
+  $('statusText').textContent = t('status_running');
+  $('runBtn').textContent = t('btn_stop');
+  $('runBtn').classList.remove('start'); $('runBtn').classList.add('stop');
+  $('runOverlay').classList.add('show');
+  $('ovFreqA').textContent = step.freq_a;
+  $('ovFreqB').textContent = step.freq_b;
+  $('ovFreqAName').textContent = FREQ_A_MAP[step.freq_a] || '—';
+  $('ovFreqBName').textContent = FREQ_B_MAP[step.freq_b] || '—';
+  if (isProtocol && state.loadedProtocol) {
+    const protoName = state.loadedProtocol.name_zh
+      ? (LANG==='zh' ? state.loadedProtocol.name_zh : state.loadedProtocol.name_en)
+      : state.loadedProtocol.name;
+    $('runOverlayTitle').textContent = (protoName || 'PROTOCOL').toUpperCase();
+    $('ovStepInfo').textContent = t('step_label') + ' ' + (state.currentStepIndex + 1) + ' / ' + state.loadedProtocol.steps.length;
+  } else {
+    $('runOverlayTitle').textContent = 'MANUAL';
+    $('ovStepInfo').textContent = '';
+  }
+  updateTimerDisplay();
+  if (state.timerInterval) clearInterval(state.timerInterval);
+  state.timerInterval = setInterval(() => {
+    state.remainingSec--;
+    updateTimerDisplay();
+    if (state.remainingSec <= 0) onStepEnd();
+  }, 1000);
+  if ('wakeLock' in navigator) {
+    navigator.wakeLock.request('screen').then(lock => { state.wakeLock = lock; }).catch(()=>{});
+  }
+}
+
+function reflectControlState() {
+  document.querySelectorAll('#polGroup .btn-seg').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-pol') === state.polarity);
+  });
+  document.querySelectorAll('#waveGroup .btn-seg').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-wave') === state.waveshape);
+  });
+  $('currentSlider').value = state.current;
+  $('currentVal').textContent = state.current + ' μA';
+  $('currentValLabel').textContent = state.current + ' μA';
+}
+
+function onStepEnd() {
+  if (state.loadedProtocol && state.currentStepIndex < state.loadedProtocol.steps.length - 1) {
+    audio.stop();
+    state.currentStepIndex++;
+    setTimeout(() => {
+      const step = state.loadedProtocol.steps[state.currentStepIndex];
+      startStep(step, true);
+      if ($('view-protocols').classList.contains('active')) renderProtocolList($('protocolSearch') && $('protocolSearch').value);
+    }, 300);
+  } else {
+    stopRun();
+    playEndChime();
+  }
+}
+
+function playEndChime() {
+  try {
+    const c = new (window.AudioContext || window.webkitAudioContext)();
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.frequency.value = 880;
+    g.gain.setValueAtTime(0.15, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.6);
+    o.connect(g); g.connect(c.destination);
+    o.start(); o.stop(c.currentTime + 0.6);
+    setTimeout(()=>c.close(), 1000);
+  } catch(e) {}
+}
+
+function stopRun() {
+  audio.stop();
+  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+  state.running = false;
+  $('brand').classList.remove('running');
+  $('statusDot').classList.remove('live');
+  $('statusText').textContent = t('status_idle');
+  $('runBtn').textContent = t('btn_start');
+  $('runBtn').classList.remove('stop'); $('runBtn').classList.add('start');
+  $('runOverlay').classList.remove('show');
+  if (state.wakeLock) { try { state.wakeLock.release(); } catch(e){} state.wakeLock = null; }
+  updateTimerDisplay();
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+document.querySelectorAll('.tab[data-view]').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const view = tab.getAttribute('data-view');
+    switchToView(view);
+  });
+});
+
+function switchToView(view) {
+  document.querySelectorAll('.tab[data-view]').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.tab[data-view="${view}"]`).classList.add('active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  $('view-' + view).classList.add('active');
+
+  if (view === 'manual') {
+    return; // public, no work needed
+  }
+
+  // For all protected views: render either gate or content
+  if (!auth.isAuthed()) {
+    renderGate('view-' + view);
+    return;
+  }
+
+  // Need protected data?
+  if ((!CHANNEL_A || !PROTOCOLS_CURATED) && view !== 'manual') {
+    // Trigger lazy load
+    $('view-' + view).innerHTML = '<div class="empty-state"><p>Loading...</p></div>';
+    loadProtectedData().then(() => switchToView(view));
+    return;
+  }
+
+  if (view === 'protocols') renderProtocolsView();
+  else if (view === 'library') renderLibraryView();
+  else if (view === 'music') renderMusicView();
+  else if (view === 'records') renderRecordsView();
+  else if (view === 'info') renderInfoView();
+}
+
+// ============================================================
+// PROTECTED: PROTOCOLS VIEW
+// ============================================================
+function renderProtocolsView() {
+  $('view-protocols').innerHTML = `
+    <div class="subtabs">
+      <button class="subtab active" data-pset="curated">${t('subtab_mine')}</button>
+      <button class="subtab" data-pset="full">${t('subtab_modebank')}</button>
+    </div>
+    <div class="search-bar">
+      <input type="text" class="search-input" id="protocolSearch" placeholder="${t('search_protocols')}">
+    </div>
+    <div id="protocolList"></div>
+  `;
+  document.querySelectorAll('.subtab[data-pset]').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.subtab[data-pset]').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      state.protocolSet = tab.getAttribute('data-pset');
+      renderProtocolList();
+    });
+  });
+  $('protocolSearch').addEventListener('input', e => renderProtocolList(e.target.value));
+  renderProtocolList();
+}
+
+function totalProtocolMinutes(p) {
+  if (p.steps[0].duration !== undefined) return p.steps.reduce((a, s) => a + s.duration, 0);
+  return p.steps.reduce((a, s) => a + s.d, 0);
+}
+function normalizeStep(s) {
+  if (s.freq_a !== undefined) return s;
+  return {
+    freq_a: s.a, freq_b: s.b,
+    duration: s.d,
+    polarity: s.p === 'P' ? 'Positive' : 'Alternating',
+    wave: s.w === 'S' ? 'Sharp' : (s.w === 'G' ? 'Gentle' : 'Medium')
+  };
+}
+function getProtocolName(p) {
+  if (p.name_zh) return LANG === 'zh' ? p.name_zh : p.name_en;
+  return p.name;
+}
+function getProtocolIndication(p) {
+  if (p.indication_zh) return LANG === 'zh' ? p.indication_zh : p.indication_en;
+  return '';
+}
+function renderProtocolList(filter) {
+  filter = (filter || '').toLowerCase();
+  const list = $('protocolList');
+  const src = state.protocolSet === 'curated' ? PROTOCOLS_CURATED : PROTOCOLS_FULL;
+  if (!src) { list.innerHTML = ''; return; }
+  const items = src.filter(p => {
+    if (!filter) return true;
+    const name = getProtocolName(p).toLowerCase();
+    const ind = getProtocolIndication(p).toLowerCase();
+    const cat = (p.category || p.cat || '').toLowerCase();
+    return name.includes(filter) || ind.includes(filter) || cat.includes(filter);
+  });
+  list.innerHTML = items.map(p => {
+    const nm = getProtocolName(p);
+    const ind = getProtocolIndication(p);
+    const tot = totalProtocolMinutes(p);
+    const cat = p.category || p.cat || '';
+    const isLoaded = state.loadedProtocol && state.loadedProtocol.id === p.id;
+    const stepsHtml = p.steps.map((rawStep, i) => {
+      const s = normalizeStep(rawStep);
+      const cur = (isLoaded && state.currentStepIndex === i && state.running);
+      return '<div class="step-row ' + (cur?'current':'') + '">' +
+        '<div class="step-num">' + (i+1) + '</div>' +
+        '<div class="step-freq">' + s.freq_a + '<span class="sep">/</span>' + s.freq_b +
+        '<span class="step-tags">' + (s.polarity==='Positive'?'+→':'+/-') + ' · ' + s.wave + '</span></div>' +
+        '<div class="step-time">' + s.duration + 'm</div></div>';
+    }).join('');
+    return '<div class="protocol-card ' + (isLoaded?'loaded':'') + '" data-id="' + p.id + '">' +
+      '<div class="protocol-name">' + nm + ' <span class="protocol-cat">' + cat + '</span></div>' +
+      (ind ? '<div class="protocol-indication">' + ind + '</div>' : '') +
+      '<div class="protocol-meta"><span>' + p.steps.length + ' steps</span><span>· ' + tot + ' min</span></div>' +
+      '<div class="steps-list">' + stepsHtml + '</div></div>';
+  }).join('');
+  list.querySelectorAll('.protocol-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = card.getAttribute('data-id');
+      const proto = src.find(p => p.id === id);
+      askLoadProtocol(proto);
+    });
+  });
+}
+
+function askLoadProtocol(p) {
+  const tot = totalProtocolMinutes(p);
+  $('modalTitle').textContent = getProtocolName(p);
+  let body = t('modal_load_body').replace('{n}', p.steps.length).replace('{t}', tot + ' min');
+  const seen = new Set();
+  for (const rawStep of p.steps) {
+    const s = normalizeStep(rawStep);
+    if (s.freq_a === 13 || s.freq_b === 13) seen.add('13');
+    if (s.freq_a === 79 || s.freq_b === 79) seen.add('79');
+    if (s.polarity === 'Positive') seen.add('pol');
+  }
+  if (seen.size) {
+    body += '<br><br>';
+    if (seen.has('13')) body += '<div class="warning-banner danger">' + t('warn_13_scar') + '</div>';
+    if (seen.has('79')) body += '<div class="warning-banner danger">' + t('warn_79_dvt') + '</div>';
+    if (seen.has('pol')) body += '<div class="warning-banner">' + t('warn_pol_stenosis') + '</div>';
+  }
+  body += '<div style="margin-top:12px;"><button class="btn-secondary" id="exportProtocolPdfBtn" style="width:100%">📄 ' + t('btn_export_protocol_pdf') + '</button></div>';
+  $('modalBody').innerHTML = body;
+  $('loadModal').classList.add('show');
+  $('modalConfirm').onclick = () => {
+    $('loadModal').classList.remove('show');
+    state.loadedProtocol = Object.assign({}, p, { steps: p.steps.map(normalizeStep) });
+    state.currentStepIndex = 0;
+    startStep(state.loadedProtocol.steps[0], true);
+    renderProtocolList($('protocolSearch') && $('protocolSearch').value);
+  };
+  $('modalCancel').onclick = () => $('loadModal').classList.remove('show');
+  const epb = $('exportProtocolPdfBtn');
+  if (epb) epb.onclick = () => exportProtocolPDF(p);
+}
+
+// ============================================================
+// PROTECTED: LIBRARY VIEW
+// ============================================================
+function renderLibraryView() {
+  $('view-library').innerHTML = `
+    <div class="search-bar">
+      <input type="text" class="search-input" id="librarySearch" placeholder="${t('search_library')}">
+    </div>
+    <div class="libtabs">
+      <button class="libtab active" data-libtab="A">CHANNEL A · ${CHANNEL_A ? CHANNEL_A.length : 0}</button>
+      <button class="libtab" data-libtab="B">CHANNEL B · ${CHANNEL_B ? CHANNEL_B.length : 0}</button>
+    </div>
+    <div id="libraryList"></div>
+  `;
+  let libTab = 'A';
+  function render(filter) {
+    filter = (filter || '').toLowerCase().trim();
+    const list = libTab === 'A' ? CHANNEL_A : CHANNEL_B;
+    if (!list) return;
+    const items = list.filter(x => !filter || String(x.freq).startsWith(filter) || x.name.toLowerCase().includes(filter));
+    $('libraryList').innerHTML = items.map(x =>
+      '<div class="lib-row" data-freq="' + x.freq + '" data-ch="' + libTab + '">' +
+      '<div class="lib-freq">' + x.freq + '</div><div class="lib-name">' + x.name + '</div></div>'
+    ).join('');
+    document.querySelectorAll('.lib-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const f = parseFloat(row.getAttribute('data-freq'));
+        const ch = row.getAttribute('data-ch');
+        if (ch === 'A') state.freqA = f; else state.freqB = f;
+        updateFreqDisplay();
+        switchToView('manual');
+      });
+    });
+  }
+  document.querySelectorAll('.libtab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.libtab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      libTab = tab.getAttribute('data-libtab');
+      render($('librarySearch').value);
+    });
+  });
+  $('librarySearch').addEventListener('input', e => render(e.target.value));
+  render('');
+}
+
+// ============================================================
+// PROTECTED: RECORDS VIEW
+// ============================================================
+const SESSIONS_KEY = 'fsm_sessions_v1';
+function loadSessions() { try { return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]'); } catch(e) { return []; } }
+function saveSessions(arr) { localStorage.setItem(SESSIONS_KEY, JSON.stringify(arr)); }
+function newId() { return 's_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8); }
+
+function renderRecordsView() {
+  $('view-records').innerHTML = `
+    <button class="btn-primary" id="newSessionBtn">${t('btn_new_session')}</button>
+    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+      <button class="btn-secondary" id="exportEncBtn" style="flex: 1">${t('btn_export_records_encrypted')}</button>
+      <button class="btn-secondary" id="importEncBtn" style="flex: 1">${t('btn_import_records_encrypted')}</button>
+      <input type="file" id="importEncFile" accept=".fsmbak,.json" style="display:none">
+    </div>
+    <div class="search-bar">
+      <input type="text" class="search-input" id="recordSearch" placeholder="${t('search_records')}">
+    </div>
+    <div id="recordList"></div>
+  `;
+  $('newSessionBtn').addEventListener('click', () => openSessionModal(null));
+  $('recordSearch').addEventListener('input', e => renderRecordList(e.target.value));
+  $('exportEncBtn').addEventListener('click', exportEncryptedRecords);
+  $('importEncBtn').addEventListener('click', () => $('importEncFile').click());
+  $('importEncFile').addEventListener('change', importEncryptedRecords);
+  renderRecordList('');
+}
+
+let editingRatings = { before: null, after: null };
+function openSessionModal(existing) {
+  state.editingSessionId = existing ? existing.id : null;
+  $('sessionModalTitle').textContent = existing ? t('session_edit_title') : t('session_new_title');
+  $('sessionPatient').value = existing ? existing.patient : '';
+  $('sessionComplaint').value = existing ? existing.complaint : '';
+  $('sessionProtocol').value = existing ? existing.protocol : (state.loadedProtocol ? getProtocolName(state.loadedProtocol) : '');
+  $('sessionResponse').value = existing ? existing.response : '';
+  $('sessionNotes').value = existing ? existing.notes : '';
+  editingRatings = { before: existing ? existing.painBefore : null, after: existing ? existing.painAfter : null };
+  document.querySelectorAll('#ratingBefore button').forEach(b => b.classList.toggle('active', parseInt(b.getAttribute('data-rating')) === editingRatings.before));
+  document.querySelectorAll('#ratingAfter button').forEach(b => b.classList.toggle('active', parseInt(b.getAttribute('data-rating')) === editingRatings.after));
+  $('sessionModal').classList.add('show');
+}
+document.querySelectorAll('#ratingBefore button').forEach(b => {
+  b.addEventListener('click', () => {
+    editingRatings.before = parseInt(b.getAttribute('data-rating'));
+    document.querySelectorAll('#ratingBefore button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
+document.querySelectorAll('#ratingAfter button').forEach(b => {
+  b.addEventListener('click', () => {
+    editingRatings.after = parseInt(b.getAttribute('data-rating'));
+    document.querySelectorAll('#ratingAfter button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
+$('sessionCancel').addEventListener('click', () => $('sessionModal').classList.remove('show'));
+$('sessionSave').addEventListener('click', () => {
+  const sessions = loadSessions();
+  const payload = {
+    id: state.editingSessionId || newId(),
+    date: state.editingSessionId ? (sessions.find(s => s.id === state.editingSessionId)?.date || new Date().toISOString()) : new Date().toISOString(),
+    patient: $('sessionPatient').value.trim(),
+    complaint: $('sessionComplaint').value.trim(),
+    protocol: $('sessionProtocol').value.trim(),
+    painBefore: editingRatings.before,
+    painAfter: editingRatings.after,
+    response: $('sessionResponse').value.trim(),
+    notes: $('sessionNotes').value.trim(),
+    modified: new Date().toISOString()
+  };
+  if (state.editingSessionId) {
+    const idx = sessions.findIndex(s => s.id === state.editingSessionId);
+    if (idx >= 0) sessions[idx] = payload;
+  } else {
+    sessions.unshift(payload);
+  }
+  saveSessions(sessions);
+  $('sessionModal').classList.remove('show');
+  state.editingSessionId = null;
+  renderRecordList('');
+});
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0') + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function renderRecordList(filter) {
+  filter = (filter || '').toLowerCase();
+  let sessions = loadSessions();
+  if (filter) sessions = sessions.filter(s =>
+    (s.patient || '').toLowerCase().includes(filter) ||
+    (s.complaint || '').toLowerCase().includes(filter) ||
+    (s.protocol || '').toLowerCase().includes(filter) ||
+    (s.response || '').toLowerCase().includes(filter) ||
+    (s.notes || '').toLowerCase().includes(filter)
+  );
+  const list = $('recordList');
+  if (sessions.length === 0) {
+    list.innerHTML = '<div class="empty-state"><p>' + t('record_empty').replace('\n', '<br>') + '</p></div>';
+    return;
+  }
+  list.innerHTML = sessions.map(s => {
+    const painDelta = (s.painBefore !== null && s.painAfter !== null) ? `VAS ${s.painBefore}→${s.painAfter}` : '';
+    return '<div class="session-card" data-id="' + s.id + '">' +
+      '<div class="session-header">' +
+        '<div class="session-patient">' + (s.patient || '—') + '</div>' +
+        '<div class="session-date">' + fmtDate(s.date) + '</div>' +
+      '</div>' +
+      (s.complaint ? '<div class="session-summary"><strong>' + (LANG==='zh'?'主訴':'Complaint') + ':</strong> ' + s.complaint + '</div>' : '') +
+      (s.protocol ? '<div class="session-summary"><strong>' + (LANG==='zh'?'協定':'Protocol') + ':</strong> ' + s.protocol + '</div>' : '') +
+      (s.response ? '<div class="session-summary"><strong>' + (LANG==='zh'?'反應':'Response') + ':</strong> ' + s.response + '</div>' : '') +
+      (s.notes ? '<div class="session-summary"><strong>' + (LANG==='zh'?'備註':'Notes') + ':</strong> ' + s.notes + '</div>' : '') +
+      (painDelta ? '<div class="session-meta"><span>' + painDelta + '</span></div>' : '') +
+      '<div class="session-actions">' +
+        '<button data-action="edit">' + t('record_edit') + '</button>' +
+        '<button data-action="pdf">' + t('record_export_pdf') + '</button>' +
+        '<button class="danger" data-action="delete">' + t('record_delete') + '</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  list.querySelectorAll('.session-card').forEach(card => {
+    const id = card.getAttribute('data-id');
+    const s = sessions.find(x => x.id === id);
+    card.querySelector('[data-action="edit"]').addEventListener('click', () => openSessionModal(s));
+    card.querySelector('[data-action="pdf"]').addEventListener('click', () => exportSessionPDF(s));
+    card.querySelector('[data-action="delete"]').addEventListener('click', () => {
+      if (confirm(t('record_confirm_delete'))) {
+        const all = loadSessions();
+        saveSessions(all.filter(x => x.id !== id));
+        renderRecordList($('recordSearch').value);
+      }
+    });
+  });
+}
+
+// ============================================================
+// ENCRYPTED EXPORT / IMPORT
+// ============================================================
+async function deriveKey(password, salt) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: 250000, hash: 'SHA-256' },
+    keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
+  );
+}
+async function exportEncryptedRecords() {
+  const sessions = loadSessions();
+  if (sessions.length === 0) { alert(LANG==='zh' ? '尚無紀錄可匯出' : 'No records to export'); return; }
+  const password = prompt(t('encrypt_prompt_password'));
+  if (!password) return;
+  if (password.length < 6) { alert(t('encrypt_password_too_short')); return; }
+  try {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(password, salt);
+    const plaintext = new TextEncoder().encode(JSON.stringify({ version: 1, exported: new Date().toISOString(), sessions }));
+    const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plaintext);
+    // Format: salt(16) + iv(12) + ciphertext  → base64
+    const combined = new Uint8Array(salt.length + iv.length + ciphertext.byteLength);
+    combined.set(salt, 0);
+    combined.set(iv, salt.length);
+    combined.set(new Uint8Array(ciphertext), salt.length + iv.length);
+    const b64 = btoa(String.fromCharCode(...combined));
+    const blob = new Blob([JSON.stringify({ format: 'fsm-encrypted-backup-v1', data: b64 }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `fsm_backup_${new Date().toISOString().slice(0,10)}.fsmbak`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    alert(t('encrypt_success').replace('{n}', sessions.length));
+  } catch (e) {
+    console.error(e);
+    alert('Export failed: ' + e.message);
+  }
+}
+async function importEncryptedRecords(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  const password = prompt(t('decrypt_prompt_password'));
+  if (!password) return;
+  try {
+    const text = await file.text();
+    const wrapper = JSON.parse(text);
+    if (wrapper.format !== 'fsm-encrypted-backup-v1') throw new Error('Unknown format');
+    const combined = Uint8Array.from(atob(wrapper.data), c => c.charCodeAt(0));
+    const salt = combined.slice(0, 16);
+    const iv = combined.slice(16, 28);
+    const ciphertext = combined.slice(28);
+    const key = await deriveKey(password, salt);
+    const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+    const parsed = JSON.parse(new TextDecoder().decode(plaintext));
+    if (!parsed.sessions || !Array.isArray(parsed.sessions)) throw new Error('Invalid backup');
+
+    // Merge with current — for duplicates keep the most recently modified
+    const current = loadSessions();
+    const byId = new Map(current.map(s => [s.id, s]));
+    let imported = 0;
+    for (const s of parsed.sessions) {
+      const existing = byId.get(s.id);
+      if (!existing) { byId.set(s.id, s); imported++; }
+      else {
+        const eM = new Date(existing.modified || existing.date).getTime();
+        const sM = new Date(s.modified || s.date).getTime();
+        if (sM > eM) { byId.set(s.id, s); imported++; }
+      }
+    }
+    const merged = Array.from(byId.values()).sort((a,b) => new Date(b.date) - new Date(a.date));
+    saveSessions(merged);
+    alert(t('decrypt_merged').replace('{n}', imported));
+    renderRecordList('');
+  } catch (e) {
+    console.error(e);
+    alert(t('decrypt_failed'));
+  } finally {
+    evt.target.value = ''; // reset
+  }
+}
+
+// ============================================================
+// PROTECTED: MUSIC VIEW
+// ============================================================
+const musicState = { source: 'manual', freqA: 40, freqB: 116, duration: 20, protocolId: null, style: 'ambient', treatmentLevel: 0.7, bgLevel: 0.3, format: 'wav' };
+
+function renderMusicView() {
+  $('view-music').innerHTML = `
+    <div class="info-block" style="margin-bottom: 16px;">
+      <p style="color: var(--text-dim); font-size: 12px; line-height: 1.6;">${t('music_intro')}</p>
+    </div>
+    <div class="card">
+      <div class="card-title">${t('music_source')}</div>
+      <div class="subtabs">
+        <button class="subtab active" data-msrc="manual">${t('music_src_manual')}</button>
+        <button class="subtab" data-msrc="protocol">${t('music_src_protocol')}</button>
+      </div>
+      <div id="musicManualSource">
+        <div class="freq-display" style="margin-bottom: 8px;">
+          <div class="freq-card chA"><div class="freq-label">CH A</div><div class="freq-value" id="musicFreqAVal">${musicState.freqA}</div><div class="freq-name" id="musicFreqAName">—</div><input type="number" class="freq-input" id="musicFreqAInput" value="${musicState.freqA}" min="0.1" max="970" step="0.1" inputmode="decimal"></div>
+          <div class="freq-card chB"><div class="freq-label">CH B</div><div class="freq-value" id="musicFreqBVal">${musicState.freqB}</div><div class="freq-name" id="musicFreqBName">—</div><input type="number" class="freq-input" id="musicFreqBInput" value="${musicState.freqB}" min="0.1" max="970" step="0.1" inputmode="decimal"></div>
+        </div>
+        <div class="form-group"><label class="form-label">${t('music_duration')}</label><div class="slider-row"><input type="range" class="slider" id="musicDurSlider" min="1" max="60" step="1" value="${musicState.duration}"><div class="slider-value" id="musicDurVal">${musicState.duration} min</div></div></div>
+      </div>
+      <div id="musicProtocolSource" style="display:none">
+        <div class="form-group"><label class="form-label">${t('music_select_protocol')}</label><select class="form-select" id="musicProtocolSelect"></select></div>
+        <div class="info-block" style="font-size: 11px;"><p id="musicProtocolInfo" style="color: var(--text-dim);">—</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">${t('music_style')}</div>
+      <div class="btn-group" id="musicStyleGroup" style="flex-wrap: wrap; gap: 6px;">
+        <button class="btn-seg ${musicState.style==='ambient'?'active':''}" data-style="ambient">${t('music_style_ambient')}</button>
+        <button class="btn-seg ${musicState.style==='binaural'?'active':''}" data-style="binaural">${t('music_style_binaural')}</button>
+        <button class="btn-seg ${musicState.style==='nature'?'active':''}" data-style="nature">${t('music_style_nature')}</button>
+        <button class="btn-seg ${musicState.style==='silent'?'active':''}" data-style="silent">${t('music_style_silent')}</button>
+      </div>
+      <div style="font-size: 11px; color: var(--text-dim); margin-top: 8px;" id="musicStyleDesc">${t('music_style_desc_' + musicState.style)}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">${t('music_mix')}</div>
+      <div class="form-group"><label class="form-label">${t('music_treatment_level')} · <span id="musicTreatmentVal">${Math.round(musicState.treatmentLevel*100)}%</span></label><div class="slider-row"><input type="range" class="slider" id="musicTreatmentSlider" min="30" max="100" step="5" value="${Math.round(musicState.treatmentLevel*100)}"><div class="slider-value" id="musicTreatmentValTxt">${Math.round(musicState.treatmentLevel*100)}%</div></div></div>
+      <div class="form-group" style="margin-bottom: 0;"><label class="form-label">${t('music_bg_level')} · <span id="musicBgVal">${Math.round(musicState.bgLevel*100)}%</span></label><div class="slider-row"><input type="range" class="slider" id="musicBgSlider" min="0" max="60" step="5" value="${Math.round(musicState.bgLevel*100)}"><div class="slider-value" id="musicBgValTxt">${Math.round(musicState.bgLevel*100)}%</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">${t('music_format')}</div>
+      <div class="btn-group" id="musicFormatGroup">
+        <button class="btn-seg ${musicState.format==='wav'?'active':''}" data-fmt="wav">WAV</button>
+        <button class="btn-seg ${musicState.format==='mp3'?'active':''}" data-fmt="mp3">MP3 192k</button>
+      </div>
+      <div style="font-size: 11px; color: var(--text-dim); margin-top: 8px;" id="musicFormatDesc">${musicState.format==='wav'?t('music_format_wav_desc'):t('music_format_mp3_desc')}</div>
+    </div>
+    <div class="warning-banner info" id="musicSizeEstimate">${t('music_size_estimate')}: <span id="musicSizeVal">~ — MB</span></div>
+    <button class="btn-primary" id="generateMusicBtn">${t('music_generate')}</button>
+    <div id="musicProgress" style="display: none;">
+      <div class="card"><div class="card-title" id="musicProgressTitle">${t('music_generating')}</div><div style="background: var(--bg); border-radius: var(--radius); height: 8px; overflow: hidden; margin: 12px 0;"><div id="musicProgressBar" style="background: var(--accent); height: 100%; width: 0%; transition: width 0.3s;"></div></div><div style="font-size: 11px; color: var(--text-dim); font-family: var(--mono);" id="musicProgressStatus">—</div></div>
+    </div>
+  `;
+  initMusicViewBindings();
+}
+
+function initMusicViewBindings() {
+  // Populate protocol select
+  const sel = $('musicProtocolSelect');
+  const all = [...(PROTOCOLS_CURATED||[]).map(p => ({...p, src:'curated'})), ...(PROTOCOLS_FULL||[]).map(p => ({...p, src:'full'}))];
+  sel.innerHTML = all.map(p => {
+    const nm = p.name_zh ? (LANG==='zh'?p.name_zh:p.name_en) : p.name;
+    const tag = p.src === 'curated' ? '★ ' : '';
+    return `<option value="${p.id}" data-src="${p.src}">${tag}${nm}</option>`;
+  }).join('');
+  sel.addEventListener('change', updateMusicProtocolInfo);
+
+  musicState.freqA = state.freqA;
+  musicState.freqB = state.freqB;
+  $('musicFreqAName').textContent = FREQ_A_MAP[musicState.freqA] || '—';
+  $('musicFreqBName').textContent = FREQ_B_MAP[musicState.freqB] || '—';
+
+  $('musicFreqAInput').addEventListener('input', e => {
+    const v = parseFloat(e.target.value);
+    if (!isNaN(v) && v > 0) { musicState.freqA = v; $('musicFreqAVal').textContent = v; $('musicFreqAName').textContent = FREQ_A_MAP[v] || '—'; }
+  });
+  $('musicFreqBInput').addEventListener('input', e => {
+    const v = parseFloat(e.target.value);
+    if (!isNaN(v) && v > 0) { musicState.freqB = v; $('musicFreqBVal').textContent = v; $('musicFreqBName').textContent = FREQ_B_MAP[v] || '—'; }
+  });
+  $('musicDurSlider').addEventListener('input', e => {
+    musicState.duration = parseInt(e.target.value);
+    $('musicDurVal').textContent = musicState.duration + ' min';
+    updateMusicSizeEstimate();
+  });
+  $('musicTreatmentSlider').addEventListener('input', e => {
+    musicState.treatmentLevel = parseInt(e.target.value) / 100;
+    $('musicTreatmentVal').textContent = e.target.value + '%';
+    $('musicTreatmentValTxt').textContent = e.target.value + '%';
+  });
+  $('musicBgSlider').addEventListener('input', e => {
+    musicState.bgLevel = parseInt(e.target.value) / 100;
+    $('musicBgVal').textContent = e.target.value + '%';
+    $('musicBgValTxt').textContent = e.target.value + '%';
+  });
+  document.querySelectorAll('.subtab[data-msrc]').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.subtab[data-msrc]').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      musicState.source = tab.getAttribute('data-msrc');
+      $('musicManualSource').style.display = musicState.source === 'manual' ? '' : 'none';
+      $('musicProtocolSource').style.display = musicState.source === 'protocol' ? '' : 'none';
+      updateMusicSizeEstimate();
+    });
+  });
+  document.querySelectorAll('#musicStyleGroup .btn-seg').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#musicStyleGroup .btn-seg').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      musicState.style = btn.getAttribute('data-style');
+      $('musicStyleDesc').textContent = t('music_style_desc_' + musicState.style);
+      if (musicState.style === 'silent') {
+        $('musicBgSlider').value = 0; musicState.bgLevel = 0;
+        $('musicBgVal').textContent = '0%'; $('musicBgValTxt').textContent = '0%';
+      }
+    });
+  });
+  document.querySelectorAll('#musicFormatGroup .btn-seg').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#musicFormatGroup .btn-seg').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      musicState.format = btn.getAttribute('data-fmt');
+      $('musicFormatDesc').textContent = musicState.format==='wav' ? t('music_format_wav_desc') : t('music_format_mp3_desc');
+      updateMusicSizeEstimate();
+    });
+  });
+  $('generateMusicBtn').addEventListener('click', async () => {
+    const btn = $('generateMusicBtn');
+    btn.disabled = true; btn.style.opacity = '0.5';
+    $('musicProgress').style.display = 'block';
+    try { await generateMusicFile(); }
+    catch (err) {
+      console.error(err);
+      $('musicProgressStatus').textContent = t('music_generate_failed') + ': ' + (err.message || err);
+      $('musicProgressBar').style.background = 'var(--danger)';
+    } finally {
+      setTimeout(() => { btn.disabled = false; btn.style.opacity = ''; }, 1000);
+    }
+  });
+  updateMusicSizeEstimate();
+}
+
+function getProtocolFromAny(id) {
+  return (PROTOCOLS_CURATED||[]).find(p => p.id === id) || (PROTOCOLS_FULL||[]).find(p => p.id === id);
+}
+function updateMusicProtocolInfo() {
+  const id = $('musicProtocolSelect').value;
+  if (!id) return;
+  const p = getProtocolFromAny(id);
+  if (!p) return;
+  musicState.protocolId = id;
+  $('musicProtocolInfo').textContent = `${p.steps.length} steps · ${totalProtocolMinutes(p)} min`;
+  updateMusicSizeEstimate();
+}
+function updateMusicSizeEstimate() {
+  let durMin;
+  if (musicState.source === 'manual') durMin = musicState.duration;
+  else { const p = getProtocolFromAny(musicState.protocolId); durMin = p ? totalProtocolMinutes(p) : 0; }
+  let sizeMB;
+  if (musicState.format === 'wav') sizeMB = (durMin * 60 * 176 / 1024).toFixed(1); // 44.1kHz 16-bit stereo
+  else sizeMB = (durMin * 60 * 192 / 8 / 1024).toFixed(1); // 192 kbps MP3
+  $('musicSizeVal').textContent = `~ ${sizeMB} MB`;
+}
+
+async function generateMusicFile() {
+  const SR = 44100;
+  let segments, labelName;
+  if (musicState.source === 'manual') {
+    segments = [{ freqA: musicState.freqA, freqB: musicState.freqB, polarity: state.polarity, wave: state.waveshape, duration: musicState.duration * 60 }];
+    labelName = `FSM_${musicState.freqA}_${musicState.freqB}_${musicState.duration}min`;
+  } else {
+    const p = getProtocolFromAny(musicState.protocolId);
+    if (!p) throw new Error('No protocol selected');
+    segments = p.steps.map(rawStep => { const s = normalizeStep(rawStep); return { freqA: s.freq_a, freqB: s.freq_b, polarity: s.polarity, wave: s.wave, duration: s.duration * 60 }; });
+    const nm = p.name_zh ? (LANG==='zh'?p.name_zh:p.name_en) : p.name;
+    labelName = `FSM_${nm.replace(/[^a-zA-Z0-9_\u4e00-\u9fa5]/g, '_')}`;
+  }
+  const totalSec = segments.reduce((a, s) => a + s.duration, 0);
+  const totalSamples = Math.floor(totalSec * SR);
+  if (totalSamples > 50 * 60 * SR) throw new Error('Duration > 50 min: too large');
+
+  $('musicProgressStatus').textContent = t('music_progress_init');
+  $('musicProgressBar').style.width = '5%';
+  await new Promise(r => setTimeout(r, 50));
+
+  const offCtx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(2, totalSamples, SR);
+  let cursor = 0;
+  for (let i = 0; i < segments.length; i++) {
+    buildSegment(offCtx, segments[i], cursor, cursor + segments[i].duration);
+    cursor += segments[i].duration;
+  }
+  if (musicState.style !== 'silent' && musicState.bgLevel > 0) buildBackground(offCtx, musicState.style, totalSec);
+
+  $('musicProgressStatus').textContent = t('music_progress_render').replace('{pct}', '0');
+  $('musicProgressBar').style.width = '15%';
+
+  const renderStart = Date.now();
+  const renderProm = offCtx.startRendering();
+  const monitor = setInterval(() => {
+    const elapsed = Date.now() - renderStart;
+    const guessedPct = Math.min(70, 15 + Math.floor(elapsed / 100));
+    $('musicProgressBar').style.width = guessedPct + '%';
+    $('musicProgressStatus').textContent = t('music_progress_render').replace('{pct}', guessedPct - 15);
+  }, 300);
+  const renderedBuffer = await renderProm;
+  clearInterval(monitor);
+
+  $('musicProgressStatus').textContent = t('music_progress_encode');
+  $('musicProgressBar').style.width = '75%';
+  await new Promise(r => setTimeout(r, 50));
+
+  let blob, ext;
+  if (musicState.format === 'mp3') {
+    if (typeof lamejs === 'undefined') {
+      // Load lamejs from CDN if not present
+      await loadScript('https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js');
+    }
+    blob = encodeMP3(renderedBuffer, 192);
+    ext = 'mp3';
+  } else {
+    blob = encodeWAV(renderedBuffer);
+    ext = 'wav';
+  }
+  $('musicProgressBar').style.width = '100%';
+  $('musicProgressStatus').textContent = t('music_progress_done');
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `${labelName}.${ext}`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  setTimeout(() => { $('musicProgress').style.display = 'none'; $('musicProgressBar').style.width = '0%'; $('musicProgressBar').style.background = 'var(--accent)'; }, 3000);
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = () => reject(new Error('Failed to load ' + src));
+    document.head.appendChild(s);
+  });
+}
+
+function buildSegment(ctx, seg, startTime, endTime) {
+  const treatmentLevel = musicState.treatmentLevel;
+  const merger = ctx.createChannelMerger(2);
+  const masterGain = ctx.createGain();
+  const fadeTime = 0.5;
+  masterGain.gain.setValueAtTime(0, startTime);
+  masterGain.gain.linearRampToValueAtTime(treatmentLevel * 0.6, startTime + fadeTime);
+  masterGain.gain.setValueAtTime(treatmentLevel * 0.6, endTime - fadeTime);
+  masterGain.gain.linearRampToValueAtTime(0, endTime);
+  const buildCh = (freq, idx) => {
+    const chGain = ctx.createGain(); chGain.gain.value = 1.0;
+    if (freq < 20) {
+      const carrier = ctx.createOscillator();
+      carrier.type = (seg.wave === 'Sharp') ? 'square' : 'sine';
+      carrier.frequency.value = 200;
+      const mod = ctx.createOscillator(); mod.type = 'sine'; mod.frequency.value = freq;
+      const modGain = ctx.createGain(); modGain.gain.value = 0.5;
+      const offset = ctx.createConstantSource(); offset.offset.value = 0.5;
+      mod.connect(modGain); modGain.connect(chGain.gain); offset.connect(chGain.gain);
+      carrier.connect(chGain);
+      carrier.start(startTime); carrier.stop(endTime);
+      mod.start(startTime); mod.stop(endTime);
+      offset.start(startTime); offset.stop(endTime);
+    } else {
+      const osc = ctx.createOscillator();
+      osc.type = (seg.wave === 'Sharp') ? 'square' : 'sine';
+      osc.frequency.value = freq;
+      osc.connect(chGain);
+      osc.start(startTime); osc.stop(endTime);
+    }
+    if (seg.polarity === 'Positive') {
+      const dc = ctx.createConstantSource(); dc.offset.value = 0.3;
+      const dcG = ctx.createGain(); dcG.gain.value = 0.5;
+      dc.connect(dcG); dcG.connect(chGain);
+      dc.start(startTime); dc.stop(endTime);
+    }
+    chGain.connect(merger, 0, idx);
+  };
+  buildCh(seg.freqA, 0); buildCh(seg.freqB, 1);
+  merger.connect(masterGain);
+  masterGain.connect(ctx.destination);
+}
+
+function buildBackground(ctx, style, totalSec) {
+  const bgLevel = musicState.bgLevel;
+  const bgGain = ctx.createGain();
+  bgGain.gain.value = bgLevel * 0.4;
+  bgGain.gain.setValueAtTime(0, 0);
+  bgGain.gain.linearRampToValueAtTime(bgLevel * 0.4, 3);
+  bgGain.gain.setValueAtTime(bgLevel * 0.4, totalSec - 3);
+  bgGain.gain.linearRampToValueAtTime(0, totalSec);
+  if (style === 'ambient') {
+    const dr = ctx.createOscillator(); dr.type = 'sine'; dr.frequency.value = 110;
+    const df = ctx.createOscillator(); df.type = 'sine'; df.frequency.value = 164.81;
+    const dg = ctx.createGain(); dg.gain.value = 0.4;
+    dr.connect(dg); df.connect(dg); dg.connect(bgGain);
+    dr.start(0); dr.stop(totalSec); df.start(0); df.stop(totalSec);
+    const notes = [220, 261.63, 293.66, 329.63, 392, 440, 523.25];
+    for (let tm = 4; tm < totalSec - 4; tm += 6 + Math.random() * 4) {
+      const f = notes[Math.floor(Math.random() * notes.length)];
+      const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = f;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, tm);
+      g.gain.linearRampToValueAtTime(0.15, tm + 0.5);
+      g.gain.exponentialRampToValueAtTime(0.001, tm + 4);
+      osc.connect(g); g.connect(bgGain);
+      osc.start(tm); osc.stop(tm + 4.5);
+    }
+  } else if (style === 'binaural') {
+    const lo = ctx.createOscillator(); lo.type = 'sine'; lo.frequency.value = 200;
+    const ro = ctx.createOscillator(); ro.type = 'sine'; ro.frequency.value = 208;
+    const m = ctx.createChannelMerger(2);
+    const lg = ctx.createGain(); lg.gain.value = 0.3;
+    const rg = ctx.createGain(); rg.gain.value = 0.3;
+    lo.connect(lg); lg.connect(m, 0, 0);
+    ro.connect(rg); rg.connect(m, 0, 1);
+    m.connect(bgGain);
+    lo.start(0); lo.stop(totalSec); ro.start(0); ro.stop(totalSec);
+  } else if (style === 'nature') {
+    const bufferSize = ctx.sampleRate * 2;
+    const noiseBuffer = ctx.createBuffer(2, bufferSize, ctx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const data = noiseBuffer.getChannelData(ch);
+      let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+      for (let i = 0; i < bufferSize; i++) {
+        const w = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + w * 0.0555179;
+        b1 = 0.99332 * b1 + w * 0.0750759;
+        b2 = 0.96900 * b2 + w * 0.1538520;
+        b3 = 0.86650 * b3 + w * 0.3104856;
+        b4 = 0.55000 * b4 + w * 0.5329522;
+        b5 = -0.7616 * b5 - w * 0.0168980;
+        data[i] = (b0+b1+b2+b3+b4+b5+b6+w*0.5362) * 0.11;
+        b6 = w * 0.115926;
+      }
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = noiseBuffer; noise.loop = true;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass'; filter.frequency.value = 1500; filter.Q.value = 0.7;
+    noise.connect(filter); filter.connect(bgGain);
+    noise.start(0); noise.stop(totalSec);
+  }
+  bgGain.connect(ctx.destination);
+}
+
+function encodeWAV(audioBuffer) {
+  const numChannels = audioBuffer.numberOfChannels;
+  const sampleRate = audioBuffer.sampleRate;
+  const numSamples = audioBuffer.length;
+  const bytesPerSample = 2;
+  const dataSize = numSamples * numChannels * bytesPerSample;
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+  function writeString(o, s) { for (let i=0;i<s.length;i++) view.setUint8(o+i, s.charCodeAt(i)); }
+  writeString(0, 'RIFF'); view.setUint32(4, 36+dataSize, true); writeString(8, 'WAVE');
+  writeString(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+  view.setUint16(22, numChannels, true); view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate*numChannels*bytesPerSample, true);
+  view.setUint16(32, numChannels*bytesPerSample, true); view.setUint16(34, 16, true);
+  writeString(36, 'data'); view.setUint32(40, dataSize, true);
+  const channels = [];
+  for (let c=0;c<numChannels;c++) channels.push(audioBuffer.getChannelData(c));
+  let offset = 44;
+  for (let i=0;i<numSamples;i++) {
+    for (let c=0;c<numChannels;c++) {
+      let s = Math.max(-1, Math.min(1, channels[c][i]));
+      s = s < 0 ? s * 0x8000 : s * 0x7FFF;
+      view.setInt16(offset, s, true); offset += 2;
+    }
+  }
+  return new Blob([buffer], { type: 'audio/wav' });
+}
+
+function encodeMP3(audioBuffer, kbps) {
+  // Uses lamejs (loaded lazily from CDN)
+  const numChannels = audioBuffer.numberOfChannels;
+  const sampleRate = audioBuffer.sampleRate;
+  const mp3encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, kbps);
+  const samplesL = audioBuffer.getChannelData(0);
+  const samplesR = numChannels > 1 ? audioBuffer.getChannelData(1) : samplesL;
+  // Convert Float32 to Int16
+  const lengthL = samplesL.length;
+  const l16 = new Int16Array(lengthL);
+  const r16 = new Int16Array(lengthL);
+  for (let i = 0; i < lengthL; i++) {
+    l16[i] = Math.max(-32768, Math.min(32767, samplesL[i] * 32767));
+    r16[i] = Math.max(-32768, Math.min(32767, samplesR[i] * 32767));
+  }
+  const mp3Data = [];
+  const blockSize = 1152;
+  for (let i = 0; i < lengthL; i += blockSize) {
+    const lc = l16.subarray(i, i + blockSize);
+    const rc = r16.subarray(i, i + blockSize);
+    const mp3buf = mp3encoder.encodeBuffer(lc, rc);
+    if (mp3buf.length > 0) mp3Data.push(mp3buf);
+  }
+  const end = mp3encoder.flush();
+  if (end.length > 0) mp3Data.push(end);
+  return new Blob(mp3Data, { type: 'audio/mp3' });
+}
+
+// ============================================================
+// PROTECTED: INFO VIEW
+// ============================================================
+function renderInfoView() {
+  $('view-info').innerHTML = `
+    <div class="info-block">
+      <h3>${t('info_hardware_title')}</h3><p>${t('info_hardware_body')}</p>
+      <h3>${t('info_polarity_title')}</h3><p>${t('info_polarity_body')}</p>
+      <h3>${t('info_warnings_title')}</h3><p>${t('info_warnings_body')}</p>
+      <h3>${t('info_audio_title')}</h3><p>${t('info_audio_body')}</p>
+      <h3>${t('info_data_title')}</h3><p>${t('info_data_body')}</p>
+      <h3>${t('info_disclaimer_title')}</h3><p>${t('info_disclaimer_body')}</p>
+      <h3>Version</h3><p>FSM Studio · Stage 4 · ${auth.user ? auth.user.email : 'guest'}</p>
+    </div>
+  `;
+}
+
+// ============================================================
+// PDF EXPORT
+// ============================================================
+function exportSessionPDF(s) {
+  const html = generateSessionHTML(s);
+  openPrintWindow(html);
+}
+function exportProtocolPDF(p) {
+  const html = generateProtocolHTML(p);
+  openPrintWindow(html);
+}
+function openPrintWindow(html) {
+  const w = window.open('', '_blank');
+  if (!w) { alert(LANG==='zh' ? '請允許彈出視窗以匯出 PDF' : 'Please allow pop-ups'); return; }
+  w.document.write(html); w.document.close();
+  setTimeout(() => { w.focus(); w.print(); }, 300);
+}
+function pdfStyle() {
+  return `<style>body { font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif; color: #222; max-width: 720px; margin: 24px auto; padding: 0 24px; line-height: 1.5; } h1 { font-size: 18px; margin-bottom: 6px; border-bottom: 2px solid #00a37c; padding-bottom: 8px; } h2 { font-size: 14px; margin: 20px 0 8px; color: #00a37c; } .meta { font-size: 12px; color: #666; margin-bottom: 12px; } .field { margin-bottom: 10px; font-size: 13px; } .field-label { font-weight: 600; color: #444; display: inline-block; min-width: 90px; } table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 10px 0; } th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #ddd; } th { background: #f5f5f5; font-size: 11px; text-transform: uppercase; color: #555; } .badge { display: inline-block; background: #f0f0f0; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-family: monospace; } .warning { background: #fff4e0; border-left: 3px solid #ffa500; padding: 8px 12px; margin: 10px 0; font-size: 12px; } footer { margin-top: 30px; padding-top: 12px; border-top: 1px solid #ddd; font-size: 10px; color: #999; text-align: center; } @media print { body { margin: 0; padding: 20px; } }</style>`;
+}
+function generateSessionHTML(s) {
+  const date = fmtDate(s.date);
+  const painDelta = (s.painBefore !== null && s.painAfter !== null) ? `${s.painBefore} → ${s.painAfter}` : '—';
+  const L = LANG === 'zh' ? { title: 'FSM 治療紀錄', date: '治療日期', patient: '患者', complaint: '主訴 / 部位', protocol: '使用協定', pain: 'VAS 疼痛 (前 → 後)', response: '組織反應', notes: '備註', footer: '由 FSM Studio 生成' }
+    : { title: 'FSM Session Record', date: 'Session date', patient: 'Patient', complaint: 'Complaint', protocol: 'Protocol', pain: 'VAS pain (pre → post)', response: 'Response', notes: 'Notes', footer: 'Generated by FSM Studio' };
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${L.title}</title>${pdfStyle()}</head><body>
+<h1>${L.title}</h1><div class="meta">${L.date}: ${date}</div>
+<div class="field"><span class="field-label">${L.patient}:</span> ${s.patient || '—'}</div>
+<div class="field"><span class="field-label">${L.complaint}:</span> ${s.complaint || '—'}</div>
+<div class="field"><span class="field-label">${L.protocol}:</span> ${s.protocol || '—'}</div>
+<div class="field"><span class="field-label">${L.pain}:</span> <span class="badge">${painDelta}</span></div>
+${s.response ? `<h2>${L.response}</h2><div>${escapeHtml(s.response).replace(/\n/g,'<br>')}</div>` : ''}
+${s.notes ? `<h2>${L.notes}</h2><div>${escapeHtml(s.notes).replace(/\n/g,'<br>')}</div>` : ''}
+<footer>${L.footer}</footer></body></html>`;
+}
+function generateProtocolHTML(p) {
+  const L = LANG === 'zh' ? { title: 'FSM 治療協定', name: '協定名稱', category: '類別', indication: '適應症', total: '總時長', steps: '治療步驟', step: '步驟', freq: '頻率 (A / B)', polarity: '極性', wave: '波形', duration: '時長', tissue: '組織', warnings: '注意事項', hardware: '硬體建議', hwb: '手機接 USB-C 轉 3.5mm，再接 iCare-Pad 或自製電極片。起始電流 100-200 μA，依組織反應調整。', footer: '由 FSM Studio 生成' }
+    : { title: 'FSM Treatment Protocol', name: 'Protocol', category: 'Category', indication: 'Indication', total: 'Total duration', steps: 'Treatment steps', step: 'Step', freq: 'Freq (A / B)', polarity: 'Polarity', wave: 'Wave', duration: 'Dur.', tissue: 'Tissues', warnings: 'Precautions', hardware: 'Hardware', hwb: 'Phone → USB-C to 3.5mm → iCare-Pad or DIY electrode cable. Start 100-200 μA, adjust to response.', footer: 'Generated by FSM Studio' };
+  const nm = getProtocolName(p); const ind = getProtocolIndication(p);
+  const cat = p.category || p.cat || ''; const tot = totalProtocolMinutes(p);
+  const warnings = new Set();
+  const rows = p.steps.map((rs, i) => {
+    const s = normalizeStep(rs);
+    if (s.freq_a === 13 || s.freq_b === 13) warnings.add('13');
+    if (s.freq_a === 79 || s.freq_b === 79) warnings.add('79');
+    if (s.polarity === 'Positive') warnings.add('pol');
+    return `<tr><td>${i+1}</td><td><span class="badge">${s.freq_a} / ${s.freq_b}</span></td><td>${s.polarity==='Positive'?'+→':'+/-'}</td><td>${s.wave}</td><td>${s.duration} min</td><td style="font-size:10px;color:#666">${FREQ_A_MAP[s.freq_a]||''} / ${FREQ_B_MAP[s.freq_b]||''}</td></tr>`;
+  }).join('');
+  let warnHtml = '';
+  if (warnings.size > 0) {
+    warnHtml = `<h2>${L.warnings}</h2>`;
+    if (warnings.has('13')) warnHtml += `<div class="warning">${t('warn_13_scar')}</div>`;
+    if (warnings.has('79')) warnHtml += `<div class="warning">${t('warn_79_dvt')}</div>`;
+    if (warnings.has('pol')) warnHtml += `<div class="warning">${t('warn_pol_stenosis')}</div>`;
+  }
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${L.title}</title>${pdfStyle()}</head><body>
+<h1>${L.title}</h1><div class="meta">${new Date().toISOString().slice(0,10)}</div>
+<div class="field"><span class="field-label">${L.name}:</span> ${nm}</div>
+<div class="field"><span class="field-label">${L.category}:</span> ${cat}</div>
+${ind ? `<div class="field"><span class="field-label">${L.indication}:</span> ${ind}</div>` : ''}
+<div class="field"><span class="field-label">${L.total}:</span> ${tot} min · ${p.steps.length} steps</div>
+${warnHtml}
+<h2>${L.steps}</h2><table><thead><tr><th>${L.step}</th><th>${L.freq}</th><th>${L.polarity}</th><th>${L.wave}</th><th>${L.duration}</th><th>${L.tissue}</th></tr></thead><tbody>${rows}</tbody></table>
+<h2>${L.hardware}</h2><div style="font-size:12px">${L.hwb}</div>
+<footer>${L.footer}</footer></body></html>`;
+}
+function escapeHtml(s) { if (!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ============================================================
+// LANGUAGE TOGGLE
+// ============================================================
+$('langToggle').addEventListener('click', () => {
+  LANG = LANG === 'zh' ? 'en' : 'zh';
+  localStorage.setItem('fsm_lang', LANG);
+  applyI18n();
+  updateFreqDisplay();
+  // Re-render active view
+  const active = document.querySelector('.tab.active');
+  if (active) switchToView(active.getAttribute('data-view'));
+});
+
+// ============================================================
+// INIT
+// ============================================================
+applyI18n();
+updateAuthUI();
+updateFreqDisplay();
+updateTimerDisplay();
+// If logged in, load protected data in background
+if (auth.isAuthed()) loadProtectedData();
+</script>
+</body>
+</html>
