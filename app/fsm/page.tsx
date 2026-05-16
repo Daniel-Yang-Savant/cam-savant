@@ -37,72 +37,54 @@ export default function FSMPage() {
         <p className="mt-2 text-neutral-500 dark:text-neutral-400 max-w-xl">{CATEGORY_DESCRIPTIONS['fsm']}</p>
       </div>
 
-      {/* Spotify artist link */}
-      <a
-        href="https://open.spotify.com/artist/1mvVRIoRbi88KV0YVInKIV"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-3 px-5 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 hover:border-[#1DB954] hover:bg-green-50 dark:hover:bg-neutral-700 transition-colors group mb-12"
-      >
-        {/* Spotify icon */}
-        <svg role="img" viewBox="0 0 24 24" width="20" height="20" fill="#1DB954" aria-label="Spotify">
-          <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
-        </svg>
-
-        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300 group-hover:text-[#1DB954] transition-colors">
-          在 Spotify 聆聽 FSM 相關音樂
-        </span>
-
-        {/* External link arrow */}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="text-neutral-500 dark:text-neutral-500 group-hover:text-[#1DB954] transition-colors"
-        >
-          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-          <polyline points="15 3 21 3 21 9" />
-          <line x1="10" y1="14" x2="21" y2="3" />
-        </svg>
-      </a>
-
-      {/* FSM Studio tool card */}
+      {/* Tools row: Spotify + FSM Studio side by side */}
       <div className="mb-12">
         <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-4">
-          治療師工具
+          治療工具
         </h2>
-        <a
-          href="/fsm/studio/"
-          className="group flex flex-col sm:flex-row sm:items-center gap-4 px-6 py-5 rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-neutral-700 transition-colors"
-        >
-          <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-600 dark:text-teal-300">
+        <div className="flex flex-wrap gap-3">
+
+          {/* Spotify */}
+          <a
+            href="https://open.spotify.com/artist/1mvVRIoRbi88KV0YVInKIV"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 px-5 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 hover:border-[#1DB954] hover:bg-green-50 dark:hover:bg-neutral-700 transition-colors group"
+          >
+            <svg role="img" viewBox="0 0 24 24" width="20" height="20" fill="#1DB954" aria-label="Spotify">
+              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+            </svg>
+            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300 group-hover:text-[#1DB954] transition-colors">
+              在 Spotify 聆聽 FSM 相關音樂
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-400 dark:text-neutral-500 group-hover:text-[#1DB954] transition-colors">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
+          </a>
+
+          {/* FSM Studio */}
+          <a
+            href="/fsm/studio/"
+            className="inline-flex items-center gap-3 px-5 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-neutral-700 transition-colors group"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-500 dark:text-teal-400">
               <path d="M9 18V5l12-2v13" />
               <circle cx="6" cy="18" r="3" />
               <circle cx="18" cy="16" r="3" />
             </svg>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors">
+            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300 group-hover:text-teal-600 dark:group-hover:text-teal-300 transition-colors">
               FSM Studio
-            </p>
-            <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">
-              雙頻產生器、協定庫、Mode Bank 查詢、患者紀錄、PDF 匯出
-            </p>
-          </div>
-          <div className="flex-shrink-0 flex items-center gap-2">
-            <span className="text-xs text-neutral-400 dark:text-neutral-500">Web App · 部分功能需登入</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-400 dark:text-neutral-500 group-hover:text-teal-500 transition-colors">
-              <path d="M5 12h14M12 5l7 7-7 7" />
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-400 dark:text-neutral-500 group-hover:text-teal-500 transition-colors">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
             </svg>
-          </div>
-        </a>
+          </a>
+
+        </div>
       </div>
 
       <PostList posts={posts} activeCategory="fsm" />
