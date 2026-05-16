@@ -215,6 +215,23 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling
 .gate-error { background: rgba(248, 81, 73, 0.1); border: 1px solid rgba(248, 81, 73, 0.4); color: var(--danger); padding: 10px 14px; border-radius: var(--radius); font-size: 12px; margin-top: 16px; max-width: 320px; line-height: 1.5; }
 
 #googleSignInDiv { display: flex; justify-content: center; margin: 16px 0; }
+
+/* Custom Protocol Editor */
+.cp-step-row { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+.cp-step-num { font-family:var(--mono); font-size:11px; color:var(--text-dim); width:16px; flex-shrink:0; text-align:right; }
+.cp-step-fields { display:flex; align-items:center; gap:5px; flex-wrap:wrap; flex:1; }
+.cp-step-fields .form-input { padding:6px 8px; font-size:12px; }
+.cp-freqa, .cp-freqb { width:72px; }
+.cp-dur { width:58px; }
+.cp-polarity, .cp-wave { width:64px; }
+.cp-sep { color:var(--text-dim); font-family:var(--mono); }
+.btn-icon { background:none; border:1px solid var(--border); color:var(--text-dim); border-radius:var(--radius); padding:4px 8px; cursor:pointer; font-size:13px; line-height:1; }
+.btn-icon:hover { border-color:var(--danger); color:var(--danger); }
+.btn-icon.edit:hover { border-color:var(--accent); color:var(--accent); }
+.custom-badge { font-size:9px; background:rgba(0,163,124,0.15); color:var(--accent); border:1px solid rgba(0,163,124,0.3); border-radius:3px; padding:1px 5px; margin-left:4px; font-family:var(--mono); letter-spacing:0.5px; vertical-align:middle; }
+.protocol-card-actions { display:flex; gap:6px; margin-top:8px; justify-content:flex-end; }
+.modal-scroll { max-height:75vh; overflow-y:auto; padding: 0 2px; }
+
 </style>
 </head>
 <body>
@@ -382,6 +399,36 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling
       </div>
     </div>
   </div>
+
+  <div class="modal-bg" id="customProtocolModal">
+    <div class="modal" style="max-width:560px;">
+      <div class="modal-title" id="cpModalTitle">新增自訂協定</div>
+      <div class="modal-scroll">
+        <div class="form-group">
+          <label class="form-label">協定名稱 *</label>
+          <input type="text" class="form-input" id="cpName" placeholder="例：我的肩頸協定">
+        </div>
+        <div class="form-group">
+          <label class="form-label">適應症 / 說明（選填）</label>
+          <input type="text" class="form-input" id="cpIndication" placeholder="例：肩頸疼痛、肌肉緊繃">
+        </div>
+        <div class="form-group">
+          <label class="form-label">類別標籤（選填）</label>
+          <input type="text" class="form-input" id="cpCategory" placeholder="例：MYOFASCIAL">
+        </div>
+        <div class="form-group">
+          <label class="form-label">治療步驟 *</label>
+          <div id="cpStepsList"></div>
+          <button type="button" class="btn-secondary" id="cpAddStep" style="margin-top:8px;width:100%;font-size:12px;">＋ 新增步驟</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="cpCancel">取消</button>
+        <button id="cpSave" class="primary">儲存協定</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -402,6 +449,7 @@ let CHANNEL_A = null;
 let CHANNEL_B = null;
 let PROTOCOLS_CURATED = null;
 let PROTOCOLS_FULL = null;
+let USER_PROTOCOLS = null;
 let FREQ_A_MAP = PUBLIC_FREQ_MAP_A;
 let FREQ_B_MAP = PUBLIC_FREQ_MAP_B;
 
@@ -633,8 +681,8 @@ window.handleGoogleCredential = async function(response) {
     auth.user = data;
     auth.save();
     updateAuthUI();
-    // Fetch protected data
-    await loadProtectedData();
+    // Fetch protected data + user protocols in parallel
+    await Promise.all([loadProtectedData(), loadUserProtocols()]);
     // Re-render the active view
     const active = document.querySelector('.tab.active');
     if (active) switchToView(active.getAttribute('data-view'));
@@ -672,6 +720,40 @@ async function loadProtectedData() {
     updateFreqDisplay();
   } catch (e) {
     console.error('Failed to load protected data:', e);
+  }
+}
+
+// ── Load user's personal protocols from server ────────────────────────────
+async function loadUserProtocols() {
+  if (!auth.user || !auth.user.token) return;
+  try {
+    const r = await fetch(API_BASE + '/protocols', {
+      headers: { 'Authorization': 'Bearer ' + auth.user.token }
+    });
+    if (r.ok) {
+      const data = await r.json();
+      USER_PROTOCOLS = data.protocols || [];
+    } else {
+      USER_PROTOCOLS = [];
+    }
+  } catch (e) {
+    console.error('loadUserProtocols error:', e);
+    USER_PROTOCOLS = [];
+  }
+}
+
+async function saveUserProtocols(list) {
+  if (!auth.user || !auth.user.token) return false;
+  try {
+    const r = await fetch(API_BASE + '/protocols', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.user.token },
+      body: JSON.stringify({ protocols: list })
+    });
+    return r.ok;
+  } catch (e) {
+    console.error('saveUserProtocols error:', e);
+    return false;
   }
 }
 
@@ -759,6 +841,120 @@ function renderGate(viewId) {
     setTimeout(() => renderGate(viewId), 500);
   }
 }
+
+
+// ============================================================
+// CUSTOM PROTOCOLS (localStorage)
+// ============================================================
+function loadCustomProtocols() {
+  try { return JSON.parse(localStorage.getItem('fsm_custom_protocols') || '[]'); }
+  catch(e) { return []; }
+}
+function saveCustomProtocols(list) {
+  localStorage.setItem('fsm_custom_protocols', JSON.stringify(list));
+}
+function deleteCustomProtocol(id) {
+  if (!confirm('確定要刪除這個自訂協定？')) return;
+  USER_PROTOCOLS = (USER_PROTOCOLS || []).filter(p => p.id !== id);
+  saveUserProtocols(USER_PROTOCOLS);
+  renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
+}
+
+let _cpEditId = null;
+
+function showCustomProtocolEditor(proto) {
+  _cpEditId = proto ? proto.id : null;
+  $('cpModalTitle').textContent = proto ? '編輯自訂協定' : '新增自訂協定';
+  $('cpName').value = proto ? (proto.name_zh || proto.name || '') : '';
+  $('cpIndication').value = proto ? (proto.indication_zh || '') : '';
+  $('cpCategory').value = proto ? (proto.category || '') : '';
+  $('cpStepsList').innerHTML = '';
+  const steps = proto ? proto.steps.map(s => normalizeStep(s)) : [{ freq_a: '', freq_b: '', duration: 4, polarity: 'Alternating', wave: 'Medium' }];
+  steps.forEach(s => addCpStepRow(s));
+  $('customProtocolModal').classList.add('show');
+}
+
+function addCpStepRow(step) {
+  step = step || { freq_a: '', freq_b: '', duration: 4, polarity: 'Alternating', wave: 'Medium' };
+  const div = document.createElement('div');
+  div.className = 'cp-step-row';
+  div.innerHTML = `
+    <span class="cp-step-num"></span>
+    <div class="cp-step-fields">
+      <input type="number" class="form-input cp-freqa" placeholder="CH A" value="${step.freq_a !== undefined && step.freq_a !== '' ? step.freq_a : ''}" min="0" max="9999" step="0.001">
+      <span class="cp-sep">/</span>
+      <input type="number" class="form-input cp-freqb" placeholder="CH B" value="${step.freq_b !== undefined && step.freq_b !== '' ? step.freq_b : ''}" min="0" max="9999" step="0.001">
+      <input type="number" class="form-input cp-dur" placeholder="min" value="${step.duration || 4}" min="1" max="120">
+      <select class="form-input cp-polarity">
+        <option value="Alternating" ${step.polarity !== 'Positive' ? 'selected' : ''}>+/-</option>
+        <option value="Positive" ${step.polarity === 'Positive' ? 'selected' : ''}>+→</option>
+      </select>
+      <select class="form-input cp-wave">
+        <option value="Sharp" ${step.wave === 'Sharp' ? 'selected' : ''}>銳</option>
+        <option value="Medium" ${!step.wave || step.wave === 'Medium' ? 'selected' : ''}>中</option>
+        <option value="Gentle" ${step.wave === 'Gentle' ? 'selected' : ''}>緩</option>
+      </select>
+      <button type="button" class="btn-icon cp-del-step" title="移除步驟">×</button>
+    </div>
+  `;
+  div.querySelector('.cp-del-step').addEventListener('click', () => {
+    div.remove();
+    updateCpStepNums();
+  });
+  $('cpStepsList').appendChild(div);
+  updateCpStepNums();
+}
+
+function updateCpStepNums() {
+  document.querySelectorAll('.cp-step-num').forEach((el, i) => el.textContent = i + 1);
+}
+
+function saveCpProtocol() {
+  const name = $('cpName').value.trim();
+  if (!name) { alert('請輸入協定名稱'); return; }
+  const stepRows = $('cpStepsList').querySelectorAll('.cp-step-row');
+  if (!stepRows.length) { alert('請至少新增一個步驟'); return; }
+  const steps = [];
+  let valid = true;
+  stepRows.forEach((row, i) => {
+    const fa = parseFloat(row.querySelector('.cp-freqa').value);
+    const fb = parseFloat(row.querySelector('.cp-freqb').value);
+    const dur = parseInt(row.querySelector('.cp-dur').value);
+    if (isNaN(fa) || isNaN(fb) || isNaN(dur) || dur < 1) {
+      alert('步驟 ' + (i+1) + ' 有欄位未填或格式錯誤');
+      valid = false;
+    } else {
+      steps.push({ freq_a: fa, freq_b: fb, duration: dur,
+        polarity: row.querySelector('.cp-polarity').value,
+        wave: row.querySelector('.cp-wave').value });
+    }
+  });
+  if (!valid) return;
+  const list = [...(USER_PROTOCOLS || [])];
+  const catVal = ($('cpCategory').value.trim() || 'CUSTOM').toUpperCase();
+  const indVal = $('cpIndication').value.trim();
+  if (_cpEditId) {
+    const idx = list.findIndex(p => p.id === _cpEditId);
+    if (idx >= 0) list[idx] = { ...list[idx], name: name, name_zh: name, indication_zh: indVal, category: catVal, steps };
+  } else {
+    list.unshift({ id: 'custom_' + Date.now(), name: name, name_zh: name,
+      indication_zh: indVal, category: catVal, steps, _custom: true });
+  }
+  USER_PROTOCOLS = list;
+  saveUserProtocols(list);
+  $('customProtocolModal').classList.remove('show');
+  renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
+}
+
+// Wire up customProtocolModal buttons after DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  $('cpCancel').addEventListener('click', () => $('customProtocolModal').classList.remove('show'));
+  $('cpSave').addEventListener('click', saveCpProtocol);
+  $('cpAddStep').addEventListener('click', () => addCpStepRow(null));
+  $('customProtocolModal').addEventListener('click', e => {
+    if (e.target === $('customProtocolModal')) $('customProtocolModal').classList.remove('show');
+  });
+});
 
 // ============================================================
 // AUDIO ENGINE
@@ -1110,8 +1306,9 @@ function renderProtocolsView() {
       <button class="subtab active" data-pset="curated">${t('subtab_mine')}</button>
       <button class="subtab" data-pset="full">${t('subtab_modebank')}</button>
     </div>
-    <div class="search-bar">
-      <input type="text" class="search-input" id="protocolSearch" placeholder="${t('search_protocols')}">
+    <div class="search-bar" style="display:flex;gap:8px;align-items:center;">
+      <input type="text" class="search-input" id="protocolSearch" placeholder="${t('search_protocols')}" style="flex:1;">
+      <button class="btn-secondary" id="addCustomProtocolBtn" style="white-space:nowrap;padding:8px 14px;font-size:12px;flex-shrink:0;">＋ 新增</button>
     </div>
     <div id="protocolList"></div>
   `;
@@ -1120,10 +1317,13 @@ function renderProtocolsView() {
       document.querySelectorAll('.subtab[data-pset]').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       state.protocolSet = tab.getAttribute('data-pset');
+      const addBtn = $('addCustomProtocolBtn');
+      if (addBtn) addBtn.style.display = state.protocolSet === 'curated' ? '' : 'none';
       renderProtocolList();
     });
   });
   $('protocolSearch').addEventListener('input', e => renderProtocolList(e.target.value));
+  $('addCustomProtocolBtn').addEventListener('click', () => showCustomProtocolEditor(null));
   renderProtocolList();
 }
 
@@ -1151,8 +1351,13 @@ function getProtocolIndication(p) {
 function renderProtocolList(filter) {
   filter = (filter || '').toLowerCase();
   const list = $('protocolList');
-  const src = state.protocolSet === 'curated' ? PROTOCOLS_CURATED : PROTOCOLS_FULL;
-  if (!src) { list.innerHTML = ''; return; }
+  let src;
+  if (state.protocolSet === 'curated') {
+    src = USER_PROTOCOLS !== null ? [...USER_PROTOCOLS] : [];
+  } else {
+    src = PROTOCOLS_FULL || [];
+  }
+  if (!src || !src.length) { list.innerHTML = '<div class="empty-state" style="padding:32px 0;text-align:center;color:var(--text-dim);font-size:13px;">' + (state.protocolSet==='curated'?'尚無協定，點右上「＋ 新增」建立第一個自訂協定。':'') + '</div>'; return; }
   const items = src.filter(p => {
     if (!filter) return true;
     const name = getProtocolName(p).toLowerCase();
@@ -1166,6 +1371,7 @@ function renderProtocolList(filter) {
     const tot = totalProtocolMinutes(p);
     const cat = p.category || p.cat || '';
     const isLoaded = state.loadedProtocol && state.loadedProtocol.id === p.id;
+    const isCustom = !!p._custom;
     const stepsHtml = p.steps.map((rawStep, i) => {
       const s = normalizeStep(rawStep);
       const cur = (isLoaded && state.currentStepIndex === i && state.running);
@@ -1175,17 +1381,38 @@ function renderProtocolList(filter) {
         '<span class="step-tags">' + (s.polarity==='Positive'?'+→':'+/-') + ' · ' + s.wave + '</span></div>' +
         '<div class="step-time">' + s.duration + 'm</div></div>';
     }).join('');
-    return '<div class="protocol-card ' + (isLoaded?'loaded':'') + '" data-id="' + p.id + '">' +
-      '<div class="protocol-name">' + nm + ' <span class="protocol-cat">' + cat + '</span></div>' +
+    const actionsHtml = isCustom ? '<div class="protocol-card-actions">' +
+      '<button class="btn-icon edit" data-edit="' + p.id + '" title="編輯">✏️ 編輯</button>' +
+      '<button class="btn-icon" data-delete="' + p.id + '" title="刪除">🗑️ 刪除</button>' +
+      '</div>' : '';
+    return '<div class="protocol-card ' + (isLoaded?'loaded':'') + '" data-id="' + p.id + '" data-custom="' + isCustom + '">' +
+      '<div class="protocol-name">' + nm + (isCustom ? '<span class="custom-badge">自訂</span>' : '') + ' <span class="protocol-cat">' + cat + '</span></div>' +
       (ind ? '<div class="protocol-indication">' + ind + '</div>' : '') +
       '<div class="protocol-meta"><span>' + p.steps.length + ' steps</span><span>· ' + tot + ' min</span></div>' +
-      '<div class="steps-list">' + stepsHtml + '</div></div>';
+      '<div class="steps-list">' + stepsHtml + '</div>' +
+      actionsHtml + '</div>';
   }).join('');
   list.querySelectorAll('.protocol-card').forEach(card => {
-    card.addEventListener('click', () => {
+    card.addEventListener('click', e => {
+      // Don't open load modal if clicking edit/delete
+      if (e.target.closest('[data-edit],[data-delete]')) return;
       const id = card.getAttribute('data-id');
       const proto = src.find(p => p.id === id);
-      askLoadProtocol(proto);
+      if (proto) askLoadProtocol(proto);
+    });
+  });
+  list.querySelectorAll('[data-edit]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = btn.getAttribute('data-edit');
+      const proto = loadCustomProtocols().find(p => p.id === id);
+      if (proto) showCustomProtocolEditor(proto);
+    });
+  });
+  list.querySelectorAll('[data-delete]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      deleteCustomProtocol(btn.getAttribute('data-delete'));
     });
   });
 }
