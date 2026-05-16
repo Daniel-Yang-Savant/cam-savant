@@ -740,10 +740,13 @@ function renderGate(viewId) {
   // Initialize the Google sign-in button after the div is in DOM
   if (window.google && google.accounts && google.accounts.id) {
     try {
-      google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: window.handleGoogleCredential,
-      });
+      if (!window._gsiInitialized) {
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: window.handleGoogleCredential,
+        });
+        window._gsiInitialized = true;
+      }
       google.accounts.id.renderButton(
         document.getElementById('googleSignInDiv'),
         { theme: 'filled_black', size: 'large', text: 'signin_with', shape: 'pill' }
