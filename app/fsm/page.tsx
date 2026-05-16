@@ -72,6 +72,39 @@ export default function FSMPage() {
         </svg>
       </a>
 
+      {/* FSM Studio tool card */}
+      <div className="mb-12">
+        <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500 mb-4">
+          治療師工具
+        </h2>
+        <a
+          href="/fsm/studio/"
+          className="group flex flex-col sm:flex-row sm:items-center gap-4 px-6 py-5 rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-neutral-700 transition-colors"
+        >
+          <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-600 dark:text-teal-300">
+              <path d="M9 18V5l12-2v13" />
+              <circle cx="6" cy="18" r="3" />
+              <circle cx="18" cy="16" r="3" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors">
+              FSM Studio
+            </p>
+            <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">
+              雙頻產生器、協定庫、Mode Bank 查詢、患者紀錄、PDF 匯出
+            </p>
+          </div>
+          <div className="flex-shrink-0 flex items-center gap-2">
+            <span className="text-xs text-neutral-400 dark:text-neutral-500">Web App · 部分功能需登入</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-400 dark:text-neutral-500 group-hover:text-teal-500 transition-colors">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </div>
+        </a>
+      </div>
+
       <PostList posts={posts} activeCategory="fsm" />
     </div>
     </>
