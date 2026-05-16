@@ -123,6 +123,11 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling
 .lib-row:hover { background: var(--bg-elev); }
 .lib-freq { font-family: var(--mono); font-weight: 600; font-size: 14px; color: var(--accent); }
 .lib-name { font-size: 12px; line-height: 1.4; }
+.lib-count { font-size: 11px; color: var(--text-very-dim); font-family: var(--mono); padding: 6px 12px 8px; }
+.cat-chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 0 12px; }
+.cat-chip { padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-elev); color: var(--text-dim); font-family: var(--mono); font-size: 11px; font-weight: 500; cursor: pointer; letter-spacing: 0.5px; transition: all 0.15s; white-space: nowrap; }
+.cat-chip:hover { border-color: var(--accent); color: var(--accent); }
+.cat-chip.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
 
 .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
 .modal-bg.show { display: flex; }
@@ -1453,6 +1458,24 @@ function askLoadProtocol(p) {
 // PROTECTED: LIBRARY VIEW
 // ============================================================
 function renderLibraryView() {
+  // ── Category definitions ──────────────────────────────────────────────────
+  // Channel A = "what to target" (conditions, pathogens, substances)
+  const CATS_A = [
+    { key: 'inflam',    label: '消炎 / 代謝',  kw: ['inflam','acidity','alkalin','uric','calcium','copper','iron','metabol','mineral','bleeding','edema','swelling','secretion'] },
+    { key: 'pathogen',  label: '病原體',        kw: ['bacteria','bacterial','staphylo','strep','coli','colisepsis','virus','viral','fungal','mycobact','lyme','pneumo','yeast','candida','parasit'] },
+    { key: 'toxin',     label: '毒素 / 藥物',   kw: ['poison','morphine','cocaine','radium','x-ray','caffeine','metallic','toxin','alcohol','drug','remove','nicotine'] },
+    { key: 'tissue',    label: '組織 / 修復',   kw: ['scar','torn','broken','sclerosis','keloid','adhesion','repair','paralysis','trauma','vitality','allerg','sensitiv'] },
+  ];
+  // Channel B = "where to target" (tissues, organs, systems)
+  const CATS_B = [
+    { key: 'neuro',    label: '神經系統', kw: ['nerve','spinal','brain','medulla','limbic','forebrain','midbrain','neural','cord','gangli','plexus','myelin','dura','arachn','hypothal','cereb','pituitar'] },
+    { key: 'musculo',  label: '肌肉 / 筋膜', kw: ['muscle','fascia','myofascial','connective','tendon','bursa','fibro','myelin'] },
+    { key: 'joint',    label: '骨骼 / 關節', kw: ['bone','cartilage','joint','periosteum','ligament','disc','annulus','nucleus','facet','capsule','suture','pelvis','synovial','menisc'] },
+    { key: 'vascular', label: '血管 / 淋巴', kw: ['artery','vein','vascular','lymph','blood','vessel','capillar','venous'] },
+    { key: 'organ',    label: '器官 / 內臟', kw: ['liver','kidney','lung','heart','stomach','intestine','colon','bladder','organ','pancrea','adrenal','thyroid','prostat','uterus','ovary','spleen','gallblad','bronch','respirat','sinus','trachea','esophag','duoden','ileocec'] },
+    { key: 'immune',   label: '免疫 / 皮膚', kw: ['immune','skin','mucous','membrane','epitheli','dermis','mucosa','tonsil','thymus'] },
+  ];
+
   $('view-library').innerHTML = `
     <div class="search-bar">
       <input type="text" class="search-input" id="librarySearch" placeholder="${t('search_library')}">
@@ -1461,18 +1484,47 @@ function renderLibraryView() {
       <button class="libtab active" data-libtab="A">CHANNEL A · ${CHANNEL_A ? CHANNEL_A.length : 0}</button>
       <button class="libtab" data-libtab="B">CHANNEL B · ${CHANNEL_B ? CHANNEL_B.length : 0}</button>
     </div>
+    <div id="libCatChips" class="cat-chips"></div>
     <div id="libraryList"></div>
   `;
+
   let libTab = 'A';
+  let activeCat = null;
+
+  function getCats() { return libTab === 'A' ? CATS_A : CATS_B; }
+
+  function renderCatChips() {
+    const cats = getCats();
+    $('libCatChips').innerHTML =
+      '<button class="cat-chip' + (!activeCat ? ' active' : '') + '" data-cat="">全部</button>' +
+      cats.map(c => '<button class="cat-chip' + (activeCat === c.key ? ' active' : '') + '" data-cat="' + c.key + '">' + c.label + '</button>').join('');
+    document.querySelectorAll('.cat-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        activeCat = chip.getAttribute('data-cat') || null;
+        renderCatChips();
+        render($('librarySearch').value);
+      });
+    });
+  }
+
   function render(filter) {
     filter = (filter || '').toLowerCase().trim();
     const list = libTab === 'A' ? CHANNEL_A : CHANNEL_B;
     if (!list) return;
-    const items = list.filter(x => !filter || String(x.freq).startsWith(filter) || x.name.toLowerCase().includes(filter));
-    $('libraryList').innerHTML = items.map(x =>
-      '<div class="lib-row" data-freq="' + x.freq + '" data-ch="' + libTab + '">' +
-      '<div class="lib-freq">' + x.freq + '</div><div class="lib-name">' + x.name + '</div></div>'
-    ).join('');
+    const cats = getCats();
+    const catDef = activeCat ? cats.find(c => c.key === activeCat) : null;
+    const items = list.filter(x => {
+      const nameL = x.name.toLowerCase();
+      const matchFilter = !filter || String(x.freq).startsWith(filter) || nameL.includes(filter);
+      const matchCat = !catDef || catDef.kw.some(kw => nameL.includes(kw));
+      return matchFilter && matchCat;
+    });
+    $('libraryList').innerHTML =
+      '<div class="lib-count">' + items.length + ' 個頻率' + (activeCat ? '（已篩選）' : '') + '</div>' +
+      items.map(x =>
+        '<div class="lib-row" data-freq="' + x.freq + '" data-ch="' + libTab + '">' +
+        '<div class="lib-freq">' + x.freq + '</div><div class="lib-name">' + x.name + '</div></div>'
+      ).join('');
     document.querySelectorAll('.lib-row').forEach(row => {
       row.addEventListener('click', () => {
         const f = parseFloat(row.getAttribute('data-freq'));
@@ -1483,15 +1535,19 @@ function renderLibraryView() {
       });
     });
   }
+
   document.querySelectorAll('.libtab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.libtab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       libTab = tab.getAttribute('data-libtab');
+      activeCat = null;
+      renderCatChips();
       render($('librarySearch').value);
     });
   });
   $('librarySearch').addEventListener('input', e => render(e.target.value));
+  renderCatChips();
   render('');
 }
 
