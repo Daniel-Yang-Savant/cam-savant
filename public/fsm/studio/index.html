@@ -39,6 +39,97 @@ header { display: flex; align-items: center; justify-content: space-between; pad
 .user-chip img { width: 20px; height: 20px; border-radius: 50%; }
 .user-chip .logout { background: none; border: none; color: var(--text-very-dim); cursor: pointer; font-size: 14px; margin-left: 4px; padding: 0 4px; }
 .user-chip .logout:hover { color: var(--danger); }
+
+/* ── Admin badge button ─────────────────────────────────────────── */
+.admin-badge-btn {
+  display: none;
+  position: relative;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 9px;
+  cursor: pointer;
+  font-size: 15px;
+  color: var(--text-dim);
+  line-height: 1;
+}
+.admin-badge-btn:hover { border-color: var(--accent); color: var(--accent); }
+.admin-badge-btn .badge {
+  display: none;
+  position: absolute;
+  top: -5px; right: -5px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 999px;
+  padding: 2px 5px;
+  min-width: 16px;
+  text-align: center;
+}
+.admin-badge-btn .badge.visible { display: block; }
+
+/* ── Admin approval modal ────────────────────────────────────────── */
+.admin-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+.admin-modal-overlay.open { display: flex; }
+.admin-modal {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  width: min(480px, 95vw);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.admin-modal h2 { font-size: 16px; font-weight: 700; margin: 0; }
+.admin-modal-list { overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.pending-user-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.pending-user-row img {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.pending-user-info { flex: 1; min-width: 0; }
+.pending-user-info .pu-name { font-size: 13px; font-weight: 600; }
+.pending-user-info .pu-email { font-size: 11px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pending-user-info .pu-date { font-size: 10px; color: var(--text-very-dim); }
+.pending-user-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.btn-approve {
+  background: #16a34a; color: #fff; border: none;
+  border-radius: 6px; padding: 5px 11px; font-size: 12px; cursor: pointer; font-weight: 600;
+}
+.btn-approve:hover { background: #15803d; }
+.btn-reject {
+  background: none; color: var(--danger); border: 1px solid var(--danger);
+  border-radius: 6px; padding: 5px 11px; font-size: 12px; cursor: pointer; font-weight: 600;
+}
+.btn-reject:hover { background: rgba(239,68,68,0.1); }
+.admin-modal-empty { color: var(--text-dim); font-size: 13px; text-align: center; padding: 16px 0; }
+.admin-modal-close {
+  align-self: flex-end; background: none; border: 1px solid var(--border);
+  border-radius: 7px; padding: 5px 14px; cursor: pointer; color: var(--text-dim); font-size: 13px;
+}
+.admin-modal-close:hover { border-color: var(--accent); color: var(--accent); }
 .lang-toggle { background: transparent; border: 1px solid var(--border-strong); color: var(--text-dim); padding: 4px 10px; border-radius: var(--radius); font-family: var(--mono); font-size: 11px; cursor: pointer; letter-spacing: 0.5px; }
 .lang-toggle:hover { color: var(--text); border-color: var(--accent); }
 
@@ -324,6 +415,9 @@ details[open] .import-help summary::before { transform: rotate(90deg); }
         <span id="userEmail"></span>
         <button class="logout" id="logoutBtn" title="登出">×</button>
       </div>
+      <button class="admin-badge-btn" id="adminBadgeBtn" title="待審核用戶" onclick="openAdminPanel()">
+        👥<span class="badge" id="adminBadgeCount"></span>
+      </button>
       <button class="lang-toggle" id="langToggle">EN / 中</button>
     </div>
   </header>
@@ -512,6 +606,17 @@ details[open] .import-help summary::before { transform: rotate(90deg); }
   </div>
 
   <!-- Import Protocol Modal -->
+  <!-- Admin approval modal -->
+  <div class="admin-modal-overlay" id="adminModalOverlay">
+    <div class="admin-modal">
+      <h2>👥 待審核用戶</h2>
+      <div class="admin-modal-list" id="adminModalList">
+        <div class="admin-modal-empty">載入中…</div>
+      </div>
+      <button class="admin-modal-close" onclick="closeAdminPanel()">關閉</button>
+    </div>
+  </div>
+
   <div class="modal-bg" id="importModal">
     <div class="modal import-modal">
       <div class="modal-title">
@@ -1020,6 +1125,7 @@ async function saveUserProtocols(list) {
 
 function updateAuthUI() {
   const chip = document.getElementById('userChip');
+  const adminBtn = document.getElementById('adminBadgeBtn');
   if (auth.isAuthed()) {
     chip.style.display = 'flex';
     document.getElementById('userEmail').textContent = auth.user.email;
@@ -1036,8 +1142,18 @@ function updateAuthUI() {
     // Show guest notice only when logged out
     const gn = document.getElementById('guestNotice');
     if (gn) gn.style.display = 'none';
+    // Admin badge
+    if (adminBtn) {
+      if (auth.user.email === ADMIN_EMAIL) {
+        adminBtn.style.display = '';
+        checkPendingCount();
+      } else {
+        adminBtn.style.display = 'none';
+      }
+    }
   } else {
     chip.style.display = 'none';
+    if (adminBtn) adminBtn.style.display = 'none';
     document.querySelectorAll('.tab[data-requires-auth]').forEach(t => {
       t.classList.add('locked');
     });
@@ -1047,6 +1163,97 @@ function updateAuthUI() {
 }
 
 document.getElementById('logoutBtn').addEventListener('click', () => auth.logout());
+
+// ── Admin panel ────────────────────────────────────────────────────────────
+const ADMIN_EMAIL = 'hermiterudite@gmail.com';
+
+async function checkPendingCount() {
+  if (!auth.user || auth.user.email !== ADMIN_EMAIL) return;
+  try {
+    const r = await fetch(API_BASE + '/pending-users', {
+      headers: { 'Authorization': 'Bearer ' + auth.user.token }
+    });
+    if (!r.ok) return;
+    const { pending } = await r.json();
+    const n = (pending || []).length;
+    const badge = document.getElementById('adminBadgeCount');
+    if (badge) {
+      badge.textContent = n;
+      badge.classList.toggle('visible', n > 0);
+    }
+  } catch(e) { /* silent */ }
+}
+
+async function openAdminPanel() {
+  document.getElementById('adminModalOverlay').classList.add('open');
+  const list = document.getElementById('adminModalList');
+  list.innerHTML = '<div class="admin-modal-empty">載入中…</div>';
+  try {
+    const r = await fetch(API_BASE + '/pending-users', {
+      headers: { 'Authorization': 'Bearer ' + auth.user.token }
+    });
+    if (!r.ok) { list.innerHTML = '<div class="admin-modal-empty">載入失敗</div>'; return; }
+    const { pending } = await r.json();
+    if (!pending || pending.length === 0) {
+      list.innerHTML = '<div class="admin-modal-empty">目前沒有待審核用戶 ✓</div>';
+      return;
+    }
+    list.innerHTML = pending.map(u => {
+      const pic = u.picture
+        ? `<img src="${u.picture}" alt="" onerror="this.style.display='none'">`
+        : `<img style="display:none">`;
+      const date = u.requestedAt ? new Date(u.requestedAt).toLocaleString('zh-TW', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+      return `
+        <div class="pending-user-row" id="pur-${CSS.escape(u.email)}">
+          ${pic}
+          <div class="pending-user-info">
+            <div class="pu-name">${u.name || '—'}</div>
+            <div class="pu-email" title="${u.email}">${u.email}</div>
+            <div class="pu-date">${date}</div>
+          </div>
+          <div class="pending-user-actions">
+            <button class="btn-approve" onclick="handleUserAction('approve','${u.email}')">批准</button>
+            <button class="btn-reject" onclick="handleUserAction('reject','${u.email}')">拒絕</button>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = '<div class="admin-modal-empty">載入失敗：' + e.message + '</div>';
+  }
+}
+
+function closeAdminPanel() {
+  document.getElementById('adminModalOverlay').classList.remove('open');
+}
+
+async function handleUserAction(action, email) {
+  try {
+    const r = await fetch(API_BASE + '/pending-users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + auth.user.token
+      },
+      body: JSON.stringify({ action, email })
+    });
+    if (!r.ok) { alert('操作失敗'); return; }
+    // Remove row from modal
+    const row = document.getElementById('pur-' + CSS.escape(email));
+    if (row) row.remove();
+    // Check if list is now empty
+    const list = document.getElementById('adminModalList');
+    if (list && !list.querySelector('.pending-user-row')) {
+      list.innerHTML = '<div class="admin-modal-empty">目前沒有待審核用戶 ✓</div>';
+    }
+    // Update badge
+    await checkPendingCount();
+  } catch(e) { alert('操作失敗：' + e.message); }
+}
+
+// Close admin modal when clicking outside
+document.getElementById('adminModalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeAdminPanel();
+});
 
 function showGateError(msg) {
   const errEl = document.getElementById('gateError');
