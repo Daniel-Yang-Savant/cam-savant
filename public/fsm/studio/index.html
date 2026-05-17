@@ -1089,8 +1089,8 @@ window.handleGoogleCredential = async function(response) {
     auth.user = data;
     auth.save();
     updateAuthUI();
-    // Fetch protected data + user protocols in parallel
-    await Promise.all([loadProtectedData(), loadUserProtocols()]);
+    // Fetch protected data + user protocols + personal custom protocols in parallel
+    await Promise.all([loadProtectedData(), loadUserProtocols(), _pullMyProtocolsFromServer()]);
     // Re-render the active view
     const active = document.querySelector('.tab.active');
     if (active) switchToView(active.getAttribute('data-view'));
@@ -1375,14 +1375,57 @@ function renderGate(viewId) {
 
 
 // ============================================================
-// CUSTOM PROTOCOLS (localStorage)
+// CUSTOM PROTOCOLS — localStorage (primary) + server sync (per-user)
 // ============================================================
+const CUSTOM_PROTO_KEY = 'fsm_custom_protocols';
+
 function loadCustomProtocols() {
-  try { return JSON.parse(localStorage.getItem('fsm_custom_protocols') || '[]'); }
+  try { return JSON.parse(localStorage.getItem(CUSTOM_PROTO_KEY) || '[]'); }
   catch(e) { return []; }
 }
+
 function saveCustomProtocols(list) {
-  localStorage.setItem('fsm_custom_protocols', JSON.stringify(list));
+  localStorage.setItem(CUSTOM_PROTO_KEY, JSON.stringify(list));
+  _pushMyProtocolsToServer(list);  // fire-and-forget background sync
+}
+
+// ── Server sync ───────────────────────────────────────────────────────────────
+async function _pushMyProtocolsToServer(list) {
+  if (!auth.user || !auth.user.token) return;
+  try {
+    await fetch(API_BASE + '/my-protocols', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + auth.user.token
+      },
+      body: JSON.stringify({ protocols: list })
+    });
+  } catch(e) { /* silent — localStorage copy is the fallback */ }
+}
+
+async function _pullMyProtocolsFromServer() {
+  if (!auth.user || !auth.user.token) return;
+  try {
+    const r = await fetch(API_BASE + '/my-protocols', {
+      headers: { 'Authorization': 'Bearer ' + auth.user.token }
+    });
+    if (!r.ok) return;
+    const { protocols } = await r.json();
+    if (!Array.isArray(protocols)) return;
+
+    // Merge: server wins for overlapping IDs; keep local-only entries
+    const serverById = new Map(protocols.map(p => [p.id, p]));
+    const local = loadCustomProtocols();
+    const localOnly = local.filter(p => !serverById.has(p.id));
+    const merged = [...protocols, ...localOnly];
+
+    localStorage.setItem(CUSTOM_PROTO_KEY, JSON.stringify(merged));
+    renderProtocolList();  // refresh UI
+
+    // If local had extras the server didn't know about, push merged up
+    if (localOnly.length > 0) _pushMyProtocolsToServer(merged);
+  } catch(e) { /* silent */ }
 }
 function deleteCustomProtocol(id) {
   if (!confirm('確定要刪除這個自訂協定？')) return;
