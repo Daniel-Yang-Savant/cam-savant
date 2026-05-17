@@ -2569,12 +2569,21 @@ document.querySelectorAll('#ratingAfter button').forEach(b => {
 $('sessionCancel').addEventListener('click', () => $('sessionModal').classList.remove('show'));
 $('sessionSave').addEventListener('click', () => {
   const sessions = loadSessions();
+  // Capture protocol steps from current loaded protocol (new sessions only)
+  const existingSession = state.editingSessionId ? sessions.find(s => s.id === state.editingSessionId) : null;
+  const protoSteps = existingSession
+    ? (existingSession.protoSteps || null)   // keep original steps when editing
+    : (state.loadedProtocol && state.loadedProtocol.steps && state.loadedProtocol.steps.length > 0
+        ? state.loadedProtocol.steps
+        : null);
+
   const payload = {
     id: state.editingSessionId || newId(),
-    date: state.editingSessionId ? (sessions.find(s => s.id === state.editingSessionId)?.date || new Date().toISOString()) : new Date().toISOString(),
+    date: existingSession ? (existingSession.date || new Date().toISOString()) : new Date().toISOString(),
     patient: $('sessionPatient').value.trim(),
     complaint: $('sessionComplaint').value.trim(),
     protocol: $('sessionProtocol').value.trim(),
+    protoSteps,   // null if not captured; stored steps for follow-up
     painBefore: editingRatings.before,
     painAfter: editingRatings.after,
     response: $('sessionResponse').value.trim(),
@@ -2662,11 +2671,45 @@ function _findProtoByName(name) {
 
 function recordFollowUp(s) {
   const protoName = (s.protocol || '').trim();
-  const found = _findProtoByName(protoName);
-
   const modal = document.getElementById('followupModal');
   const infoEl = document.getElementById('followupInfo');
   const stepEl = document.getElementById('followupStepInfo');
+
+  // Build candidate proto: priority order:
+  // 1. Steps stored in the record itself (protoSteps)
+  // 2. Name lookup in all protocol sources
+  // 3. Parse protocol text field with import parser (handles "40/396" style)
+  let resolvedSteps = null;
+  let resolvedName = protoName || (LANG === 'zh' ? '（未命名）' : '(unnamed)');
+  let resolvedSource = '';
+
+  if (s.protoSteps && s.protoSteps.length > 0) {
+    resolvedSteps = s.protoSteps;
+    resolvedSource = LANG === 'zh' ? '（來自原始治療紀錄）' : '(from original session)';
+  } else {
+    const found = _findProtoByName(protoName);
+    if (found && found.steps && found.steps.length > 0) {
+      resolvedSteps = found.steps;
+      resolvedName = getProtocolName(found);
+      resolvedSource = LANG === 'zh' ? '（來自協定庫）' : '(from protocol library)';
+    } else if (protoName) {
+      // Fallback: parse the text as raw freq steps (e.g. "40/396")
+      const parsed = parseImportText(protoName);
+      if (parsed.steps && parsed.steps.length > 0) {
+        resolvedSteps = parsed.steps;
+        resolvedSource = LANG === 'zh' ? '（從頻率文字解析）' : '(parsed from text)';
+      }
+    }
+  }
+
+  // Build the candidate proto object
+  _followupProto = resolvedSteps ? {
+    id: null,
+    name: [s.patient, s.complaint].filter(Boolean).join(' · ') || resolvedName,
+    condition: s.complaint || '',
+    steps: resolvedSteps,
+    note: s.notes || '',
+  } : null;
 
   // Patient info
   const lastDate = s.date ? new Date(s.date).toLocaleDateString('zh-TW', { year:'numeric', month:'numeric', day:'numeric' }) : '—';
@@ -2676,14 +2719,13 @@ function recordFollowUp(s) {
     `<b>${LANG==='zh'?'上次就診':'Last visit'}：</b>${lastDate}<br>` +
     `<b>${LANG==='zh'?'上次協定':'Protocol'}：</b>${protoName || '—'}`;
 
-  if (found && found.steps && found.steps.length > 0) {
-    _followupProto = found;
-    const tot = totalProtocolMinutes(found);
-    stepEl.textContent = `${found.steps.length} 步驟 · ${tot} min`;
+  if (_followupProto) {
+    const tot = totalProtocolMinutes(_followupProto);
+    stepEl.innerHTML = `<span style="color:var(--accent)">${resolvedSteps.length} 步驟 · ${tot} min</span>` +
+      (resolvedSource ? `<span style="opacity:0.5;margin-left:8px">${resolvedSource}</span>` : '');
     document.getElementById('followupRun').style.display = '';
     document.getElementById('followupEdit').style.display = '';
   } else {
-    _followupProto = null;
     stepEl.innerHTML = `<span style="color:var(--danger)">⚠ 找不到「${protoName || '（未記錄）'}」的步驟資料</span><br>` +
       `<span style="opacity:0.6">${LANG==='zh'?'可至「協定」分頁手動選取':'Go to Protocol tab to select manually'}</span>`;
     document.getElementById('followupRun').style.display = 'none';
