@@ -322,6 +322,8 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling
 .session-actions button { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text-dim); padding: 6px; border-radius: var(--radius); font-family: var(--mono); font-size: 10px; cursor: pointer; letter-spacing: 0.5px; }
 .session-actions button:hover { color: var(--text); border-color: var(--accent); }
 .session-actions button.danger:hover { color: var(--danger); border-color: var(--danger); }
+.session-actions button[data-action="to-proto"] { color: var(--accent); border-color: rgba(20,184,166,0.35); }
+.session-actions button[data-action="to-proto"]:hover { background: rgba(20,184,166,0.1); border-color: var(--accent); }
 
 .form-group { margin-bottom: 12px; }
 .form-label { display: block; font-family: var(--mono); font-size: 10px; color: var(--text-very-dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
@@ -2610,6 +2612,7 @@ function renderRecordList(filter) {
       (painDelta ? '<div class="session-meta"><span>' + painDelta + '</span></div>' : '') +
       '<div class="session-actions">' +
         '<button data-action="edit">' + t('record_edit') + '</button>' +
+        '<button data-action="to-proto" title="' + (LANG==='zh' ? '將此次使用的協定另存為我的協定，方便回診時直接調用' : 'Save used protocol as My Protocol for follow-up visits') + '">↻ ' + (LANG==='zh' ? '轉為協定' : 'To Protocol') + '</button>' +
         '<button data-action="pdf">' + t('record_export_pdf') + '</button>' +
         '<button class="danger" data-action="delete">' + t('record_delete') + '</button>' +
       '</div>' +
@@ -2619,6 +2622,7 @@ function renderRecordList(filter) {
     const id = card.getAttribute('data-id');
     const s = sessions.find(x => x.id === id);
     card.querySelector('[data-action="edit"]').addEventListener('click', () => openSessionModal(s));
+    card.querySelector('[data-action="to-proto"]').addEventListener('click', () => recordToProtocol(s));
     card.querySelector('[data-action="pdf"]').addEventListener('click', () => exportSessionPDF(s));
     card.querySelector('[data-action="delete"]').addEventListener('click', () => {
       if (confirm(t('record_confirm_delete'))) {
@@ -2628,6 +2632,62 @@ function renderRecordList(filter) {
       }
     });
   });
+}
+
+// ── 紀錄 → 協定 ────────────────────────────────────────────────────────────
+function recordToProtocol(s) {
+  const protoName = (s.protocol || '').trim();
+
+  // Search all protocol sources for matching steps
+  let found = null;
+  const allSources = [
+    ...(USER_PROTOCOLS || []),
+    ...(PROTOCOLS_FULL || []),
+    ...loadCustomProtocols(),
+  ];
+  if (protoName) {
+    // Exact name match first, then partial
+    found = allSources.find(p => (p.name || p.condition || '') === protoName)
+         || allSources.find(p => (p.name || p.condition || '').toLowerCase().includes(protoName.toLowerCase()))
+         || allSources.find(p => protoName.toLowerCase().includes((p.name || p.condition || '').toLowerCase().slice(0, 6)));
+  }
+
+  // Suggested name: "患者 · 主訴" or fallback
+  const suggestedName = [s.patient, s.complaint].filter(Boolean).join(' · ')
+    || protoName
+    || (LANG === 'zh' ? '新協定' : 'New Protocol');
+
+  if (found && found.steps && found.steps.length > 0) {
+    // Clone the protocol, open editor pre-filled
+    const clone = Object.assign({}, found, {
+      id: null,  // null = save as new
+      name: suggestedName,
+      note: [found.note, s.notes].filter(Boolean).join('\n') || '',
+    });
+    // Switch to 協定 tab so user can see the result after saving
+    showCustomProtocolEditor(clone);
+    // Optionally switch to Protocol tab
+    const protoTab = document.querySelector('[data-tab="protocol"]');
+    if (protoTab) protoTab.click();
+  } else {
+    // Steps not found — offer blank editor
+    const msg = protoName
+      ? (LANG === 'zh'
+        ? `找不到「${protoName}」的步驟資料（可能是自由文字描述）。\n要建立空白協定讓你手動填入步驟嗎？`
+        : `Steps for "${protoName}" not found (free-text description?).\nCreate a blank protocol to fill in manually?`)
+      : (LANG === 'zh'
+        ? '此紀錄未記錄協定名稱。要建立空白協定嗎？'
+        : 'No protocol name in this record. Create a blank protocol?');
+    if (confirm(msg)) {
+      showCustomProtocolEditor({
+        id: null,
+        name: suggestedName,
+        condition: s.complaint || '',
+        steps: [],
+        note: s.notes || '',
+      });
+    }
+  }
 }
 
 // ============================================================
