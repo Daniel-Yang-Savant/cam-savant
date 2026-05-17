@@ -1145,7 +1145,7 @@ function updateAuthUI() {
     // Admin badge
     if (adminBtn) {
       if (auth.user.email === ADMIN_EMAIL) {
-        adminBtn.style.display = '';
+        adminBtn.style.display = 'flex';
         checkPendingCount();
       } else {
         adminBtn.style.display = 'none';
