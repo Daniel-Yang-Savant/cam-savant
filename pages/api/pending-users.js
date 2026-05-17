@@ -74,31 +74,39 @@ export default async function handler(req, res) {
   if (!payload) return res.status(401).json({ error: 'Invalid or expired token' });
   if (payload.email !== ADMIN_EMAIL) return res.status(403).json({ error: 'Admin only' });
 
-  // ── GET: return pending list ───────────────────────────────────────────
+  // ── GET: return pending list + approved list ──────────────────────────
   if (req.method === 'GET') {
     try {
-      const pending = await kvGet('pending_list') || [];
-      return res.status(200).json({ pending });
+      const [pending, approved] = await Promise.all([
+        kvGet('pending_list'),
+        kvGet('approved_emails'),
+      ]);
+      return res.status(200).json({ pending: pending || [], approved: approved || [] });
     } catch (err) {
       console.error('pending-users GET error:', err);
-      return res.status(500).json({ error: 'Failed to load pending list' });
+      return res.status(500).json({ error: 'Failed to load lists' });
     }
   }
 
-  // ── POST: approve or reject ───────────────────────────────────────────
+  // ── POST: approve / reject / revoke ──────────────────────────────────
   if (req.method === 'POST') {
     const { action, email } = req.body || {};
     if (!action || !email) return res.status(400).json({ error: 'Missing action or email' });
-    if (!['approve', 'reject'].includes(action)) return res.status(400).json({ error: 'action must be approve or reject' });
+    if (!['approve', 'reject', 'revoke'].includes(action)) return res.status(400).json({ error: 'action must be approve, reject, or revoke' });
 
     try {
-      // Remove from pending_list
+      if (action === 'revoke') {
+        // Remove from approved_emails only
+        const approved = await kvGet('approved_emails') || [];
+        await kvSet('approved_emails', approved.filter(e => e !== email));
+        return res.status(200).json({ ok: true, action: 'revoked', email });
+      }
+
+      // approve / reject: remove from pending_list first
       const pending = await kvGet('pending_list') || [];
-      const newPending = pending.filter(p => p.email !== email);
-      await kvSet('pending_list', newPending);
+      await kvSet('pending_list', pending.filter(p => p.email !== email));
 
       if (action === 'approve') {
-        // Add to approved_emails
         const approved = await kvGet('approved_emails') || [];
         if (!approved.includes(email)) {
           approved.push(email);
