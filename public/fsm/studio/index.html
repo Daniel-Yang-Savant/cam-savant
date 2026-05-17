@@ -515,13 +515,13 @@ details[open] .import-help summary::before { transform: rotate(90deg); }
   <div class="modal-bg" id="importModal">
     <div class="modal import-modal">
       <div class="modal-title">
-        <span>匯入協定 <span style="font-size:11px;font-weight:400;color:var(--text-dim)">— 貼上 Claude 建議</span></span>
+        <span>匯入協定 <span style="font-size:11px;font-weight:400;color:var(--text-dim)">— 快速貼上步驟</span></span>
         <button id="importModalClose" style="background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;line-height:1;padding:0 4px;">×</button>
       </div>
 
       <details style="margin-bottom:10px;">
         <div class="import-help">
-          <summary>格式範例（點此展開）</summary>
+          <summary>支援格式說明（點此展開）</summary>
           <div style="margin-top:8px;">
             <div style="margin-bottom:6px;color:var(--text);font-size:11px;font-weight:600;">格式 A：簡潔列表（最常用）</div>
             <pre>40/396 +/- M 4min
@@ -544,7 +544,7 @@ Step 2: 40/396 +/- medium 4min - nerves</pre>
       <div class="import-name-row">
         <input type="text" class="form-input" id="importProtoName" placeholder="協定名稱（選填，留空則從內容自動偵測）" style="font-size:12px;">
       </div>
-      <textarea class="import-textarea" id="importTextarea" placeholder="貼上 Claude 建議的協定步驟…&#10;&#10;例：40/396 +/- M 4min&#10;    91/77 +/- M 4min&#10;    13/396 +/- M 6min"></textarea>
+      <textarea class="import-textarea" id="importTextarea" placeholder="貼上協定步驟…&#10;&#10;例：40/396 +/- M 4min&#10;    91/77 +/- M 4min&#10;    13/396 +/- M 6min"></textarea>
 
       <div class="import-preview" id="importPreview">
         <div class="import-empty">貼上內容後即時預覽解析結果</div>
