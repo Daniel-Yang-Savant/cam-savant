@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import type { Post } from '@/lib/posts'
-import { CATEGORY_LABELS } from '@/lib/posts'
+import { CATEGORY_LABELS } from '@/lib/category'
 import CoverImage from '@/components/CoverImage'
 import { getReadingTime } from '@/lib/reading-time'
 
