@@ -1747,8 +1747,13 @@ function parseImportText(raw) {
   // Insert a newline before "2. 40/396" style tokens that aren't already at line start.
   // Handles single-paragraph Chinese protocol text like "1. 40/396 交流… 2. 91/77…"
   let normalised = raw
-    // Before "N." or "N、" that is followed by digits (freq pair start)
-    .replace(/([^\n])(\s+)(\d{1,2}[\.、]\s+(?=\d))/g, '$1\n$3')
+    // Normalise full-width punctuation → ASCII equivalents
+    .replace(/－/g, '-')   // U+FF0D full-width minus
+    .replace(/，/g, ',')   // full-width comma (keep for split regex below)
+    .replace(/．/g, '.')   // U+FF0E full-width period
+    .replace(/／/g, '/')   // full-width slash
+    // Before "N." "N、" "N．" that precede non-header content (number or Chinese)
+    .replace(/([^\n])(\s*)(\d{1,2}[\.、]\s+(?=[\d一-鿿]))/g, '$1\n$3')
     // Before 第N階段 / 第N步 style markers
     .replace(/([^\n])(第\s*\d+\s*(?:階段|步驟|步))/g, '$1\n$2');
 
@@ -1759,7 +1764,7 @@ function parseImportText(raw) {
 
   const reFreqPair = /(\d+\.?\d*)\s*[\/]\s*(\d+\.?\d*)/;
   const reMultiB   = /(\d+\.?\d*)\s*[\/]\s*((?:\d+\.?\d*\s*[,，]\s*)+\d+\.?\d*)/; // A/B1,B2,..
-  const reDuration = /(\d+(?:\.\d*)?)\s*(?:分鐘?|min(?:s|utes?)?\b)/i;  // 不匹配 "m" in "Medium"
+  const reDuration = /各?\s*(\d+(?:[.-]\d+)?)\s*(?:分鐘?|min(?:s|utes?)?\b)/i;  // 不匹配 "m" in "Medium"；支援 "各 4 分鐘"
   const reTableRow = /^\|?\s*\d+\s*\|/;  // markdown table data row
 
   function parsePol(s) {
