@@ -649,7 +649,7 @@ Step 2: 40/396 +/- medium 4min - nerves</pre>
       <div class="import-name-row">
         <input type="text" class="form-input" id="importProtoName" placeholder="協定名稱（選填，留空則從內容自動偵測）" style="font-size:12px;">
       </div>
-      <textarea class="import-textarea" id="importTextarea" placeholder="貼上協定步驟…&#10;&#10;例：40/396 +/- M 4min&#10;    91/77 +/- M 4min&#10;    13/396 +/- M 6min"></textarea>
+      <textarea class="import-textarea" id="importTextarea" placeholder="貼上協定步驟…&#10;&#10;✅ 最佳格式（每行一步驟）：&#10;  40/32 交流 Medium 4min&#10;  40/26, 536 交流 Medium 4min   ← 多 B 值&#10;&#10;✅ Markdown 表格（含 | 符號）：&#10;  | 40/32, 26, 536 | Medium | +/- 交流 | 各 4 分鐘 |&#10;&#10;⚠️ 從瀏覽器直接複製渲染表格，欄位可能黏在一起導致誤判&#10;    建議請 Claude 以每行一步驟格式重新輸出"></textarea>
 
       <div class="import-preview" id="importPreview">
         <div class="import-empty">貼上內容後即時預覽解析結果</div>
@@ -1765,7 +1765,37 @@ function parseImportText(raw) {
   const reFreqPair = /(\d+\.?\d*)\s*[\/]\s*(\d+\.?\d*)/;
   const reMultiB   = /(\d+\.?\d*)\s*[\/]\s*((?:\d+\.?\d*\s*[,，]\s*)+\d+\.?\d*)/; // A/B1,B2,..
   const reDuration = /各?\s*(\d+(?:[.-]\d+)?)\s*(?:分鐘?|min(?:s|utes?)?\b)/i;  // 不匹配 "m" in "Medium"；支援 "各 4 分鐘"
-  const reTableRow = /^\|?\s*\d+\s*\|/;  // markdown table data row
+  const rePolarity = /\+\/-|\balternating\b|\bac\b|\bpositive\b|\bpos\b|\+→|交流|極化|正極/i;
+  const reWave     = /\bsharp\b|\bgentle\b|\bmedium\b|(?<![a-z])[sgm](?![a-z])|銳波?|緩波?|中波?/i;
+
+  // Scan text for all valid A/B freq pairs (fa, fb ≤ 999 to exclude concatenation artifacts)
+  function scanAllFreqPairs(text) {
+    const pairs = [];
+    let pos = 0;
+    while (pos < text.length) {
+      const slice = text.slice(pos);
+      const m = slice.match(/(\d+)\s*\/\s*(\d+)/);
+      if (!m) break;
+      const fa = parseInt(m[1]);
+      const fb = parseInt(m[2]);
+      let advance = m.index + m[0].length;
+      if (fa <= 999 && fb <= 999) {
+        // Check for trailing comma B-values: A/B1,B2,...
+        const afterM = slice.slice(advance);
+        const commaM = afterM.match(/^(\s*[,，]\s*\d+)+/);
+        if (commaM) {
+          const allB = [fb];
+          (commaM[0].match(/\d+/g) || []).forEach(n => { const v = parseInt(n); if (v <= 999) allB.push(v); });
+          allB.forEach(b => pairs.push({ fa, fb: b }));
+          advance += commaM[0].length;
+        } else {
+          pairs.push({ fa, fb });
+        }
+      }
+      pos += advance;
+    }
+    return pairs;
+  }
 
   function parsePol(s) {
     if (!s) return 'Alternating';
@@ -1827,16 +1857,39 @@ function parseImportText(raw) {
     // Remove note from parsing string
     const parseStr = line.replace(/(?:\s+[-–](?!\s*\/)[^\|]+|#.*)$/, '').trim();
 
-    // ── Try Format C: A/B1,B2 (multi-B expansion) ──────────────────────────
-    const multiMatch = parseStr.match(/^(\d+\.?\d*)\s*[\/]\s*((?:\d+\.?\d*\s*[,，]\s*)+\d+\.?\d*)/);
-    if (multiMatch) {
-      const fa = parseFloat(multiMatch[1]);
-      const bParts = multiMatch[2].split(/[,，]/).map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
-      // Rest of line for pol/wave/dur
-      const rest = parseStr.slice(multiMatch[0].length);
-      const polMatch = rest.match(/\+\/-|\balternating\b|\bac\b|\bpositive\b|\bpos\b|\+→|交流|極化|正極/i);
-      const waveMatch = rest.match(/\bsharp\b|\bs\b|\bgentle\b|\bg\b|\bmedium\b|\bm\b|銳波?|緩波?|中波?/i);
-      const durMatch = rest.match(reDuration) || rest.match(/(\d+)/);
+    // ── Markdown table row: find freq cell, extract ALL pairs ──────────────
+    if (rawLine.includes('|')) {
+      const cells = rawLine.split('|').map(c => c.trim()).filter(Boolean);
+      // Find the cell that has an A/B freq pair
+      const freqCellIdx = cells.findIndex(c => reFreqPair.test(c));
+      if (freqCellIdx >= 0) {
+        const cellPairs = scanAllFreqPairs(cells[freqCellIdx]);
+        if (cellPairs.length > 0) {
+          const meta = cells.filter((_, idx) => idx !== freqCellIdx).join(' ');
+          const polMatch = meta.match(rePolarity);
+          const waveMatch = meta.match(reWave);
+          const durMatch = meta.match(reDuration);
+          const pol = parsePol(polMatch ? polMatch[0] : '');
+          const wave = parseWave(waveMatch ? waveMatch[0] : '');
+          const dur = durMatch ? parseDur(durMatch[0]) : 4;
+          const warns = [];
+          if (!polMatch) warns.push('⚠ 極性預設 Alternating');
+          if (!waveMatch) warns.push('⚠ 波形預設 Medium');
+          if (!durMatch) warns.push('⚠ 時長預設 4 min');
+          cellPairs.forEach(({ fa, fb }) => {
+            steps.push({ freq_a: fa, freq_b: fb, polarity: pol, wave: wave, duration: dur, note: '', warn: warns.join(' ') });
+          });
+          continue;
+        }
+      }
+    }
+
+    // ── Scan ALL A/B pairs in line (handles multi-B and multiple pairs) ─────
+    const linePairs = scanAllFreqPairs(parseStr);
+    if (linePairs.length > 0) {
+      const polMatch = parseStr.match(rePolarity);
+      const waveMatch = parseStr.match(reWave);
+      const durMatch = parseStr.match(reDuration);
       const pol = parsePol(polMatch ? polMatch[0] : '');
       const wave = parseWave(waveMatch ? waveMatch[0] : '');
       const dur = durMatch ? parseDur(durMatch[0]) : 4;
@@ -1844,53 +1897,10 @@ function parseImportText(raw) {
       if (!polMatch) warns.push('⚠ 極性預設 Alternating');
       if (!waveMatch) warns.push('⚠ 波形預設 Medium');
       if (!durMatch) warns.push('⚠ 時長預設 4 min');
-      bParts.forEach(fb => {
+      linePairs.forEach(({ fa, fb }) => {
         steps.push({ freq_a: fa, freq_b: fb, polarity: pol, wave: wave, duration: dur, note, warn: warns.join(' ') });
       });
       continue;
-    }
-
-    // ── Try standard A/B pair ───────────────────────────────────────────────
-    const pairMatch = parseStr.match(/(\d+\.?\d*)\s*[\/]\s*(\d+\.?\d*)/);
-    if (pairMatch) {
-      const fa = parseFloat(pairMatch[1]);
-      const fb = parseFloat(pairMatch[2]);
-      const rest = parseStr.slice(pairMatch.index + pairMatch[0].length);
-      const polMatch = rest.match(/\+\/-|\balternating\b|\bac\b|\bpositive\b|\bpos\b|\+→|交流|極化|正極/i);
-      const waveMatch = rest.match(/\bsharp\b|\bgentle\b|\bmedium\b|(?<![a-z])[sgm](?![a-z])|銳波?|緩波?|中波?/i);
-      const durMatch = rest.match(reDuration) || rest.match(/\b(\d+)\b/);
-      const pol = parsePol(polMatch ? polMatch[0] : '');
-      const wave = parseWave(waveMatch ? waveMatch[0] : '');
-      const dur = durMatch ? parseDur(durMatch[0]) : 4;
-      const warns = [];
-      if (!polMatch) warns.push('⚠ 極性預設 Alternating');
-      if (!waveMatch) warns.push('⚠ 波形預設 Medium');
-      if (!durMatch) warns.push('⚠ 時長預設 4 min');
-      steps.push({ freq_a: fa, freq_b: fb, polarity: pol, wave: wave, duration: dur, note, warn: warns.join(' ') });
-      continue;
-    }
-
-    // ── Table row format: |A|B|pol|wave|dur| ────────────────────────────────
-    if (rawLine.includes('|')) {
-      const cells = rawLine.split('|').map(c => c.trim()).filter(c => c);
-      // Try to find two leading numbers
-      const nums = [];
-      let rest = '';
-      const parts = cells.filter(Boolean);
-      // Skip index column if first cell is a pure number
-      let offset = 0;
-      if (parts.length >= 2 && /^\d+$/.test(parts[0]) && /^\d+$/.test(parts[1]) && /^\d+$/.test(parts[2] || '')) {
-        offset = 1; // first col is step number
-      }
-      const fa = parseFloat(parts[offset]);
-      const fb = parseFloat(parts[offset + 1] || '');
-      if (!isNaN(fa) && !isNaN(fb)) {
-        const pol = parsePol(parts[offset + 2] || '');
-        const wave = parseWave(parts[offset + 3] || '');
-        const dur = parseDur(parts[offset + 4] || '4');
-        steps.push({ freq_a: fa, freq_b: fb, polarity: pol, wave: wave, duration: dur, note: '', warn: '' });
-        continue;
-      }
     }
 
     // ── Could not parse ──────────────────────────────────────────────────────
