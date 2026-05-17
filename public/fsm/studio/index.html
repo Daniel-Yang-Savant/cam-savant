@@ -279,6 +279,39 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling
   .cat-chip { padding: 8px 14px; font-size: 12px; }
 }
 
+
+/* ── Import Protocol Modal ─────────────────────────────── */
+.import-modal { max-width: 680px; width: 100%; }
+.import-modal .modal-title { display: flex; align-items: center; justify-content: space-between; }
+.import-help { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 12px; font-size: 11px; color: var(--text-dim); line-height: 1.7; }
+.import-help summary { cursor: pointer; font-weight: 600; color: var(--text); font-size: 12px; list-style: none; display: flex; align-items: center; gap: 6px; }
+.import-help summary::before { content: '▶'; font-size: 9px; transition: transform 0.2s; }
+details[open] .import-help summary::before { transform: rotate(90deg); }
+.import-help code { font-family: var(--mono); background: var(--bg-elev-2); padding: 1px 4px; border-radius: 3px; color: var(--accent); font-size: 11px; }
+.import-help pre { font-family: var(--mono); background: var(--bg-elev-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; margin: 6px 0; font-size: 11px; color: var(--text-dim); overflow-x: auto; white-space: pre; }
+.import-textarea { width: 100%; min-height: 140px; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 10px 12px; border-radius: var(--radius-lg); resize: vertical; line-height: 1.6; }
+.import-textarea:focus { outline: none; border-color: var(--accent); }
+.import-textarea::placeholder { color: var(--text-very-dim); }
+.import-preview { margin-top: 12px; }
+.import-preview-title { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-very-dim); margin-bottom: 6px; }
+.import-proto-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.import-step-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.import-step-table th { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-very-dim); padding: 4px 6px; border-bottom: 1px solid var(--border); text-align: left; }
+.import-step-table td { padding: 5px 6px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.import-step-table tr:last-child td { border-bottom: none; }
+.import-step-num { font-family: var(--mono); color: var(--text-very-dim); }
+.import-step-freq { font-family: var(--mono); font-weight: 600; }
+.import-step-a { color: var(--polA); }
+.import-step-b { color: var(--polB); }
+.import-step-note { color: var(--text-very-dim); font-style: italic; font-size: 10px; }
+.import-step-warn { color: var(--warning); font-size: 10px; }
+.import-step-err { color: var(--danger); font-size: 10px; }
+.import-error-row td { color: var(--danger); background: rgba(248,81,73,0.06); }
+.import-warn-row td { background: rgba(255,166,87,0.05); }
+.import-empty { text-align: center; padding: 24px; color: var(--text-very-dim); font-size: 12px; }
+.import-name-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+.import-name-row input { flex: 1; }
+
 </style>
 </head>
 <body>
@@ -474,6 +507,53 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling
       <div class="modal-actions">
         <button id="cpCancel">取消</button>
         <button id="cpSave" class="primary">儲存協定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import Protocol Modal -->
+  <div class="modal-bg" id="importModal">
+    <div class="modal import-modal">
+      <div class="modal-title">
+        <span>匯入協定 <span style="font-size:11px;font-weight:400;color:var(--text-dim)">— 貼上 Claude 建議</span></span>
+        <button id="importModalClose" style="background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;line-height:1;padding:0 4px;">×</button>
+      </div>
+
+      <details style="margin-bottom:10px;">
+        <div class="import-help">
+          <summary>格式範例（點此展開）</summary>
+          <div style="margin-top:8px;">
+            <div style="margin-bottom:6px;color:var(--text);font-size:11px;font-weight:600;">格式 A：簡潔列表（最常用）</div>
+            <pre>40/396 +/- M 4min
+91/77 +/- M 4min
+13/396 +/- M 6min</pre>
+            <div style="margin:8px 0 4px;color:var(--text);font-size:11px;font-weight:600;">格式 B：帶標題</div>
+            <pre>Protocol: 急性肩頸痛
+Step 1: 40/94 +/- medium 2min - medulla
+Step 2: 40/396 +/- medium 4min - nerves</pre>
+            <div style="margin:8px 0 4px;color:var(--text);font-size:11px;font-weight:600;">格式 C：多 B 頻（自動展開）</div>
+            <pre>40 / 396, 10 +/-     ← 展開成兩個步驟
+91 / 77, 142 +/-</pre>
+            <div style="margin:8px 0 4px;color:var(--text);font-size:11px;font-weight:600;">格式 D：表格式</div>
+            <pre>| 1 | 40 | 396 | +/- | M | 4 |
+| 2 | 91 | 77  | +/- | M | 4 |</pre>
+          </div>
+        </div>
+      </details>
+
+      <div class="import-name-row">
+        <input type="text" class="form-input" id="importProtoName" placeholder="協定名稱（選填，留空則從內容自動偵測）" style="font-size:12px;">
+      </div>
+      <textarea class="import-textarea" id="importTextarea" placeholder="貼上 Claude 建議的協定步驟…&#10;&#10;例：40/396 +/- M 4min&#10;    91/77 +/- M 4min&#10;    13/396 +/- M 6min"></textarea>
+
+      <div class="import-preview" id="importPreview">
+        <div class="import-empty">貼上內容後即時預覽解析結果</div>
+      </div>
+
+      <div class="modal-actions" style="margin-top:14px;flex-wrap:wrap;gap:6px;">
+        <button id="importCancel" style="flex:none;padding:10px 16px;">取消</button>
+        <button id="importSave" class="primary" style="flex:1;" disabled>💾 儲存為我的協定</button>
+        <button id="importLoad" class="primary" style="flex:1;background:var(--polA);border-color:var(--polA);color:#000;" disabled>▶ 載入並開始</button>
       </div>
     </div>
   </div>
@@ -1446,6 +1526,299 @@ function stopRun() {
   const ovpb2 = $('ovProgressBar'); if (ovpb2) ovpb2.style.width = '0%';
 }
 
+
+// ══════════════════════════════════════════════════════════════════════════════
+// IMPORT PROTOCOL — parser + modal
+// ══════════════════════════════════════════════════════════════════════════════
+
+function parseImportText(raw) {
+  // Returns { name, steps, errors }
+  // Each step: { freq_a, freq_b, polarity, wave, duration, note, warn }
+  // Each error: { line, text, reason }
+  const lines = raw.split(/\r?\n/);
+  const steps = [];
+  const errors = [];
+  let detectedName = '';
+
+  const reFreqPair = /(\d+\.?\d*)\s*[\/]\s*(\d+\.?\d*)/;
+  const reMultiB   = /(\d+\.?\d*)\s*[\/]\s*((?:\d+\.?\d*\s*[,，]\s*)+\d+\.?\d*)/; // A/B1,B2,..
+  const reDuration = /(\d+\.?\d*)\s*(?:min|m|分)/i;
+  const reTableRow = /^\|?\s*\d+\s*\|/;  // markdown table data row
+
+  function parsePol(s) {
+    if (!s) return 'Alternating';
+    const t = s.toLowerCase().trim();
+    if (/\+\/-|alternating|\bac\b/.test(t)) return 'Alternating';
+    if (/positive|\bpos\b|\+→|\bp\b/.test(t) || (t === '+')) return 'Positive';
+    return 'Alternating';
+  }
+  function parseWave(s) {
+    if (!s) return 'Medium';
+    const t = s.toLowerCase().trim();
+    if (/sharp|\bs\b|銳/.test(t)) return 'Sharp';
+    if (/gentle|\bg\b|緩/.test(t)) return 'Gentle';
+    return 'Medium';
+  }
+  function parseDur(s) {
+    if (!s) return 4;
+    const m = s.match(/(\d+\.?\d*)\s*(?:min|m|分)?/i);
+    return m ? parseFloat(m[1]) : 4;
+  }
+
+  function extractNote(s) {
+    // text after - or # (but not +/-)
+    const m = s.match(/(?:^|\s+)[-–](?!\s*\/)(?:\s*)(.+)$/) || s.match(/#(.+)$/);
+    return m ? m[1].trim() : '';
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const lineNum = i + 1;
+    let line = lines[i];
+    const rawLine = line;
+
+    // Skip blank lines
+    if (!line.trim()) continue;
+
+    // Skip pure comment / header lines
+    if (/^\s*(#|\/\/|--|===|Protocol:|Patient:|Notes:|Step\s+\d+\s*[:\.]?\s*$)/.test(line) &&
+        !reFreqPair.test(line) && !reMultiB.test(line)) {
+      // Possible protocol name on first non-blank, non-freq line
+      if (!detectedName && !steps.length) {
+        const stripped = line.replace(/^Protocol\s*:\s*/i, '').trim();
+        if (stripped && !/^\s*(#|\/\/|--)/.test(stripped)) detectedName = stripped;
+      }
+      continue;
+    }
+
+    // Skip table header row (contains alpha chars in freq columns)
+    if (/^\|?\s*[A-Za-z\s]+\|/.test(line) && !reFreqPair.test(line)) continue;
+
+    // Strip step prefix: "Step 1:" or "1."
+    line = line.replace(/^\s*(?:Step\s*)?\d+\s*[:.]\s*/i, '');
+
+    // Strip leading pipe (table format)
+    line = line.replace(/^\s*\|/, '');
+
+    // Extract note (text after " - " or " # ")
+    const note = extractNote(line);
+    // Remove note from parsing string
+    const parseStr = line.replace(/(?:\s+[-–](?!\s*\/)[^\|]+|#.*)$/, '').trim();
+
+    // ── Try Format C: A/B1,B2 (multi-B expansion) ──────────────────────────
+    const multiMatch = parseStr.match(/^(\d+\.?\d*)\s*[\/]\s*((?:\d+\.?\d*\s*[,，]\s*)+\d+\.?\d*)/);
+    if (multiMatch) {
+      const fa = parseFloat(multiMatch[1]);
+      const bParts = multiMatch[2].split(/[,，]/).map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+      // Rest of line for pol/wave/dur
+      const rest = parseStr.slice(multiMatch[0].length);
+      const polMatch = rest.match(/\+\/-|\balternating\b|\bac\b|\bpositive\b|\bpos\b|\+→/i);
+      const waveMatch = rest.match(/\bsharp\b|\bs\b|\bgentle\b|\bg\b|\bmedium\b|\bm\b/i);
+      const durMatch = rest.match(reDuration) || rest.match(/(\d+)/);
+      const pol = parsePol(polMatch ? polMatch[0] : '');
+      const wave = parseWave(waveMatch ? waveMatch[0] : '');
+      const dur = durMatch ? parseDur(durMatch[0]) : 4;
+      const warns = [];
+      if (!polMatch) warns.push('⚠ 極性預設 Alternating');
+      if (!waveMatch) warns.push('⚠ 波形預設 Medium');
+      if (!durMatch) warns.push('⚠ 時長預設 4 min');
+      bParts.forEach(fb => {
+        steps.push({ freq_a: fa, freq_b: fb, polarity: pol, wave: wave, duration: dur, note, warn: warns.join(' ') });
+      });
+      continue;
+    }
+
+    // ── Try standard A/B pair ───────────────────────────────────────────────
+    const pairMatch = parseStr.match(/(\d+\.?\d*)\s*[\/]\s*(\d+\.?\d*)/);
+    if (pairMatch) {
+      const fa = parseFloat(pairMatch[1]);
+      const fb = parseFloat(pairMatch[2]);
+      const rest = parseStr.slice(pairMatch.index + pairMatch[0].length);
+      const polMatch = rest.match(/\+\/-|\balternating\b|\bac\b|\bpositive\b|\bpos\b|\+→/i);
+      const waveMatch = rest.match(/\bsharp\b|\bgentle\b|\bmedium\b|(?<![a-z])[sgm](?![a-z])/i);
+      const durMatch = rest.match(reDuration) || rest.match(/\b(\d+)\b/);
+      const pol = parsePol(polMatch ? polMatch[0] : '');
+      const wave = parseWave(waveMatch ? waveMatch[0] : '');
+      const dur = durMatch ? parseDur(durMatch[0]) : 4;
+      const warns = [];
+      if (!polMatch) warns.push('⚠ 極性預設 Alternating');
+      if (!waveMatch) warns.push('⚠ 波形預設 Medium');
+      if (!durMatch) warns.push('⚠ 時長預設 4 min');
+      steps.push({ freq_a: fa, freq_b: fb, polarity: pol, wave: wave, duration: dur, note, warn: warns.join(' ') });
+      continue;
+    }
+
+    // ── Table row format: |A|B|pol|wave|dur| ────────────────────────────────
+    if (rawLine.includes('|')) {
+      const cells = rawLine.split('|').map(c => c.trim()).filter(c => c);
+      // Try to find two leading numbers
+      const nums = [];
+      let rest = '';
+      const parts = cells.filter(Boolean);
+      // Skip index column if first cell is a pure number
+      let offset = 0;
+      if (parts.length >= 2 && /^\d+$/.test(parts[0]) && /^\d+$/.test(parts[1]) && /^\d+$/.test(parts[2] || '')) {
+        offset = 1; // first col is step number
+      }
+      const fa = parseFloat(parts[offset]);
+      const fb = parseFloat(parts[offset + 1] || '');
+      if (!isNaN(fa) && !isNaN(fb)) {
+        const pol = parsePol(parts[offset + 2] || '');
+        const wave = parseWave(parts[offset + 3] || '');
+        const dur = parseDur(parts[offset + 4] || '4');
+        steps.push({ freq_a: fa, freq_b: fb, polarity: pol, wave: wave, duration: dur, note: '', warn: '' });
+        continue;
+      }
+    }
+
+    // ── Could not parse ──────────────────────────────────────────────────────
+    // Only report as error if line looks like it might be a step
+    if (/\d/.test(rawLine) && rawLine.trim().length > 2) {
+      errors.push({ line: lineNum, text: rawLine.trim(), reason: '找不到有效的頻率配對（格式：A/B）' });
+    }
+  }
+
+  return { name: detectedName, steps, errors };
+}
+
+function renderImportPreview(result) {
+  const { name, steps, errors } = result;
+  const preview = $('importPreview');
+  const saveBtn = $('importSave');
+  const loadBtn = $('importLoad');
+
+  if (!steps.length && !errors.length) {
+    preview.innerHTML = '<div class="import-empty">貼上內容後即時預覽解析結果</div>';
+    saveBtn.disabled = true; loadBtn.disabled = true;
+    return;
+  }
+
+  const hasSteps = steps.length > 0;
+  saveBtn.disabled = !hasSteps;
+  loadBtn.disabled = !hasSteps;
+
+  let html = '<div class="import-preview-title">解析結果</div>';
+
+  if (name) {
+    html += '<div class="import-proto-name">📋 ' + name + '</div>';
+  }
+
+  if (hasSteps) {
+    html += '<table class="import-step-table"><thead><tr>' +
+      '<th>#</th><th>CH A</th><th>CH B</th><th>極性</th><th>波形</th><th>時長</th><th>備註</th>' +
+      '</tr></thead><tbody>';
+    steps.forEach((s, i) => {
+      const aZh = FREQ_ZH_A[s.freq_a] || '';
+      const bZh = FREQ_ZH_B[s.freq_b] || '';
+      const aName = (FREQ_A_MAP[s.freq_a] || '');
+      const bName = (FREQ_B_MAP[s.freq_b] || '');
+      const cls = s.warn ? ' class="import-warn-row"' : '';
+      html += '<tr' + cls + '>' +
+        '<td class="import-step-num">' + (i + 1) + '</td>' +
+        '<td class="import-step-freq import-step-a">' + s.freq_a +
+          '<div style="font-size:10px;font-weight:400;color:var(--text-very-dim)">' + (aZh || aName) + '</div></td>' +
+        '<td class="import-step-freq import-step-b">' + s.freq_b +
+          '<div style="font-size:10px;font-weight:400;color:var(--text-very-dim)">' + (bZh || bName) + '</div></td>' +
+        '<td style="font-size:11px">' + s.polarity + '</td>' +
+        '<td style="font-size:11px">' + s.wave + '</td>' +
+        '<td style="font-family:var(--mono);font-size:11px">' + s.duration + ' min</td>' +
+        '<td>' +
+          (s.note ? '<div class="import-step-note">' + s.note + '</div>' : '') +
+          (s.warn ? '<div class="import-step-warn">' + s.warn + '</div>' : '') +
+        '</td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+
+  if (errors.length) {
+    html += '<div style="margin-top:10px;">' +
+      errors.map(e => '<div class="import-step-err" style="padding:4px 0;border-bottom:1px solid rgba(248,81,73,0.2)">' +
+        '第 ' + e.line + ' 行：' + e.reason + '<br>' +
+        '<span style="font-family:var(--mono);font-size:10px;opacity:0.7">' + e.text + '</span></div>').join('') +
+      '</div>';
+  }
+
+  preview.innerHTML = html;
+}
+
+// ── Modal wiring (runs once after DOM ready) ──────────────────────────────────
+(function initImportModal() {
+  let _lastResult = null;
+
+  function openImportModal() {
+    $('importTextarea').value = '';
+    $('importProtoName').value = '';
+    $('importPreview').innerHTML = '<div class="import-empty">貼上內容後即時預覽解析結果</div>';
+    $('importSave').disabled = true;
+    $('importLoad').disabled = true;
+    $('importModal').classList.add('show');
+    setTimeout(() => $('importTextarea').focus(), 100);
+  }
+
+  function closeImportModal() {
+    $('importModal').classList.remove('show');
+  }
+
+  $('importModalClose').addEventListener('click', closeImportModal);
+  $('importCancel').addEventListener('click', closeImportModal);
+  $('importModal').addEventListener('click', e => { if (e.target === $('importModal')) closeImportModal(); });
+
+  $('importTextarea').addEventListener('input', () => {
+    const raw = $('importTextarea').value;
+    _lastResult = parseImportText(raw);
+    // Override name if user typed one
+    if ($('importProtoName').value.trim()) _lastResult.name = $('importProtoName').value.trim();
+    renderImportPreview(_lastResult);
+  });
+  $('importProtoName').addEventListener('input', () => {
+    if (_lastResult) {
+      _lastResult.name = $('importProtoName').value.trim() || _lastResult.name;
+      renderImportPreview(_lastResult);
+    }
+  });
+
+  // Save to My Protocols
+  $('importSave').addEventListener('click', async () => {
+    if (!_lastResult || !_lastResult.steps.length) return;
+    const name = $('importProtoName').value.trim() || _lastResult.name || '匯入協定 ' + new Date().toLocaleTimeString('zh-TW');
+    const proto = {
+      id: 'import_' + Date.now(),
+      name_zh: name, name_en: name,
+      category: 'imported',
+      indication_zh: '', indication_en: '',
+      _custom: true,
+      steps: _lastResult.steps.map(s => ({
+        freq_a: s.freq_a, freq_b: s.freq_b,
+        polarity: s.polarity, wave: s.wave, duration: s.duration
+      }))
+    };
+    const list = [...(USER_PROTOCOLS || []), proto];
+    USER_PROTOCOLS = list;
+    await saveUserProtocols(list);
+    closeImportModal();
+    if ($('view-protocols').classList.contains('active')) renderProtocolsView();
+    alert('✅ 已儲存：' + name);
+  });
+
+  // Load & start immediately
+  $('importLoad').addEventListener('click', () => {
+    if (!_lastResult || !_lastResult.steps.length) return;
+    const name = $('importProtoName').value.trim() || _lastResult.name || '即時匯入';
+    const proto = {
+      id: 'tmp_' + Date.now(),
+      name_zh: name, name_en: name,
+      category: 'imported',
+      _custom: true,
+      steps: _lastResult.steps.map(s => ({
+        freq_a: s.freq_a, freq_b: s.freq_b,
+        polarity: s.polarity, wave: s.wave, duration: s.duration
+      }))
+    };
+    closeImportModal();
+    loadAndConfirmProtocol(proto);
+  });
+})();
+
+
 // ============================================================
 // TAB SWITCHING
 // ============================================================
@@ -1498,6 +1871,7 @@ function renderProtocolsView() {
     </div>
     <div class="search-bar" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
       <input type="text" class="search-input" id="protocolSearch" placeholder="${t('search_protocols')}" style="flex:1;min-width:120px;">
+      <button class="btn-secondary" id="importProtoBtn" style="white-space:nowrap;padding:8px 12px;font-size:12px;flex-shrink:0;">📋 匯入</button>
       <button class="btn-secondary" id="exportJsonBtn" style="white-space:nowrap;padding:8px 12px;font-size:11px;flex-shrink:0;">↓ JSON</button>
       <button class="btn-secondary" id="exportPdfBtn" style="white-space:nowrap;padding:8px 12px;font-size:11px;flex-shrink:0;">🖨 列印</button>
       <button class="btn-secondary" id="addCustomProtocolBtn" style="white-space:nowrap;padding:8px 14px;font-size:12px;flex-shrink:0;">＋ 新增</button>
@@ -1516,6 +1890,7 @@ function renderProtocolsView() {
   });
   $('protocolSearch').addEventListener('input', e => renderProtocolList(e.target.value));
   $('addCustomProtocolBtn').addEventListener('click', () => showCustomProtocolEditor(null));
+  $('importProtoBtn').addEventListener('click', () => $('importModal').classList.add('show') && setTimeout(() => $('importTextarea').focus(), 100));
 
   // ── JSON export ──────────────────────────────────────────────────────────
   $('exportJsonBtn').addEventListener('click', () => {
