@@ -840,7 +840,7 @@ const I18N = {
     warn_79_dvt: '⚠ 頻率 79 (Veins) — 下肢使用前須排除 DVT',
     warn_pol_stenosis: 'ℹ 極化正電流 — 椎管狹窄患者若疼痛加重請立即切回 AC',
     step_label: '步驟',
-    subtab_mine: '我的協定', subtab_modebank: 'MODE BANK · 273',
+    subtab_mine: '我的協定', subtab_modebank: '參考協定',
     btn_new_session: '+ 新增治療紀錄',
     session_new_title: '新增治療紀錄', session_edit_title: '編輯治療紀錄',
     session_patient: '患者', session_complaint: '主訴 / 部位', session_protocol: '使用協定',
@@ -893,7 +893,7 @@ const I18N = {
     gate_subtitle: '此功能僅開放給已授權的 FSM 治療師使用。請以 Google 帳號登入。',
     gate_features_title: '登入後可使用',
     gate_feat_1: '我的協定庫（10 個常用模板）',
-    gate_feat_2: 'Mode Bank 完整查詢（273 個協定 / 373 個頻率）',
+    gate_feat_2: '參考協定庫完整查詢（含頻率庫 373 個頻率）',
     gate_feat_3: '音樂治療版輸出（WAV / MP3）',
     gate_feat_4: '患者治療紀錄 + 加密備份',
     gate_feat_5: '協定與紀錄 PDF 匯出',
@@ -918,7 +918,7 @@ const I18N = {
     warn_79_dvt: '⚠ Frequency 79 (Veins) — rule out DVT first',
     warn_pol_stenosis: 'ℹ Polarized + — switch to AC if stenosis patient reports increased pain',
     step_label: 'Step',
-    subtab_mine: 'My Protocols', subtab_modebank: 'MODE BANK · 273',
+    subtab_mine: 'My Protocols', subtab_modebank: 'Reference Protocols',
     btn_new_session: '+ New session',
     session_new_title: 'New session', session_edit_title: 'Edit session',
     session_patient: 'Patient', session_complaint: 'Complaint', session_protocol: 'Protocol',
@@ -971,7 +971,7 @@ const I18N = {
     gate_subtitle: 'This feature is for authorized FSM practitioners. Please sign in with Google.',
     gate_features_title: 'After sign-in you can access',
     gate_feat_1: 'My Protocols (10 curated templates)',
-    gate_feat_2: 'Full Mode Bank (273 protocols / 373 frequencies)',
+    gate_feat_2: 'Reference protocol library (373 frequencies)',
     gate_feat_3: 'Music export (WAV / MP3)',
     gate_feat_4: 'Patient records + encrypted backup',
     gate_feat_5: 'Protocol & record PDF export',
@@ -2074,7 +2074,7 @@ function renderProtocolsView() {
   $('view-protocols').innerHTML = `
     <div class="subtabs">
       <button class="subtab active" data-pset="curated">${t('subtab_mine')}</button>
-      <button class="subtab" data-pset="full">${t('subtab_modebank')}</button>
+      <button class="subtab" data-pset="full">${t('subtab_modebank')}${PROTOCOLS_FULL ? ' · ' + PROTOCOLS_FULL.length : ''}</button>
     </div>
     <div class="search-bar" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
       <input type="text" class="search-input" id="protocolSearch" placeholder="${t('search_protocols')}" style="flex:1;min-width:120px;">
