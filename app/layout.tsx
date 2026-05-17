@@ -221,6 +221,14 @@ export default function RootLayout({
         )}
       </head>
       <body className="min-h-screen flex flex-col bg-white dark:bg-neutral-900">
+        {/* ── Service Worker registration ── */}
+        <script dangerouslySetInnerHTML={{ __html: `
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js').catch(function() {});
+    });
+  }
+` }} />
         <script dangerouslySetInnerHTML={{ __html: `
   document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
   document.addEventListener('keydown', function(e) {

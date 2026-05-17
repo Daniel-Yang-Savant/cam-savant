@@ -13,7 +13,8 @@
     "publish": "ts-node scripts/publish.ts",
     "add-topic": "ts-node -e \"const fs=require('fs'); const t=JSON.parse(fs.readFileSync('scripts/topics.json')); t.push({slug:process.argv[3], title:process.argv[1], query:process.argv[2], done:false}); fs.writeFileSync('scripts/topics.json', JSON.stringify(t, null, 2));\"",
     "rotate-token": "ts-node scripts/rotate-token.ts",
-    "new": "ts-node scripts/new-article.ts","validate:posts": "tsx scripts/validate-posts.ts",
+    "new": "ts-node scripts/new-article.ts",
+    "validate:posts": "tsx scripts/validate-posts.ts",
     "prebuild": "npm run validate:posts"
   },
   "ts-node": {
@@ -29,6 +30,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",
+    "fuse.js": "^7.3.0",
     "gray-matter": "^4.0.3",
     "next": "14.2.5",
     "next-mdx-remote": "^6.0.0",

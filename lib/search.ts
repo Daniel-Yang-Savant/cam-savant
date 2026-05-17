@@ -6,6 +6,9 @@ export interface SearchItem {
   excerpt: string
   category: string
   categoryLabel: string
+  tags: string[]
+  date: string
+  coverImage?: string
 }
 
 export function buildSearchIndex(): SearchItem[] {
@@ -16,5 +19,8 @@ export function buildSearchIndex(): SearchItem[] {
     category: post.frontmatter.category,
     categoryLabel:
       CATEGORY_LABELS[post.frontmatter.category] ?? post.frontmatter.category,
+    tags: post.frontmatter.tags ?? [],
+    date: post.frontmatter.date,
+    coverImage: post.frontmatter.coverImage,
   }))
 }

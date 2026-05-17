@@ -7,12 +7,14 @@ import clsx from 'clsx'
 import ThemeToggle from '@/components/ThemeToggle'
 import SearchBar from '@/components/SearchBar'
 import { useLang } from '@/lib/i18n'
+import { useBookmarks } from '@/lib/useBookmarks'
 
 export default function Navbar() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const { lang, toggleLang, t } = useLang()
+  const { slugs, mounted: bmMounted } = useBookmarks()
 
   const NAV_LINKS = [
     { href: '/',                        label: t('home')                  },
@@ -69,6 +71,23 @@ export default function Navbar() {
             <div className="hidden md:block">
               <SearchBar />
             </div>
+
+            {/* Bookmark icon – desktop */}
+            <Link
+              href="/bookmarks"
+              aria-label="收藏文章"
+              title="收藏文章"
+              className="hidden md:flex relative items-center justify-center w-8 h-8 rounded-lg text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+              </svg>
+              {bmMounted && slugs.length > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 flex items-center justify-center rounded-full bg-amber-400 text-neutral-950 text-[9px] font-bold leading-none">
+                  {slugs.length > 9 ? '9+' : slugs.length}
+                </span>
+              )}
+            </Link>
 
             {/* Language toggle – desktop */}
             <button
@@ -168,6 +187,23 @@ export default function Navbar() {
                 </li>
               ))}
             </ul>
+
+            {/* Bookmark link – mobile */}
+            <Link
+              href="/bookmarks"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 text-sm tracking-wide py-1 text-neutral-500 dark:text-neutral-400"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+              </svg>
+              收藏文章
+              {bmMounted && slugs.length > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 text-[10px] font-bold">
+                  {slugs.length}
+                </span>
+              )}
+            </Link>
 
             {/* Mobile: lang + theme row */}
             <div className="mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-center gap-3">

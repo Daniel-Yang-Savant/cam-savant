@@ -1,22 +1,12 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import Link from 'next/link'
+import Fuse from 'fuse.js'
 import { useLang } from '@/lib/i18n'
 import type { SearchItem } from '@/lib/search'
 
-function filterPosts(query: string, index: SearchItem[]): SearchItem[] {
-  const q = query.toLowerCase()
-  return index.filter(
-    (post) =>
-      post.title.toLowerCase().includes(q) ||
-      post.excerpt.toLowerCase().includes(q) ||
-      post.categoryLabel.toLowerCase().includes(q)
-  )
-}
-
 interface Props {
-  /** When true, renders full-width (for use inside mobile menu) */
   fullWidth?: boolean
 }
 
@@ -36,25 +26,41 @@ export default function SearchBar({ fullWidth = false }: Props) {
       .catch(() => {})
   }, [])
 
-  // Recompute results whenever query changes
+  // Build Fuse instance whenever index changes
+  const fuse = useMemo(
+    () =>
+      new Fuse(index, {
+        keys: [
+          { name: 'title',         weight: 0.5  },
+          { name: 'excerpt',       weight: 0.25 },
+          { name: 'tags',          weight: 0.15 },
+          { name: 'categoryLabel', weight: 0.1  },
+        ],
+        threshold: 0.35,
+        distance: 200,
+        minMatchCharLength: 1,
+        includeScore: true,
+      }),
+    [index]
+  )
+
+  // Search whenever query changes
   useEffect(() => {
-    if (query.trim().length < 1) {
+    const q = query.trim()
+    if (q.length < 1) {
       setResults([])
       setOpen(false)
       return
     }
-    const found = filterPosts(query, index)
+    const found = fuse.search(q, { limit: 8 }).map((r) => r.item)
     setResults(found)
     setOpen(true)
-  }, [query, index])
+  }, [query, fuse])
 
   // Close dropdown when clicking outside
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false)
       }
     }
@@ -68,23 +74,15 @@ export default function SearchBar({ fullWidth = false }: Props) {
   }
 
   return (
-    <div
-      ref={containerRef}
-      className={`relative ${fullWidth ? 'w-full' : 'w-44'}`}
-    >
-      {/* Search input */}
+    <div ref={containerRef} className={`relative ${fullWidth ? 'w-full' : 'w-44'}`}>
+      {/* Input */}
       <div className="relative flex items-center">
         <svg
           className="absolute left-2.5 text-neutral-500 pointer-events-none"
           xmlns="http://www.w3.org/2000/svg"
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+          width="13" height="13" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" strokeWidth="2.5"
+          strokeLinecap="round" strokeLinejoin="round"
         >
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -94,17 +92,27 @@ export default function SearchBar({ fullWidth = false }: Props) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t('searchPlaceholder')}
-          className="w-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 placeholder-neutral-400 rounded-lg pl-8 pr-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600"
+          className="w-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 placeholder-neutral-400 rounded-lg pl-8 pr-7 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600"
         />
+        {query && (
+          <button
+            onClick={clear}
+            className="absolute right-2.5 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
+            aria-label="清除搜尋"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        )}
       </div>
 
-      {/* Dropdown results */}
+      {/* Dropdown */}
       {open && (
         <div className="absolute top-full mt-1 left-0 right-0 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-lg z-50 max-h-80 overflow-y-auto">
           {results.length === 0 ? (
-            <p className="px-4 py-3 text-sm text-neutral-500">
-              {t('searchNoResults')}
-            </p>
+            <p className="px-4 py-3 text-sm text-neutral-500">{t('searchNoResults')}</p>
           ) : (
             <ul>
               {results.map((item) => (

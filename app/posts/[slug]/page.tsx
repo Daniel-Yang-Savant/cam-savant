@@ -8,6 +8,7 @@ import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import { getAllSlugs, getPostBySlug, CATEGORY_LABELS } from '@/lib/posts'
 import Breadcrumbs from '@/components/Breadcrumbs'
+import BookmarkButton from '@/components/BookmarkButton'
 import ConsultForm from '@/components/ConsultForm'
 import ReadingProgress from '@/components/ReadingProgress'
 import TableOfContents from '@/components/TableOfContents'
@@ -199,7 +200,9 @@ export default async function PostPage({ params }: Props) {
                 <span className="text-sm text-neutral-400 dark:text-neutral-500">·</span>
                 <span className="text-sm text-neutral-400 dark:text-neutral-500">約 {readingTime} 分鐘閱讀</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Bookmark button */}
+                <BookmarkButton slug={post!.slug} />
                 {/* LINE share button */}
                 <a
                   href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(`${BASE_URL}/posts/${post!.slug}`)}`}
