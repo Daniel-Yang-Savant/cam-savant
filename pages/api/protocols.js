@@ -9,8 +9,8 @@ const SEED_PROTOCOLS = [{"id":"myofascial_short","name_zh":"肌筋膜 — 最短
 
 // ── KV helpers (Upstash REST API, no npm deps) ────────────────────────────
 async function kvGet(key) {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
   if (!url || !token) return null;
   const res = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
     headers: { Authorization: `Bearer ${token}` }
@@ -22,8 +22,8 @@ async function kvGet(key) {
 }
 
 async function kvSet(key, value) {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
   if (!url || !token) throw new Error('KV not configured');
   const res = await fetch(`${url}/set/${encodeURIComponent(key)}`, {
     method: 'POST',
