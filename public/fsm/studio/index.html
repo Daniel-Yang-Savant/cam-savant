@@ -2948,14 +2948,37 @@ function renderMusicView() {
 }
 
 function initMusicViewBindings() {
-  // Populate protocol select
+  // Populate protocol select — deduplicated, with custom protocols at top
   const sel = $('musicProtocolSelect');
-  const all = [...(PROTOCOLS_CURATED||[]).map(p => ({...p, src:'curated'})), ...(PROTOCOLS_FULL||[]).map(p => ({...p, src:'full'}))];
-  sel.innerHTML = all.map(p => {
-    const nm = p.name_zh ? (LANG==='zh'?p.name_zh:p.name_en) : p.name;
-    const tag = p.src === 'curated' ? '★ ' : '';
-    return `<option value="${p.id}" data-src="${p.src}">${tag}${nm}</option>`;
-  }).join('');
+
+  // Helper: build display name showing both zh+en when available
+  function protoDisplayName(p) {
+    if (p.name_zh && p.name_en) return `${p.name_zh}  ${p.name_en}`;
+    return p.name_zh || p.name_en || p.name || p.condition || '—';
+  }
+
+  // Build merged, deduplicated list
+  const seen = new Set();
+  const curated = (PROTOCOLS_CURATED || []).filter(p => { if (seen.has(p.id)) return false; seen.add(p.id); return true; });
+  const full    = (PROTOCOLS_FULL    || []).filter(p => { if (seen.has(p.id)) return false; seen.add(p.id); return true; });
+  const custom  = loadCustomProtocols();
+
+  // Build optgroups: My Protocols → Curated → Reference (deduplicated)
+  const groups = [
+    custom.length  ? `<optgroup label="── ${LANG==='zh'?'我的協定':'My Protocols'} ──">${
+      custom.map(p => `<option value="${p.id}">✦ ${p.name || p.condition || '—'}</option>`).join('')}</optgroup>` : '',
+    curated.length ? `<optgroup label="── ${LANG==='zh'?'精選':'Curated'} ──">${
+      curated.map(p => `<option value="${p.id}">★ ${protoDisplayName(p)}</option>`).join('')}</optgroup>` : '',
+    full.length    ? `<optgroup label="── ${LANG==='zh'?'參考協定':'Reference'} ──">${
+      full.map(p => `<option value="${p.id}">${protoDisplayName(p)}</option>`).join('')}</optgroup>` : '',
+  ].filter(Boolean);
+  sel.innerHTML = groups.length ? groups.join('') : '<option>—</option>';
+
+  const all_flat = [...custom, ...curated, ...full];
+  const firstId = all_flat[0]?.id;
+  if (firstId && !musicState.protocolId) { sel.value = firstId; musicState.protocolId = firstId; }
+  updateMusicProtocolInfo();
+
   sel.addEventListener('change', updateMusicProtocolInfo);
 
   musicState.freqA = state.freqA;
@@ -3034,7 +3057,10 @@ function initMusicViewBindings() {
 }
 
 function getProtocolFromAny(id) {
-  return (PROTOCOLS_CURATED||[]).find(p => p.id === id) || (PROTOCOLS_FULL||[]).find(p => p.id === id);
+  return loadCustomProtocols().find(p => p.id === id)
+      || (USER_PROTOCOLS||[]).find(p => p.id === id)
+      || (PROTOCOLS_CURATED||[]).find(p => p.id === id)
+      || (PROTOCOLS_FULL||[]).find(p => p.id === id);
 }
 function updateMusicProtocolInfo() {
   const id = $('musicProtocolSelect').value;
