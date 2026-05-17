@@ -1,16 +1,24 @@
-import { getPublicPosts } from '@/lib/posts'
+import { getPublicPosts, getAllTags } from '@/lib/posts'
 import { MetadataRoute } from 'next'
 
 const BASE_URL = 'https://cam-savant.vercel.app'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getPublicPosts()
+  const tags = getAllTags()
 
   const postEntries: MetadataRoute.Sitemap = posts.map((post) => ({
     url: `${BASE_URL}/posts/${post.slug}`,
     lastModified: new Date(post.frontmatter.date),
     changeFrequency: 'monthly' as const,
     priority: 0.8,
+  }))
+
+  const tagEntries: MetadataRoute.Sitemap = tags.map(({ tag }) => ({
+    url: `${BASE_URL}/tags/${encodeURIComponent(tag)}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.5,
   }))
 
   const staticPages: MetadataRoute.Sitemap = [
@@ -22,6 +30,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${BASE_URL}/about`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    },
+    {
+      url: `${BASE_URL}/contact`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.6,
@@ -51,12 +65,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: `${BASE_URL}/functional-medicine/supplement-recommender`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
       url: `${BASE_URL}/fsm`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.9,
     },
+    {
+      url: `${BASE_URL}/perioperative-rehab`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
   ]
 
-  return [...staticPages, ...postEntries]
+  return [...staticPages, ...postEntries, ...tagEntries]
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Breadcrumbs from '@/components/Breadcrumbs'
 
 export const metadata: Metadata = {
   title: '術前・術後復健',
@@ -129,8 +130,18 @@ export default function PerioperativeRehabPage() {
   return (
     <div className="min-h-screen bg-[#f5f0e8]">
 
+      {/* ── Breadcrumbs ── */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <Breadcrumbs
+          items={[
+            { label: '首頁', href: '/' },
+            { label: '術後復健' },
+          ]}
+        />
+      </div>
+
       {/* ── Hero ── */}
-      <section className="bg-neutral-950 text-white">
+      <section className="bg-neutral-950 text-white mt-4">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 text-center">
           <span className="text-xs font-semibold tracking-[0.2em] uppercase text-neutral-500">
             Perioperative Rehabilitation

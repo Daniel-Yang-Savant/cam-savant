@@ -5,6 +5,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import { getPostBySlug, getPostsByCategory } from '@/lib/posts'
+import Breadcrumbs from '@/components/Breadcrumbs'
 import ConsultForm from '@/components/ConsultForm'
 import ReadingProgress from '@/components/ReadingProgress'
 import TableOfContents from '@/components/TableOfContents'
@@ -98,18 +99,14 @@ export default async function PerioperativeRehabArticlePage({ params }: Props) {
         <div className="flex-1 min-w-0">
 
           {/* Breadcrumb */}
-          <nav className="mb-6 flex items-center gap-2 text-xs text-neutral-400 dark:text-neutral-500">
-            <Link href="/" className="hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors">
-              首頁
-            </Link>
-            <span>/</span>
-            <Link
-              href="/perioperative-rehab"
-              className="hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
-            >
-              術後復健
-            </Link>
-          </nav>
+          <Breadcrumbs
+            className="mb-6"
+            items={[
+              { label: '首頁', href: '/' },
+              { label: '術後復健', href: '/perioperative-rehab' },
+              { label: frontmatter.title },
+            ]}
+          />
 
           {/* Article card */}
           <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm px-8 py-10 md:px-12 md:py-14">

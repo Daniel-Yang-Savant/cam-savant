@@ -7,6 +7,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import { getAllSlugs, getPostBySlug, CATEGORY_LABELS } from '@/lib/posts'
+import Breadcrumbs from '@/components/Breadcrumbs'
 import ConsultForm from '@/components/ConsultForm'
 import ReadingProgress from '@/components/ReadingProgress'
 import TableOfContents from '@/components/TableOfContents'
@@ -162,13 +163,14 @@ export default async function PostPage({ params }: Props) {
         <article className="flex-1 min-w-0">
 
           {/* Breadcrumb */}
-          <nav className="mb-6 flex items-center gap-2 text-xs text-neutral-400 dark:text-neutral-500">
-            <Link href="/" className="hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors">首頁</Link>
-            <span>/</span>
-            <Link href={categoryHref} className="hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors">
-              {categoryLabel}
-            </Link>
-          </nav>
+          <Breadcrumbs
+            className="mb-6"
+            items={[
+              { label: '首頁', href: '/' },
+              { label: categoryLabel, href: categoryHref },
+              { label: frontmatter.title },
+            ]}
+          />
 
           {/* Header */}
           <header className="mb-12">

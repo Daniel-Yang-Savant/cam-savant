@@ -6,6 +6,19 @@ const ADMIN_SECRET = process.env.ADMIN_SECRET
 export function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
 
+  // ── Admin routes: /admin/** and /api/admin/** ──
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
+    const adminCookie = request.cookies.get('admin_token')
+    if (ADMIN_SECRET && adminCookie?.value === ADMIN_SECRET) {
+      return NextResponse.next()
+    }
+    // Return 404 for page routes, 401 for API routes
+    if (pathname.startsWith('/api/admin')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    return new NextResponse(null, { status: 404 })
+  }
+
   // ── Admin PE Generator: separate admin_token check ──
   if (pathname === '/perioperative-rehab/pe-generator') {
     const adminCookie = request.cookies.get('admin_token')
@@ -54,5 +67,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/perioperative-rehab/:path*'],
+  matcher: ['/perioperative-rehab/:path*', '/admin/:path*', '/api/admin/:path*'],
 }
