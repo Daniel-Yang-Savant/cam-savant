@@ -26,12 +26,33 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Invalid or expired token' });
   }
 
-  // Re-check email is still authorized (in case admin removed them)
+  // Re-check email is still authorized: env var list OR Upstash approved_emails
   const allowList = (process.env.AUTHORIZED_EMAILS || '')
     .split(',')
     .map(e => e.toLowerCase().trim())
     .filter(Boolean);
-  if (!allowList.includes(verified.email)) {
+  const inEnvList = allowList.includes(verified.email);
+  let isAuthorized = inEnvList;
+  if (!inEnvList) {
+    try {
+      const kvUrl = process.env.KV_REST_API_URL;
+      const kvToken = process.env.KV_REST_API_TOKEN;
+      if (kvUrl && kvToken) {
+        const r = await fetch(`${kvUrl}/get/${encodeURIComponent('approved_emails')}`, {
+          headers: { Authorization: `Bearer ${kvToken}` }
+        });
+        if (r.ok) {
+          const { result } = await r.json();
+          if (result) {
+            let approved = JSON.parse(result);
+            if (typeof approved === 'string') approved = JSON.parse(approved);
+            if (Array.isArray(approved)) isAuthorized = approved.includes(verified.email);
+          }
+        }
+      }
+    } catch {}
+  }
+  if (!isAuthorized) {
     return res.status(403).json({ error: 'Email no longer authorized' });
   }
 
