@@ -1,3 +1,5 @@
+import RetryButton from '@/components/RetryButton'
+
 export default function OfflinePage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
@@ -22,12 +24,7 @@ export default function OfflinePage() {
       <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-xs leading-relaxed">
         請檢查網路連線後再試。曾瀏覽過的文章頁面仍可離線查看。
       </p>
-      <button
-        onClick={() => window.location.reload()}
-        className="mt-6 px-5 py-2 text-sm font-medium rounded-lg bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-900 hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors"
-      >
-        重試
-      </button>
+      <RetryButton />
     </div>
   )
 }
