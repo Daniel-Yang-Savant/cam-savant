@@ -832,8 +832,7 @@ export default function SupplementRecommenderPage() {
               </div>
 
               <p className="mt-6 text-xs text-neutral-400 dark:text-neutral-500 text-center leading-relaxed">
-                ※ 本推薦工具依據 Metagenics 2025.07 臨床適應症資料整理，僅供參考。<br />
-                實際用藥或補充品選擇，請務必諮詢您的醫師或功能醫學專科醫師。
+                ※ 本推薦結果僅供參考，實際用藥或補充品選擇，請務必諮詢您的醫師或功能醫學專科醫師。
               </p>
             </>
           )}
