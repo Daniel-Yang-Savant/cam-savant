@@ -1742,28 +1742,39 @@ function parseImportText(raw) {
   // Returns { name, steps, errors }
   // Each step: { freq_a, freq_b, polarity, wave, duration, note, warn }
   // Each error: { line, text, reason }
-  const lines = raw.split(/\r?\n/);
+
+  // ── Pre-normalise: split dense text on numbered step markers ──────────────
+  // Insert a newline before "2. 40/396" style tokens that aren't already at line start.
+  // Handles single-paragraph Chinese protocol text like "1. 40/396 交流… 2. 91/77…"
+  let normalised = raw
+    // Before "N." or "N、" that is followed by digits (freq pair start)
+    .replace(/([^\n])(\s+)(\d{1,2}[\.、]\s+(?=\d))/g, '$1\n$3')
+    // Before 第N階段 / 第N步 style markers
+    .replace(/([^\n])(第\s*\d+\s*(?:階段|步驟|步))/g, '$1\n$2');
+
+  const lines = normalised.split(/\r?\n/);
   const steps = [];
   const errors = [];
   let detectedName = '';
 
   const reFreqPair = /(\d+\.?\d*)\s*[\/]\s*(\d+\.?\d*)/;
   const reMultiB   = /(\d+\.?\d*)\s*[\/]\s*((?:\d+\.?\d*\s*[,，]\s*)+\d+\.?\d*)/; // A/B1,B2,..
-  const reDuration = /(\d+\.?\d*)\s*(?:min|m|分)/i;
+  const reDuration = /(\d+(?:\.\d*)?)\s*(?:分鐘?|min(?:s|utes?)?\b)/i;  // 不匹配 "m" in "Medium"
   const reTableRow = /^\|?\s*\d+\s*\|/;  // markdown table data row
 
   function parsePol(s) {
     if (!s) return 'Alternating';
     const t = s.toLowerCase().trim();
-    if (/\+\/-|alternating|\bac\b/.test(t)) return 'Alternating';
-    if (/positive|\bpos\b|\+→|\bp\b/.test(t) || (t === '+')) return 'Positive';
+    if (/\+\/-|alternating|\bac\b|交流/.test(t)) return 'Alternating';
+    if (/positive|\bpos\b|\+→|\bp\b|極化|正極/.test(t) || (t === '+')) return 'Positive';
     return 'Alternating';
   }
   function parseWave(s) {
     if (!s) return 'Medium';
     const t = s.toLowerCase().trim();
-    if (/sharp|\bs\b|銳/.test(t)) return 'Sharp';
-    if (/gentle|\bg\b|緩/.test(t)) return 'Gentle';
+    if (/sharp|\bs\b|銳波?/.test(t)) return 'Sharp';
+    if (/gentle|\bg\b|緩波?/.test(t)) return 'Gentle';
+    if (/medium|\bm\b|中波?/.test(t)) return 'Medium';
     return 'Medium';
   }
   function parseDur(s) {
@@ -1800,8 +1811,8 @@ function parseImportText(raw) {
     // Skip table header row (contains alpha chars in freq columns)
     if (/^\|?\s*[A-Za-z\s]+\|/.test(line) && !reFreqPair.test(line)) continue;
 
-    // Strip step prefix: "Step 1:" or "1."
-    line = line.replace(/^\s*(?:Step\s*)?\d+\s*[:.]\s*/i, '');
+    // Strip step prefix: "Step 1:", "1.", "1、", "第1階段" etc.
+    line = line.replace(/^\s*(?:第\s*\d+\s*(?:階段|步驟|步)\s*[:：]?\s*|(?:Step\s*)?\d+\s*[:.、]\s*)/i, '');
 
     // Strip leading pipe (table format)
     line = line.replace(/^\s*\|/, '');
@@ -1818,8 +1829,8 @@ function parseImportText(raw) {
       const bParts = multiMatch[2].split(/[,，]/).map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
       // Rest of line for pol/wave/dur
       const rest = parseStr.slice(multiMatch[0].length);
-      const polMatch = rest.match(/\+\/-|\balternating\b|\bac\b|\bpositive\b|\bpos\b|\+→/i);
-      const waveMatch = rest.match(/\bsharp\b|\bs\b|\bgentle\b|\bg\b|\bmedium\b|\bm\b/i);
+      const polMatch = rest.match(/\+\/-|\balternating\b|\bac\b|\bpositive\b|\bpos\b|\+→|交流|極化|正極/i);
+      const waveMatch = rest.match(/\bsharp\b|\bs\b|\bgentle\b|\bg\b|\bmedium\b|\bm\b|銳波?|緩波?|中波?/i);
       const durMatch = rest.match(reDuration) || rest.match(/(\d+)/);
       const pol = parsePol(polMatch ? polMatch[0] : '');
       const wave = parseWave(waveMatch ? waveMatch[0] : '');
@@ -1840,8 +1851,8 @@ function parseImportText(raw) {
       const fa = parseFloat(pairMatch[1]);
       const fb = parseFloat(pairMatch[2]);
       const rest = parseStr.slice(pairMatch.index + pairMatch[0].length);
-      const polMatch = rest.match(/\+\/-|\balternating\b|\bac\b|\bpositive\b|\bpos\b|\+→/i);
-      const waveMatch = rest.match(/\bsharp\b|\bgentle\b|\bmedium\b|(?<![a-z])[sgm](?![a-z])/i);
+      const polMatch = rest.match(/\+\/-|\balternating\b|\bac\b|\bpositive\b|\bpos\b|\+→|交流|極化|正極/i);
+      const waveMatch = rest.match(/\bsharp\b|\bgentle\b|\bmedium\b|(?<![a-z])[sgm](?![a-z])|銳波?|緩波?|中波?/i);
       const durMatch = rest.match(reDuration) || rest.match(/\b(\d+)\b/);
       const pol = parsePol(polMatch ? polMatch[0] : '');
       const wave = parseWave(waveMatch ? waveMatch[0] : '');
@@ -2229,7 +2240,8 @@ function renderProtocolList(filter) {
     btn.addEventListener('click', e => {
       e.stopPropagation();
       const id = btn.getAttribute('data-edit');
-      const proto = loadCustomProtocols().find(p => p.id === id);
+      const proto = (USER_PROTOCOLS || []).find(p => p.id === id)
+                 || loadCustomProtocols().find(p => p.id === id);
       if (proto) showCustomProtocolEditor(proto);
     });
   });
