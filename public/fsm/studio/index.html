@@ -147,6 +147,23 @@ header { display: flex; align-items: center; justify-content: space-between; pad
   border-radius: 10px;
 }
 .approved-user-email { flex: 1; font-size: 12px; color: var(--text); word-break: break-all; }
+.add-email-row {
+  display: flex; gap: 8px; padding: 8px 0 4px;
+  border-bottom: 1px solid var(--border); margin-bottom: 4px;
+}
+.add-email-row input {
+  flex: 1; background: var(--bg-elev2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 10px; font-size: 12px; color: var(--text);
+  outline: none;
+}
+.add-email-row input:focus { border-color: var(--accent); }
+.add-email-row input::placeholder { color: var(--text-very-dim); }
+.btn-add-email {
+  background: var(--accent); border: none; border-radius: 8px;
+  padding: 7px 14px; cursor: pointer; font-size: 12px; font-weight: 600;
+  color: #000; white-space: nowrap; transition: opacity 0.15s;
+}
+.btn-add-email:hover { opacity: 0.85; }
 .admin-modal-close {
   align-self: flex-end; background: none; border: 1px solid var(--border);
   border-radius: 7px; padding: 5px 14px; cursor: pointer; color: var(--text-dim); font-size: 13px;
@@ -1281,8 +1298,15 @@ function _renderAdminList() {
       </div>`;
     }).join('');
   } else {
-    if (!approved.length) { list.innerHTML = '<div class="admin-modal-empty">目前沒有已批准用戶</div>'; return; }
-    list.innerHTML = approved.map(email => `
+    const addRow = `<div class="add-email-row">
+      <input type="email" id="addEmailInput" placeholder="直接輸入 email 批准…" onkeydown="if(event.key==='Enter')directApproveEmail()" />
+      <button class="btn-add-email" onclick="directApproveEmail()">新增</button>
+    </div>`;
+    if (!approved.length) {
+      list.innerHTML = addRow + '<div class="admin-modal-empty">目前沒有已批准用戶</div>';
+      return;
+    }
+    list.innerHTML = addRow + approved.map(email => `
       <div class="approved-user-row" id="aur-${CSS.escape(email)}">
         <div class="approved-user-email">✅ ${email}</div>
         <button class="btn-revoke" onclick="handleUserAction('revoke','${email}')">撤銷</button>
@@ -1314,6 +1338,18 @@ async function openAdminPanel() {
 
 function closeAdminPanel() {
   document.getElementById('adminModalOverlay').classList.remove('open');
+}
+
+async function directApproveEmail() {
+  const input = document.getElementById('addEmailInput');
+  const email = (input?.value || '').trim().toLowerCase();
+  if (!email || !email.includes('@')) {
+    if (input) { input.style.borderColor = '#ef4444'; setTimeout(() => input.style.borderColor = '', 1000); }
+    return;
+  }
+  input.disabled = true;
+  await handleUserAction('approve', email);
+  if (input) { input.value = ''; input.disabled = false; input.focus(); }
 }
 
 async function handleUserAction(action, email) {
