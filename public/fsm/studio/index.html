@@ -1080,56 +1080,15 @@ const auth = {
 };
 auth.load();
 
-// ── OAuth redirect fallback: process token returned from auth-callback.html ──
-(function processPendingOAuthToken() {
+// ── Process credential returned via GSI redirect flow (/api/fsm-auth-callback) ──
+(function processPendingCredential() {
   try {
-    const token = sessionStorage.getItem('fsm_oauth_token');
-    if (!token) return;
-    sessionStorage.removeItem('fsm_oauth_token');
-    // Simulate the same credential response as GSI
-    window.handleGoogleCredential({ credential: token });
+    const cred = sessionStorage.getItem('fsm_pending_credential');
+    if (!cred) return;
+    sessionStorage.removeItem('fsm_pending_credential');
+    window.handleGoogleCredential({ credential: cred });
   } catch(e) {}
 })();
-
-// ── startOAuthFlow: popup (desktop) or redirect (mobile) ─────────────────────
-function startOAuthFlow() {
-  const nonce = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
-  try { sessionStorage.setItem('fsm_oauth_nonce', nonce); } catch(e) {}
-  const callbackUrl = window.location.origin + '/fsm/studio/auth-callback.html';
-  const params = new URLSearchParams({
-    response_type: 'id_token',
-    client_id: GOOGLE_CLIENT_ID,
-    redirect_uri: callbackUrl,
-    scope: 'openid email profile',
-    nonce: nonce,
-  });
-  const oauthUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
-  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-
-  if (isMobile) {
-    // Redirect flow — more reliable on mobile browsers
-    try { sessionStorage.setItem('fsm_return_url', window.location.href); } catch(e) {}
-    window.location.href = oauthUrl;
-  } else {
-    // Popup flow for desktop
-    const popup = window.open(oauthUrl, 'gSignIn', 'width=500,height=640,top=80,left=80');
-    if (!popup || popup.closed) {
-      // Popup blocked — fall back to redirect
-      try { sessionStorage.setItem('fsm_return_url', window.location.href); } catch(e) {}
-      window.location.href = oauthUrl;
-      return;
-    }
-    // Listen for postMessage from auth-callback.html
-    function onOAuthMessage(e) {
-      if (e.origin !== window.location.origin) return;
-      if (e.data && e.data.type === 'fsm_google_oauth' && e.data.id_token) {
-        window.removeEventListener('message', onOAuthMessage);
-        window.handleGoogleCredential({ credential: e.data.id_token });
-      }
-    }
-    window.addEventListener('message', onOAuthMessage);
-  }
-}
 
 // Google Sign-in callback (window-scoped for the GSI library)
 window.handleGoogleCredential = async function(response) {
@@ -1438,24 +1397,30 @@ function renderGate(viewId) {
 
   container.querySelector('.gsi-custom-btn').addEventListener('click', () => {
     if (!window.google || !google.accounts || !google.accounts.id) {
-      // GSI script not loaded (e.g. MIUI browser) — go straight to OAuth redirect
-      startOAuthFlow();
+      showErr('Google 登入模組尚未載入，請重新整理頁面');
       return;
     }
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
     if (!window._gsiInitialized) {
-      google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: window.handleGoogleCredential,
-        ux_mode: 'popup',
-      });
+      if (isMobile) {
+        // Mobile: GSI redirect flow → POSTs credential to /api/fsm-auth-callback
+        // Requires only Authorized JavaScript origins (not redirect URIs)
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          ux_mode: 'redirect',
+          login_uri: window.location.origin + '/api/fsm-auth-callback',
+        });
+      } else {
+        // Desktop: One Tap popup with JS callback
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: window.handleGoogleCredential,
+          ux_mode: 'popup',
+        });
+      }
       window._gsiInitialized = true;
     }
-    // Try One Tap first; fall back to OAuth popup/redirect if not displayed
-    google.accounts.id.prompt((notification) => {
-      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-        startOAuthFlow();
-      }
-    });
+    google.accounts.id.prompt();
   });
 }
 
