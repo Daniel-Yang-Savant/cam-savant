@@ -10,12 +10,14 @@ const nextConfig = {
     const csp = [
       "default-src 'self'",
       // Next.js inline scripts (dark-mode, SW registration, GA config) require 'unsafe-inline'
-      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      // accounts.google.com required for Google Sign-In (GSI) used in FSM Studio
+      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://accounts.google.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
       "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com",
-      "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://vitals.vercel-insights.com",
-      "frame-src 'none'",
+      "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://lh3.googleusercontent.com",
+      "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://vitals.vercel-insights.com https://accounts.google.com https://oauth2.googleapis.com",
+      // accounts.google.com needed for Google Sign-In button iframe
+      "frame-src https://accounts.google.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
@@ -35,7 +37,8 @@ const nextConfig = {
           { key: 'X-Content-Type-Options',     value: 'nosniff' },
           { key: 'Referrer-Policy',            value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy',         value: 'camera=(), microphone=(), geolocation=(), payment=()' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+          // same-origin-allow-popups: allows Google OAuth popup to communicate back
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
         ],
       },
       // 靜態資源長快取
