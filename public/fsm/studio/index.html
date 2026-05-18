@@ -354,6 +354,17 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling
 .gate-error { background: rgba(248, 81, 73, 0.1); border: 1px solid rgba(248, 81, 73, 0.4); color: var(--danger); padding: 10px 14px; border-radius: var(--radius); font-size: 12px; margin-top: 16px; max-width: 320px; line-height: 1.5; }
 
 #googleSignInDiv { display: flex; justify-content: center; margin: 16px 0; }
+.gsi-custom-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 10px 24px; border-radius: 24px;
+  background: #fff; color: #3c4043;
+  font-size: 14px; font-weight: 500; font-family: 'Google Sans', sans-serif;
+  border: 1px solid #dadce0; cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,.3);
+  transition: box-shadow .15s, background .15s;
+}
+.gsi-custom-btn:hover { background: #f8f9fa; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+.gsi-custom-btn svg { flex-shrink: 0; }
 
 /* Custom Protocol Editor */
 .cp-step-row { display:flex; align-items:center; gap:6px; margin-bottom:8px; }
@@ -1350,27 +1361,50 @@ function renderGate(viewId) {
       </div>
     </div>
   `;
-  // Initialize the Google sign-in button after the div is in DOM
-  if (window.google && google.accounts && google.accounts.id) {
+  // Inject a custom Google sign-in button (no iframe required)
+  function mountGsiButton() {
+    const container = document.getElementById('googleSignInDiv');
+    if (!container) return;
+    if (!window.google || !google.accounts || !google.accounts.id) {
+      // GSI script not yet loaded — retry
+      setTimeout(mountGsiButton, 300);
+      return;
+    }
     try {
       if (!window._gsiInitialized) {
         google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: window.handleGoogleCredential,
+          ux_mode: 'popup',
         });
         window._gsiInitialized = true;
       }
-      google.accounts.id.renderButton(
-        document.getElementById('googleSignInDiv'),
-        { theme: 'filled_black', size: 'large', text: 'signin_with', shape: 'pill' }
-      );
+      // Custom button — no iframe, no origin restriction
+      container.innerHTML = `
+        <button class="gsi-custom-btn" id="gsiBtn">
+          <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+            <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+            <path d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z" fill="#FBBC05"/>
+            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 6.294C4.672 4.169 6.656 3.58 9 3.58z" fill="#EA4335"/>
+          </svg>
+          以 Google 帳號登入
+        </button>
+      `;
+      document.getElementById('gsiBtn').addEventListener('click', () => {
+        google.accounts.id.prompt((notification) => {
+          // If One Tap is suppressed, fall back to popup
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            google.accounts.id.revoke && google.accounts.id.disableAutoSelect();
+            google.accounts.id.prompt();
+          }
+        });
+      });
     } catch (e) {
-      console.error('Google sign-in init failed:', e);
+      console.error('GSI init error:', e);
     }
-  } else {
-    // Wait for script to load
-    setTimeout(() => renderGate(viewId), 500);
   }
+  mountGsiButton();
 }
 
 
