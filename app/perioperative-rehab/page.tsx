@@ -1,11 +1,16 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Breadcrumbs from '@/components/Breadcrumbs'
+import { generateCollectionPageSchema } from '@/lib/schema'
+
+const BASE_URL = 'https://cam-savant.vercel.app'
+const DESCRIPTION =
+  '彰化・南投・台中・雲林地區骨科、腫瘤科、心血管手術術後復健計畫，涵蓋ACL重建、旋轉肌袖修復、頭頸癌、肺癌、CABG術後心肺復健。'
 
 export const metadata: Metadata = {
   title: '術前・術後復健',
-  description:
-    '彰化・南投・台中・雲林地區骨科、腫瘤科、心血管手術術後復健計畫，涵蓋ACL重建、旋轉肌袖修復、頭頸癌、肺癌、CABG術後心肺復健。',
+  description: DESCRIPTION,
+  alternates: { canonical: '/perioperative-rehab' },
 }
 
 // ── Condition data ──────────────────────────────────────────────────────────
@@ -128,6 +133,20 @@ const ACCENT: Record<string, string> = {
 
 export default function PerioperativeRehabPage() {
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            generateCollectionPageSchema({
+              name: '術前・術後復健',
+              description: DESCRIPTION,
+              url: `${BASE_URL}/perioperative-rehab`,
+              specialty: 'PhysicalMedicineAndRehabilitation',
+            })
+          ),
+        }}
+      />
     <div className="min-h-screen bg-[#f5f0e8]">
 
       {/* ── Breadcrumbs ── */}
@@ -234,5 +253,6 @@ export default function PerioperativeRehabPage() {
       </div>
 
     </div>
+    </>
   )
 }

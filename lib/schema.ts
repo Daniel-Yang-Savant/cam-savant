@@ -29,6 +29,7 @@ export function generateArticleSchema(post: {
   category: string
   author?: string
   coverImage?: string
+  lastModified?: string
 }) {
   const authorDetails =
     (post.author ? AUTHOR_MAP[post.author] : undefined) ??
@@ -41,7 +42,8 @@ export function generateArticleSchema(post: {
     description: post.excerpt,
     url: `${BASE_URL}/posts/${post.slug}`,
     datePublished: post.date,
-    dateModified: post.date,
+    dateModified: post.lastModified ?? post.date,
+    lastReviewed: post.lastModified ?? post.date,
     inLanguage: 'zh-TW',
     author: {
       '@type': 'Physician',

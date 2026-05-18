@@ -115,6 +115,7 @@ export default async function PostPage({ params }: Props) {
               category: frontmatter.category,
               author: frontmatter.author,
               coverImage: frontmatter.coverImage,
+              lastModified: frontmatter.lastModified,
             }),
             speakable: {
               '@type': 'SpeakableSpecification',
@@ -263,7 +264,7 @@ export default async function PostPage({ params }: Props) {
           <ConsultForm articleTitle={frontmatter.title} />
 
           {/* Related articles */}
-          <RelatedArticles currentSlug={post!.slug} category={frontmatter.category} />
+          <RelatedArticles currentSlug={post!.slug} category={frontmatter.category} tags={frontmatter.tags} />
 
           {/* Brand signature */}
           <div className="mt-12 pt-6 border-t border-neutral-100 dark:border-neutral-800 text-center">

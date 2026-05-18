@@ -30,6 +30,10 @@ const PostFrontmatterSchema = z.object({
   coverImage: z.string().optional(),
   tags: z.array(z.string()).optional(),
   draft: z.boolean().optional().default(false),
+  lastModified: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'lastModified 格式須為 YYYY-MM-DD')
+    .optional(),
 })
 
 // ── Types ──────────────────────────────────────────────────────────────────

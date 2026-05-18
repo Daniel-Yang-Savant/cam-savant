@@ -1,16 +1,39 @@
 import Link from 'next/link'
-import { getPostsByCategory, CATEGORY_LABELS } from '@/lib/posts'
+import { getPublicPosts, CATEGORY_LABELS } from '@/lib/posts'
 import ArticleCard from '@/components/ArticleCard'
 
 interface RelatedArticlesProps {
   currentSlug: string
   category: string
+  tags?: string[]
 }
 
-export default function RelatedArticles({ currentSlug, category }: RelatedArticlesProps) {
-  const related = getPostsByCategory(category)
-    .filter((p) => p.slug !== currentSlug)
+export default function RelatedArticles({ currentSlug, category, tags = [] }: RelatedArticlesProps) {
+  const allPosts = getPublicPosts().filter((p) => p.slug !== currentSlug)
+
+  // Score each post: shared tags (2pts each) + same category (1pt)
+  const scored = allPosts.map((post) => {
+    const postTags = post.frontmatter.tags ?? []
+    const sharedTags = postTags.filter((t) => tags.includes(t)).length
+    const sameCategory = post.frontmatter.category === category ? 1 : 0
+    return { post, score: sharedTags * 2 + sameCategory }
+  })
+
+  // Keep only posts with at least some relevance, sorted by score then date
+  const related = scored
+    .filter((s) => s.score > 0)
+    .sort((a, b) => b.score - a.score || b.post.frontmatter.date.localeCompare(a.post.frontmatter.date))
     .slice(0, 3)
+    .map((s) => s.post)
+
+  // Fallback: fill with same-category posts if not enough tag matches
+  if (related.length < 3) {
+    const existing = new Set(related.map((p) => p.slug))
+    const fallback = allPosts
+      .filter((p) => p.frontmatter.category === category && !existing.has(p.slug))
+      .slice(0, 3 - related.length)
+    related.push(...fallback)
+  }
 
   if (related.length === 0) return null
 
