@@ -1654,13 +1654,48 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ============================================================
+// iOS AUDIO SESSION UNLOCK
+// iOS Safari routes WebAudio through "ambient" category by default —
+// audio only comes through headphones, not the speaker.
+// Playing a silent <audio> element on first touch switches the session
+// to "playback" mode so WebAudio comes out of the speaker.
+// ============================================================
+let _iosAudioUnlocked = false;
+function _unlockiOSAudio() {
+  if (_iosAudioUnlocked) return;
+  _iosAudioUnlocked = true;
+  // Silent WAV: RIFF header with 0 data bytes
+  const silentWav = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+  const a = new Audio(silentWav);
+  a.volume = 0.001;
+  a.setAttribute('playsinline', '');
+  a.setAttribute('webkit-playsinline', '');
+  a.play().catch(() => {});
+  // Also unlock via a silent AudioContext buffer
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const buf = ctx.createBuffer(1, 1, 22050);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start(0);
+    ctx.resume().then(() => setTimeout(() => ctx.close(), 500));
+  } catch(e) {}
+}
+document.addEventListener('touchstart', _unlockiOSAudio, { once: true, passive: true });
+document.addEventListener('touchend',   _unlockiOSAudio, { once: true, passive: true });
+
+// ============================================================
 // AUDIO ENGINE
 // ============================================================
 class FSMAudio {
   constructor() { this.ctx = null; this.running = false; }
   start(freqA, freqB, polarity, waveshape, currentPct) {
     if (this.running) this.stop();
+    _unlockiOSAudio(); // ensure unlocked even if touchstart missed
     this.ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 48000 });
+    // iOS Safari starts AudioContext in "suspended" state — must resume explicitly
+    if (this.ctx.state === 'suspended') this.ctx.resume();
     const now = this.ctx.currentTime;
     let attack = 0.15;
     if (waveshape === 'Sharp') attack = 0.02;
@@ -1934,6 +1969,7 @@ function onStepEnd() {
 function playEndChime() {
   try {
     const c = new (window.AudioContext || window.webkitAudioContext)();
+    if (c.state === 'suspended') c.resume();
     const o = c.createOscillator();
     const g = c.createGain();
     o.frequency.value = 880;
