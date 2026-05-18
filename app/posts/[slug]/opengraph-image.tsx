@@ -66,14 +66,12 @@ export default async function Image({ params }: { params: { slug: string } }) {
           position: 'relative',
         }}
       >
-        {/* Subtle grid pattern */}
+        {/* Subtle noise overlay — Satori doesn't support gradient color-stop positions */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
+            background: 'rgba(255,255,255,0.012)',
           }}
         />
 
