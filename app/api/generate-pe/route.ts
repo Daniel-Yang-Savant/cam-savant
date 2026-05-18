@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
+
+// 10 generations per hour per IP (admin-only route, but still guard against misuse)
+const LIMIT = 10
+const WINDOW_MS = 60 * 60 * 1000
+
+// SOAP input limits
+const MAX_SOAP_LENGTH = 5_000
 
 const SYSTEM_PROMPT = `你是一位專業的復健科醫師助理，負責根據醫師提供的 SOAP 記錄生成中文病患衛教單張。
 規範：
@@ -11,10 +19,25 @@ const SYSTEM_PROMPT = `你是一位專業的復健科醫師助理，負責根據
  · 輸出：只輸出完整 HTML 字串，不要任何說明文字`
 
 export async function POST(request: NextRequest) {
+  // Auth check
   const adminCookie = request.cookies.get('admin_token')
   const secret = process.env.ADMIN_SECRET
   if (!secret || adminCookie?.value !== secret) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Rate limit (per IP)
+  const ip = getClientIp(request.headers)
+  const rl = checkRateLimit(`generate-pe:${ip}`, LIMIT, WINDOW_MS)
+  if (!rl.allowed) {
+    const retryAfterSec = Math.ceil(rl.resetIn / 1000)
+    return NextResponse.json(
+      { error: 'Rate limit exceeded. Please wait before generating again.' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(retryAfterSec) },
+      }
+    )
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY
@@ -22,9 +45,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 })
   }
 
-  const { soap } = await request.json()
-  if (!soap?.trim()) {
+  let body: { soap?: unknown }
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+  }
+
+  const { soap } = body
+
+  if (typeof soap !== 'string' || !soap.trim()) {
     return NextResponse.json({ error: 'Missing SOAP content' }, { status: 400 })
+  }
+
+  if (soap.length > MAX_SOAP_LENGTH) {
+    return NextResponse.json(
+      { error: `SOAP content exceeds maximum length of ${MAX_SOAP_LENGTH} characters` },
+      { status: 400 }
+    )
   }
 
   const client = new Anthropic({ apiKey })
