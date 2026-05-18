@@ -1396,33 +1396,69 @@ function renderGate(viewId) {
   `;
 
   container.querySelector('.gsi-custom-btn').addEventListener('click', () => {
+    const ua = navigator.userAgent;
+    const isAndroid = /Android/i.test(ua);
+    // Chrome on Android works fine with GSI popup; other Android browsers (MIUI, Samsung, etc.) do not
+    const isAndroidChrome = isAndroid && /Chrome\//.test(ua) && !/Chromium|EdgA|OPR|SamsungBrowser|MiuiBrowser/.test(ua);
+    const needsRedirect = isAndroid && !isAndroidChrome;
+
+    if (needsRedirect) {
+      // ── OAuth 2.0 id_token implicit redirect ──────────────────────────────
+      // Works on all Android browsers. Returns id_token in URL hash.
+      // Requires the page URL to be added as Authorized Redirect URI in Google Cloud Console.
+      const nonce = Math.random().toString(36).slice(2) + Date.now().toString(36);
+      sessionStorage.setItem('fsm_oauth_nonce', nonce);
+      const redirectUri = window.location.href.split('#')[0].split('?')[0];
+      const params = new URLSearchParams({
+        client_id: GOOGLE_CLIENT_ID,
+        redirect_uri: redirectUri,
+        response_type: 'id_token',
+        scope: 'openid email profile',
+        nonce,
+      });
+      window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
+      return;
+    }
+
+    // ── Desktop / iOS / Android Chrome: GSI popup ─────────────────────────
     if (!window.google || !google.accounts || !google.accounts.id) {
       showErr('Google 登入模組尚未載入，請重新整理頁面');
       return;
     }
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
     if (!window._gsiInitialized) {
-      if (isMobile) {
-        // Mobile: GSI redirect flow → POSTs credential to /api/fsm-auth-callback
-        // Requires only Authorized JavaScript origins (not redirect URIs)
-        google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          ux_mode: 'redirect',
-          login_uri: window.location.origin + '/api/fsm-auth-callback',
-        });
-      } else {
-        // Desktop: One Tap popup with JS callback
-        google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: window.handleGoogleCredential,
-          ux_mode: 'popup',
-        });
-      }
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: window.handleGoogleCredential,
+        ux_mode: 'popup',
+      });
       window._gsiInitialized = true;
     }
-    google.accounts.id.prompt();
+    google.accounts.id.prompt(notification => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        // Prompt was suppressed — render an explicit button as fallback
+        google.accounts.id.renderButton(container, { theme: 'outline', size: 'large', width: 240 });
+      }
+    });
   });
 }
+
+// ── OAuth redirect callback — check for id_token in URL hash on page load ──
+(function checkOAuthCallback() {
+  const hash = window.location.hash;
+  if (!hash || !hash.includes('id_token=')) return;
+  const params = new URLSearchParams(hash.replace(/^#/, ''));
+  const idToken = params.get('id_token');
+  if (!idToken) return;
+  // Clean up URL so refreshing doesn't re-trigger
+  history.replaceState({}, '', window.location.pathname + window.location.search);
+  // Use the same credential handler as GSI popup
+  if (typeof window.handleGoogleCredential === 'function') {
+    window.handleGoogleCredential({ credential: idToken });
+  } else {
+    // handleGoogleCredential not yet defined — wait for DOM
+    window._pendingOAuthCredential = idToken;
+  }
+})();
 
 
 // ============================================================
