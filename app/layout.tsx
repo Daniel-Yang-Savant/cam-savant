@@ -27,7 +27,7 @@ const BASE_URL = 'https://cam-savant.vercel.app'
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: 'CAM Savant | 彰化・南投・台中・雲林 復健科・運動醫學・增生療法・PRP・FSM',
+    default: 'CAM Savant｜中部復健科・運動醫學',
     template: '%s | CAM Savant',
   },
   description:
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'zh_TW',
     siteName: 'CAM Savant',
-    title: 'CAM Savant | 彰化・南投・台中・雲林 復健科・運動醫學・增生療法・PRP・FSM',
+    title: 'CAM Savant｜中部復健科・運動醫學・增生療法',
     description:
       '彰化、南投、台中、雲林地區復健科與運動醫學專業團隊，提供增生療法、PRP治療、骨質疏鬆、超音波導引注射、FSM及功能醫學服務。',
     images: [
@@ -84,6 +84,8 @@ const jsonLd = {
       logo: {
         '@type': 'ImageObject',
         url: 'https://cam-savant.vercel.app/images/logo.png',
+        width: 512,
+        height: 512,
       },
       address: {
         '@type': 'PostalAddress',

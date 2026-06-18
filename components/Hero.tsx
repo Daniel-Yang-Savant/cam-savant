@@ -4,6 +4,7 @@ import { zhTW } from 'date-fns/locale'
 import type { Post } from '@/lib/posts'
 import { CATEGORY_LABELS } from '@/lib/posts'
 import CoverImage from '@/components/CoverImage'
+import LineFollow from '@/components/LineFollow'
 
 interface HeroProps {
   post: Post
@@ -80,6 +81,21 @@ export default function Hero({ post }: HeroProps) {
 
           </div>
         </Link>
+
+        {/* ── LINE CTA ── */}
+        <div className="mt-10 pt-8 border-t border-neutral-100 dark:border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+              追蹤楊育愷醫師官方 LINE
+            </p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
+              門診提醒、衛教新知與線上諮詢，加入好友不漏接。
+            </p>
+          </div>
+          <div className="flex-shrink-0">
+            <LineFollow card={false} />
+          </div>
+        </div>
       </div>
     </section>
   )
