@@ -1,7 +1,7 @@
 import { getPublicPosts, getAllTags } from '@/lib/posts'
 import { MetadataRoute } from 'next'
 
-const BASE_URL = 'https://cam-savant.vercel.app'
+const BASE_URL = 'https://camsavant.com'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getPublicPosts()

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import { generateCollectionPageSchema } from '@/lib/schema'
 
-const BASE_URL = 'https://cam-savant.vercel.app'
+const BASE_URL = 'https://camsavant.com'
 const DESCRIPTION =
   '彰化・南投・台中・雲林地區骨科、腫瘤科、心血管手術術後復健計畫，涵蓋ACL重建、旋轉肌袖修復、頭頸癌、肺癌、CABG術後心肺復健。'
 

@@ -30,7 +30,7 @@ const VERCEL_TOKEN      = process.env.VERCEL_TOKEN
 const VERCEL_PROJECT_ID = process.env.VERCEL_PROJECT_ID
 const VERCEL_TEAM_ID    = process.env.VERCEL_TEAM_ID   // 選填
 
-const SITE_BASE_URL = 'https://cam-savant.vercel.app'
+const SITE_BASE_URL = 'https://camsavant.com'
 const ENV_VAR_NAME  = 'PERIOP_ACCESS_TOKEN'
 
 // ── Helper ──────────────────────────────────────────────────────────────────

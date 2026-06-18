@@ -95,7 +95,7 @@ export default async function PostPage({ params }: Props) {
     locale: zhTW,
   })
 
-  const BASE_URL = 'https://cam-savant.vercel.app'
+  const BASE_URL = 'https://camsavant.com'
   const readingTime = getReadingTime(content)
   const faqs = extractFAQsFromMDX(content)
   const faqSchema = generateFAQSchema(faqs)

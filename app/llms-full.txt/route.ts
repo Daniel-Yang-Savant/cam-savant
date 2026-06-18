@@ -1,6 +1,6 @@
 import { getPublicPosts, CATEGORY_LABELS } from '@/lib/posts'
 
-const BASE_URL = 'https://cam-savant.vercel.app'
+const BASE_URL = 'https://camsavant.com'
 
 export function GET() {
   const posts = getPublicPosts()

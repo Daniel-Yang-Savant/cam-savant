@@ -22,7 +22,7 @@ const notoSansTC = Noto_Sans_TC({
   preload: false, // CJK 字型龐大，不 preload 避免阻塞渲染
 })
 
-const BASE_URL = 'https://cam-savant.vercel.app'
+const BASE_URL = 'https://camsavant.com'
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -76,14 +76,14 @@ const jsonLd = {
   '@graph': [
     {
       '@type': 'MedicalOrganization',
-      '@id': 'https://cam-savant.vercel.app/#organization',
+      '@id': 'https://camsavant.com/#organization',
       name: 'CAM Savant',
       description:
         '彰化、南投、台中、雲林地區復健科・運動醫學・增生療法・PRP・FSM專業醫療團隊',
-      url: 'https://cam-savant.vercel.app',
+      url: 'https://camsavant.com',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://cam-savant.vercel.app/images/logo.png',
+        url: 'https://camsavant.com/images/logo.png',
         width: 512,
         height: 512,
       },
@@ -103,7 +103,7 @@ const jsonLd = {
       member: [
         {
           '@type': 'Physician',
-          '@id': 'https://cam-savant.vercel.app/#physician-yang-yu-kai',
+          '@id': 'https://camsavant.com/#physician-yang-yu-kai',
           name: '楊育愷',
           alternateName: 'Yu-Kai Yang, MD',
           jobTitle: '復健科主治醫師',
@@ -148,7 +148,7 @@ const jsonLd = {
         },
         {
           '@type': 'Physician',
-          '@id': 'https://cam-savant.vercel.app/#physician-yang-yu-chang',
+          '@id': 'https://camsavant.com/#physician-yang-yu-chang',
           name: '楊育彰',
           alternateName: 'Yu-Chang Yang, MD',
           jobTitle: '家庭醫學科專科醫師',
@@ -157,7 +157,7 @@ const jsonLd = {
         },
         {
           '@type': 'Physician',
-          '@id': 'https://cam-savant.vercel.app/#physician-lai-wen-wei',
+          '@id': 'https://camsavant.com/#physician-lai-wen-wei',
           name: '賴玟衛',
           alternateName: 'Wen-Wei Lai, MD',
           jobTitle: '復健科醫師',
@@ -167,7 +167,7 @@ const jsonLd = {
         },
         {
           '@type': 'Physician',
-          '@id': 'https://cam-savant.vercel.app/#physician-huang-ya-chi',
+          '@id': 'https://camsavant.com/#physician-huang-ya-chi',
           name: '黃雅琦',
           alternateName: 'Ya-Chi Huang, MD',
           jobTitle: '復健科醫師',

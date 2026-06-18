@@ -1,4 +1,4 @@
-const BASE_URL = 'https://cam-savant.vercel.app'
+const BASE_URL = 'https://camsavant.com'
 
 // ── Author map ─────────────────────────────────────────────────────────────
 

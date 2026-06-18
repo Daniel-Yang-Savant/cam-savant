@@ -6,7 +6,7 @@ import PostList from '@/components/PostList'
 import Pagination from '@/components/Pagination'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
-const BASE_URL = 'https://cam-savant.vercel.app'
+const BASE_URL = 'https://camsavant.com'
 const POSTS_PER_PAGE = 12
 
 export const metadata: Metadata = {
