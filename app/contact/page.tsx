@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
+import LineFollow from '@/components/LineFollow'
 
 export const metadata: Metadata = {
   title: '看診資訊',
@@ -120,6 +121,14 @@ export default function ContactPage() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* ── 官方 LINE ── */}
+      <div className="mb-12">
+        <LineFollow
+          title="加入楊醫師官方 LINE"
+          subtitle="門診異動提醒、自費療程諮詢與衛教新知，加入好友直接私訊提問。掛號仍請透過各醫院系統。"
+        />
       </div>
 
       {/* ── Clinic cards ── */}
