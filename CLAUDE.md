@@ -1,24 +1,27 @@
 # CLAUDE.md — CAM Savant 專案規則
 
-## 管理員功能：衛教單張生成器
+## 管理員功能：文章編輯器
+
+> 註：原「衛教單張生成器」(`/perioperative-rehab/pe-generator` + `/api/generate-pe`) 已移除，
+> 正式環境不再需要 `ANTHROPIC_API_KEY`（僅本機 `scripts/publish-from-pdf.ts` 會用）。
 
 ### 路由
-- `/perioperative-rehab/pe-generator` — 管理員專用 AI 衛教單張生成頁面
+- `/admin/editor` — 管理員專用文章編輯器
 - `/admin-login` — 管理員登入頁（設定 HttpOnly cookie `admin_token`，有效期 30 天）
 
 ### 權限架構
-- middleware.ts 在 `/perioperative-rehab/pe-generator` 路由上檢查 `admin_token` cookie
+- middleware.ts 對 `/admin/**` 與 `/api/admin/**` 檢查 `admin_token` cookie
 - cookie 值需與環境變數 `ADMIN_SECRET` 相符
-- 未通過驗證回傳 404（不 redirect，讓頁面不存在）
+- 未通過驗證：頁面回傳 404、API 回傳 401
 - 此邏輯與現有 `periop_access` 邏輯完全獨立
 
 ### 相關環境變數（需手動加到 .env.local 和 Vercel）
-- `ANTHROPIC_API_KEY` — Claude API 金鑰
-- `ADMIN_SECRET` — 管理員密碼（同時作為 cookie 值）
+- `ADMIN_SECRET` — 管理員密碼（同時作為 cookie 值）；建議在 Vercel 標記為 Sensitive
+- `PERIOP_ACCESS_TOKEN` — 術後復健頁存取碼
 
 ### API
-- `POST /api/generate-pe` — 驗證 admin_token 後呼叫 Claude（`claude-sonnet-4-20250514`）生成 HTML 衛教單張
 - `POST /api/admin-login` — 驗證密碼並設定 admin_token cookie
+- `GET/POST /api/admin/articles` — 文章管理（需 admin_token）
 
 ---
 

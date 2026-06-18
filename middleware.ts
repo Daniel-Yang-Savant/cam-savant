@@ -19,15 +19,6 @@ export function middleware(request: NextRequest) {
     return new NextResponse(null, { status: 404 })
   }
 
-  // ── Admin PE Generator: separate admin_token check ──
-  if (pathname === '/perioperative-rehab/pe-generator') {
-    const adminCookie = request.cookies.get('admin_token')
-    if (ADMIN_SECRET && adminCookie?.value === ADMIN_SECRET) {
-      return NextResponse.next()
-    }
-    return new NextResponse(null, { status: 404 })
-  }
-
   // Allow the locked page and access route to pass through without auth check
   if (
     pathname === '/perioperative-rehab/locked' ||
