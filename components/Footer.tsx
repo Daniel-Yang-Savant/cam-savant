@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import LineFollow from './LineFollow'
 
 export default function Footer() {
   const year = new Date().getFullYear()
@@ -20,14 +19,6 @@ export default function Footer() {
             <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
               整合醫學知識平台，深入探索復健醫學、運動醫學、功能醫學與 FSM 頻率特異性微電流的臨床實證。
             </p>
-
-            {/* ── 官方 LINE ── */}
-            <div className="mt-5">
-              <h3 className="text-xs font-semibold tracking-widest uppercase text-neutral-400 dark:text-neutral-500 mb-3">
-                聯絡
-              </h3>
-              <LineFollow card={false} />
-            </div>
           </div>
 
           {/* ── Links ── */}
