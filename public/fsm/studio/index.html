@@ -1203,6 +1203,68 @@ async function saveUserProtocols(list) {
   }
 }
 
+// ── Bulk-import helpers ────────────────────────────────────────────────────
+function _normPolarity(v) {
+  const s = String(v == null ? '' : v).toLowerCase();
+  if (s.includes('positive') || s === 'p' || s.includes('正') || s.includes('+→') || s.includes('polar')) return 'Positive';
+  return 'Alternating';
+}
+function _normWave(v) {
+  const s = String(v == null ? '' : v).toLowerCase();
+  if (s.includes('sharp') || s === 's' || s.includes('銳')) return 'Sharp';
+  if (s.includes('gentle') || s.includes('soft') || s === 'g' || s.includes('柔')) return 'Gentle';
+  return 'Medium';
+}
+// Validate + canonicalize one incoming protocol object. Returns null if invalid.
+function normalizeImportedProtocol(p) {
+  if (!p || typeof p !== 'object') return null;
+  const rawSteps = Array.isArray(p.steps) ? p.steps : [];
+  const steps = rawSteps.map(s => {
+    const ns = (s && s.freq_a !== undefined) ? s : normalizeStep(s || {});
+    const fa = Number(ns.freq_a), fb = Number(ns.freq_b);
+    if (!isFinite(fa) || !isFinite(fb)) return null;
+    let dur = Number(ns.duration);
+    if (!isFinite(dur) || dur <= 0) dur = 4;
+    return { freq_a: fa, freq_b: fb, polarity: _normPolarity(ns.polarity), wave: _normWave(ns.wave), duration: dur };
+  }).filter(Boolean);
+  if (!steps.length) return null;
+  const name = String(p.name_zh || p.name_en || p.name || '').trim() || '匯入協定';
+  return {
+    name_zh: p.name_zh ? String(p.name_zh) : name,
+    name_en: p.name_en ? String(p.name_en) : name,
+    category: p.category ? String(p.category) : 'imported',
+    indication_zh: p.indication_zh ? String(p.indication_zh) : '',
+    indication_en: p.indication_en ? String(p.indication_en) : '',
+    _custom: true,
+    steps
+  };
+}
+// Merge an array of incoming protocols into USER_PROTOCOLS, skipping exact duplicates.
+function mergeImportedProtocols(incoming) {
+  const existing = USER_PROTOCOLS || [];
+  const sig = p => String(p.name_zh || p.name_en || p.name || '') + '|' +
+    JSON.stringify((p.steps || []).map(s => { const n = normalizeStep(s); return [n.freq_a, n.freq_b, n.polarity, n.wave, n.duration]; }));
+  const seen = new Set(existing.map(sig));
+  const toAdd = [];
+  let added = 0, skipped = 0;
+  (incoming || []).forEach((raw, i) => {
+    const norm = normalizeImportedProtocol(raw);
+    if (!norm) { skipped++; return; }
+    const s = sig(norm);
+    if (seen.has(s)) { skipped++; return; }
+    seen.add(s);
+    norm.id = 'import_' + Date.now() + '_' + i;
+    toAdd.push(norm);
+    added++;
+  });
+  if (toAdd.length) {
+    const list = [...existing, ...toAdd];
+    USER_PROTOCOLS = list;
+    saveUserProtocols(list);
+  }
+  return { added, skipped };
+}
+
 function updateAuthUI() {
   const chip = document.getElementById('userChip');
   const adminBtn = document.getElementById('adminBadgeBtn');
@@ -2370,6 +2432,7 @@ function renderProtocolsView() {
     <div class="search-bar" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
       <input type="text" class="search-input" id="protocolSearch" placeholder="${t('search_protocols')}" style="flex:1;min-width:120px;">
       <button class="btn-secondary" id="importProtoBtn" style="white-space:nowrap;padding:8px 12px;font-size:12px;flex-shrink:0;">📋 匯入</button>
+      <button class="btn-secondary" id="importJsonBtn" style="white-space:nowrap;padding:8px 12px;font-size:11px;flex-shrink:0;">📥 JSON匯入</button>
       <button class="btn-secondary" id="exportJsonBtn" style="white-space:nowrap;padding:8px 12px;font-size:11px;flex-shrink:0;">↓ JSON</button>
       <button class="btn-secondary" id="exportPdfBtn" style="white-space:nowrap;padding:8px 12px;font-size:11px;flex-shrink:0;">🖨 列印</button>
       <button class="btn-secondary" id="addCustomProtocolBtn" style="white-space:nowrap;padding:8px 14px;font-size:12px;flex-shrink:0;">＋ 新增</button>
@@ -2399,6 +2462,35 @@ function renderProtocolsView() {
     a.href = URL.createObjectURL(blob);
     a.download = 'fsm-protocols-' + new Date().toISOString().slice(0,10) + '.json';
     a.click();
+  });
+
+  // ── Bulk JSON import (mirror of export; one file can hold many protocols) ──
+  $('importJsonBtn').addEventListener('click', () => {
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = '.json,application/json';
+    inp.multiple = true;
+    inp.addEventListener('change', async () => {
+      const files = Array.from(inp.files || []);
+      if (!files.length) return;
+      const incoming = [];
+      try {
+        for (const f of files) {
+          const data = JSON.parse(await f.text());
+          if (Array.isArray(data)) incoming.push(...data);
+          else if (data && Array.isArray(data.protocols)) incoming.push(...data.protocols);
+          else incoming.push(data);
+        }
+      } catch (e) {
+        alert('❌ JSON 解析失敗：' + e.message);
+        return;
+      }
+      const res = mergeImportedProtocols(incoming);
+      if (res.added && $('view-protocols').classList.contains('active')) renderProtocolsView();
+      alert('✅ 匯入完成\n新增 ' + res.added + ' 個協定' +
+            (res.skipped ? '\n略過 ' + res.skipped + ' 個（重複或無效）' : ''));
+    });
+    inp.click();
   });
 
   // ── Print / PDF export ───────────────────────────────────────────────────
