@@ -2534,20 +2534,25 @@ function renderProtocolsView() {
         if (r.ok) { const d = await r.json(); current = Array.isArray(d.protocols) ? d.protocols : []; }
       } catch (e) { /* treat as empty on read failure */ }
 
-      // 4. Merge with dedupe
-      const seen = new Set(current.map(_protoSignature));
-      const toAdd = [];
+      // 4. Upsert by name: same name overwrites the existing reference protocol; new names are added
+      const _nk = p => String(p.name_zh || p.name_en || p.name || '').trim().toLowerCase();
+      const merged = current.slice();
+      const byName = new Map(merged.map((p, idx) => [_nk(p), idx]));
+      let added = 0, updated = 0;
       normed.forEach((p, i) => {
-        const s = _protoSignature(p);
-        if (seen.has(s)) return;
-        seen.add(s);
-        p.id = 'ref_' + Date.now() + '_' + i;
-        p._ref = true;          // mark as shared reference protocol
+        p._ref = true;          // shared reference protocol
         delete p._custom;       // not a personal protocol
-        toAdd.push(p);
+        const k = _nk(p);
+        if (byName.has(k)) {
+          const at = byName.get(k);
+          p.id = merged[at].id || ('ref_' + Date.now() + '_' + i);  // keep existing id
+          merged[at] = p; updated++;
+        } else {
+          p.id = 'ref_' + Date.now() + '_' + i;
+          byName.set(k, merged.length); merged.push(p); added++;
+        }
       });
-      if (!toAdd.length) { alert('沒有新協定（全部已存在於參考協定）。'); return; }
-      const merged = [...current, ...toAdd];
+      if (!added && !updated) { alert('沒有可匯入的協定。'); return; }
 
       // 5. Persist (server enforces admin-only)
       try {
@@ -2559,16 +2564,15 @@ function renderProtocolsView() {
         if (!r.ok) { const e = await r.json().catch(() => ({})); alert('❌ 儲存失敗：' + (e.error || r.status)); return; }
       } catch (e) { alert('❌ 儲存失敗：' + e.message); return; }
 
-      // 6. Reflect immediately in 參考協定 view
-      PROTOCOLS_FULL = [...(PROTOCOLS_FULL || []), ...toAdd];
+      // 6. Reflect immediately: replace the reference layer in PROTOCOLS_FULL (keep built-in seeds)
+      PROTOCOLS_FULL = [ ...((PROTOCOLS_FULL || []).filter(p => !p._ref)), ...merged ];
       state.protocolSet = 'full';
       if ($('view-protocols').classList.contains('active')) {
         renderProtocolsView();
         const fullTab = document.querySelector('.subtab[data-pset="full"]');
         if (fullTab) fullTab.click();
       }
-      alert('✅ 已匯入 ' + toAdd.length + ' 個協定到「參考協定」（所有登入用戶可見）' +
-            (normed.length - toAdd.length ? '\n略過 ' + (normed.length - toAdd.length) + ' 個重複' : ''));
+      alert('✅ 匯入完成（所有登入用戶可見）\n新增 ' + added + ' 個、覆蓋同名 ' + updated + ' 個');
     });
     inp.click();
   });
