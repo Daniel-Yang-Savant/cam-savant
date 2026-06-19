@@ -56,11 +56,38 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: 'Email no longer authorized' });
   }
 
+  // Merge admin-curated reference protocols (stored in KV) into the shared full set
+  let payload = PROTECTED_PAYLOAD;
+  try {
+    const extra = await kvGetJSON('reference_protocols_extra');
+    if (Array.isArray(extra) && extra.length) {
+      payload = { ...PROTECTED_PAYLOAD, full: [...(PROTECTED_PAYLOAD.full || []), ...extra] };
+    }
+  } catch {}
+
   // Return the protected data payload
   return res.status(200).json({
     email: verified.email,
-    data: PROTECTED_PAYLOAD
+    data: payload
   });
+}
+
+// KV GET helper (Upstash REST) → parsed JSON value or null
+async function kvGetJSON(key) {
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return null;
+  try {
+    const r = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!r.ok) return null;
+    const { result } = await r.json();
+    if (!result) return null;
+    let parsed = JSON.parse(result);
+    if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+    return parsed;
+  } catch { return null; }
 }
 
 async function verifySessionToken(token) {

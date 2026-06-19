@@ -1239,30 +1239,10 @@ function normalizeImportedProtocol(p) {
     steps
   };
 }
-// Merge an array of incoming protocols into USER_PROTOCOLS, skipping exact duplicates.
-function mergeImportedProtocols(incoming) {
-  const existing = USER_PROTOCOLS || [];
-  const sig = p => String(p.name_zh || p.name_en || p.name || '') + '|' +
+// Stable signature for dedupe (same name + same normalized steps = duplicate).
+function _protoSignature(p) {
+  return String(p.name_zh || p.name_en || p.name || '') + '|' +
     JSON.stringify((p.steps || []).map(s => { const n = normalizeStep(s); return [n.freq_a, n.freq_b, n.polarity, n.wave, n.duration]; }));
-  const seen = new Set(existing.map(sig));
-  const toAdd = [];
-  let added = 0, skipped = 0;
-  (incoming || []).forEach((raw, i) => {
-    const norm = normalizeImportedProtocol(raw);
-    if (!norm) { skipped++; return; }
-    const s = sig(norm);
-    if (seen.has(s)) { skipped++; return; }
-    seen.add(s);
-    norm.id = 'import_' + Date.now() + '_' + i;
-    toAdd.push(norm);
-    added++;
-  });
-  if (toAdd.length) {
-    const list = [...existing, ...toAdd];
-    USER_PROTOCOLS = list;
-    saveUserProtocols(list);
-  }
-  return { added, skipped };
 }
 
 function updateAuthUI() {
@@ -1619,11 +1599,37 @@ function deleteCustomProtocol(id) {
   renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
 }
 
-let _cpEditId = null;
+// Delete a shared reference protocol (admin only; removes for all users)
+async function deleteReferenceProtocol(id) {
+  if (!auth.user || auth.user.email !== ADMIN_EMAIL) { alert('僅限管理員刪除參考協定。'); return; }
+  if (!confirm('確定要刪除這個參考協定？所有用戶將看不到。')) return;
+  let current = [];
+  try {
+    const r = await fetch(API_BASE + '/reference-protocols', { headers: { 'Authorization': 'Bearer ' + auth.user.token } });
+    if (r.ok) { const d = await r.json(); current = Array.isArray(d.protocols) ? d.protocols : []; }
+  } catch (e) {}
+  const next = current.filter(p => p.id !== id);
+  try {
+    const r = await fetch(API_BASE + '/reference-protocols', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.user.token },
+      body: JSON.stringify({ protocols: next })
+    });
+    if (!r.ok) { const e = await r.json().catch(() => ({})); alert('❌ 刪除失敗：' + (e.error || r.status)); return; }
+  } catch (e) { alert('❌ 刪除失敗：' + e.message); return; }
+  PROTOCOLS_FULL = (PROTOCOLS_FULL || []).filter(p => p.id !== id);
+  renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
+}
 
-function showCustomProtocolEditor(proto) {
+let _cpEditId = null;
+let _cpEditTarget = 'user';  // 'user' = 我的協定 (每位用戶) ; 'reference' = 參考協定 (僅管理員)
+
+function showCustomProtocolEditor(proto, target) {
+  _cpEditTarget = target || 'user';
   _cpEditId = proto ? proto.id : null;
-  $('cpModalTitle').textContent = proto ? '編輯自訂協定' : '新增自訂協定';
+  $('cpModalTitle').textContent = _cpEditTarget === 'reference'
+    ? '編輯參考協定（所有用戶可見）'
+    : (proto ? '編輯自訂協定' : '新增自訂協定');
   $('cpName').value = proto ? (proto.name_zh || proto.name || '') : '';
   $('cpIndication').value = proto ? (proto.indication_zh || '') : '';
   $('cpCategory').value = proto ? (proto.category || '') : '';
@@ -1689,9 +1695,40 @@ function saveCpProtocol() {
     }
   });
   if (!valid) return;
-  const list = [...(USER_PROTOCOLS || [])];
   const catVal = ($('cpCategory').value.trim() || 'CUSTOM').toUpperCase();
   const indVal = $('cpIndication').value.trim();
+
+  // 參考協定 (shared, admin only) — persist to KV via /reference-protocols
+  if (_cpEditTarget === 'reference') {
+    if (!auth.user || auth.user.email !== ADMIN_EMAIL) { alert('僅限管理員編輯參考協定。'); return; }
+    const protoObj = { id: _cpEditId || ('ref_' + Date.now()), name: name, name_zh: name, name_en: name,
+      indication_zh: indVal, indication_en: '', category: catVal, steps, _ref: true };
+    (async () => {
+      let current = [];
+      try {
+        const r = await fetch(API_BASE + '/reference-protocols', { headers: { 'Authorization': 'Bearer ' + auth.user.token } });
+        if (r.ok) { const d = await r.json(); current = Array.isArray(d.protocols) ? d.protocols : []; }
+      } catch (e) {}
+      const idx = current.findIndex(p => p.id === protoObj.id);
+      if (idx >= 0) current[idx] = protoObj; else current.push(protoObj);
+      try {
+        const r = await fetch(API_BASE + '/reference-protocols', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.user.token },
+          body: JSON.stringify({ protocols: current })
+        });
+        if (!r.ok) { const e = await r.json().catch(() => ({})); alert('❌ 儲存失敗：' + (e.error || r.status)); return; }
+      } catch (e) { alert('❌ 儲存失敗：' + e.message); return; }
+      const fi = (PROTOCOLS_FULL || []).findIndex(p => p.id === protoObj.id);
+      if (fi >= 0) PROTOCOLS_FULL[fi] = protoObj; else PROTOCOLS_FULL = [...(PROTOCOLS_FULL || []), protoObj];
+      $('customProtocolModal').classList.remove('show');
+      renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
+      alert('✅ 已更新參考協定：' + name);
+    })();
+    return;
+  }
+
+  const list = [...(USER_PROTOCOLS || [])];
   if (_cpEditId) {
     const idx = list.findIndex(p => p.id === _cpEditId);
     if (idx >= 0) list[idx] = { ...list[idx], name: name, name_zh: name, indication_zh: indVal, category: catVal, steps };
@@ -2432,7 +2469,7 @@ function renderProtocolsView() {
     <div class="search-bar" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
       <input type="text" class="search-input" id="protocolSearch" placeholder="${t('search_protocols')}" style="flex:1;min-width:120px;">
       <button class="btn-secondary" id="importProtoBtn" style="white-space:nowrap;padding:8px 12px;font-size:12px;flex-shrink:0;">📋 匯入</button>
-      <button class="btn-secondary" id="importJsonBtn" style="white-space:nowrap;padding:8px 12px;font-size:11px;flex-shrink:0;">📥 JSON匯入</button>
+      ${(auth.user && auth.user.email === ADMIN_EMAIL) ? '<button class="btn-secondary" id="importJsonBtn" style="white-space:nowrap;padding:8px 12px;font-size:11px;flex-shrink:0;">📥 參考協定匯入</button>' : ''}
       <button class="btn-secondary" id="exportJsonBtn" style="white-space:nowrap;padding:8px 12px;font-size:11px;flex-shrink:0;">↓ JSON</button>
       <button class="btn-secondary" id="exportPdfBtn" style="white-space:nowrap;padding:8px 12px;font-size:11px;flex-shrink:0;">🖨 列印</button>
       <button class="btn-secondary" id="addCustomProtocolBtn" style="white-space:nowrap;padding:8px 14px;font-size:12px;flex-shrink:0;">＋ 新增</button>
@@ -2464,8 +2501,9 @@ function renderProtocolsView() {
     a.click();
   });
 
-  // ── Bulk JSON import (mirror of export; one file can hold many protocols) ──
-  $('importJsonBtn').addEventListener('click', () => {
+  // ── Bulk JSON import → 參考協定 (admin only; shared to all users via KV) ──
+  if ($('importJsonBtn')) $('importJsonBtn').addEventListener('click', () => {
+    if (!auth.user || auth.user.email !== ADMIN_EMAIL) { alert('僅限管理員匯入參考協定。'); return; }
     const inp = document.createElement('input');
     inp.type = 'file';
     inp.accept = '.json,application/json';
@@ -2473,6 +2511,8 @@ function renderProtocolsView() {
     inp.addEventListener('change', async () => {
       const files = Array.from(inp.files || []);
       if (!files.length) return;
+
+      // 1. Parse files → raw protocol objects
       const incoming = [];
       try {
         for (const f of files) {
@@ -2481,14 +2521,54 @@ function renderProtocolsView() {
           else if (data && Array.isArray(data.protocols)) incoming.push(...data.protocols);
           else incoming.push(data);
         }
-      } catch (e) {
-        alert('❌ JSON 解析失敗：' + e.message);
-        return;
+      } catch (e) { alert('❌ JSON 解析失敗：' + e.message); return; }
+
+      // 2. Validate + canonicalize
+      const normed = incoming.map(normalizeImportedProtocol).filter(Boolean);
+      if (!normed.length) { alert('❌ 沒有可匯入的有效協定。'); return; }
+
+      // 3. Fetch current shared reference list
+      let current = [];
+      try {
+        const r = await fetch(API_BASE + '/reference-protocols', { headers: { 'Authorization': 'Bearer ' + auth.user.token } });
+        if (r.ok) { const d = await r.json(); current = Array.isArray(d.protocols) ? d.protocols : []; }
+      } catch (e) { /* treat as empty on read failure */ }
+
+      // 4. Merge with dedupe
+      const seen = new Set(current.map(_protoSignature));
+      const toAdd = [];
+      normed.forEach((p, i) => {
+        const s = _protoSignature(p);
+        if (seen.has(s)) return;
+        seen.add(s);
+        p.id = 'ref_' + Date.now() + '_' + i;
+        p._ref = true;          // mark as shared reference protocol
+        delete p._custom;       // not a personal protocol
+        toAdd.push(p);
+      });
+      if (!toAdd.length) { alert('沒有新協定（全部已存在於參考協定）。'); return; }
+      const merged = [...current, ...toAdd];
+
+      // 5. Persist (server enforces admin-only)
+      try {
+        const r = await fetch(API_BASE + '/reference-protocols', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.user.token },
+          body: JSON.stringify({ protocols: merged })
+        });
+        if (!r.ok) { const e = await r.json().catch(() => ({})); alert('❌ 儲存失敗：' + (e.error || r.status)); return; }
+      } catch (e) { alert('❌ 儲存失敗：' + e.message); return; }
+
+      // 6. Reflect immediately in 參考協定 view
+      PROTOCOLS_FULL = [...(PROTOCOLS_FULL || []), ...toAdd];
+      state.protocolSet = 'full';
+      if ($('view-protocols').classList.contains('active')) {
+        renderProtocolsView();
+        const fullTab = document.querySelector('.subtab[data-pset="full"]');
+        if (fullTab) fullTab.click();
       }
-      const res = mergeImportedProtocols(incoming);
-      if (res.added && $('view-protocols').classList.contains('active')) renderProtocolsView();
-      alert('✅ 匯入完成\n新增 ' + res.added + ' 個協定' +
-            (res.skipped ? '\n略過 ' + res.skipped + ' 個（重複或無效）' : ''));
+      alert('✅ 已匯入 ' + toAdd.length + ' 個協定到「參考協定」（所有登入用戶可見）' +
+            (normed.length - toAdd.length ? '\n略過 ' + (normed.length - toAdd.length) + ' 個重複' : ''));
     });
     inp.click();
   });
@@ -2565,6 +2645,8 @@ function renderProtocolList(filter) {
     src = PROTOCOLS_FULL || [];
   }
   if (!src || !src.length) { list.innerHTML = '<div class="empty-state" style="padding:32px 0;text-align:center;color:var(--text-dim);font-size:13px;">' + (state.protocolSet==='curated'?'尚無協定，點右上「＋ 新增」建立第一個自訂協定。':'') + '</div>'; return; }
+  const isAdmin = !!(auth.user && auth.user.email === ADMIN_EMAIL);
+  const isFull = state.protocolSet === 'full';
   const items = src.filter(p => {
     if (!filter) return true;
     const name = getProtocolName(p).toLowerCase();
@@ -2579,6 +2661,9 @@ function renderProtocolList(filter) {
     const cat = p.category || p.cat || '';
     const isLoaded = state.loadedProtocol && state.loadedProtocol.id === p.id;
     const isCustom = !!p._custom;
+    const isRef = !!p._ref;
+    // 我的協定: 每位用戶可編輯自己的；參考協定: 僅管理員可編輯匯入的協定
+    const showActions = isFull ? (isAdmin && isRef) : isCustom;
     const stepsHtml = p.steps.map((rawStep, i) => {
       const s = normalizeStep(rawStep);
       const cur = (isLoaded && state.currentStepIndex === i && state.running);
@@ -2588,9 +2673,10 @@ function renderProtocolList(filter) {
         '<span class="step-tags">' + (s.polarity==='Positive'?'+→':'+/-') + ' · ' + s.wave + '</span></div>' +
         '<div class="step-time">' + s.duration + 'm</div></div>';
     }).join('');
-    const actionsHtml = isCustom ? '<div class="protocol-card-actions">' +
-      '<button class="btn-icon edit" data-edit="' + p.id + '" title="編輯">✏️ 編輯</button>' +
-      '<button class="btn-icon" data-delete="' + p.id + '" title="刪除">🗑️ 刪除</button>' +
+    const refAttr = isRef ? ' data-ref="1"' : '';
+    const actionsHtml = showActions ? '<div class="protocol-card-actions">' +
+      '<button class="btn-icon edit" data-edit="' + p.id + '"' + refAttr + ' title="編輯">✏️ 編輯</button>' +
+      '<button class="btn-icon" data-delete="' + p.id + '"' + refAttr + ' title="刪除">🗑️ 刪除</button>' +
       '</div>' : '';
     return '<div class="protocol-card ' + (isLoaded?'loaded':'') + '" data-id="' + p.id + '" data-custom="' + isCustom + '">' +
       '<div class="protocol-name">' + nm + (isCustom ? '<span class="custom-badge">自訂</span>' : '') + ' <span class="protocol-cat">' + cat + '</span></div>' +
@@ -2612,14 +2698,20 @@ function renderProtocolList(filter) {
     btn.addEventListener('click', e => {
       e.stopPropagation();
       const id = btn.getAttribute('data-edit');
+      if (btn.getAttribute('data-ref')) {
+        const proto = (PROTOCOLS_FULL || []).find(p => p.id === id);
+        if (proto) showCustomProtocolEditor(proto, 'reference');
+        return;
+      }
       const proto = (USER_PROTOCOLS || []).find(p => p.id === id)
                  || loadCustomProtocols().find(p => p.id === id);
-      if (proto) showCustomProtocolEditor(proto);
+      if (proto) showCustomProtocolEditor(proto, 'user');
     });
   });
   list.querySelectorAll('[data-delete]').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
+      if (btn.getAttribute('data-ref')) { deleteReferenceProtocol(btn.getAttribute('data-delete')); return; }
       deleteCustomProtocol(btn.getAttribute('data-delete'));
     });
   });
