@@ -1639,7 +1639,7 @@ function showCustomProtocolEditor(proto, target) {
   $('customProtocolModal').classList.add('show');
 }
 
-function addCpStepRow(step) {
+function addCpStepRow(step, refEl, insertBefore) {
   step = step || { freq_a: '', freq_b: '', duration: 4, polarity: 'Alternating', wave: 'Medium' };
   const div = document.createElement('div');
   div.className = 'cp-step-row';
@@ -1659,6 +1659,8 @@ function addCpStepRow(step) {
         <option value="Medium" ${!step.wave || step.wave === 'Medium' ? 'selected' : ''}>中</option>
         <option value="Gentle" ${step.wave === 'Gentle' ? 'selected' : ''}>緩</option>
       </select>
+      <button type="button" class="btn-icon cp-ins-step" title="在此列上方插入步驟">⤒</button>
+      <button type="button" class="btn-icon cp-ins-below-step" title="在此列下方插入步驟">⤓</button>
       <button type="button" class="btn-icon cp-del-step" title="移除步驟">×</button>
     </div>
   `;
@@ -1666,8 +1668,21 @@ function addCpStepRow(step) {
     div.remove();
     updateCpStepNums();
   });
-  $('cpStepsList').appendChild(div);
+  div.querySelector('.cp-ins-step').addEventListener('click', () => {
+    const nu = addCpStepRow(null, div, true);   // insert ABOVE this row
+    const fa = nu.querySelector('.cp-freqa'); if (fa) fa.focus();
+  });
+  div.querySelector('.cp-ins-below-step').addEventListener('click', () => {
+    const nu = addCpStepRow(null, div, false);  // insert BELOW this row
+    const fa = nu.querySelector('.cp-freqa'); if (fa) fa.focus();
+  });
+  if (refEl && refEl.parentNode) {
+    refEl.insertAdjacentElement(insertBefore ? 'beforebegin' : 'afterend', div);
+  } else {
+    $('cpStepsList').appendChild(div);
+  }
   updateCpStepNums();
+  return div;
 }
 
 function updateCpStepNums() {
