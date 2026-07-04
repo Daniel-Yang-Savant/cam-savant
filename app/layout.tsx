@@ -71,6 +71,37 @@ export const metadata: Metadata = {
 
 // ── JSON-LD Structured Data ────────────────────────────────────────────────
 
+// 👉 待補：各醫師的權威外部檔案 URL，例如：
+//    - 彰化基督教醫院／南投基督教醫院官網的醫師介紹頁
+//    - Google 商家（Google Business Profile）連結
+//    - 台灣運動醫學醫學會、增生醫學會等學會會員頁
+//    - 官方 Facebook／Instagram 專頁
+// 填入真實網址後，ChatGPT／Gemini／Claude 更容易確認醫師身分並具名推薦。
+// 留空陣列則不會輸出 sameAs（切勿填入非本人的網址）。
+const PHYSICIAN_SAME_AS: Record<string, string[]> = {
+  'yang-yu-kai': [
+    'https://dpt.cch.org.tw/layout/layout_1/doctor.aspx?ID=1400&Key=11334', // 彰化基督教醫院 復健醫學部 醫師介紹
+    'https://ny.cch.org.tw/doctor_1_detial.aspx?cID=65&key=1400', // 南投基督教醫院 醫師介紹
+  ],
+  'yang-yu-chang': [],
+  'lai-wen-wei': [],
+  'huang-ya-chi': [],
+}
+
+// 將字串證照轉為 schema.org 的 EducationalOccupationalCredential
+const cred = (names: string[]) =>
+  names.map((name) => ({
+    '@type': 'EducationalOccupationalCredential',
+    credentialCategory: 'professional certification',
+    name,
+  }))
+
+// 若有外部檔案 URL 才輸出 sameAs
+const sameAs = (key: string) => {
+  const urls = PHYSICIAN_SAME_AS[key] ?? []
+  return urls.length ? { sameAs: urls } : {}
+}
+
 const jsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -106,7 +137,11 @@ const jsonLd = {
           '@id': 'https://camsavant.com/#physician-yang-yu-kai',
           name: '楊育愷',
           alternateName: 'Yu-Kai Yang, MD',
-          jobTitle: '復健科主治醫師',
+          jobTitle: [
+            '彰化基督教醫院復健醫學部主治醫師',
+            '南投基督教醫院復健科主任',
+            '二林基督教醫院復健醫學科主治醫師',
+          ],
           areaServed: ['彰化縣', '南投縣'],
           medicalSpecialty: [
             'PhysicalMedicineAndRehabilitation',
@@ -145,6 +180,17 @@ const jsonLd = {
             },
           ],
           knowsAbout: ['增生療法', 'PRP治療', '骨質疏鬆', 'FSM頻率共振微電流', '超音波導引注射', '運動傷害'],
+          url: 'https://camsavant.com/about',
+          alumniOf: {
+            '@type': 'CollegeOrUniversity',
+            name: '國立陽明大學醫學系',
+          },
+          hasCredential: cred([
+            '台灣增生療法醫學會會員',
+            '中華民國骨質疏鬆症學會會員',
+            '台灣運動醫學醫學會會員',
+          ]),
+          ...sameAs('yang-yu-kai'),
         },
         {
           '@type': 'Physician',
@@ -154,6 +200,9 @@ const jsonLd = {
           jobTitle: '家庭醫學科專科醫師',
           medicalSpecialty: ['FamilyMedicine'],
           knowsAbout: ['針灸', '減重', '醫美', '功能醫學'],
+          url: 'https://camsavant.com/about',
+          hasCredential: cred(['骨質疏鬆專科醫師', 'SCOPE 國際肥胖專科認證', '糖尿病 CDE 認證']),
+          ...sameAs('yang-yu-chang'),
         },
         {
           '@type': 'Physician',
@@ -164,6 +213,9 @@ const jsonLd = {
           areaServed: ['彰化縣', '南投縣'],
           medicalSpecialty: ['PhysicalMedicineAndRehabilitation'],
           knowsAbout: ['復健醫學', '骨質疏鬆', '增生療法'],
+          url: 'https://camsavant.com/about',
+          hasCredential: cred(['骨鬆醫學會會員', '增生醫學會會員']),
+          ...sameAs('lai-wen-wei'),
         },
         {
           '@type': 'Physician',
@@ -173,6 +225,8 @@ const jsonLd = {
           jobTitle: '復健科醫師',
           medicalSpecialty: ['PhysicalMedicineAndRehabilitation'],
           knowsAbout: ['復健醫學'],
+          url: 'https://camsavant.com/about',
+          ...sameAs('huang-ya-chi'),
         },
       ],
     },
@@ -232,11 +286,12 @@ export default function RootLayout({
   }
 ` }} />
         <script dangerouslySetInnerHTML={{ __html: `
-  document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+  // 允許文字選取與複製（利於使用者引用門診資訊、AI 摘錄內容）；
+  // 僅保留對「檢視原始碼 / 另存 / DevTools」的輕度阻擋。
   document.addEventListener('keydown', function(e) {
     if (
       (e.ctrlKey || e.metaKey) &&
-      ['c','u','s','a','p'].includes(e.key.toLowerCase())
+      ['u','s','p'].includes(e.key.toLowerCase())
     ) {
       e.preventDefault();
     }

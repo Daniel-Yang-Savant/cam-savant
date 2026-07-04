@@ -2,17 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-::selection {
-  background: transparent;
-}
+/* 預設不可選取（導覽列、UI 元件），但文章內文開放選取／複製， */
+/* 方便患者引用門診資訊，也利於 AI 摘錄文章內容。 */
 body {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
+main {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
 img {
-  pointer-events: none;
   -webkit-user-drag: none;
 }
 

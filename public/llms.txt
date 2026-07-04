@@ -4,7 +4,7 @@
 
 ## 網站資訊
 
-- 網址: https://cam-savant.vercel.app
+- 網址: https://camsavant.com
 - 語言: 繁體中文 (zh-TW)
 - 類型: 醫療衛教知識平台
 - 對象: 復健科患者、運動愛好者、慢性疾病患者、醫療專業人員
@@ -20,69 +20,69 @@
 
 ### 運動醫學 (Sports Medicine)
 運動傷害的預防、診斷與復健——以實證醫學為基礎的運動科學臨床應用。適合運動員、健身愛好者與運動傷害患者閱讀。
-- URL: https://cam-savant.vercel.app/sports-medicine
+- URL: https://camsavant.com/sports-medicine
 
 ### 復健醫學 (Rehabilitation Medicine)
 骨骼肌肉傷病的診斷與保守治療復健，從急性處理到功能性回場的完整臨床路徑。適合肌肉骨骼疼痛、關節問題、術後復健患者閱讀。
-- URL: https://cam-savant.vercel.app/rehabilitation-medicine
+- URL: https://camsavant.com/rehabilitation-medicine
 
 ### 功能醫學 (Functional Medicine)
 從根本原因探討慢性疾病，整合腸道健康、荷爾蒙平衡與粒線體功能的系統性思維。適合有慢性疲勞、腸道問題、認知下降等長期健康問題的患者閱讀。
-- URL: https://cam-savant.vercel.app/functional-medicine
+- URL: https://camsavant.com/functional-medicine
 
 ### FSM 頻率特異性微電流 (Frequency Specific Microcurrent)
 FSM 的臨床研究與應用，由 Dr. Carolyn McMakin 系統化發展的生物電療法，用於慢性疼痛、纖維肌痛症、神經損傷修復。
-- URL: https://cam-savant.vercel.app/fsm
+- URL: https://camsavant.com/fsm
 
 ## 主要文章索引
 
 ### 運動醫學
-- [過度訓練症候群：當努力成為傷害，你的身體在說什麼？](https://cam-savant.vercel.app/posts/overtraining-syndrome)
-- [棒球投手與野手最常見的傷害與預防](https://cam-savant.vercel.app/posts/baseball-injuries-prevention)
-- [籃球運動傷害完全指南](https://cam-savant.vercel.app/posts/basketball-injuries-prevention)
-- [馬拉松跑者的傷害預防與訓練管理](https://cam-savant.vercel.app/posts/marathon-running-injuries-prevention)
-- [格鬥運動傷害：從預防到復健](https://cam-savant.vercel.app/posts/martial-arts-injuries-prevention)
-- [電競選手的職業傷害：你不知道的鍵盤戰士危機](https://cam-savant.vercel.app/posts/esports-injuries-prevention)
+- [過度訓練症候群：當努力成為傷害，你的身體在說什麼？](https://camsavant.com/posts/overtraining-syndrome)
+- [棒球投手與野手最常見的傷害與預防](https://camsavant.com/posts/baseball-injuries-prevention)
+- [籃球運動傷害完全指南](https://camsavant.com/posts/basketball-injuries-prevention)
+- [馬拉松跑者的傷害預防與訓練管理](https://camsavant.com/posts/marathon-running-injuries-prevention)
+- [格鬥運動傷害：從預防到復健](https://camsavant.com/posts/martial-arts-injuries-prevention)
+- [電競選手的職業傷害：你不知道的鍵盤戰士危機](https://camsavant.com/posts/esports-injuries-prevention)
 
 ### 復健醫學
-- [網球肘（外上髁炎）：保守治療、復健訓練與回場計劃](https://cam-savant.vercel.app/posts/lateral-epicondylitis-rehab)
-- [內上髁炎：保守治療、復健訓練與回場計劃](https://cam-savant.vercel.app/posts/medial-epicondylitis-rehab)
-- [退化性膝關節炎的保守治療指南：運動、減重與注射療法](https://cam-savant.vercel.app/posts/knee-osteoarthritis-conservative-treatment)
-- [腳踝外側扭傷完全解析：從急性處理到安全回場](https://cam-savant.vercel.app/posts/lateral-ankle-sprain-rehab)
-- [骨質疏鬆患者怎麼運動才安全？完整運動處方與注意事項](https://cam-savant.vercel.app/posts/osteoporosis-exercise-rehabilitation)
-- [旋轉肌袖部分撕裂：保守治療與回場完整說明](https://cam-savant.vercel.app/posts/partial-rotator-cuff-tear-rehab)
-- [足底筋膜炎的完整治療指南：從保守療法到體外震波](https://cam-savant.vercel.app/posts/plantar-fasciitis-treatment)
-- [手腕尺側疼痛是 TFCC 損傷？保守治療與復健完整說明](https://cam-savant.vercel.app/posts/tfcc-injury-diagnosis-conservative-treatment)
-- [血友病兒童與運動：從禁止到鼓勵](https://cam-savant.vercel.app/posts/hemophilia-children-sports)
-- [運動前你「評估」了嗎？德國最新指引](https://cam-savant.vercel.app/posts/pre-exercise-assessment-germany)
-- [運動醫學新浪潮：解密「體外震波療法」的應用之道](https://cam-savant.vercel.app/posts/eswt-shockwave-therapy)
+- [網球肘（外上髁炎）：保守治療、復健訓練與回場計劃](https://camsavant.com/posts/lateral-epicondylitis-rehab)
+- [內上髁炎：保守治療、復健訓練與回場計劃](https://camsavant.com/posts/medial-epicondylitis-rehab)
+- [退化性膝關節炎的保守治療指南：運動、減重與注射療法](https://camsavant.com/posts/knee-osteoarthritis-conservative-treatment)
+- [腳踝外側扭傷完全解析：從急性處理到安全回場](https://camsavant.com/posts/lateral-ankle-sprain-rehab)
+- [骨質疏鬆患者怎麼運動才安全？完整運動處方與注意事項](https://camsavant.com/posts/osteoporosis-exercise-rehabilitation)
+- [旋轉肌袖部分撕裂：保守治療與回場完整說明](https://camsavant.com/posts/partial-rotator-cuff-tear-rehab)
+- [足底筋膜炎的完整治療指南：從保守療法到體外震波](https://camsavant.com/posts/plantar-fasciitis-treatment)
+- [手腕尺側疼痛是 TFCC 損傷？保守治療與復健完整說明](https://camsavant.com/posts/tfcc-injury-diagnosis-conservative-treatment)
+- [血友病兒童與運動：從禁止到鼓勵](https://camsavant.com/posts/hemophilia-children-sports)
+- [運動前你「評估」了嗎？德國最新指引](https://camsavant.com/posts/pre-exercise-assessment-germany)
+- [運動醫學新浪潮：解密「體外震波療法」的應用之道](https://camsavant.com/posts/eswt-shockwave-therapy)
 
 ### 功能醫學
-- [每天喝咖啡或茶，真的能降低失智風險嗎？JAMA 最新研究解析](https://cam-savant.vercel.app/posts/coffee-tea-dementia-risk-cognitive-function)
-- [迷走神經：功能醫學中的「總指揮官」](https://cam-savant.vercel.app/posts/vagus-nerve-functional-medicine)
-- [腸道微生物體與慢性發炎：功能醫學的評估與介入](https://cam-savant.vercel.app/posts/gut-microbiome-functional-medicine)
-- [過度訓練症候群的功能醫學視角：HPA 軸失調與粒線體耗損](https://cam-savant.vercel.app/posts/overtraining-syndrome)
-- [腸道菌相多樣性危機：為什麼你的腸道正在沙漠化？](https://cam-savant.vercel.app/posts/gut-microbiome-diversity-crisis)
-- [迷走神經乙醯膽鹼系統的修復：從根本解決自律神經失調](https://cam-savant.vercel.app/posts/vagus-nerve-acetylcholine-restoration)
-- [GLP-1 的多重面貌：減重之外，它還在修復你的身體](https://cam-savant.vercel.app/posts/glp1-beyond-weight-loss)
-- [失智症不再是終點：功能醫學如何重啟退化的大腦？](https://cam-savant.vercel.app/posts/alzheimers-functional-medicine-reversal)
-- [巨噬細胞、過敏與慢性發炎：功能醫學的免疫重置策略](https://cam-savant.vercel.app/posts/macrophage-allergy-chronic-inflammation)
-- [血液高凝狀態與慢性疾病：你的血液流動夠順暢嗎？](https://cam-savant.vercel.app/posts/blood-hypercoagulability-chronic-disease)
-- [長新冠隱藏危機：當病毒離去，身體的戰場還在繼續](https://cam-savant.vercel.app/posts/long-covid-hidden-crisis)
+- [每天喝咖啡或茶，真的能降低失智風險嗎？JAMA 最新研究解析](https://camsavant.com/posts/coffee-tea-dementia-risk-cognitive-function)
+- [迷走神經：功能醫學中的「總指揮官」](https://camsavant.com/posts/vagus-nerve-functional-medicine)
+- [腸道微生物體與慢性發炎：功能醫學的評估與介入](https://camsavant.com/posts/gut-microbiome-functional-medicine)
+- [過度訓練症候群的功能醫學視角：HPA 軸失調與粒線體耗損](https://camsavant.com/posts/overtraining-syndrome)
+- [腸道菌相多樣性危機：為什麼你的腸道正在沙漠化？](https://camsavant.com/posts/gut-microbiome-diversity-crisis)
+- [迷走神經乙醯膽鹼系統的修復：從根本解決自律神經失調](https://camsavant.com/posts/vagus-nerve-acetylcholine-restoration)
+- [GLP-1 的多重面貌：減重之外，它還在修復你的身體](https://camsavant.com/posts/glp1-beyond-weight-loss)
+- [失智症不再是終點：功能醫學如何重啟退化的大腦？](https://camsavant.com/posts/alzheimers-functional-medicine-reversal)
+- [巨噬細胞、過敏與慢性發炎：功能醫學的免疫重置策略](https://camsavant.com/posts/macrophage-allergy-chronic-inflammation)
+- [血液高凝狀態與慢性疾病：你的血液流動夠順暢嗎？](https://camsavant.com/posts/blood-hypercoagulability-chronic-disease)
+- [長新冠隱藏危機：當病毒離去，身體的戰場還在繼續](https://camsavant.com/posts/long-covid-hidden-crisis)
 
 ### FSM 頻率特異性微電流
-- [認識頻率特異性微電流（FSM）：臨床應用入門](https://cam-savant.vercel.app/posts/introduction-to-fsm)
-- [慢性纖維肌痛症的治療曙光](https://cam-savant.vercel.app/posts/fsm-fibromyalgia-tendon)
-- [FSM 頻率療法：Dr. McMakin 與 George 的實證之路](https://cam-savant.vercel.app/posts/fsm-frequency-therapy-mcmakin)
-- [突破「不可逆」的界限：FSM 如何重塑神經與情緒的復原力](https://cam-savant.vercel.app/posts/fsm-neurological-emotional-recovery)
-- [帕金森氏症治療與 FSM 應用](https://cam-savant.vercel.app/posts/parkinsons-fsm-treatment)
-- [COVID-19 後遺症與 FSM 治療](https://cam-savant.vercel.app/posts/covid-19-long-haul-fsm)
-- [FSM 處理頸部椎間盤疼痛之應用](https://cam-savant.vercel.app/posts/fsm-cervical-disc-pain)
-- [革新自體免疫治療策略](https://cam-savant.vercel.app/posts/fsm-autoimmune-treatment)
-- [解鎖踝關節扭傷的癒合力量](https://cam-savant.vercel.app/posts/fsm-ankle-sprain-healing)
-- [黴菌引發的慢性疲勞何以拯救？](https://cam-savant.vercel.app/posts/fsm-mold-chronic-fatigue)
-- [情感創傷及腎上腺修復](https://cam-savant.vercel.app/posts/fsm-adrenal-emotional-trauma)
-- [肌肉骨骼損傷的修復力量](https://cam-savant.vercel.app/posts/fsm-musculoskeletal-recovery)
+- [認識頻率特異性微電流（FSM）：臨床應用入門](https://camsavant.com/posts/introduction-to-fsm)
+- [慢性纖維肌痛症的治療曙光](https://camsavant.com/posts/fsm-fibromyalgia-tendon)
+- [FSM 頻率療法：Dr. McMakin 與 George 的實證之路](https://camsavant.com/posts/fsm-frequency-therapy-mcmakin)
+- [突破「不可逆」的界限：FSM 如何重塑神經與情緒的復原力](https://camsavant.com/posts/fsm-neurological-emotional-recovery)
+- [帕金森氏症治療與 FSM 應用](https://camsavant.com/posts/parkinsons-fsm-treatment)
+- [COVID-19 後遺症與 FSM 治療](https://camsavant.com/posts/covid-19-long-haul-fsm)
+- [FSM 處理頸部椎間盤疼痛之應用](https://camsavant.com/posts/fsm-cervical-disc-pain)
+- [革新自體免疫治療策略](https://camsavant.com/posts/fsm-autoimmune-treatment)
+- [解鎖踝關節扭傷的癒合力量](https://camsavant.com/posts/fsm-ankle-sprain-healing)
+- [黴菌引發的慢性疲勞何以拯救？](https://camsavant.com/posts/fsm-mold-chronic-fatigue)
+- [情感創傷及腎上腺修復](https://camsavant.com/posts/fsm-adrenal-emotional-trauma)
+- [肌肉骨骼損傷的修復力量](https://camsavant.com/posts/fsm-musculoskeletal-recovery)
 
 ## 就診資訊
 
@@ -94,6 +94,6 @@ FSM 的臨床研究與應用，由 Dr. Carolyn McMakin 系統化發展的生物�
 
 ## 延伸資料
 
-- 完整文章索引: https://cam-savant.vercel.app/llms-full.txt
-- RSS 訂閱: https://cam-savant.vercel.app/feed.xml
-- 網站地圖: https://cam-savant.vercel.app/sitemap.xml
+- 完整文章索引: https://camsavant.com/llms-full.txt
+- RSS 訂閱: https://camsavant.com/feed.xml
+- 網站地圖: https://camsavant.com/sitemap.xml
