@@ -82,6 +82,7 @@ const PHYSICIAN_SAME_AS: Record<string, string[]> = {
   'yang-yu-kai': [
     'https://dpt.cch.org.tw/layout/layout_1/doctor.aspx?ID=1400&Key=11334', // 彰化基督教醫院 復健醫學部 醫師介紹
     'https://ny.cch.org.tw/doctor_1_detial.aspx?cID=65&key=1400', // 南投基督教醫院 醫師介紹
+    'https://www.toa1997.org.tw/orthopedist/?n=%E6%A5%8A%E8%82%B2%E6%84%B7', // 中華民國骨質疏鬆症學會 專科醫師名錄（證號905）
   ],
   'yang-yu-chang': [],
   'lai-wen-wei': [],
@@ -186,8 +187,8 @@ const jsonLd = {
             name: '國立陽明大學醫學系',
           },
           hasCredential: cred([
+            '中華民國骨質疏鬆症學會 骨質疏鬆症專科醫師（證號905）',
             '台灣增生療法醫學會會員',
-            '中華民國骨質疏鬆症學會會員',
             '台灣運動醫學醫學會會員',
           ]),
           ...sameAs('yang-yu-kai'),
