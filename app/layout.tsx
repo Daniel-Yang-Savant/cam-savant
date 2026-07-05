@@ -286,19 +286,6 @@ export default function RootLayout({
     });
   }
 ` }} />
-        <script dangerouslySetInnerHTML={{ __html: `
-  // 允許文字選取與複製（利於使用者引用門診資訊、AI 摘錄內容）；
-  // 僅保留對「檢視原始碼 / 另存 / DevTools」的輕度阻擋。
-  document.addEventListener('keydown', function(e) {
-    if (
-      (e.ctrlKey || e.metaKey) &&
-      ['u','s','p'].includes(e.key.toLowerCase())
-    ) {
-      e.preventDefault();
-    }
-    if (e.key === 'F12') e.preventDefault();
-  });
-` }} />
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
