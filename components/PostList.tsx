@@ -10,6 +10,7 @@ interface PostListProps {
 
 const CATEGORY_TABS = [
   { key: 'all',                    href: '/posts',                 label: '全部'   },
+  { key: 'weekly-picks',           href: '/weekly-picks',          label: '每週論文精選' },
   { key: 'sports-medicine',        href: '/sports-medicine',       label: '運動醫學' },
   { key: 'rehabilitation-medicine',href: '/rehabilitation-medicine',label: '復健醫學' },
   { key: 'functional-medicine',    href: '/functional-medicine',   label: '功能醫學' },

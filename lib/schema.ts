@@ -13,6 +13,7 @@ const AUTHOR_MAP: Record<string, { name: string; jobTitle: string }> = {
 
 const SPECIALTY_MAP: Record<string, string> = {
   'sports-medicine':        'SportsMedicine',
+  'weekly-picks':           'SportsMedicine',
   'rehabilitation-medicine': 'PhysicalMedicineAndRehabilitation',
   'functional-medicine':    'InternalMedicine',
   'fsm':                    'PhysicalTherapy',

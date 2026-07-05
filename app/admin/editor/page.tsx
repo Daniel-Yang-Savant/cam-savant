@@ -59,6 +59,7 @@ function renderMarkdown(raw: string): string {
 
 const CATEGORY_LABELS: Record<string, string> = {
   'sports-medicine': '運動醫學',
+  'weekly-picks': '每週論文精選',
   'rehabilitation-medicine': '復健醫學',
   'functional-medicine': '功能醫學',
   'fsm': 'FSM',

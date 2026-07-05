@@ -22,6 +22,7 @@ export default function Navbar() {
     { href: '/sports-medicine',         label: t('navSportsMedicine')     },
     { href: '/rehabilitation-medicine', label: t('navRehabMedicine')      },
     { href: '/functional-medicine',     label: t('navFunctionalMedicine') },
+    { href: '/weekly-picks',            label: t('navWeeklyPicks')        },
     { href: '/fsm',                     label: t('navFsm')                },
     { href: '/perioperative-rehab',     label: t('navPerioperativeRehab') },
   ]

@@ -4,6 +4,7 @@
  */
 
 export const CATEGORY_KEYS = [
+  'weekly-picks',
   'sports-medicine',
   'rehabilitation-medicine',
   'functional-medicine',
@@ -14,6 +15,7 @@ export const CATEGORY_KEYS = [
 export type CategoryKey = (typeof CATEGORY_KEYS)[number]
 
 export const CATEGORY_LABELS: Record<string, string> = {
+  'weekly-picks': '每週論文精選',
   'sports-medicine': '運動醫學',
   'rehabilitation-medicine': '復健醫學',
   'functional-medicine': '功能醫學',
@@ -22,6 +24,8 @@ export const CATEGORY_LABELS: Record<string, string> = {
 }
 
 export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  'weekly-picks':
+    '每週掃描運動醫學與復健頂尖期刊，精選最新且具臨床參考價值的實證研究導讀。',
   'sports-medicine':
     '運動表現、傷害預防與過度訓練——以實證醫學為基礎的運動科學臨床應用。',
   'rehabilitation-medicine':

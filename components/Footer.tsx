@@ -32,6 +32,7 @@ export default function Footer() {
                   ['/sports-medicine',          '運動醫學'],
                   ['/rehabilitation-medicine',   '復健醫學'],
                   ['/functional-medicine',       '功能醫學'],
+                  ['/weekly-picks',              '每週論文精選'],
                   ['/fsm',                       'FSM'],
                 ].map(([href, label]) => (
                   <li key={href}>
