@@ -60,8 +60,12 @@ export default function WeeklyPicksPage({ searchParams }: Props) {
           <h1 className="mt-2 text-3xl md:text-4xl font-bold text-neutral-950 dark:text-neutral-100">
             每週論文精選
           </h1>
-          <p className="mt-2 text-neutral-500 dark:text-neutral-400 max-w-xl">
-            {CATEGORY_DESCRIPTIONS['weekly-picks']}
+          <p className="mt-2 text-neutral-500 dark:text-neutral-400 max-w-2xl leading-relaxed">
+            這是每週更新的運動醫學與復健文獻掃描。我們固定追蹤 British Journal of
+            Sports Medicine、American Journal of Sports Medicine、JOSPT、Orthopaedic
+            Journal of Sports Medicine、PM&amp;R、BMC Sports Science, Medicine and
+            Rehabilitation 等十餘本期刊過去一週的新發表，依臨床實用性與研究設計品質，
+            挑出最值得一讀的幾篇，並以實證數據摘要重點，每篇均附 DOI 連結，方便延伸閱讀原文。
           </p>
         </div>
 
