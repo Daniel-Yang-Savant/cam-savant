@@ -18,6 +18,10 @@
 .env.test.local
 .env.production.local
 
+# ── Local credentials ──────────────────────────────────────
+# Keep the local Cloudflare credential export out of Git.
+cloudflare-hermiterudite@gmail.com-*.txt
+
 # ── Vercel ─────────────────────────────────────────────────
 .vercel
 
