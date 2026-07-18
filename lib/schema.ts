@@ -1,12 +1,36 @@
 const BASE_URL = 'https://camsavant.com'
 
-// ── Author map ─────────────────────────────────────────────────────────────
+import { getAuthor, type Author } from './authors'
 
-const AUTHOR_MAP: Record<string, { name: string; jobTitle: string }> = {
-  '楊育愷醫師': { name: '楊育愷', jobTitle: '復健科主治醫師' },
-  '楊育彰醫師': { name: '楊育彰', jobTitle: '家庭醫學科專科醫師' },
-  '賴玟衛醫師': { name: '賴玟衛', jobTitle: '復健科醫師' },
-  '黃雅琦醫師': { name: '黃雅琦', jobTitle: '復健科醫師' },
+// ── Physician schema（E-E-A-T：含認證、服務機構、頭像、@id） ──────────────
+
+export function generatePhysicianSchema(author: Author) {
+  return {
+    '@type': 'Physician',
+    '@id': `${BASE_URL}/about#${author.slug}`,
+    name: author.name,
+    alternateName: author.nameEn,
+    jobTitle: author.title,
+    image: `${BASE_URL}${author.photo}`,
+    url: `${BASE_URL}/about#${author.slug}`,
+    ...(author.affiliation
+      ? {
+          affiliation: {
+            '@type': 'MedicalOrganization',
+            name: author.affiliation,
+          },
+        }
+      : {}),
+    ...(author.credentials.length > 0
+      ? {
+          hasCredential: author.credentials.map((c) => ({
+            '@type': 'EducationalOccupationalCredential',
+            name: c,
+          })),
+        }
+      : {}),
+    ...(author.specialties.length > 0 ? { knowsAbout: author.specialties } : {}),
+  }
 }
 
 // ── Category → MedicalSpecialty map ───────────────────────────────────────
@@ -32,9 +56,7 @@ export function generateArticleSchema(post: {
   coverImage?: string
   lastModified?: string
 }) {
-  const authorDetails =
-    (post.author ? AUTHOR_MAP[post.author] : undefined) ??
-    { name: '楊育愷', jobTitle: '復健科主治醫師' }
+  const authorDetails = getAuthor(post.author)
 
   return {
     '@context': 'https://schema.org',
@@ -46,12 +68,8 @@ export function generateArticleSchema(post: {
     dateModified: post.lastModified ?? post.date,
     lastReviewed: post.lastModified ?? post.date,
     inLanguage: 'zh-TW',
-    author: {
-      '@type': 'Physician',
-      name: authorDetails.name,
-      jobTitle: authorDetails.jobTitle,
-      url: `${BASE_URL}/about`,
-    },
+    author: generatePhysicianSchema(authorDetails),
+    reviewedBy: generatePhysicianSchema(authorDetails),
     publisher: {
       '@type': 'MedicalOrganization',
       name: 'CAM Savant',

@@ -15,6 +15,7 @@ import TableOfContents from '@/components/TableOfContents'
 import { generateArticleSchema, generateBreadcrumbSchema, generateFAQSchema } from '@/lib/schema'
 import { extractFAQsFromMDX } from '@/lib/extract-faqs'
 import RelatedArticles from '@/components/RelatedArticles'
+import AuthorCard from '@/components/AuthorCard'
 import { getReadingTime } from '@/lib/reading-time'
 
 interface Props {
@@ -259,6 +260,9 @@ export default async function PostPage({ params }: Props) {
           <div className="prose prose-neutral dark:prose-invert max-w-none">
             <MDXRemote source={content} components={mdxComponents} />
           </div>
+
+          {/* Author card（E-E-A-T） */}
+          <AuthorCard author={frontmatter.author} />
 
           {/* Consultation form */}
           <ConsultForm articleTitle={frontmatter.title} />

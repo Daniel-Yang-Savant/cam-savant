@@ -8,46 +8,10 @@ export const metadata: Metadata = {
   alternates: { canonical: '/about' },
 }
 
-// ── Team data ──────────────────────────────────────────────────────────────
+import { TEAM } from '@/lib/authors'
+import { generatePhysicianSchema } from '@/lib/schema'
 
-const team = [
-  {
-    name: '楊育愷',
-    nameEn: 'Yu-Kai Yang, MD',
-    photo: '/images/team/yu-kai-yang.jpg',
-    title: '復健科主治醫師',
-    location: '彰化縣・南投縣',
-    specialties: ['增生療法', 'PRP治療', '運動醫學', '骨質疏鬆', '超音波導引注射', 'FSM'],
-    credentials: ['骨質疏鬆專科醫師', '增生醫學會會員', '台灣運動醫學醫學會會員'],
-  },
-  {
-    name: '楊育彰',
-    nameEn: 'Yu-Chang Yang, MD',
-    photo: '/images/team/yu-chang-yang.jpg',
-    title: '家庭醫學科專科醫師',
-    location: '台北・桃園',
-    specialties: ['針灸', '減重', '醫美', '家庭醫學'],
-    credentials: ['骨質疏鬆專科醫師', 'SCOPE 國際肥胖專科認證', '糖尿病 CDE 認證'],
-  },
-  {
-    name: '賴玟衛',
-    nameEn: 'Wen-Wei Lai, MD',
-    photo: '/images/team/wen-wei-lai.jpg',
-    title: '復健科醫師',
-    location: '彰化基督教醫院',
-    specialties: ['復健醫學'],
-    credentials: ['骨鬆醫學會會員', '增生醫學會會員'],
-  },
-  {
-    name: '黃雅琦',
-    nameEn: 'Yachi Huang, MD',
-    photo: '/images/team/huang-yachi.jpg',
-    title: '復健科醫師',
-    location: '彰化基督教醫院',
-    specialties: [],
-    credentials: [],
-  },
-]
+const team = TEAM
 
 // ── MapPin icon ────────────────────────────────────────────────────────────
 
@@ -74,8 +38,20 @@ function MapPin() {
 // ── Page ───────────────────────────────────────────────────────────────────
 
 export default function AboutPage() {
+  const orgSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'MedicalOrganization',
+    name: 'CAM Savant',
+    url: 'https://camsavant.com',
+    member: team.map((m) => generatePhysicianSchema(m)),
+  }
+
   return (
     <div className="min-h-screen bg-[#f5f0e8] dark:bg-neutral-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+      />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
 
         {/* ── Header ── */}
@@ -91,7 +67,8 @@ export default function AboutPage() {
           {team.map((member) => (
             <div
               key={member.nameEn}
-              className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 px-6 pt-10 pb-8 flex flex-col items-center text-center"
+              id={member.slug}
+              className="scroll-mt-24 bg-white dark:bg-neutral-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 px-6 pt-10 pb-8 flex flex-col items-center text-center"
             >
               {/* Arch photo frame */}
               <div
