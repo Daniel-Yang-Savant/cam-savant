@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { Inter, Noto_Sans_TC } from 'next/font/google'
 import './globals.css'
 import { Analytics } from '@vercel/analytics/react'
@@ -259,22 +260,24 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {/* ── Google Analytics 4 ── */}
+      </head>
+      <body className="min-h-screen flex flex-col bg-white dark:bg-neutral-900">
+        {/* ── Google Analytics 4（afterInteractive：不阻塞首屏渲染） ── */}
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <>
-            <script
-              async
+            <Script
+              strategy="afterInteractive"
               src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
             />
-            <script
+            <Script
+              id="ga4-init"
+              strategy="afterInteractive"
               dangerouslySetInnerHTML={{
                 __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}',{page_path:window.location.pathname});`,
               }}
             />
           </>
         )}
-      </head>
-      <body className="min-h-screen flex flex-col bg-white dark:bg-neutral-900">
         {/* ── Service Worker registration ── */}
         <script dangerouslySetInnerHTML={{ __html: `
   if ('serviceWorker' in navigator) {
