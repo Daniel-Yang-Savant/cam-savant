@@ -11,7 +11,9 @@ interface Props {
 }
 
 export function generateStaticParams() {
-  return getAllTags().map(({ tag }) => ({ tag: encodeURIComponent(tag) }))
+  // 回傳原始值即可，Next.js 會自動做 URL 編碼；
+  // 若先 encodeURIComponent 會被雙重編碼，導致頁面 404 + noindex（GSC "Excluded by noindex"）
+  return getAllTags().map(({ tag }) => ({ tag }))
 }
 
 export function generateMetadata({ params }: Props): Metadata {
