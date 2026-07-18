@@ -2,6 +2,18 @@
 
 import { useState, useRef } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
+import { track } from '@vercel/analytics/react'
+
+const PURCHASE_URL = 'https://www.metagenics-prisma.com'
+const REFERRAL_CODE = 'YY103001'
+
+function trackCommerceEvent(name: string, properties: Record<string, string | number>) {
+  track(name, properties)
+  const analyticsWindow = window as typeof window & {
+    gtag?: (...args: unknown[]) => void
+  }
+  analyticsWindow.gtag?.('event', name, properties)
+}
 
 // ─── 完整產品資料庫（來源：Metagenics 2025.07 臨床處方建議） ───────────────
 const PRODUCTS = [
@@ -602,6 +614,7 @@ export default function SupplementRecommenderPage() {
   const [freeText, setFreeText] = useState('')
   const [results, setResults] = useState<ReturnType<typeof getTopRecommendations>>([])
   const [submitted, setSubmitted] = useState(false)
+  const [codeCopied, setCodeCopied] = useState(false)
   const resultRef = useRef<HTMLDivElement>(null)
 
   function toggleSymptom(sym: string) {
@@ -615,7 +628,32 @@ export default function SupplementRecommenderPage() {
     const recs = getTopRecommendations(selected, freeText)
     setResults(recs)
     setSubmitted(true)
+    trackCommerceEvent('supplement_recommendation', {
+      selected_symptoms: selected.length,
+      result_count: recs.length,
+    })
     setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
+  }
+
+  async function handleCopyCode() {
+    try {
+      await navigator.clipboard.writeText(REFERRAL_CODE)
+      setCodeCopied(true)
+      trackCommerceEvent('supplement_referral_code_copy', {
+        result_count: results.length,
+      })
+      window.setTimeout(() => setCodeCopied(false), 2500)
+    } catch {
+      setCodeCopied(false)
+    }
+  }
+
+  function handlePurchaseClick(placement: string, productId?: string) {
+    trackCommerceEvent('supplement_purchase_click', {
+      placement,
+      product_id: productId ?? 'recommendation_summary',
+      result_count: results.length,
+    })
   }
 
   function handleReset() {
@@ -660,6 +698,8 @@ export default function SupplementRecommenderPage() {
                 return (
                   <button
                     key={sym}
+                    type="button"
+                    aria-pressed={isSelected}
                     onClick={() => toggleSymptom(sym)}
                     className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${
                       isSelected
@@ -699,6 +739,7 @@ export default function SupplementRecommenderPage() {
           </span>
         )}
         <button
+          type="button"
           onClick={handleSubmit}
           disabled={selected.length === 0 && !freeText.trim()}
           className="px-6 py-2.5 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors"
@@ -707,6 +748,7 @@ export default function SupplementRecommenderPage() {
         </button>
         {(selected.length > 0 || freeText) && (
           <button
+            type="button"
             onClick={handleReset}
             className="px-4 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 text-sm hover:border-neutral-400 transition-colors"
           >
@@ -732,6 +774,27 @@ export default function SupplementRecommenderPage() {
                 <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
                   依據您的症狀，以下為前 {results.length} 名建議營養品
                 </p>
+              </div>
+
+              <div className="mb-6 rounded-2xl bg-neutral-950 px-5 py-5 text-white shadow-lg dark:bg-neutral-100 dark:text-neutral-950 sm:flex sm:items-center sm:justify-between sm:gap-6">
+                <div>
+                  <p className="text-xs font-semibold tracking-widest text-amber-300 uppercase dark:text-amber-700">
+                    推薦清單已完成
+                  </p>
+                  <p className="mt-1 text-lg font-bold">前往官方平台選購推薦產品</p>
+                  <p className="mt-1 text-sm text-neutral-300 dark:text-neutral-600">
+                    結帳前請先確認品項、價格及是否適合目前用藥。
+                  </p>
+                </div>
+                <a
+                  href={PURCHASE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                  onClick={() => handlePurchaseClick('results_top')}
+                  className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-amber-400 px-5 py-3 text-sm font-bold text-neutral-950 transition-colors hover:bg-amber-300 sm:mt-0 sm:w-auto sm:flex-shrink-0"
+                >
+                  前往官方平台購買 ↗
+                </a>
               </div>
 
               <div className="space-y-4 mb-12">
@@ -765,8 +828,18 @@ export default function SupplementRecommenderPage() {
                       </p>
                       <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-neutral-500 dark:text-neutral-400">
                         <span>📋 {product.usage}</span>
-                        <span>💰 NT${product.price.toLocaleString()}</span>
+                        <span>💰 參考價 NT${product.price.toLocaleString()}</span>
                       </div>
+                      <a
+                        href={PURCHASE_URL}
+                        target="_blank"
+                        rel="noopener noreferrer sponsored"
+                        onClick={() => handlePurchaseClick('product_card', product.id)}
+                        aria-label={`前往官方平台購買 ${product.name}`}
+                        className="mt-4 inline-flex items-center rounded-lg border border-neutral-300 px-3 py-2 text-xs font-semibold text-neutral-800 transition-colors hover:border-neutral-900 hover:bg-neutral-900 hover:text-white dark:border-neutral-700 dark:text-neutral-200 dark:hover:border-neutral-100 dark:hover:bg-neutral-100 dark:hover:text-neutral-900"
+                      >
+                        查看與購買此產品 ↗
+                      </a>
                     </div>
                   </div>
                 ))}
@@ -779,7 +852,7 @@ export default function SupplementRecommenderPage() {
                     🛒 如何購買 Metagenics 產品
                   </h3>
                   <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-                    掃描 QR Code，享受醫療專業人員推薦優惠
+                    手機可直接點擊購買；使用電腦時也可掃描 QR Code
                   </p>
                 </div>
                 <div className="px-6 py-6 flex flex-col sm:flex-row items-center gap-8">
@@ -787,7 +860,7 @@ export default function SupplementRecommenderPage() {
                   <div className="flex-shrink-0 flex flex-col items-center gap-3">
                     <div className="p-4 bg-white rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow-sm">
                       <QRCodeSVG
-                        value="https://www.metagenics-prisma.com"
+                        value={PURCHASE_URL}
                         size={140}
                         bgColor="#ffffff"
                         fgColor="#111111"
@@ -803,8 +876,8 @@ export default function SupplementRecommenderPage() {
                       <li className="flex gap-3">
                         <span className="flex-shrink-0 w-6 h-6 rounded-full bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">1</span>
                         <div>
-                          <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">掃描右側 QR Code</p>
-                          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">或直接前往 www.metagenics-prisma.com</p>
+                          <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">開啟官方購買平台</p>
+                          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">點擊下方按鈕，或使用另一台裝置掃描 QR Code</p>
                         </div>
                       </li>
                       <li className="flex gap-3">
@@ -818,14 +891,34 @@ export default function SupplementRecommenderPage() {
                         <span className="flex-shrink-0 w-6 h-6 rounded-full bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">3</span>
                         <div>
                           <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">輸入專業人員推薦優惠碼</p>
-                          <div className="mt-1.5 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
-                            <span className="text-base font-bold tracking-widest text-neutral-900 dark:text-neutral-100">YY103001</span>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={handleCopyCode}
+                            className="mt-1.5 inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 transition-colors hover:border-neutral-400 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:border-neutral-500"
+                            aria-label={`複製推薦碼 ${REFERRAL_CODE}`}
+                          >
+                            <span className="text-base font-bold tracking-widest text-neutral-900 dark:text-neutral-100">{REFERRAL_CODE}</span>
+                            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                              {codeCopied ? '✓ 已複製' : '複製推薦碼'}
+                            </span>
+                          </button>
                         </div>
                       </li>
                     </ol>
+                    <a
+                      href={PURCHASE_URL}
+                      target="_blank"
+                      rel="noopener noreferrer sponsored"
+                      onClick={() => handlePurchaseClick('purchase_guide')}
+                      className="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-neutral-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-300 sm:w-auto"
+                    >
+                      前往官方平台購買 ↗
+                    </a>
                     <p className="mt-4 text-xs text-neutral-400 dark:text-neutral-500">
                       由中華生醫科技股份有限公司負責台灣地區 Metagenics 產品代理與服務
+                    </p>
+                    <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
+                      商品售價與供應狀況以官方平台為準。
                     </p>
                   </div>
                 </div>
