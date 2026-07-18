@@ -41,9 +41,6 @@ export const metadata: Metadata = {
     '網球肘復健', '腳踝扭傷復健', '足底筋膜炎', '過度訓練症候群',
     '頭頸癌復健', '心肺復健', 'CABG術後', '肺癌手術復健', '彰化術後復健',
   ],
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     type: 'website',
     locale: 'zh_TW',

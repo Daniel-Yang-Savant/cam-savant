@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 export const metadata: Metadata = {
+  alternates: { canonical: '/terms' },
   title: '使用條款',
   description: 'CAM Savant 使用條款',
 }

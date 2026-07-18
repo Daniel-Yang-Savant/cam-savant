@@ -82,12 +82,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
       priority: 0.9,
     },
-    {
-      url: `${BASE_URL}/perioperative-rehab`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
+    // /perioperative-rehab 為存取保護頁（middleware 會 redirect），不列入 sitemap
   ]
 
   return [...staticPages, ...postEntries, ...tagEntries]

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 export const metadata: Metadata = {
+  alternates: { canonical: '/privacy' },
   title: '隱私權政策',
   description: 'CAM Savant 隱私權政策',
 }

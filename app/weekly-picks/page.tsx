@@ -9,6 +9,7 @@ const BASE_URL = 'https://camsavant.com'
 const POSTS_PER_PAGE = 12
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/weekly-picks' },
   title: '每週論文精選',
   description: CATEGORY_DESCRIPTIONS['weekly-picks'],
 }

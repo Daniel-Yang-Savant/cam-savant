@@ -10,6 +10,7 @@ const BASE_URL = 'https://camsavant.com'
 const POSTS_PER_PAGE = 12
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/functional-medicine' },
   title: '功能醫學',
   description: CATEGORY_DESCRIPTIONS['functional-medicine'],
 }

@@ -9,6 +9,7 @@ const BASE_URL = 'https://camsavant.com'
 const POSTS_PER_PAGE = 12
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/fsm' },
   title: 'FSM',
   description: CATEGORY_DESCRIPTIONS['fsm'],
 }

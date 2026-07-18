@@ -4,6 +4,7 @@ import Breadcrumbs from '@/components/Breadcrumbs'
 import PostsClient from '@/components/PostsClient'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/posts' },
   title: '所有文章',
   description: '瀏覽所有運動醫學、功能醫學與 FSM 相關文章',
 }

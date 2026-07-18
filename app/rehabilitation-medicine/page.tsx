@@ -9,6 +9,7 @@ const BASE_URL = 'https://camsavant.com'
 const POSTS_PER_PAGE = 12
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/rehabilitation-medicine' },
   title: '復健醫學',
   description: CATEGORY_DESCRIPTIONS['rehabilitation-medicine'],
 }

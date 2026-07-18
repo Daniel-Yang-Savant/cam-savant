@@ -7,7 +7,8 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         allow: '/',
         // perioperative-rehab is access-protected — exclude from indexing
-        disallow: ['/perioperative-rehab/', '/perioperative-rehab/locked'],
+        // (no trailing slash: robots.txt prefix-matches, covers /perioperative-rehab and all sub-paths)
+        disallow: ['/perioperative-rehab', '/admin', '/api/'],
       },
     ],
     sitemap: 'https://camsavant.com/sitemap.xml',
