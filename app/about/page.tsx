@@ -13,19 +13,12 @@ import { generatePhysicianSchema } from '@/lib/schema'
 
 const team = TEAM
 
-// ── 賴玟衛醫師 門診資訊 ─────────────────────────────────────────────────────
+// ── 看診資訊頁連結（nameEn → route）───────────────────────────────────────
 
-const LAI_SCHEDULE = [
-  { place: '彰基總院', time: '週一下午・週六上午' },
-  { place: '彰基超音波（約診）', time: '週四上午' },
-  { place: '漢銘醫院', time: '週一・週三上午' },
-  { place: '員林基督教醫院', time: '週五下午' },
-]
-
-const LAI_BOOKING = [
-  { label: '彰基網路掛號', url: 'https://www1.cch.org.tw/opd/service-e.aspx?id=1400&Page=11&#p' },
-  { label: '漢銘醫院掛號', url: 'http://60.249.91.122/hmrg/opd/service-e.aspx?id=1400&Page=11&' },
-]
+const CONTACT_LINKS: Record<string, string> = {
+  'Yu-Kai Yang, MD': '/contact',
+  'Wen-Wei Lai, MD': '/contact/wen-wei-lai',
+}
 
 // ── MapPin icon ────────────────────────────────────────────────────────────
 
@@ -152,45 +145,10 @@ export default function AboutPage() {
                 </ul>
               )}
 
-              {/* 門診時間 & 掛號連結 for 賴玟衛 */}
-              {member.nameEn === 'Wen-Wei Lai, MD' && (
-                <div className="mt-4 w-full border-t border-neutral-100 dark:border-neutral-700 pt-4">
-                  <p className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-300 mb-2">
-                    門診時間
-                  </p>
-                  <ul className="space-y-1 text-left">
-                    {LAI_SCHEDULE.map((s) => (
-                      <li
-                        key={s.place}
-                        className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-relaxed"
-                      >
-                        <span className="font-medium text-neutral-600 dark:text-neutral-300">
-                          {s.place}
-                        </span>
-                        ｜{s.time}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-3 flex flex-col gap-2">
-                    {LAI_BOOKING.map((b) => (
-                      <a
-                        key={b.label}
-                        href={b.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full text-center text-[11px] font-semibold py-2 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:border-neutral-950 dark:hover:border-neutral-100 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
-                      >
-                        {b.label} →
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 看診資訊 link for 楊育愷 */}
-              {member.nameEn === 'Yu-Kai Yang, MD' && (
+              {/* 看診資訊 link */}
+              {CONTACT_LINKS[member.nameEn] && (
                 <Link
-                  href="/contact"
+                  href={CONTACT_LINKS[member.nameEn]}
                   className="mt-4 w-full text-center text-[11px] font-semibold py-2 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:border-neutral-950 dark:hover:border-neutral-100 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
                 >
                   看診資訊 →
