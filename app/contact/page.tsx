@@ -24,7 +24,7 @@ const clinics = [
     mapUrl: 'https://maps.google.com/?q=彰化基督教醫院',
     bookingUrl: 'https://www1.cch.org.tw/opd/service-e.aspx?id=1400&Page=11&#p',
     phone: '(04) 723-8595',
-    schedule: ['週三 下午', '週五 上午', '週六 上午'],
+    schedule: ['週一 晚上', '週三 下午', '週五 上午'],
     color: 'blue',
   },
   {
