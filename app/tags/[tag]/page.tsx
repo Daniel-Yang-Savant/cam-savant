@@ -16,8 +16,26 @@ export function generateStaticParams() {
   return getAllTags().map(({ tag }) => ({ tag }))
 }
 
+/**
+ * 循環解碼直到穩定：無論參數是原始中文、單次或雙重 percent-encoding，
+ * 都能還原成原始標籤（防止雙重編碼導致 404 + noindex）
+ */
+function resolveTag(raw: string): string {
+  let s = raw
+  for (let i = 0; i < 3; i++) {
+    try {
+      const d = decodeURIComponent(s)
+      if (d === s) break
+      s = d
+    } catch {
+      break
+    }
+  }
+  return s
+}
+
 export function generateMetadata({ params }: Props): Metadata {
-  const tag = decodeURIComponent(params.tag)
+  const tag = resolveTag(params.tag)
   return {
     title: `#${tag}`,
     description: `所有標記「${tag}」的文章 — CAM Savant 醫療知識庫`,
@@ -26,7 +44,7 @@ export function generateMetadata({ params }: Props): Metadata {
 }
 
 export default function TagPage({ params }: Props) {
-  const tag = decodeURIComponent(params.tag)
+  const tag = resolveTag(params.tag)
   const posts = getPostsByTag(tag)
 
   if (posts.length === 0) notFound()
