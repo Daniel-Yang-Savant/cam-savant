@@ -79,6 +79,15 @@ export default function Footer() {
             © {year} CAM Savant 醫療團隊 · 本站內容僅供醫療專業人員學習參考，不構成個別診療建議，未經書面授權禁止轉載、複製或商業使用。
           </p>
           <div className="flex items-center gap-2 shrink-0">
+            <a
+              href="https://art-clinical-reference.hermiterudite.chatgpt.site"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-medium text-accent-700 dark:text-accent-400 hover:text-accent-800 dark:hover:text-accent-300 transition-colors"
+            >
+              會員專區
+            </a>
+            <span className="text-neutral-300 dark:text-neutral-600">·</span>
             <Link href="/privacy" className="text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
               隱私權政策
             </Link>
