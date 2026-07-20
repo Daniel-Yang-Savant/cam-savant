@@ -46,3 +46,4 @@ yarn-error.log*
 # ── Drafts (raw source & staged MDX) ───────────────────────
 drafts/raw/*.txt
 drafts/ready/*.mdx
+fsm-drafts/
