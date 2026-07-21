@@ -41,6 +41,15 @@ const nextConfig = {
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
         ],
       },
+      {
+        // This route is opened by the cross-origin AK member portal. Keeping
+        // unsafe-none here preserves window.opener so the signed Google
+        // credential can be returned with a strict targetOrigin.
+        source: '/ak-google-auth',
+        headers: [
+          { key: 'Cross-Origin-Opener-Policy', value: 'unsafe-none' },
+        ],
+      },
       // 靜態資源長快取
       {
         source: '/images/(.*)',
