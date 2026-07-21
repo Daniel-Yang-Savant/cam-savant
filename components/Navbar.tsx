@@ -35,12 +35,23 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
-          <Link
-            href="/"
-            className="text-lg font-bold tracking-[0.18em] text-neutral-950 dark:text-neutral-100 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors shrink-0"
-          >
-            CAM SAVANT
-          </Link>
+          {pathname === '/' ? (
+            <h1 className="shrink-0">
+              <Link
+                href="/"
+                className="text-lg font-bold tracking-[0.18em] text-neutral-950 dark:text-neutral-100 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+              >
+                CAM SAVANT
+              </Link>
+            </h1>
+          ) : (
+            <Link
+              href="/"
+              className="text-lg font-bold tracking-[0.18em] text-neutral-950 dark:text-neutral-100 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors shrink-0"
+            >
+              CAM SAVANT
+            </Link>
+          )}
 
           {/* Desktop nav links */}
           <ul className="hidden md:flex items-center gap-8">
