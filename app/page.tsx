@@ -10,6 +10,18 @@ import FeaturedReadingList from '@/components/FeaturedReadingList'
 import { getPublicPosts } from '@/lib/posts'
 import Link from 'next/link'
 
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': 'https://camsavant.com/#website',
+  url: 'https://camsavant.com/',
+  name: 'CAM Savant',
+  alternateName: ['CAMsavant', 'CAM SAVANT', 'camsavant.com'],
+  publisher: {
+    '@id': 'https://camsavant.com/#organization',
+  },
+}
+
 export default function HomePage() {
   const allPosts = getPublicPosts()
 
@@ -27,6 +39,11 @@ export default function HomePage() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
+
       {/* ── Hero ── */}
       <Hero post={heroPost} />
 
@@ -62,6 +79,27 @@ export default function HomePage() {
 
         </div>
       </div>
+
+      {/* ── Brand identity ── */}
+      <section
+        aria-labelledby="cam-savant-introduction"
+        className="border-t border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-950"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-accent-700 dark:text-accent-400">
+            Integrative Medical Knowledge
+          </p>
+          <h2
+            id="cam-savant-introduction"
+            className="mt-4 text-2xl md:text-3xl font-semibold tracking-tight text-neutral-950 dark:text-neutral-100"
+          >
+            CAM Savant <span className="font-normal text-neutral-500 dark:text-neutral-400">（CAMsavant）</span>
+          </h2>
+          <p className="mt-4 max-w-3xl text-base leading-8 text-neutral-600 dark:text-neutral-400">
+            CAM Savant（CAMsavant）是由醫療專業團隊建立的整合醫學知識平台，專注於復健醫學、運動醫學、功能醫學與輔助醫學。
+          </p>
+        </div>
+      </section>
     </>
   )
 }

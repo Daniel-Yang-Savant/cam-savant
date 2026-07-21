@@ -108,6 +108,7 @@ const jsonLd = {
       '@type': 'MedicalOrganization',
       '@id': 'https://camsavant.com/#organization',
       name: 'CAM Savant',
+      alternateName: ['CAMsavant', 'CAM SAVANT'],
       description:
         '彰化、南投、台中、雲林地區復健科・運動醫學・增生療法・PRP・FSM專業醫療團隊',
       url: 'https://camsavant.com',
