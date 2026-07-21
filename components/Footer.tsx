@@ -68,7 +68,7 @@ export default function Footer() {
                 ))}
                 <li>
                   <a
-                    href="https://art-clinical-reference.hermiterudite.chatgpt.site"
+                    href="https://art-clinical-reference.hermiterudite.chatgpt.site/login?returnTo=%2Fworkspace"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
