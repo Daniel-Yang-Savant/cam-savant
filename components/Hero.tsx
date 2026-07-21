@@ -49,9 +49,9 @@ export default function Hero({ post }: HeroProps) {
                 精選文章 &middot; {categoryLabel}
               </p>
 
-              <h1 className="text-3xl md:text-4xl lg:text-[2.6rem] font-bold text-neutral-950 dark:text-neutral-100 leading-tight group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
+              <h2 className="text-3xl md:text-4xl lg:text-[2.6rem] font-bold text-neutral-950 dark:text-neutral-100 leading-tight group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
                 {frontmatter.title}
-              </h1>
+              </h2>
 
               <p className="mt-5 text-base md:text-lg text-neutral-500 dark:text-neutral-400 leading-relaxed">
                 {frontmatter.excerpt}

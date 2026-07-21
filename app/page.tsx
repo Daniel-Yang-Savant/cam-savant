@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
+  title: {
+    absolute: 'CAM Savant 官方網站｜復健醫學・運動醫學・功能醫學',
+  },
   alternates: { canonical: '/' },
 }
 
@@ -89,12 +92,12 @@ export default function HomePage() {
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-accent-700 dark:text-accent-400">
             Integrative Medical Knowledge
           </p>
-          <h2
+          <h1
             id="cam-savant-introduction"
             className="mt-4 text-2xl md:text-3xl font-semibold tracking-tight text-neutral-950 dark:text-neutral-100"
           >
-            CAM Savant <span className="font-normal text-neutral-500 dark:text-neutral-400">（CAMsavant）</span>
-          </h2>
+            CAM Savant
+          </h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-neutral-600 dark:text-neutral-400">
             CAM Savant（CAMsavant）是由醫療專業團隊建立的整合醫學知識平台，專注於復健醫學、運動醫學、功能醫學與輔助醫學。
           </p>
