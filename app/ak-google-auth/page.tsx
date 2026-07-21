@@ -18,7 +18,7 @@ export default function AkGoogleAuthPage({ searchParams }: { searchParams: { sta
       <section className="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-900 p-8 shadow-2xl">
         <p className="text-[10px] font-semibold tracking-[0.22em] text-teal-400 uppercase">Applied Kinesiology</p>
         <h1 className="mt-3 text-2xl font-semibold tracking-tight">會員身分確認</h1>
-        <p className="mt-3 text-sm leading-6 text-neutral-400">選擇 Google 帳號後，系統會返回 AK Clinical Reference。這項登入與 FSM Studio 的會員資格分開管理。</p>
+        <p className="mt-3 text-sm leading-6 text-neutral-400">選擇 Google 帳號後，系統會返回 AK Clinical Reference。</p>
         <GoogleAuthBridge clientId={clientId} state={state} />
         <p className="mt-6 text-xs leading-5 text-neutral-500">僅傳送 Google 簽章憑證至 AK 會員專區，用來驗證姓名與電子郵件。</p>
       </section>
