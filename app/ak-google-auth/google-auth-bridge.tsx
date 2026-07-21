@@ -2,8 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-const AK_ORIGIN = 'https://art-clinical-reference.hermiterudite.chatgpt.site'
-
 type GoogleCredentialResponse = { credential?: string }
 type GoogleIdentity = {
   initialize: (options: { client_id: string; callback: (response: GoogleCredentialResponse) => void; ux_mode: 'popup' }) => void
@@ -16,7 +14,7 @@ declare global {
   }
 }
 
-export function GoogleAuthBridge({ clientId, state }: { clientId: string; state: string }) {
+export function GoogleAuthBridge({ clientId, state, targetOrigin }: { clientId: string; state: string; targetOrigin: string }) {
   const buttonRef = useRef<HTMLDivElement>(null)
   const [message, setMessage] = useState('正在載入 Google 登入…')
 
@@ -37,13 +35,13 @@ export function GoogleAuthBridge({ clientId, state }: { clientId: string; state:
             return
           }
           setMessage('驗證完成，正在返回會員專區…')
-          window.opener.postMessage({ type: 'AK_GOOGLE_CREDENTIAL', credential, state }, AK_ORIGIN)
+          window.opener.postMessage({ type: 'AK_GOOGLE_CREDENTIAL', credential, state }, targetOrigin)
           window.setTimeout(() => window.close(), 700)
         },
       })
       buttonRef.current.replaceChildren()
       window.google.accounts.id.renderButton(buttonRef.current, { theme: 'filled_black', size: 'large', width: 320, text: 'continue_with', shape: 'rectangular' })
-      setMessage('請選擇要用於 AK 會員專區的 Google 帳號')
+      setMessage('請選擇要用於會員專區的 Google 帳號')
     }
 
     const existing = document.querySelector<HTMLScriptElement>('script[data-ak-google-identity]')
@@ -62,7 +60,7 @@ export function GoogleAuthBridge({ clientId, state }: { clientId: string; state:
     script.addEventListener('error', () => setMessage('Google 登入模組載入失敗，請稍後再試。'), { once: true })
     document.head.appendChild(script)
     return () => script.removeEventListener('load', initialize)
-  }, [clientId, state])
+  }, [clientId, state, targetOrigin])
 
   return <div className="mt-7"><div ref={buttonRef} className="min-h-11 flex justify-center" /><p className="mt-3 text-center text-xs text-neutral-500" role="status">{message}</p></div>
 }
