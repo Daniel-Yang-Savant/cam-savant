@@ -1,10 +1,12 @@
 import { getPublicPosts, getAllTags, getPostsByTag, getPostsByCategory } from '@/lib/posts'
+import { TEAM } from '@/lib/authors'
 import { MetadataRoute } from 'next'
 
 const BASE_URL = 'https://camsavant.com'
 
 /** 內容幾乎不變的頁面用固定日期（避免每次部署都宣稱有更新，Google 會不信任 lastmod） */
 const STATIC_PAGE_DATE = new Date('2026-07-18')
+const TEAM_PAGE_DATE = new Date('2026-07-26')
 
 /** 取一組文章中最新的日期（lastModified 優先，其次 date） */
 function latestDate(posts: { frontmatter: { date: string; lastModified?: string } }[]): Date {
@@ -17,6 +19,9 @@ function latestDate(posts: { frontmatter: { date: string; lastModified?: string 
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getPublicPosts()
   const tags = getAllTags()
+  const homepagePosts = posts.filter((post) =>
+    ['rehabilitation-medicine', 'sports-medicine'].includes(post.frontmatter.category)
+  )
 
   const postEntries: MetadataRoute.Sitemap = posts.map((post) => ({
     url: `${BASE_URL}/posts/${post.slug}`,
@@ -41,22 +46,29 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   })
 
+  const doctorEntries: MetadataRoute.Sitemap = TEAM.map((doctor) => ({
+    url: `${BASE_URL}/doctors/${doctor.slug}`,
+    lastModified: TEAM_PAGE_DATE,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }))
+
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: BASE_URL,
-      lastModified: latestDate(posts), // 首頁隨最新文章更新
+      lastModified: latestDate(homepagePosts), // 首頁隨復健與運動傷害最新文章更新
       changeFrequency: 'weekly' as const,
       priority: 1.0,
     },
     {
       url: `${BASE_URL}/about`,
-      lastModified: STATIC_PAGE_DATE,
+      lastModified: TEAM_PAGE_DATE,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
     },
     {
       url: `${BASE_URL}/contact`,
-      lastModified: STATIC_PAGE_DATE,
+      lastModified: TEAM_PAGE_DATE,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
     },
@@ -80,5 +92,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // /perioperative-rehab 為存取保護頁（middleware 會 redirect），不列入 sitemap
   ]
 
-  return [...staticPages, ...postEntries, ...tagEntries]
+  return [...staticPages, ...doctorEntries, ...postEntries, ...tagEntries]
 }

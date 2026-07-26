@@ -7,7 +7,7 @@ export type Lang = 'zh' | 'en'
 export const translations = {
   zh: {
     home: '首頁',
-    about: '關於',
+    about: '醫師團隊',
     readMore: '閱讀文章',
     allPosts: '所有文章',
     navSportsMedicine: '運動醫學',
@@ -49,7 +49,7 @@ export const translations = {
   },
   en: {
     home: 'Home',
-    about: 'About',
+    about: 'Medical Team',
     readMore: 'Read Article',
     allPosts: 'All Articles',
     navSportsMedicine: 'Sports Medicine',

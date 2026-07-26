@@ -55,7 +55,7 @@ export default function Footer() {
                 {[
                   ['/',         '首頁'],
                   ['/posts',    '所有文章'],
-                  ['/about',    '關於'],
+                  ['/about',    '醫師團隊'],
                 ].map(([href, label]) => (
                   <li key={href}>
                     <Link

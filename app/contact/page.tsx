@@ -20,7 +20,7 @@ const clinics = [
     hospital: '彰化基督教醫院',
     hospitalEn: 'Changhua Christian Hospital',
     dept: '復健科',
-    address: '彰化市旭光路135號',
+    address: '彰化市南校街135號',
     mapUrl: 'https://maps.google.com/?q=彰化基督教醫院',
     bookingUrl: 'https://www1.cch.org.tw/opd/service-e.aspx?id=1400&Page=11&#p',
     phone: '(04) 723-8595',
@@ -31,10 +31,10 @@ const clinics = [
     hospital: '南投基督教醫院',
     hospitalEn: 'Nantou Christian Hospital',
     dept: '復健科',
-    address: '南投市復興路65號',
+    address: '南投縣南投市中興路870號',
     mapUrl: 'https://maps.google.com/?q=南投基督教醫院',
     bookingUrl: 'https://ny.cch.org.tw/nyrg/opd/service-e.aspx?id=1400&Page=11&#p',
-    phone: '(049) 222-2595',
+    phone: '(049) 222-5595',
     schedule: ['週一 上午', '週四 上午'],
     color: 'green',
   },
@@ -42,10 +42,10 @@ const clinics = [
     hospital: '二林基督教醫院',
     hospitalEn: 'Erlin Christian Hospital',
     dept: '復健科',
-    address: '彰化縣二林鎮中正路488號',
+    address: '彰化縣二林鎮大成路一段558號',
     mapUrl: 'https://maps.google.com/?q=二林基督教醫院',
     bookingUrl: 'https://erhlin.cch.org.tw/20rg/opd/service-e.aspx?id=1400&Page=11&#p',
-    phone: '(04) 896-3111',
+    phone: '(04) 895-2031',
     schedule: ['週三 上午'],
     color: 'amber',
   },
@@ -215,7 +215,7 @@ export default function ContactPage() {
       {/* ── Back to articles ── */}
       <div className="mt-10 pt-8 border-t border-neutral-100 dark:border-neutral-800 flex items-center gap-6">
         <Link href="/about" className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors">
-          ← 醫療團隊介紹
+          ← 醫師團隊介紹
         </Link>
         <Link href="/" className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors">
           返回首頁

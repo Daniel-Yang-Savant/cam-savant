@@ -27,8 +27,11 @@ const websiteJsonLd = {
 
 export default function HomePage() {
   const allPosts = getPublicPosts()
+  const focusedPosts = allPosts.filter((post) =>
+    ['rehabilitation-medicine', 'sports-medicine'].includes(post.frontmatter.category)
+  )
 
-  if (allPosts.length === 0) {
+  if (focusedPosts.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-24 text-center">
         <p className="text-neutral-500 text-sm">尚無文章。</p>
@@ -36,9 +39,9 @@ export default function HomePage() {
     )
   }
 
-  const [heroPost, ...rest] = allPosts
-  const latestPosts = rest.slice(0, 4)    // 最新 4 篇（Hero 以外）
-  const featuredList = allPosts.slice(0, 6) // 精選閱讀前 6 篇
+  const [heroPost, ...rest] = focusedPosts
+  const latestPosts = rest.slice(0, 4)         // 復健與運動傷害最新 4 篇（Hero 以外）
+  const featuredList = focusedPosts.slice(0, 6) // 首頁內容聚焦復健與運動傷害
 
   return (
     <>
@@ -67,7 +70,7 @@ export default function HomePage() {
           <section className="lg:col-span-2">
             <div className="flex items-baseline justify-between mb-8">
               <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
-                最新文章
+                最新復健與運動傷害文章
               </h2>
               <Link
                 href="/posts"

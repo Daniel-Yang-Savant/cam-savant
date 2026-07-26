@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: '醫療團隊',
+  title: '醫師團隊',
   description: 'CAM Savant 團隊成員——楊育愷醫師（復健科）、楊育彰醫師（家庭醫學科）、賴玟衛醫師及黃雅琦醫師，服務彰化、南投、台中、雲林地區。',
   alternates: { canonical: '/about' },
 }
@@ -12,13 +12,6 @@ import { TEAM } from '@/lib/authors'
 import { generatePhysicianSchema } from '@/lib/schema'
 
 const team = TEAM
-
-// ── 看診資訊頁連結（nameEn → route）───────────────────────────────────────
-
-const CONTACT_LINKS: Record<string, string> = {
-  'Yu-Kai Yang, MD': '/contact',
-  'Wen-Wei Lai, MD': '/contact/wen-wei-lai',
-}
 
 // ── MapPin icon ────────────────────────────────────────────────────────────
 
@@ -64,9 +57,12 @@ export default function AboutPage() {
         {/* ── Header ── */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-neutral-950 dark:text-neutral-100 tracking-tight">
-            醫療團隊
+            醫師團隊
           </h1>
           <div className="mt-5 h-px w-12 bg-neutral-300 dark:bg-neutral-600 mx-auto" />
+          <p className="mt-5 max-w-2xl mx-auto text-sm md:text-base leading-7 text-neutral-500 dark:text-neutral-400">
+            CAM Savant 由不同專科醫師共同撰寫與審閱，整合復健醫學、運動醫學、家庭醫學與功能醫學觀點。
+          </p>
         </div>
 
         {/* ── Team Grid ── */}
@@ -145,11 +141,18 @@ export default function AboutPage() {
                 </ul>
               )}
 
+              <Link
+                href={`/doctors/${member.slug}`}
+                className="mt-auto pt-5 w-full text-center text-[11px] font-semibold text-accent-700 dark:text-accent-400 hover:underline"
+              >
+                醫師完整介紹 →
+              </Link>
+
               {/* 看診資訊 link */}
-              {CONTACT_LINKS[member.nameEn] && (
+              {member.contactPath && (
                 <Link
-                  href={CONTACT_LINKS[member.nameEn]}
-                  className="mt-4 w-full text-center text-[11px] font-semibold py-2 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:border-neutral-950 dark:hover:border-neutral-100 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
+                  href={member.contactPath}
+                  className="mt-3 w-full text-center text-[11px] font-semibold py-2 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:border-neutral-950 dark:hover:border-neutral-100 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
                 >
                   看診資訊 →
                 </Link>
@@ -168,7 +171,7 @@ export default function AboutPage() {
           </Link>
         </div>
 
-        {/* ── SEO description（對爬蟲友善純文字）── */}
+        {/* ── 團隊專業範疇 ── */}
         <div className="mt-20 max-w-2xl mx-auto text-center">
           <p className="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
             CAM Savant 是一個專注於復健醫學與輔助醫療的知識分享平台，

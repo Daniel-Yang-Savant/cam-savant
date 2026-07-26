@@ -19,7 +19,7 @@ const clinics = [
     hospital: '彰化基督教醫院',
     hospitalEn: 'Changhua Christian Hospital',
     dept: '復健科',
-    address: '彰化市旭光路135號',
+    address: '彰化市南校街135號',
     mapUrl: 'https://maps.google.com/?q=彰化基督教醫院',
     bookingUrl: 'https://www1.cch.org.tw/opd/service-e.aspx?id=1400&Page=11&#p',
     phone: '(04) 723-8595',
@@ -201,7 +201,7 @@ export default function LaiContactPage() {
       {/* ── Back to articles ── */}
       <div className="mt-10 pt-8 border-t border-neutral-100 dark:border-neutral-800 flex items-center gap-6">
         <Link href="/about" className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors">
-          ← 醫療團隊介紹
+          ← 醫師團隊介紹
         </Link>
         <Link href="/" className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors">
           返回首頁

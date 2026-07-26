@@ -5,7 +5,7 @@
 // ─────────────────────────────────────────────────────────────────────────
 
 export interface Author {
-  /** URL anchor 與 @id 用（/about#slug） */
+  /** 獨立醫師頁與 @id 用（/doctors/slug） */
   slug: string
   name: string
   nameEn: string
@@ -16,6 +16,15 @@ export interface Author {
   affiliation?: string
   specialties: string[]
   credentials: string[]
+  education?: string[]
+  experience?: string[]
+  publications?: {
+    title: string
+    citation: string
+    url: string
+  }[]
+  sameAs?: string[]
+  contactPath?: string
 }
 
 export const AUTHORS: Record<string, Author> = {
@@ -27,7 +36,37 @@ export const AUTHORS: Record<string, Author> = {
     title: '復健科主治醫師',
     location: '彰化縣・南投縣',
     specialties: ['增生療法', 'PRP治療', '運動醫學', '骨質疏鬆', '超音波導引注射', 'FSM'],
-    credentials: ['骨質疏鬆專科醫師', '增生醫學會會員', '台灣運動醫學醫學會會員'],
+    credentials: ['骨質疏鬆症專科醫師', '台灣增生療法醫學會會員', '台灣運動醫學醫學會會員'],
+    education: ['國立陽明大學醫學系畢業', '國立中興大學博士班進修'],
+    experience: [
+      '彰化基督教醫院復健醫學部主治醫師',
+      '南投基督教醫院復健科主任',
+      '二林基督教醫院復健醫學科主治醫師',
+      '林口長庚紀念醫院復健科進修',
+    ],
+    publications: [
+      {
+        title: 'Timing and Dose of Constraint-Induced Movement Therapy after Stroke: A Systematic Review and Meta-Regression',
+        citation: 'Journal of Clinical Medicine, 2023; 12(6):2267',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10058952/',
+      },
+      {
+        title: 'Associations between doses of fall-risk-increasing drugs (FRIDs) and falls of hospitalized patients',
+        citation: 'Scientific Reports, 2023; 13:14380',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/37658229/',
+      },
+      {
+        title: 'Factors Impacting Fall Severity in Hospitalized Patients: A Retrospective Cohort Study',
+        citation: 'Journal of Clinical Medicine, 2024; 13(10):2827',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11122293/',
+      },
+    ],
+    sameAs: [
+      'https://dpt.cch.org.tw/layout/layout_1/doctor.aspx?ID=1400&Key=11334',
+      'https://ny.cch.org.tw/doctor_1_detial.aspx?cID=65&key=1400',
+      'https://www.toa1997.org.tw/orthopedist/?n=%E6%A5%8A%E8%82%B2%E6%84%B7',
+    ],
+    contactPath: '/contact',
   },
   '楊育彰醫師': {
     slug: 'yu-chang-yang',
@@ -49,6 +88,7 @@ export const AUTHORS: Record<string, Author> = {
     affiliation: '彰化基督教醫院',
     specialties: ['復健醫學'],
     credentials: ['骨鬆醫學會會員', '增生醫學會會員'],
+    contactPath: '/contact/wen-wei-lai',
   },
   '黃雅琦醫師': {
     slug: 'huang-yachi',
@@ -68,6 +108,11 @@ export const DEFAULT_AUTHOR_KEY = '楊育愷醫師'
 /** 依 frontmatter author 字串取得作者資料（找不到時回傳預設作者） */
 export function getAuthor(authorKey?: string): Author {
   return (authorKey ? AUTHORS[authorKey] : undefined) ?? AUTHORS[DEFAULT_AUTHOR_KEY]
+}
+
+export function getAuthorEntryBySlug(slug: string): { key: string; author: Author } | null {
+  const entry = Object.entries(AUTHORS).find(([, author]) => author.slug === slug)
+  return entry ? { key: entry[0], author: entry[1] } : null
 }
 
 export const TEAM: Author[] = Object.values(AUTHORS)

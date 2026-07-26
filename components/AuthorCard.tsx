@@ -4,7 +4,7 @@ import { getAuthor } from '@/lib/authors'
 
 /**
  * 文章作者卡片（E-E-A-T）
- * 顯示作者頭像、職稱、專業認證，並連結至 /about 的作者區塊。
+ * 顯示作者頭像、職稱、專業認證，並連結至獨立醫師介紹頁。
  */
 export default function AuthorCard({ author }: { author?: string }) {
   const a = getAuthor(author)
@@ -44,7 +44,7 @@ export default function AuthorCard({ author }: { author?: string }) {
             </p>
           )}
           <Link
-            href={`/about#${a.slug}`}
+            href={`/doctors/${a.slug}`}
             className="mt-2.5 inline-block text-xs font-semibold text-accent-700 dark:text-accent-400 hover:underline"
           >
             查看完整介紹 →

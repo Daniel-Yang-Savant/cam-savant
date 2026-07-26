@@ -7,12 +7,12 @@ import { getAuthor, type Author } from './authors'
 export function generatePhysicianSchema(author: Author) {
   return {
     '@type': 'Physician',
-    '@id': `${BASE_URL}/about#${author.slug}`,
+    '@id': `${BASE_URL}/doctors/${author.slug}#physician`,
     name: author.name,
     alternateName: author.nameEn,
     jobTitle: author.title,
     image: `${BASE_URL}${author.photo}`,
-    url: `${BASE_URL}/about#${author.slug}`,
+    url: `${BASE_URL}/doctors/${author.slug}`,
     ...(author.affiliation
       ? {
           affiliation: {
@@ -30,6 +30,7 @@ export function generatePhysicianSchema(author: Author) {
         }
       : {}),
     ...(author.specialties.length > 0 ? { knowsAbout: author.specialties } : {}),
+    ...(author.sameAs?.length ? { sameAs: author.sameAs } : {}),
   }
 }
 
