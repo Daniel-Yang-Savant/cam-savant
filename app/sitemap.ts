@@ -1,5 +1,6 @@
 import { getPublicPosts, getAllTags, getPostsByTag, getPostsByCategory } from '@/lib/posts'
 import { TEAM } from '@/lib/authors'
+import { CLINIC_LOCATIONS } from '@/lib/locations'
 import { MetadataRoute } from 'next'
 
 const BASE_URL = 'https://camsavant.com'
@@ -53,6 +54,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }))
 
+  const locationEntries: MetadataRoute.Sitemap = CLINIC_LOCATIONS.map((location) => ({
+    url: `${BASE_URL}/locations/${location.slug}`,
+    lastModified: TEAM_PAGE_DATE,
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  }))
+
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: BASE_URL,
@@ -92,5 +100,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // /perioperative-rehab 為存取保護頁（middleware 會 redirect），不列入 sitemap
   ]
 
-  return [...staticPages, ...doctorEntries, ...postEntries, ...tagEntries]
+  return [...staticPages, ...locationEntries, ...doctorEntries, ...postEntries, ...tagEntries]
 }

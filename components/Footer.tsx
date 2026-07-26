@@ -56,6 +56,10 @@ export default function Footer() {
                   ['/',         '首頁'],
                   ['/posts',    '所有文章'],
                   ['/about',    '醫師團隊'],
+                  ['/contact',  '看診資訊'],
+                  ['/locations/changhua', '彰化基督教醫院'],
+                  ['/locations/nantou',   '南投基督教醫院'],
+                  ['/locations/erlin',    '二林基督教醫院'],
                 ].map(([href, label]) => (
                   <li key={href}>
                     <Link

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import LineFollow from '@/components/LineFollow'
+import { CLINIC_LOCATIONS } from '@/lib/locations'
 
 export const metadata: Metadata = {
   title: '看診資訊',
@@ -12,44 +13,6 @@ export const metadata: Metadata = {
     description: '楊育愷醫師門診時間與預約方式，服務彰化縣、南投縣地區患者。',
   },
 }
-
-// ── Clinic data ────────────────────────────────────────────────────────────
-
-const clinics = [
-  {
-    hospital: '彰化基督教醫院',
-    hospitalEn: 'Changhua Christian Hospital',
-    dept: '復健科',
-    address: '彰化市南校街135號',
-    mapUrl: 'https://maps.google.com/?q=彰化基督教醫院',
-    bookingUrl: 'https://www1.cch.org.tw/opd/service-e.aspx?id=1400&Page=11&#p',
-    phone: '(04) 723-8595',
-    schedule: ['週一 晚上', '週三 下午', '週五 上午'],
-    color: 'blue',
-  },
-  {
-    hospital: '南投基督教醫院',
-    hospitalEn: 'Nantou Christian Hospital',
-    dept: '復健科',
-    address: '南投縣南投市中興路870號',
-    mapUrl: 'https://maps.google.com/?q=南投基督教醫院',
-    bookingUrl: 'https://ny.cch.org.tw/nyrg/opd/service-e.aspx?id=1400&Page=11&#p',
-    phone: '(049) 222-5595',
-    schedule: ['週一 上午', '週四 上午'],
-    color: 'green',
-  },
-  {
-    hospital: '二林基督教醫院',
-    hospitalEn: 'Erlin Christian Hospital',
-    dept: '復健科',
-    address: '彰化縣二林鎮大成路一段558號',
-    mapUrl: 'https://maps.google.com/?q=二林基督教醫院',
-    bookingUrl: 'https://erhlin.cch.org.tw/20rg/opd/service-e.aspx?id=1400&Page=11&#p',
-    phone: '(04) 895-2031',
-    schedule: ['週三 上午'],
-    color: 'amber',
-  },
-]
 
 const colorMap: Record<string, { badge: string; border: string; icon: string }> = {
   blue:  { badge: 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300', border: 'border-blue-100 dark:border-blue-900', icon: 'text-blue-500' },
@@ -133,7 +96,7 @@ export default function ContactPage() {
 
       {/* ── Clinic cards ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        {clinics.map((clinic) => {
+        {CLINIC_LOCATIONS.map((clinic) => {
           const c = colorMap[clinic.color]
           return (
             <div key={clinic.hospital} className={`rounded-2xl border ${c.border} bg-white dark:bg-neutral-900 p-6 flex flex-col gap-4`}>
@@ -141,7 +104,7 @@ export default function ContactPage() {
               {/* Hospital name */}
               <div>
                 <span className={`text-[10px] font-semibold tracking-widest uppercase px-2 py-0.5 rounded-full ${c.badge}`}>
-                  {clinic.dept}
+                  {clinic.department}
                 </span>
                 <h3 className="mt-2 text-lg font-bold text-neutral-950 dark:text-neutral-100 leading-tight">
                   {clinic.hospital}
@@ -163,7 +126,12 @@ export default function ContactPage() {
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`flex-shrink-0 ${c.icon}`}>
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.9 2 2 0 0 1 3.6 2.69h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.09a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.5 17.5z"/>
                   </svg>
-                  <span>{clinic.phone}</span>
+                  <a
+                    href={clinic.phoneHref}
+                    className="hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
+                  >
+                    {clinic.phone}
+                  </a>
                 </li>
                 <li className="flex items-start gap-2">
                   {/* Clock icon */}
@@ -182,11 +150,17 @@ export default function ContactPage() {
 
               {/* Action buttons */}
               <div className="mt-auto flex flex-col gap-2 pt-2">
+                <Link
+                  href={`/locations/${clinic.slug}`}
+                  className="w-full text-center text-sm font-semibold py-2.5 rounded-xl bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950 hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors"
+                >
+                  院區詳細資訊
+                </Link>
                 <a
                   href={clinic.bookingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full text-center text-sm font-semibold py-2.5 rounded-xl bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950 hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors"
+                  className="w-full text-center text-sm font-semibold py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-200 hover:border-neutral-950 dark:hover:border-neutral-100 transition-colors"
                 >
                   線上預約掛號
                 </a>
