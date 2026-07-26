@@ -2,9 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import ArticleCard from '@/components/ArticleCard'
 import { TEAM, getAuthorEntryBySlug } from '@/lib/authors'
-import { getPublicPosts } from '@/lib/posts'
 import { generateBreadcrumbSchema, generatePhysicianSchema } from '@/lib/schema'
 
 const BASE_URL = 'https://camsavant.com'
@@ -41,10 +39,7 @@ export default function DoctorProfilePage({ params }: Props) {
   const entry = getAuthorEntryBySlug(params.slug)
   if (!entry) notFound()
 
-  const { key: authorKey, author } = entry
-  const authoredPosts = getPublicPosts()
-    .filter((post) => post.frontmatter.author === authorKey)
-    .slice(0, 6)
+  const { author } = entry
 
   const profileSchema = {
     '@context': 'https://schema.org',
@@ -212,28 +207,6 @@ export default function DoctorProfilePage({ params }: Props) {
             </section>
           )}
 
-          {authoredPosts.length > 0 && (
-            <section className="mt-14">
-              <div className="flex items-end justify-between gap-4 mb-7">
-                <div>
-                  <p className="text-xs font-semibold tracking-widest uppercase text-neutral-400 dark:text-neutral-500">
-                    Articles
-                  </p>
-                  <h2 className="mt-2 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-                    撰寫文章
-                  </h2>
-                </div>
-                <Link href="/posts" className="text-sm text-neutral-500 hover:text-neutral-950 dark:hover:text-neutral-100">
-                  所有文章 →
-                </Link>
-              </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-7 gap-y-10">
-                {authoredPosts.map((post) => (
-                  <ArticleCard key={post.slug} post={post} />
-                ))}
-              </div>
-            </section>
-          )}
         </div>
       </div>
     </>
