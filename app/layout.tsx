@@ -222,7 +222,7 @@ const jsonLd = {
           '@id': 'https://camsavant.com/doctors/huang-yachi#physician',
           name: '黃雅琦',
           alternateName: 'Ya-Chi Huang, MD',
-          jobTitle: '復健科醫師',
+          jobTitle: '復健科住院醫師',
           medicalSpecialty: ['PhysicalMedicineAndRehabilitation'],
           knowsAbout: ['復健醫學'],
           url: 'https://camsavant.com/doctors/huang-yachi',

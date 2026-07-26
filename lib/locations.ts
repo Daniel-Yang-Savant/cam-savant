@@ -57,7 +57,7 @@ export const CLINIC_LOCATIONS: ClinicLocation[] = [
       '自行開車可由國道一號彰化交流道或台74線快官交流道進入彰化市區。',
       '停車場、接駁車及臨時交通異動，以彰基官方公告為準。',
     ],
-    doctorSlugs: ['yu-kai-yang', 'wen-wei-lai', 'huang-yachi'],
+    doctorSlugs: ['yu-kai-yang', 'wen-wei-lai'],
     services: [
       '復健醫學評估',
       '運動傷害診斷與復健',

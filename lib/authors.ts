@@ -95,7 +95,7 @@ export const AUTHORS: Record<string, Author> = {
     name: '黃雅琦',
     nameEn: 'Yachi Huang, MD',
     photo: '/images/team/huang-yachi.jpg',
-    title: '復健科醫師',
+    title: '復健科住院醫師',
     location: '彰化基督教醫院',
     affiliation: '彰化基督教醫院',
     specialties: [],
