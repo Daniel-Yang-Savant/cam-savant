@@ -11,11 +11,14 @@ const ADMIN_SECRET = process.env.ADMIN_SECRET
 
 export async function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
+  const adminCookie = request.cookies.get('admin_token')
+  const hasAdminAccess = Boolean(
+    ADMIN_SECRET && adminCookie?.value === ADMIN_SECRET
+  )
 
   // ── Admin routes: /admin/** and /api/admin/** ──
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
-    const adminCookie = request.cookies.get('admin_token')
-    if (ADMIN_SECRET && adminCookie?.value === ADMIN_SECRET) {
+    if (hasAdminAccess) {
       return NextResponse.next()
     }
     // Return 404 for page routes, 401 for API routes
@@ -30,6 +33,11 @@ export async function middleware(request: NextRequest) {
     pathname === '/perioperative-rehab/locked' ||
     pathname.startsWith('/perioperative-rehab/access')
   ) {
+    return NextResponse.next()
+  }
+
+  // 管理員登入後可直接查看術後專區，不需要另外掃描病患 QR。
+  if (hasAdminAccess) {
     return NextResponse.next()
   }
 

@@ -51,6 +51,14 @@ export default function LockedPage() {
         >
           返回首頁
         </Link>
+        <div className="mt-5">
+          <Link
+            href="/admin-login"
+            className="text-xs text-neutral-400 underline-offset-4 hover:text-neutral-700 hover:underline"
+          >
+            管理員登入
+          </Link>
+        </div>
       </div>
     </main>
   )

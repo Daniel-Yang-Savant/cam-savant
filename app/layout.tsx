@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import FloatingChatButton from '@/components/FloatingChatButton'
 import BackToTop from '@/components/BackToTop'
+import AdminPeriopQrButton from '@/components/AdminPeriopQrButton'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -291,6 +292,7 @@ export default function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
         <FloatingChatButton />
+        <AdminPeriopQrButton />
         <BackToTop />
         <Analytics />
       </body>

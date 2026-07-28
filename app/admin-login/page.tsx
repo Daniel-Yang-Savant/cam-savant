@@ -20,7 +20,8 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ password }),
       })
       if (res.ok) {
-        router.push('/perioperative-rehab/pe-generator')
+        router.replace('/perioperative-rehab')
+        router.refresh()
       } else {
         setError('密碼錯誤')
       }
@@ -37,6 +38,9 @@ export default function AdminLoginPage() {
         <h1 className="text-gray-200 text-xl font-semibold mb-6 text-center">
           管理員登入
         </h1>
+        <p className="mb-5 text-center text-sm leading-relaxed text-gray-500">
+          登入後可直接查看術後復健專區，並使用左下角按鈕產生病患 QR Code。
+        </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="password"
