@@ -1,4 +1,9 @@
-import { getPublicPosts, getAllTags, getPostsByTag, getPostsByCategory } from '@/lib/posts'
+import {
+  getPublicPosts,
+  getIndexableTags,
+  getPostsByTag,
+  getPostsByCategory,
+} from '@/lib/posts'
 import { TEAM } from '@/lib/authors'
 import { CLINIC_LOCATIONS } from '@/lib/locations'
 import { MetadataRoute } from 'next'
@@ -19,7 +24,7 @@ function latestDate(posts: { frontmatter: { date: string; lastModified?: string 
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getPublicPosts()
-  const tags = getAllTags()
+  const tags = getIndexableTags()
   const homepagePosts = posts.filter((post) =>
     ['rehabilitation-medicine', 'sports-medicine'].includes(post.frontmatter.category)
   )

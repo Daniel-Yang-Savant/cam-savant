@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { getPublicPosts, getAllTags } from '@/lib/posts'
+import { getPublicPosts, getIndexableTags } from '@/lib/posts'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import PostsClient from '@/components/PostsClient'
 
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function PostsPage() {
   const allPosts = getPublicPosts()
-  const allTags = getAllTags()
+  const allTags = getIndexableTags()
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">

@@ -1,12 +1,17 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 // next-mdx-remote v6: MDXRemote 仍從 /rsc 匯入，API 向下相容
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
-import { getAllSlugs, getPostBySlug, CATEGORY_LABELS } from '@/lib/posts'
+import {
+  CATEGORY_LABELS,
+  PROTECTED_CATEGORIES,
+  getPostBySlug,
+  getPublicSlugs,
+} from '@/lib/posts'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import BookmarkButton from '@/components/BookmarkButton'
 import ConsultForm from '@/components/ConsultForm'
@@ -17,6 +22,7 @@ import { extractFAQsFromMDX } from '@/lib/extract-faqs'
 import RelatedArticles from '@/components/RelatedArticles'
 import AuthorCard from '@/components/AuthorCard'
 import { getReadingTime } from '@/lib/reading-time'
+import { getTagHref } from '@/lib/tags'
 
 interface Props {
   params: { slug: string }
@@ -25,7 +31,7 @@ interface Props {
 // ── Static params ──────────────────────────────────────────────────────────
 
 export function generateStaticParams() {
-  return getAllSlugs()
+  return getPublicSlugs()
 }
 
 // ── Custom heading components (add id for ToC anchors) ─────────────────────
@@ -53,6 +59,17 @@ const mdxComponents = {
 export function generateMetadata({ params }: Props): Metadata {
   const post = getPostBySlug(params.slug)
   if (!post) return {}
+  if (PROTECTED_CATEGORIES.includes(post.frontmatter.category)) {
+    return {
+      alternates: {
+        canonical: `/perioperative-rehab/${params.slug}`,
+      },
+      robots: {
+        index: false,
+        follow: false,
+      },
+    }
+  }
 
   const ogImage =
     post.frontmatter.coverImage ||
@@ -88,6 +105,9 @@ export function generateMetadata({ params }: Props): Metadata {
 export default async function PostPage({ params }: Props) {
   const post = getPostBySlug(params.slug)
   if (!post) notFound()
+  if (PROTECTED_CATEGORIES.includes(post.frontmatter.category)) {
+    permanentRedirect(`/perioperative-rehab/${params.slug}`)
+  }
 
   const { frontmatter, content } = post!
   const categoryLabel = CATEGORY_LABELS[frontmatter.category] ?? frontmatter.category
@@ -246,7 +266,7 @@ export default async function PostPage({ params }: Props) {
                 {frontmatter.tags.map((tag) => (
                   <Link
                     key={tag}
-                    href={`/tags/${encodeURIComponent(tag)}`}
+                    href={getTagHref(tag)}
                     className="text-[11px] px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
                   >
                     #{tag}

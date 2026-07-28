@@ -55,6 +55,13 @@ export function generateMetadata({ params }: Props): Metadata {
   return {
     title: post.frontmatter.title,
     description: post.frontmatter.excerpt,
+    alternates: {
+      canonical: `/perioperative-rehab/${params.slug}`,
+    },
+    robots: {
+      index: false,
+      follow: false,
+    },
     openGraph: {
       title: post.frontmatter.title,
       description: post.frontmatter.excerpt,

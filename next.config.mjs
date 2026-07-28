@@ -1,9 +1,39 @@
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const projectDirectory = path.dirname(fileURLToPath(import.meta.url))
+const postsDirectory = path.join(projectDirectory, 'content', 'posts')
+
+function getProtectedPostRedirects() {
+  if (!fs.existsSync(postsDirectory)) return []
+
+  return fs
+    .readdirSync(postsDirectory)
+    .filter((fileName) => /\.mdx?$/.test(fileName))
+    .filter((fileName) => {
+      const source = fs.readFileSync(path.join(postsDirectory, fileName), 'utf8')
+      return /^category:\s*["']?perioperative-rehab["']?\s*$/m.test(source)
+    })
+    .map((fileName) => {
+      const slug = fileName.replace(/\.mdx?$/, '')
+      return {
+        source: `/posts/${slug}`,
+        destination: `/perioperative-rehab/${slug}`,
+        permanent: true,
+      }
+    })
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   compress: true,
   poweredByHeader: false,
   experimental: {
     optimizeCss: true, // Critters: inline critical CSS, defer rest → 修復 render-blocking
+  },
+  async redirects() {
+    return getProtectedPostRedirects()
   },
   async headers() {
     // Build CSP as an array then join for readability

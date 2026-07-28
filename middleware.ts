@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
+import {
+  PERIOP_COOKIE_MAX_AGE_SECONDS,
+  PERIOP_COOKIE_NAME,
+  createPeriopAccessCookie,
+  verifyPeriopAccessCookie,
+} from '@/lib/periop-auth'
 
 const TOKEN = process.env.PERIOP_ACCESS_TOKEN
 const ADMIN_SECRET = process.env.ADMIN_SECRET
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
 
   // ── Admin routes: /admin/** and /api/admin/** ──
@@ -27,9 +33,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Cookie already set → allow
-  const cookie = request.cookies.get('periop_access')
-  if (cookie?.value === '1') {
+  // Valid signed cookie already set → allow
+  const cookie = request.cookies.get(PERIOP_COOKIE_NAME)
+  if (await verifyPeriopAccessCookie(cookie?.value, TOKEN)) {
     return NextResponse.next()
   }
 
@@ -40,13 +46,17 @@ export function middleware(request: NextRequest) {
     dest.pathname = '/perioperative-rehab'
     dest.search = ''
     const response = NextResponse.redirect(dest)
-    response.cookies.set('periop_access', '1', {
-      maxAge: 60 * 60 * 24 * 30,
-      httpOnly: true,
-      sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-    })
+    response.cookies.set(
+      PERIOP_COOKIE_NAME,
+      await createPeriopAccessCookie(TOKEN),
+      {
+        maxAge: PERIOP_COOKIE_MAX_AGE_SECONDS,
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+      }
+    )
     return response
   }
 
@@ -54,7 +64,9 @@ export function middleware(request: NextRequest) {
   const locked = request.nextUrl.clone()
   locked.pathname = '/perioperative-rehab/locked'
   locked.search = ''
-  return NextResponse.redirect(locked)
+  const response = NextResponse.redirect(locked)
+  response.cookies.delete(PERIOP_COOKIE_NAME)
+  return response
 }
 
 export const config = {

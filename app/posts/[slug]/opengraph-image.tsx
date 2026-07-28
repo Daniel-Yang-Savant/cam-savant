@@ -1,5 +1,10 @@
 import { ImageResponse } from 'next/og'
-import { getPostBySlug, getAllSlugs, CATEGORY_LABELS } from '@/lib/posts'
+import {
+  CATEGORY_LABELS,
+  PROTECTED_CATEGORIES,
+  getPostBySlug,
+  getPublicSlugs,
+} from '@/lib/posts'
 
 export const runtime = 'nodejs'
 export const alt = 'CAM Savant'
@@ -7,7 +12,7 @@ export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
 export function generateStaticParams() {
-  return getAllSlugs()
+  return getPublicSlugs()
 }
 
 // Category → accent colour
@@ -41,8 +46,12 @@ async function loadFont(text: string): Promise<ArrayBuffer | null> {
 
 export default async function Image({ params }: { params: { slug: string } }) {
   const post = getPostBySlug(params.slug)
-  const title = post?.frontmatter.title ?? 'CAM Savant'
-  const category = post?.frontmatter.category ?? ''
+  const publicPost =
+    post && !PROTECTED_CATEGORIES.includes(post.frontmatter.category)
+      ? post
+      : null
+  const title = publicPost?.frontmatter.title ?? 'CAM Savant'
+  const category = publicPost?.frontmatter.category ?? ''
   const categoryLabel = CATEGORY_LABELS[category] ?? ''
   const accent = ACCENT[category] ?? '#0f766e'
 

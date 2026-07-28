@@ -1,7 +1,18 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import Link from 'next/link'
-import { getAllTags, getPostsByTag, CATEGORY_LABELS } from '@/lib/posts'
+import {
+  getIndexableTags,
+  getPostsByTag,
+  CATEGORY_LABELS,
+} from '@/lib/posts'
+import {
+  TAG_INDEX_MIN_POSTS,
+  canonicalizeTag,
+  getTagDescription,
+  getTagHref,
+  getTagLandingPage,
+} from '@/lib/tags'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import CoverImage from '@/components/CoverImage'
@@ -13,7 +24,7 @@ interface Props {
 export function generateStaticParams() {
   // 回傳原始值即可，Next.js 會自動做 URL 編碼；
   // 若先 encodeURIComponent 會被雙重編碼，導致頁面 404 + noindex（GSC "Excluded by noindex"）
-  return getAllTags().map(({ tag }) => ({ tag }))
+  return getIndexableTags().map(({ tag }) => ({ tag }))
 }
 
 /**
@@ -35,17 +46,43 @@ function resolveTag(raw: string): string {
 }
 
 export function generateMetadata({ params }: Props): Metadata {
-  const tag = resolveTag(params.tag)
+  const rawTag = resolveTag(params.tag)
+  const tag = canonicalizeTag(rawTag)
+  const posts = getPostsByTag(tag)
+  const landingPage = getTagLandingPage(tag)
+  const isIndexable =
+    rawTag === tag &&
+    !landingPage &&
+    posts.length >= TAG_INDEX_MIN_POSTS
+  const description =
+    getTagDescription(tag) ??
+    `瀏覽 CAM Savant 所有與「${tag}」相關的醫療文章與實證整理。`
+
   return {
     title: `#${tag}`,
-    description: `所有標記「${tag}」的文章 — CAM Savant 醫療知識庫`,
-    alternates: { canonical: `/tags/${encodeURIComponent(tag)}` },
+    description,
+    alternates: {
+      canonical: landingPage ?? `/tags/${encodeURIComponent(tag)}`,
+    },
+    robots: {
+      index: isIndexable,
+      follow: true,
+    },
   }
 }
 
 export default function TagPage({ params }: Props) {
-  const tag = resolveTag(params.tag)
+  const rawTag = resolveTag(params.tag)
+  const tag = canonicalizeTag(rawTag)
+  const landingPage = getTagLandingPage(tag)
+
+  if (landingPage) permanentRedirect(landingPage)
+  if (rawTag !== tag) permanentRedirect(getTagHref(tag))
+
   const posts = getPostsByTag(tag)
+  const description =
+    getTagDescription(tag) ??
+    `瀏覽 CAM Savant 所有與「${tag}」相關的醫療文章與實證整理。`
 
   if (posts.length === 0) notFound()
 
@@ -69,7 +106,7 @@ export default function TagPage({ params }: Props) {
           </span>
         </div>
         <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-          所有標記「{tag}」的文章
+          {description}
         </p>
       </div>
 

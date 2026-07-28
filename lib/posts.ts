@@ -3,6 +3,12 @@ import path from 'path'
 import matter from 'gray-matter'
 import { z } from 'zod'
 import { CATEGORY_KEYS, CATEGORY_LABELS, CATEGORY_DESCRIPTIONS } from '@/lib/category'
+import {
+  TAG_INDEX_MIN_POSTS,
+  canonicalizeTag,
+  getTagLandingPage,
+  normalizeTags,
+} from '@/lib/tags'
 
 // Re-export so existing server-side imports keep working
 export { CATEGORY_KEYS, CATEGORY_LABELS, CATEGORY_DESCRIPTIONS }
@@ -66,7 +72,10 @@ function readPost(fileName: string): Post {
 
   return {
     slug,
-    frontmatter: result.data,
+    frontmatter: {
+      ...result.data,
+      tags: result.data.tags ? normalizeTags(result.data.tags) : undefined,
+    },
     content,
   }
 }
@@ -117,14 +126,15 @@ export function getPostsByCategory(category: string): Post[] {
 }
 
 export function getPostsByTag(tag: string): Post[] {
-  return getAllPosts().filter(
-    (post) => post.frontmatter.tags?.includes(tag)
+  const canonicalTag = canonicalizeTag(tag)
+  return getPublicPosts().filter(
+    (post) => post.frontmatter.tags?.includes(canonicalTag)
   )
 }
 
 export function getAllTags(): { tag: string; count: number }[] {
   const counts: Record<string, number> = {}
-  for (const post of getAllPosts()) {
+  for (const post of getPublicPosts()) {
     for (const tag of post.frontmatter.tags ?? []) {
       counts[tag] = (counts[tag] ?? 0) + 1
     }
@@ -134,6 +144,13 @@ export function getAllTags(): { tag: string; count: number }[] {
     .sort((a, b) => b.count - a.count)
 }
 
-export function getAllSlugs(): { slug: string }[] {
-  return getAllPosts().map((post) => ({ slug: post.slug }))
+export function getIndexableTags(): { tag: string; count: number }[] {
+  return getAllTags().filter(
+    ({ tag, count }) =>
+      count >= TAG_INDEX_MIN_POSTS && !getTagLandingPage(tag)
+  )
+}
+
+export function getPublicSlugs(): { slug: string }[] {
+  return getPublicPosts().map((post) => ({ slug: post.slug }))
 }

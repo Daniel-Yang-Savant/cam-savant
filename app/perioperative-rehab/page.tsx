@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: '術前・術後復健',
   description: DESCRIPTION,
   alternates: { canonical: '/perioperative-rehab' },
+  robots: { index: false, follow: false },
 }
 
 // ── Condition data ──────────────────────────────────────────────────────────
