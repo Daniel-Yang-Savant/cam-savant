@@ -22,6 +22,12 @@ export default function AdminLoginPage() {
       if (res.ok) {
         router.replace('/perioperative-rehab')
         router.refresh()
+      } else if (res.status === 429) {
+        const retryAfter = Number(res.headers.get('Retry-After') ?? 0)
+        const minutes = Math.max(1, Math.ceil(retryAfter / 60))
+        setError(`嘗試次數過多，請約 ${minutes} 分鐘後再試`)
+      } else if (res.status === 503) {
+        setError('正式環境尚未設定管理員密碼')
       } else {
         setError('密碼錯誤')
       }
@@ -38,9 +44,6 @@ export default function AdminLoginPage() {
         <h1 className="text-gray-200 text-xl font-semibold mb-6 text-center">
           管理員登入
         </h1>
-        <p className="mb-5 text-center text-sm leading-relaxed text-gray-500">
-          登入後可直接查看術後復健專區，並使用左下角按鈕產生病患 QR Code。
-        </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="password"

@@ -41,8 +41,14 @@ export async function POST(request: NextRequest) {
   const { password } = body
   const secret = process.env.ADMIN_SECRET
 
+  if (!secret) {
+    return NextResponse.json(
+      { error: 'Admin access is not configured' },
+      { status: 503 }
+    )
+  }
+
   if (
-    !secret ||
     typeof password !== 'string' ||
     password.length > 200 ||
     password !== secret
