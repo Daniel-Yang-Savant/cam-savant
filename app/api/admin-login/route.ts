@@ -4,6 +4,7 @@ import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
 // 5 attempts per 15-minute window per IP
 const LIMIT = 5
 const WINDOW_MS = 15 * 60 * 1000
+const ADMIN_SESSION_MAX_AGE_SECONDS = 6 * 60 * 60
 
 // Fixed 300 ms delay on every login attempt (slows brute-force regardless of outcome)
 const DELAY_MS = 300
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
 
   const response = NextResponse.json({ ok: true })
   response.cookies.set('admin_token', secret, {
-    maxAge: 60 * 60 * 24 * 30, // 30 days
+    maxAge: ADMIN_SESSION_MAX_AGE_SECONDS,
     httpOnly: true,
     sameSite: 'strict',
     secure: process.env.NODE_ENV === 'production',
