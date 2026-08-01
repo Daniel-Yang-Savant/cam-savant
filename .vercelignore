@@ -1,0 +1,36 @@
+# Dependencies and generated output
+/node_modules
+/.next
+/out
+/build
+*.tsbuildinfo
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+*.pem
+cloudflare-hermiterudite@gmail.com-*.txt
+
+# Local tooling and unrelated projects
+/.git
+/.vercel
+/.agents
+/.codex
+/NKT-Local-Toolkit
+/clinical-tools-site
+/drafts
+/fsm-drafts
+/tests
+/ＡＰＩ
+/AGENTS.md
+/CLAUDE.md
+/會員專區設計框架.md
+
+# Editor, OS, and logs
+.DS_Store
+.idea
+.vscode
+*.swp
+*.swo
+*.log

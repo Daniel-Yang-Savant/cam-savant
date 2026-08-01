@@ -18,7 +18,7 @@ import { zhTW } from 'date-fns/locale'
 import CoverImage from '@/components/CoverImage'
 
 interface Props {
-  params: { tag: string }
+  params: Promise<{ tag: string }>
 }
 
 export function generateStaticParams() {
@@ -45,8 +45,9 @@ function resolveTag(raw: string): string {
   return s
 }
 
-export function generateMetadata({ params }: Props): Metadata {
-  const rawTag = resolveTag(params.tag)
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { tag: tagParam } = await params
+  const rawTag = resolveTag(tagParam)
   const tag = canonicalizeTag(rawTag)
   const posts = getPostsByTag(tag)
   const landingPage = getTagLandingPage(tag)
@@ -71,8 +72,9 @@ export function generateMetadata({ params }: Props): Metadata {
   }
 }
 
-export default function TagPage({ params }: Props) {
-  const rawTag = resolveTag(params.tag)
+export default async function TagPage({ params }: Props) {
+  const { tag: tagParam } = await params
+  const rawTag = resolveTag(tagParam)
   const tag = canonicalizeTag(rawTag)
   const landingPage = getTagLandingPage(tag)
 

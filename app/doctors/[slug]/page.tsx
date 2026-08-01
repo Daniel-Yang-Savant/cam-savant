@@ -8,15 +8,16 @@ import { generateBreadcrumbSchema, generatePhysicianSchema } from '@/lib/schema'
 const BASE_URL = 'https://camsavant.com'
 
 type Props = {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export function generateStaticParams() {
   return TEAM.map((author) => ({ slug: author.slug }))
 }
 
-export function generateMetadata({ params }: Props): Metadata {
-  const entry = getAuthorEntryBySlug(params.slug)
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const entry = getAuthorEntryBySlug(slug)
   if (!entry) return {}
 
   const { author } = entry
@@ -35,8 +36,9 @@ export function generateMetadata({ params }: Props): Metadata {
   }
 }
 
-export default function DoctorProfilePage({ params }: Props) {
-  const entry = getAuthorEntryBySlug(params.slug)
+export default async function DoctorProfilePage({ params }: Props) {
+  const { slug } = await params
+  const entry = getAuthorEntryBySlug(slug)
   if (!entry) notFound()
 
   const { author } = entry

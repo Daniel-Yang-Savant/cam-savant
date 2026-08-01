@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { getAllPosts } from '../lib/posts'
+import { getAllPosts, PROTECTED_CATEGORIES } from '../lib/posts'
 
 try {
   const posts = getAllPosts()
@@ -8,6 +8,10 @@ try {
 
   const missing: string[] = []
   for (const post of posts) {
+    // Protected postoperative articles use the section-level social image and
+    // intentionally do not require an individual cover file.
+    if (PROTECTED_CATEGORIES.includes(post.frontmatter.category)) continue
+
     if (post.frontmatter.coverImage) {
       const imgPath = path.join(
         process.cwd(),

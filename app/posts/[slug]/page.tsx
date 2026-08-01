@@ -25,7 +25,7 @@ import { getReadingTime } from '@/lib/reading-time'
 import { getTagHref } from '@/lib/tags'
 
 interface Props {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 // ── Static params ──────────────────────────────────────────────────────────
@@ -56,13 +56,14 @@ const mdxComponents = {
 
 // ── Metadata ───────────────────────────────────────────────────────────────
 
-export function generateMetadata({ params }: Props): Metadata {
-  const post = getPostBySlug(params.slug)
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const post = getPostBySlug(slug)
   if (!post) return {}
   if (PROTECTED_CATEGORIES.includes(post.frontmatter.category)) {
     return {
       alternates: {
-        canonical: `/perioperative-rehab/${params.slug}`,
+        canonical: `/perioperative-rehab/${slug}`,
       },
       robots: {
         index: false,
@@ -79,7 +80,7 @@ export function generateMetadata({ params }: Props): Metadata {
     title: post.frontmatter.title,
     description: post.frontmatter.excerpt,
     alternates: {
-      canonical: `/posts/${params.slug}`,
+      canonical: `/posts/${slug}`,
     },
     openGraph: {
       title: post.frontmatter.title,
@@ -103,10 +104,11 @@ export function generateMetadata({ params }: Props): Metadata {
 // ── Page ───────────────────────────────────────────────────────────────────
 
 export default async function PostPage({ params }: Props) {
-  const post = getPostBySlug(params.slug)
+  const { slug } = await params
+  const post = getPostBySlug(slug)
   if (!post) notFound()
   if (PROTECTED_CATEGORIES.includes(post.frontmatter.category)) {
-    permanentRedirect(`/perioperative-rehab/${params.slug}`)
+    permanentRedirect(`/perioperative-rehab/${slug}`)
   }
 
   const { frontmatter, content } = post!

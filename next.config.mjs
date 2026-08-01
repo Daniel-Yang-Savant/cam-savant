@@ -36,12 +36,15 @@ const nextConfig = {
     return getProtectedPostRedirects()
   },
   async headers() {
+    const isProduction = process.env.NODE_ENV === 'production'
+
     // Build CSP as an array then join for readability
     const csp = [
       "default-src 'self'",
       // Next.js inline scripts (dark-mode, SW registration, GA config) require 'unsafe-inline'
+      // React Refresh requires unsafe-eval in local development only.
       // accounts.google.com required for Google Sign-In (GSI) used in FSM Studio
-      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://accounts.google.com",
+      `script-src 'self' 'unsafe-inline'${isProduction ? '' : " 'unsafe-eval'"} https://www.googletagmanager.com https://www.google-analytics.com https://accounts.google.com`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://lh3.googleusercontent.com",
@@ -53,10 +56,20 @@ const nextConfig = {
       "form-action 'self'",
       // Redundant with X-Frame-Options but CSP-native
       "frame-ancestors 'none'",
-      "upgrade-insecure-requests",
+      // Keep local HTTP development usable; production is HTTPS-only.
+      ...(isProduction ? ["upgrade-insecure-requests"] : []),
     ].join('; ')
 
     return [
+      {
+        // The service worker controls offline privacy rules, so clients must
+        // always revalidate this file instead of keeping a stale version.
+        source: '/sw.js',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+          { key: 'Service-Worker-Allowed', value: '/' },
+        ],
+      },
       {
         source: '/(.*)',
         headers: [
@@ -78,6 +91,19 @@ const nextConfig = {
         source: '/ak-google-auth',
         headers: [
           { key: 'Cross-Origin-Opener-Policy', value: 'unsafe-none' },
+          { key: 'Cache-Control', value: 'private, no-store, max-age=0, must-revalidate' },
+        ],
+      },
+      {
+        source: '/admin-login',
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-store, max-age=0, must-revalidate' },
+        ],
+      },
+      {
+        source: '/fsm/studio/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-store, max-age=0, must-revalidate' },
         ],
       },
       // 靜態資源長快取

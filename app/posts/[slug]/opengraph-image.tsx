@@ -44,8 +44,13 @@ async function loadFont(text: string): Promise<ArrayBuffer | null> {
   }
 }
 
-export default async function Image({ params }: { params: { slug: string } }) {
-  const post = getPostBySlug(params.slug)
+export default async function Image({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params
+  const post = getPostBySlug(slug)
   const publicPost =
     post && !PROTECTED_CATEGORIES.includes(post.frontmatter.category)
       ? post

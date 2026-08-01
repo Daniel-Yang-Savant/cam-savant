@@ -1,14 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
@@ -20,8 +17,10 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ password }),
       })
       if (res.ok) {
-        router.replace('/perioperative-rehab')
-        router.refresh()
+        // Use a document navigation so RootLayout mounts again after the
+        // HttpOnly admin cookie is stored. A client-side transition preserves
+        // the QR button's pre-login (unauthenticated) state.
+        window.location.replace('/perioperative-rehab')
       } else if (res.status === 429) {
         const retryAfter = Number(res.headers.get('Retry-After') ?? 0)
         const minutes = Math.max(1, Math.ceil(retryAfter / 60))

@@ -14,10 +14,15 @@ const ALLOWED_MEMBER_ORIGINS = new Set([
   'https://art-clinical-reference.hermiterudite.chatgpt.site',
 ])
 
-export default function AkGoogleAuthPage({ searchParams }: { searchParams: { state?: string; origin?: string } }) {
-  const state = searchParams.state ?? ''
-  const targetOrigin = searchParams.origin && ALLOWED_MEMBER_ORIGINS.has(searchParams.origin)
-    ? searchParams.origin
+export default async function AkGoogleAuthPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ state?: string; origin?: string }>
+}) {
+  const { state: stateParam, origin } = await searchParams
+  const state = stateParam ?? ''
+  const targetOrigin = origin && ALLOWED_MEMBER_ORIGINS.has(origin)
+    ? origin
     : DEFAULT_MEMBER_ORIGIN
   const clientId = process.env.GOOGLE_CLIENT_ID || FALLBACK_GOOGLE_CLIENT_ID
 

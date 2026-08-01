@@ -2,6 +2,9 @@ import { getPublicPosts, CATEGORY_LABELS } from '@/lib/posts'
 
 const BASE_URL = 'https://camsavant.com'
 
+// Generated entirely from local MDX content; refresh on deployment.
+export const dynamic = 'force-static'
+
 export function GET() {
   const posts = getPublicPosts()
 

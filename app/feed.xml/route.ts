@@ -2,6 +2,10 @@ import { getPublicPosts, CATEGORY_LABELS } from '@/lib/posts'
 
 const BASE_URL = 'https://camsavant.com'
 
+// Next.js 15 no longer caches GET route handlers by default. This feed only
+// changes when MDX content is deployed, so preserve the previous static output.
+export const dynamic = 'force-static'
+
 export function GET() {
   const posts = getPublicPosts()
 

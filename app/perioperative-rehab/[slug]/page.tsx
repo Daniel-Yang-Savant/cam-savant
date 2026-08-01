@@ -12,7 +12,7 @@ import TableOfContents from '@/components/TableOfContents'
 import PrintButton from '@/components/PrintButton'
 
 interface Props {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 // ── Static params ───────────────────────────────────────────────────────────
@@ -45,8 +45,9 @@ const mdxComponents = {
 
 // ── Metadata ────────────────────────────────────────────────────────────────
 
-export function generateMetadata({ params }: Props): Metadata {
-  const post = getPostBySlug(params.slug)
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const post = getPostBySlug(slug)
   if (!post || post.frontmatter.category !== 'perioperative-rehab') return {}
 
   const ogImage =
@@ -56,7 +57,7 @@ export function generateMetadata({ params }: Props): Metadata {
     title: post.frontmatter.title,
     description: post.frontmatter.excerpt,
     alternates: {
-      canonical: `/perioperative-rehab/${params.slug}`,
+      canonical: `/perioperative-rehab/${slug}`,
     },
     robots: {
       index: false,
@@ -84,7 +85,8 @@ export function generateMetadata({ params }: Props): Metadata {
 // ── Page ────────────────────────────────────────────────────────────────────
 
 export default async function PerioperativeRehabArticlePage({ params }: Props) {
-  const post = getPostBySlug(params.slug)
+  const { slug } = await params
+  const post = getPostBySlug(slug)
 
   // Only render MDX articles that belong to this category
   if (!post || post.frontmatter.category !== 'perioperative-rehab') {

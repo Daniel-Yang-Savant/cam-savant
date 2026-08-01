@@ -15,14 +15,15 @@ export const metadata: Metadata = {
 }
 
 interface Props {
-  searchParams: { page?: string }
+  searchParams: Promise<{ page?: string }>
 }
 
-export default function FSMPage({ searchParams }: Props) {
+export default async function FSMPage({ searchParams }: Props) {
+  const { page } = await searchParams
   const allPosts = getPostsByCategory('fsm')
   const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE)
   const currentPage = Math.min(
-    Math.max(1, parseInt(searchParams.page ?? '1') || 1),
+    Math.max(1, parseInt(page ?? '1') || 1),
     Math.max(totalPages, 1)
   )
   const posts = allPosts.slice(

@@ -1,5 +1,6 @@
-// CAM Savant Service Worker — offline-first for key pages
-const CACHE_VERSION = 'cam-savant-v1'
+// CAM Savant Service Worker — offline-first for public pages only
+const CACHE_PREFIX = 'cam-savant-'
+const CACHE_VERSION = 'cam-savant-v2'
 const STATIC_URLS = [
   '/',
   '/posts',
@@ -12,6 +13,66 @@ const STATIC_URLS = [
   '/bookmarks',
   '/offline',
 ]
+
+// Never intercept or cache authenticated, protected, login, or patient routes.
+// Some prefixes are defensive for current/future routes hosted on this origin.
+const PRIVATE_PATH_PREFIXES = [
+  '/api',
+  '/admin',
+  '/admin-login',
+  '/perioperative-rehab',
+  '/ak-google-auth',
+  '/fsm/studio',
+  '/login',
+  '/workspace',
+  '/apply',
+  '/patient',
+]
+
+function isPrivatePath(pathname) {
+  return PRIVATE_PATH_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  )
+}
+
+function hasPrivateReferrer(request) {
+  if (!request.referrer) return false
+
+  try {
+    const referrerUrl = new URL(request.referrer)
+    return (
+      referrerUrl.origin === self.location.origin &&
+      isPrivatePath(referrerUrl.pathname)
+    )
+  } catch {
+    return false
+  }
+}
+
+function isPublicCacheableResponse(response) {
+  if (!response.ok) return false
+
+  const cacheControl = response.headers.get('cache-control')?.toLowerCase() ?? ''
+  if (cacheControl.includes('private') || cacheControl.includes('no-store')) {
+    return false
+  }
+
+  // A public-looking URL can redirect to a protected page. Inspect the final
+  // response URL so an authenticated redirect is never stored under an alias.
+  try {
+    const responseUrl = new URL(response.url)
+    if (
+      responseUrl.origin === self.location.origin &&
+      isPrivatePath(responseUrl.pathname)
+    ) {
+      return false
+    }
+  } catch {
+    return false
+  }
+
+  return true
+}
 
 // ── Install: pre-cache shell pages ────────────────────────────────────────
 self.addEventListener('install', (event) => {
@@ -28,13 +89,23 @@ self.addEventListener('install', (event) => {
 // ── Activate: purge old caches ────────────────────────────────────────────
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
+    caches.keys().then(async (keys) => {
+      await Promise.all(
         keys
-          .filter((k) => k !== CACHE_VERSION)
-          .map((k) => caches.delete(k))
+          .filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_VERSION)
+          .map((key) => caches.delete(key))
       )
-    )
+
+      // Defense in depth: remove private entries if a future route changes
+      // classification without also changing the cache version.
+      const cache = await caches.open(CACHE_VERSION)
+      const requests = await cache.keys()
+      await Promise.all(
+        requests
+          .filter((request) => isPrivatePath(new URL(request.url).pathname))
+          .map((request) => cache.delete(request))
+      )
+    })
   )
   self.clients.claim()
 })
@@ -44,13 +115,14 @@ self.addEventListener('fetch', (event) => {
   const { request } = event
   const url = new URL(request.url)
 
-  // Only handle same-origin requests
-  if (url.origin !== self.location.origin) return
-
-  // Skip API routes and admin pages (always network)
+  // Let the browser use the network directly for cross-origin, non-GET, and
+  // all private requests. Private pages intentionally have no offline fallback.
   if (
-    url.pathname.startsWith('/api/') ||
-    url.pathname.startsWith('/admin')
+    url.origin !== self.location.origin ||
+    request.method !== 'GET' ||
+    isPrivatePath(url.pathname) ||
+    hasPrivateReferrer(request) ||
+    request.headers.has('authorization')
   ) return
 
   // ── Static assets (_next/static): Cache-first, long TTL ──
@@ -60,7 +132,7 @@ self.addEventListener('fetch', (event) => {
         (cached) =>
           cached ??
           fetch(request).then((res) => {
-            if (res.ok) {
+            if (isPublicCacheableResponse(res)) {
               caches.open(CACHE_VERSION).then((c) => c.put(request, res.clone()))
             }
             return res
@@ -80,7 +152,7 @@ self.addEventListener('fetch', (event) => {
         (cached) =>
           cached ??
           fetch(request).then((res) => {
-            if (res.ok) {
+            if (isPublicCacheableResponse(res)) {
               caches.open(CACHE_VERSION).then((c) => c.put(request, res.clone()))
             }
             return res
@@ -95,7 +167,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((res) => {
-          if (res.ok) {
+          if (isPublicCacheableResponse(res)) {
             caches.open(CACHE_VERSION).then((c) => c.put(request, res.clone()))
           }
           return res

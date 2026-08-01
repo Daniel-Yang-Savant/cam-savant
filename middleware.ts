@@ -9,6 +9,16 @@ import {
 const TOKEN = process.env.PERIOP_ACCESS_TOKEN
 const ADMIN_SECRET = process.env.ADMIN_SECRET
 
+function withPrivateNoStore(response: NextResponse): NextResponse {
+  response.headers.set(
+    'Cache-Control',
+    'private, no-store, max-age=0, must-revalidate'
+  )
+  response.headers.set('Pragma', 'no-cache')
+  response.headers.set('Expires', '0')
+  return response
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
   const adminCookie = request.cookies.get('admin_token')
@@ -19,13 +29,15 @@ export async function middleware(request: NextRequest) {
   // ── Admin routes: /admin/** and /api/admin/** ──
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     if (hasAdminAccess) {
-      return NextResponse.next()
+      return withPrivateNoStore(NextResponse.next())
     }
     // Return 404 for page routes, 401 for API routes
     if (pathname.startsWith('/api/admin')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return withPrivateNoStore(
+        NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      )
     }
-    return new NextResponse(null, { status: 404 })
+    return withPrivateNoStore(new NextResponse(null, { status: 404 }))
   }
 
   // Allow the locked page and access route to pass through without auth check
@@ -33,18 +45,18 @@ export async function middleware(request: NextRequest) {
     pathname === '/perioperative-rehab/locked' ||
     pathname.startsWith('/perioperative-rehab/access')
   ) {
-    return NextResponse.next()
+    return withPrivateNoStore(NextResponse.next())
   }
 
   // 管理員登入後可直接查看術後專區，不需要另外掃描病患 QR。
   if (hasAdminAccess) {
-    return NextResponse.next()
+    return withPrivateNoStore(NextResponse.next())
   }
 
   // Valid signed cookie already set → allow
   const cookie = request.cookies.get(PERIOP_COOKIE_NAME)
   if (await verifyPeriopAccessCookie(cookie?.value, TOKEN)) {
-    return NextResponse.next()
+    return withPrivateNoStore(NextResponse.next())
   }
 
   // ?access=TOKEN in query → set cookie and redirect to clean URL
@@ -65,7 +77,7 @@ export async function middleware(request: NextRequest) {
         path: '/',
       }
     )
-    return response
+    return withPrivateNoStore(response)
   }
 
   // No valid access → redirect to locked page
@@ -74,7 +86,7 @@ export async function middleware(request: NextRequest) {
   locked.search = ''
   const response = NextResponse.redirect(locked)
   response.cookies.delete(PERIOP_COOKIE_NAME)
-  return response
+  return withPrivateNoStore(response)
 }
 
 export const config = {

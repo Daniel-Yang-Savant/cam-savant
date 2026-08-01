@@ -13,18 +13,26 @@ function findFile(slug: string): string | null {
 }
 
 // GET /api/admin/articles/[slug] — return raw file content
-export function GET(_req: NextRequest, { params }: { params: { slug: string } }) {
-  const filePath = findFile(params.slug)
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await params
+  const filePath = findFile(slug)
   if (!filePath) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
   const content = fs.readFileSync(filePath, 'utf8')
   const ext = path.extname(filePath)
-  return NextResponse.json({ slug: params.slug, content, ext })
+  return NextResponse.json({ slug, content, ext })
 }
 
 // PUT /api/admin/articles/[slug] — save raw file content
-export async function PUT(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await params
   let body: { content?: string; ext?: string }
   try {
     body = await req.json()
@@ -37,10 +45,10 @@ export async function PUT(req: NextRequest, { params }: { params: { slug: string
   }
 
   // Determine file extension: keep existing ext or default to .mdx
-  let filePath = findFile(params.slug)
+  let filePath = findFile(slug)
   if (!filePath) {
     const ext = body.ext ?? '.mdx'
-    filePath = path.join(postsDirectory, `${params.slug}${ext}`)
+    filePath = path.join(postsDirectory, `${slug}${ext}`)
   }
 
   // Safety check: resolved path must be inside postsDirectory
@@ -50,5 +58,5 @@ export async function PUT(req: NextRequest, { params }: { params: { slug: string
   }
 
   fs.writeFileSync(filePath, body.content, 'utf8')
-  return NextResponse.json({ ok: true, slug: params.slug })
+  return NextResponse.json({ ok: true, slug })
 }

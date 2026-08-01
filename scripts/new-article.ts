@@ -49,14 +49,18 @@ if (fs.existsSync(destPath)) {
   process.exit(1)
 }
 
+const coverImageLine =
+  category === 'perioperative-rehab'
+    ? ''
+    : `coverImage: "/images/covers/${slug}.jpg"\n`
+
 const mdxTemplate = `---
 title: "${title}"
 date: "${date}"
 excerpt: "${excerpt}"
 author: "${author}"
 category: "${category}"
-coverImage: "/images/covers/${slug}.jpg"
----
+${coverImageLine}---
 
 ##
 
@@ -64,6 +68,11 @@ coverImage: "/images/covers/${slug}.jpg"
 
 fs.writeFileSync(destPath, mdxTemplate, 'utf-8')
 console.log(`\n✅ 草稿已建立：drafts/${slug}.mdx`)
+
+if (category === 'perioperative-rehab') {
+  console.log('ℹ️  術後復健文章不需要個別封面圖片，已略過封面圖 Prompt。')
+  process.exit(0)
+}
 
 // ── 封面圖 Prompt 產生器 ─────────────────────────────────────────────────────
 

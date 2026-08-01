@@ -10,7 +10,7 @@ import { generateBreadcrumbSchema, generatePhysicianSchema } from '@/lib/schema'
 const BASE_URL = 'https://camsavant.com'
 
 type Props = {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 const accentMap = {
@@ -37,8 +37,9 @@ export function generateStaticParams() {
 
 export const dynamicParams = false
 
-export function generateMetadata({ params }: Props): Metadata {
-  const location = getClinicLocation(params.slug)
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const location = getClinicLocation(slug)
   if (!location) return {}
 
   const title = `${location.hospital}${location.department}｜地址・電話・交通`
@@ -56,8 +57,9 @@ export function generateMetadata({ params }: Props): Metadata {
   }
 }
 
-export default function LocationPage({ params }: Props) {
-  const location = getClinicLocation(params.slug)
+export default async function LocationPage({ params }: Props) {
+  const { slug } = await params
+  const location = getClinicLocation(slug)
   if (!location) notFound()
 
   const doctors = location.doctorSlugs.flatMap((slug) => {
