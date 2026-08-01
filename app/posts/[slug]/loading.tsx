@@ -1,3 +1,7 @@
+const BODY_WIDTHS = [84, 92, 76, 88, 95, 80, 90, 72, 86, 98, 78, 93]
+const SECONDARY_WIDTHS = [74, 88, 65, 94, 79, 100, 70, 85]
+const TOC_WIDTHS = [82, 68, 91, 75, 86]
+
 export default function ArticleLoading() {
   return (
     <>
@@ -24,19 +28,19 @@ export default function ArticleLoading() {
 
           {/* Content body */}
           <div className="mt-12 space-y-4">
-            {[...Array(12)].map((_, i) => (
+            {BODY_WIDTHS.map((width, i) => (
               <div
                 key={i}
                 className="skeleton h-4"
-                style={{ width: `${70 + Math.random() * 30}%` }}
+                style={{ width: `${width}%` }}
               />
             ))}
             <div className="skeleton h-6 w-48 mt-8" />
-            {[...Array(8)].map((_, i) => (
+            {SECONDARY_WIDTHS.map((width, i) => (
               <div
                 key={`b-${i}`}
                 className="skeleton h-4"
-                style={{ width: `${60 + Math.random() * 40}%` }}
+                style={{ width: `${width}%` }}
               />
             ))}
           </div>
@@ -46,8 +50,8 @@ export default function ArticleLoading() {
         <aside className="hidden lg:block w-56 flex-shrink-0">
           <div className="sticky top-24 space-y-3">
             <div className="skeleton h-3 w-12 mb-4" />
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="skeleton h-3" style={{ width: `${50 + Math.random() * 50}%` }} />
+            {TOC_WIDTHS.map((width, i) => (
+              <div key={i} className="skeleton h-3" style={{ width: `${width}%` }} />
             ))}
           </div>
         </aside>

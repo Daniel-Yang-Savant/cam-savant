@@ -11,7 +11,14 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-inter)', 'var(--font-noto-tc)', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: [
+          '"Noto Sans TC"',
+          '"PingFang TC"',
+          '"Microsoft JhengHei"',
+          'system-ui',
+          '-apple-system',
+          'sans-serif',
+        ],
       },
       colors: {
         neutral: {

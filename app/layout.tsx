@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
-import { Inter, Noto_Sans_TC } from 'next/font/google'
 import './globals.css'
 import { Analytics } from '@vercel/analytics/react'
 import Navbar from '@/components/Navbar'
@@ -8,21 +7,6 @@ import Footer from '@/components/Footer'
 import FloatingChatButton from '@/components/FloatingChatButton'
 import BackToTop from '@/components/BackToTop'
 import AdminPeriopQrButton from '@/components/AdminPeriopQrButton'
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-  preload: true,
-})
-
-const notoSansTC = Noto_Sans_TC({
-  subsets: ['latin'],
-  weight: ['400', '500'],
-  variable: '--font-noto-tc',
-  display: 'swap',
-  preload: false, // CJK 字型龐大，不 preload 避免阻塞渲染
-})
 
 const BASE_URL = 'https://camsavant.com'
 
@@ -242,7 +226,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh-TW" className={`${inter.variable} ${notoSansTC.variable}`} suppressHydrationWarning>
+    <html lang="zh-TW" suppressHydrationWarning>
       <head>
         {/* ── PWA / App icons ── */}
         <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />

@@ -19,7 +19,7 @@ function withPrivateNoStore(response: NextResponse): NextResponse {
   return response
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
   const adminCookie = request.cookies.get('admin_token')
   const hasAdminAccess = Boolean(

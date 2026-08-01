@@ -21,7 +21,7 @@ function renderMarkdown(raw: string): string {
   // Strip frontmatter for preview
   const withoutFm = raw.replace(/^---[\s\S]*?---\n?/, '')
 
-  let html = withoutFm
+  const html = withoutFm
     // Code blocks (before inline code)
     .replace(
       /```[\w]*\n?([\s\S]*?)```/g,

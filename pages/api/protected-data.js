@@ -111,7 +111,7 @@ async function verifySessionToken(token) {
     const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString());
     if (payload.exp < Date.now()) return null;
     return payload;
-  } catch (e) {
+  } catch {
     return null;
   }
 }
