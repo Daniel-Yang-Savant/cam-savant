@@ -15,13 +15,20 @@ function getProtectedPostRedirects() {
       const source = fs.readFileSync(path.join(postsDirectory, fileName), 'utf8')
       return /^category:\s*["']?perioperative-rehab["']?\s*$/m.test(source)
     })
-    .map((fileName) => {
+    .flatMap((fileName) => {
       const slug = fileName.replace(/\.mdx?$/, '')
-      return {
-        source: `/posts/${slug}`,
-        destination: `/perioperative-rehab/${slug}`,
-        permanent: true,
-      }
+      return [
+        {
+          source: `/posts/${slug}`,
+          destination: `/perioperative-rehab/${slug}`,
+          permanent: true,
+        },
+        {
+          source: `/en/posts/${slug}`,
+          destination: `/en/perioperative-rehab/${slug}`,
+          permanent: true,
+        },
+      ]
     })
 }
 

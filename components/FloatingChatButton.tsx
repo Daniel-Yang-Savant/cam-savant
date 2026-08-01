@@ -11,8 +11,9 @@ function LineGlyph({ className = 'w-5 h-5' }: { className?: string }) {
   )
 }
 
-export default function FloatingChatButton() {
+export default function FloatingChatButton({ locale = 'zh' }: { locale?: 'zh' | 'en' }) {
   const [open, setOpen] = useState(false)
+  const isEnglish = locale === 'en'
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
@@ -26,10 +27,10 @@ export default function FloatingChatButton() {
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 text-white text-sm font-semibold px-4 py-3 rounded-full shadow-lg hover:scale-105 transition-all"
             style={{ backgroundColor: LINE_GREEN }}
-            aria-label="加入官方 LINE 好友"
+            aria-label={isEnglish ? 'Contact us on LINE' : '加入官方 LINE 好友'}
           >
             <LineGlyph className="w-5 h-5" />
-            官方 LINE 諮詢
+            {isEnglish ? 'LINE Consultation' : '官方 LINE 諮詢'}
           </a>
           <a
             href={CONSULT_FORM_URL}
@@ -37,9 +38,9 @@ export default function FloatingChatButton() {
             rel="noopener noreferrer"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-900 text-sm font-semibold px-4 py-3 rounded-full shadow-lg hover:scale-105 transition-all"
-            aria-label="開啟醫療諮詢表單"
+            aria-label={isEnglish ? 'Open consultation form' : '開啟醫療諮詢表單'}
           >
-            📝 表單提問
+            {isEnglish ? '📝 Question Form' : '📝 表單提問'}
           </a>
         </div>
       )}
@@ -49,10 +50,14 @@ export default function FloatingChatButton() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        aria-label={open ? '關閉諮詢選單' : '開啟諮詢選單'}
+        aria-label={open
+          ? (isEnglish ? 'Close consultation menu' : '關閉諮詢選單')
+          : (isEnglish ? 'Open consultation menu' : '開啟諮詢選單')}
         className="flex items-center gap-2 bg-accent-700 dark:bg-accent-500 text-white dark:text-neutral-950 text-sm font-semibold px-4 py-3 rounded-full shadow-lg hover:bg-accent-600 dark:hover:bg-accent-400 hover:scale-105 transition-all duration-200"
       >
-        {open ? '✕ 關閉' : '💬 諮詢提問'}
+        {open
+          ? (isEnglish ? '✕ Close' : '✕ 關閉')
+          : (isEnglish ? '💬 Ask a Question' : '💬 諮詢提問')}
       </button>
 
       <style jsx>{`

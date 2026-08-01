@@ -11,13 +11,19 @@ export interface Author {
   nameEn: string
   photo: string
   title: string
+  titleEn: string
   location: string
+  locationEn: string
   /** 服務院所（有明確院所才填，用於 schema affiliation） */
   affiliation?: string
   specialties: string[]
+  specialtiesEn: string[]
   credentials: string[]
+  credentialsEn: string[]
   education?: string[]
+  educationEn?: string[]
   experience?: string[]
+  experienceEn?: string[]
   publications?: {
     title: string
     citation: string
@@ -34,15 +40,26 @@ export const AUTHORS: Record<string, Author> = {
     nameEn: 'Yu-Kai Yang, MD',
     photo: '/images/team/yu-kai-yang.jpg',
     title: '復健科主治醫師',
+    titleEn: 'Attending Physician, Physical Medicine and Rehabilitation',
     location: '彰化縣・南投縣',
+    locationEn: 'Changhua County · Nantou County, Taiwan',
     specialties: ['增生療法', 'PRP治療', '運動醫學', '骨質疏鬆', '超音波導引注射', 'FSM'],
+    specialtiesEn: ['Prolotherapy', 'PRP Therapy', 'Sports Medicine', 'Osteoporosis', 'Ultrasound-Guided Injection', 'FSM'],
     credentials: ['骨質疏鬆症專科醫師', '台灣增生療法醫學會會員', '台灣運動醫學醫學會會員'],
+    credentialsEn: ['Certified Osteoporosis Specialist', 'Member, Taiwan Association of Prolotherapy and Regenerative Medicine', 'Member, Taiwan Society of Sports Medicine'],
     education: ['國立陽明大學醫學系畢業', '國立中興大學博士班進修'],
+    educationEn: ['MD, National Yang-Ming University', 'Doctoral studies, National Chung Hsing University'],
     experience: [
       '彰化基督教醫院復健醫學部主治醫師',
       '南投基督教醫院復健科主任',
       '二林基督教醫院復健醫學科主治醫師',
       '林口長庚紀念醫院復健科進修',
+    ],
+    experienceEn: [
+      'Attending Physician, Department of Physical Medicine and Rehabilitation, Changhua Christian Hospital',
+      'Director, Department of Rehabilitation Medicine, Nantou Christian Hospital',
+      'Attending Physician, Department of Rehabilitation Medicine, Erlin Christian Hospital',
+      'Advanced training, Department of Rehabilitation Medicine, Linkou Chang Gung Memorial Hospital',
     ],
     publications: [
       {
@@ -74,9 +91,13 @@ export const AUTHORS: Record<string, Author> = {
     nameEn: 'Yu-Chang Yang, MD',
     photo: '/images/team/yu-chang-yang.jpg',
     title: '家庭醫學科專科醫師',
+    titleEn: 'Board-Certified Family Physician',
     location: '台北・桃園',
+    locationEn: 'Taipei · Taoyuan, Taiwan',
     specialties: ['針灸', '減重', '醫美', '家庭醫學'],
+    specialtiesEn: ['Acupuncture', 'Weight Management', 'Aesthetic Medicine', 'Family Medicine'],
     credentials: ['骨質疏鬆專科醫師', 'SCOPE 國際肥胖專科認證', '糖尿病 CDE 認證'],
+    credentialsEn: ['Certified Osteoporosis Specialist', 'SCOPE-Certified Obesity Specialist', 'Certified Diabetes Educator (CDE)'],
   },
   '賴玟衛醫師': {
     slug: 'wen-wei-lai',
@@ -84,10 +105,14 @@ export const AUTHORS: Record<string, Author> = {
     nameEn: 'Wen-Wei Lai, MD',
     photo: '/images/team/wen-wei-lai.jpg',
     title: '復健科醫師',
+    titleEn: 'Physician, Physical Medicine and Rehabilitation',
     location: '彰化基督教醫院',
+    locationEn: 'Changhua Christian Hospital',
     affiliation: '彰化基督教醫院',
     specialties: ['復健醫學'],
+    specialtiesEn: ['Physical Medicine and Rehabilitation'],
     credentials: ['骨鬆醫學會會員', '增生醫學會會員'],
+    credentialsEn: ['Member, Taiwanese Osteoporosis Association', 'Member, Taiwan Association of Prolotherapy and Regenerative Medicine'],
     contactPath: '/contact/wen-wei-lai',
   },
   '黃雅琦醫師': {
@@ -96,10 +121,14 @@ export const AUTHORS: Record<string, Author> = {
     nameEn: 'Yachi Huang, MD',
     photo: '/images/team/huang-yachi.jpg',
     title: '復健科住院醫師',
+    titleEn: 'Resident Physician, Physical Medicine and Rehabilitation',
     location: '彰化基督教醫院',
+    locationEn: 'Changhua Christian Hospital',
     affiliation: '彰化基督教醫院',
     specialties: [],
+    specialtiesEn: [],
     credentials: [],
+    credentialsEn: [],
   },
 }
 

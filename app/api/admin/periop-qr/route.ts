@@ -13,6 +13,9 @@ export async function POST(request: NextRequest) {
   const { grant, expiresAt } = await createPeriopQrGrant(secret)
   const accessUrl = new URL('/perioperative-rehab/access', request.url)
   accessUrl.searchParams.set('grant', grant)
+  if (request.nextUrl.searchParams.get('locale') === 'en') {
+    accessUrl.searchParams.set('locale', 'en')
+  }
 
   return NextResponse.json(
     {

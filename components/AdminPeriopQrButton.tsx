@@ -15,7 +15,7 @@ function secondsUntil(expiresAt: string): number {
   )
 }
 
-export default function AdminPeriopQrButton() {
+export default function AdminPeriopQrButton({ locale = 'zh' }: { locale?: 'zh' | 'en' }) {
   const [authenticated, setAuthenticated] = useState(false)
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -45,7 +45,7 @@ export default function AdminPeriopQrButton() {
     setCopied(false)
 
     try {
-      const response = await fetch('/api/admin/periop-qr', {
+      const response = await fetch(`/api/admin/periop-qr?locale=${locale}`, {
         method: 'POST',
         cache: 'no-store',
       })
@@ -71,7 +71,7 @@ export default function AdminPeriopQrButton() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [locale])
 
   useEffect(() => {
     if (!qrAccess) return
@@ -120,10 +120,10 @@ export default function AdminPeriopQrButton() {
         type="button"
         onClick={openQrDialog}
         className="fixed bottom-6 left-6 z-50 flex items-center gap-2 rounded-full bg-amber-500 px-4 py-3 text-sm font-bold text-neutral-950 shadow-lg transition-all hover:scale-105 hover:bg-amber-400"
-        aria-label="產生術後復健病患 QR Code"
+        aria-label={locale === 'en' ? 'Generate patient QR code for English postoperative guides' : '產生術後復健病患 QR Code'}
       >
         <span aria-hidden="true">▦</span>
-        病患 QR
+        {locale === 'en' ? 'Patient QR' : '病患 QR'}
       </button>
 
       {open && (
@@ -149,26 +149,28 @@ export default function AdminPeriopQrButton() {
                   id="periop-qr-title"
                   className="mt-1 text-xl font-bold text-neutral-950 dark:text-neutral-100"
                 >
-                  術後復健病患 QR
+                  {locale === 'en' ? 'Postoperative Guide QR' : '術後復健病患 QR'}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
                 className="rounded-full px-3 py-1 text-xl text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-800"
-                aria-label="關閉 QR Code 視窗"
+                aria-label={locale === 'en' ? 'Close QR code dialog' : '關閉 QR Code 視窗'}
               >
                 ×
               </button>
             </div>
 
             <p className="mt-3 text-left text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
-              請病患在倒數結束前掃描。完成授權後，這台裝置可閱讀術後復健內容 30 天。
+              {locale === 'en'
+                ? 'Ask the patient to scan before the countdown ends. This device can access the English postoperative guides for 30 days after authorization.'
+                : '請病患在倒數結束前掃描。完成授權後，這台裝置可閱讀術後復健內容 30 天。'}
             </p>
 
             <div className="mt-6 flex min-h-64 items-center justify-center rounded-2xl bg-neutral-100 p-5 dark:bg-neutral-800">
               {loading && (
-                <p className="text-sm text-neutral-500">正在產生安全連結…</p>
+                <p className="text-sm text-neutral-500">{locale === 'en' ? 'Generating a secure link…' : '正在產生安全連結…'}</p>
               )}
 
               {!loading && error && (
@@ -179,7 +181,7 @@ export default function AdminPeriopQrButton() {
                     onClick={generateQr}
                     className="mt-4 rounded-full bg-neutral-900 px-4 py-2 text-sm font-semibold text-white dark:bg-neutral-100 dark:text-neutral-900"
                   >
-                    重新嘗試
+                    {locale === 'en' ? 'Try again' : '重新嘗試'}
                   </button>
                 </div>
               )}
@@ -193,7 +195,7 @@ export default function AdminPeriopQrButton() {
                     fgColor="#111111"
                     level="M"
                     marginSize={2}
-                    title="術後復健病患授權 QR Code"
+                    title={locale === 'en' ? 'English postoperative guide access QR code' : '術後復健病患授權 QR Code'}
                   />
                 </div>
               )}
@@ -206,7 +208,9 @@ export default function AdminPeriopQrButton() {
                     expired ? 'text-red-600' : 'text-amber-600'
                   }`}
                 >
-                  {expired ? 'QR Code 已過期' : `有效時間 ${countdown}`}
+                  {expired
+                    ? (locale === 'en' ? 'QR code expired' : 'QR Code 已過期')
+                    : (locale === 'en' ? `Valid for ${countdown}` : `有效時間 ${countdown}`)}
                 </p>
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   <button
@@ -214,7 +218,7 @@ export default function AdminPeriopQrButton() {
                     onClick={generateQr}
                     className="rounded-xl bg-neutral-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-neutral-700 dark:bg-neutral-100 dark:text-neutral-950"
                   >
-                    重新產生
+                    {locale === 'en' ? 'Regenerate' : '重新產生'}
                   </button>
                   <button
                     type="button"
@@ -222,7 +226,9 @@ export default function AdminPeriopQrButton() {
                     disabled={expired}
                     className="rounded-xl border border-neutral-300 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
                   >
-                    {copied ? '已複製' : '複製連結'}
+                    {copied
+                      ? (locale === 'en' ? 'Copied' : '已複製')
+                      : (locale === 'en' ? 'Copy link' : '複製連結')}
                   </button>
                 </div>
               </div>

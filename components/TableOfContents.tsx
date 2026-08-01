@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useLang } from '@/lib/i18n'
+import { translations, type Lang } from '@/lib/i18n'
 
 interface Heading {
   id: string
@@ -9,10 +9,10 @@ interface Heading {
   level: 2 | 3
 }
 
-export default function TableOfContents() {
+export default function TableOfContents({ locale = 'zh' }: { locale?: Lang }) {
   const [headings, setHeadings] = useState<Heading[]>([])
   const [activeId, setActiveId] = useState<string>('')
-  const { t } = useLang()
+  const t = (key: keyof typeof translations.zh) => translations[locale][key]
 
   useEffect(() => {
     // Scan all h2/h3 with id attributes rendered in the document
@@ -49,7 +49,7 @@ export default function TableOfContents() {
   if (headings.length === 0) return null
 
   return (
-    <nav className="TableOfContents" aria-label="文章目錄">
+    <nav className="TableOfContents" aria-label={locale === 'en' ? 'Table of contents' : '文章目錄'}>
       <p className="text-xs tracking-widest uppercase text-neutral-400 dark:text-neutral-500 mb-3 font-semibold">
         {t('tocTitle')}
       </p>

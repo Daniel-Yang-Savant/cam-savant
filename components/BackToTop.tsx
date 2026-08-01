@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-export default function BackToTop() {
+export default function BackToTop({ locale = 'zh' }: { locale?: 'zh' | 'en' }) {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export default function BackToTop() {
   return (
     <button
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      aria-label="回到頂部"
+      aria-label={locale === 'en' ? 'Back to top' : '回到頂部'}
       className="fixed bottom-24 right-6 md:bottom-6 md:right-[5.5rem] z-50 flex items-center justify-center w-11 h-11 rounded-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 shadow-md hover:bg-neutral-50 dark:hover:bg-neutral-700 hover:text-neutral-950 dark:hover:text-neutral-100 hover:scale-105 transition-all duration-200"
     >
       <svg

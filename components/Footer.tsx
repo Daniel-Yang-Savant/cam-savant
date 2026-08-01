@@ -1,7 +1,41 @@
 import Link from 'next/link'
+import type { Lang } from '@/lib/i18n'
 
-export default function Footer() {
+export default function Footer({ locale = 'zh' }: { locale?: Lang }) {
   const year = new Date().getFullYear()
+  const isEnglish = locale === 'en'
+  const homeHref = isEnglish ? '/en' : '/'
+  const categoryLinks = isEnglish
+    ? [
+        ['/en/about', 'Medical Team'],
+        ['/en/contact', 'Clinic Information'],
+        ['/en/perioperative-rehab', 'Postoperative Rehabilitation'],
+      ]
+    : [
+        ['/sports-medicine', '運動醫學'],
+        ['/rehabilitation-medicine', '復健醫學'],
+        ['/functional-medicine', '功能醫學'],
+        ['/weekly-picks', '每週論文精選'],
+        ['/fsm', 'FSM'],
+      ]
+  const siteLinks = isEnglish
+    ? [
+        ['/en', 'Home'],
+        ['/en/about', 'Medical Team'],
+        ['/en/contact', 'Clinic Information'],
+        ['/en/locations/changhua', 'Changhua Christian Hospital'],
+        ['/en/locations/nantou', 'Nantou Christian Hospital'],
+        ['/en/locations/erlin', 'Erlin Christian Hospital'],
+      ]
+    : [
+        ['/', '首頁'],
+        ['/posts', '所有文章'],
+        ['/about', '醫師團隊'],
+        ['/contact', '看診資訊'],
+        ['/locations/changhua', '彰化基督教醫院'],
+        ['/locations/nantou', '南投基督教醫院'],
+        ['/locations/erlin', '二林基督教醫院'],
+      ]
 
   return (
     <footer className="border-t border-neutral-200 dark:border-neutral-800 mt-auto">
@@ -11,13 +45,15 @@ export default function Footer() {
           {/* ── Brand ── */}
           <div className="max-w-xs">
             <Link
-              href="/"
+              href={homeHref}
               className="text-base font-bold tracking-[0.18em] text-neutral-950 dark:text-neutral-100"
             >
               CAM SAVANT
             </Link>
             <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
-              整合醫學知識平台，深入探索復健醫學、運動醫學、功能醫學與 FSM 頻率特異性微電流的臨床實證。
+              {isEnglish
+                ? 'An integrative medical knowledge platform focused on rehabilitation medicine, sports medicine, functional medicine, and Frequency Specific Microcurrent.'
+                : '整合醫學知識平台，深入探索復健醫學、運動醫學、功能醫學與 FSM 頻率特異性微電流的臨床實證。'}
             </p>
           </div>
 
@@ -25,16 +61,10 @@ export default function Footer() {
           <div className="flex gap-16">
             <div>
               <h3 className="text-xs font-semibold tracking-widest uppercase text-neutral-400 dark:text-neutral-500 mb-4">
-                分類
+                {isEnglish ? 'Explore' : '分類'}
               </h3>
               <ul className="space-y-2.5">
-                {[
-                  ['/sports-medicine',          '運動醫學'],
-                  ['/rehabilitation-medicine',   '復健醫學'],
-                  ['/functional-medicine',       '功能醫學'],
-                  ['/weekly-picks',              '每週論文精選'],
-                  ['/fsm',                       'FSM'],
-                ].map(([href, label]) => (
+                {categoryLinks.map(([href, label]) => (
                   <li key={href}>
                     <Link
                       href={href}
@@ -49,18 +79,10 @@ export default function Footer() {
 
             <div>
               <h3 className="text-xs font-semibold tracking-widest uppercase text-neutral-400 dark:text-neutral-500 mb-4">
-                網站
+                {isEnglish ? 'Website' : '網站'}
               </h3>
               <ul className="space-y-2.5">
-                {[
-                  ['/',         '首頁'],
-                  ['/posts',    '所有文章'],
-                  ['/about',    '醫師團隊'],
-                  ['/contact',  '看診資訊'],
-                  ['/locations/changhua', '彰化基督教醫院'],
-                  ['/locations/nantou',   '南投基督教醫院'],
-                  ['/locations/erlin',    '二林基督教醫院'],
-                ].map(([href, label]) => (
+                {siteLinks.map(([href, label]) => (
                   <li key={href}>
                     <Link
                       href={href}
@@ -77,7 +99,7 @@ export default function Footer() {
                     rel="noopener noreferrer"
                     className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
                   >
-                    會員專區
+                    {isEnglish ? 'Member Portal' : '會員專區'}
                   </a>
                 </li>
               </ul>
@@ -88,15 +110,17 @@ export default function Footer() {
         {/* ── Copyright ── */}
         <div className="mt-10 pt-6 border-t border-neutral-200 dark:border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-neutral-400 dark:text-neutral-500 text-center sm:text-left">
-            © {year} CAM Savant 醫療團隊 · 本站內容僅供醫療專業人員學習參考，不構成個別診療建議，未經書面授權禁止轉載、複製或商業使用。
+            {isEnglish
+              ? `© ${year} CAM Savant Medical Team · Content is provided for education only and does not replace individualized medical advice.`
+              : `© ${year} CAM Savant 醫療團隊 · 本站內容僅供醫療專業人員學習參考，不構成個別診療建議，未經書面授權禁止轉載、複製或商業使用。`}
           </p>
           <div className="flex items-center gap-2 shrink-0">
             <Link href="/privacy" className="text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
-              隱私權政策
+              {isEnglish ? 'Privacy Policy (Chinese)' : '隱私權政策'}
             </Link>
             <span className="text-neutral-300 dark:text-neutral-600">·</span>
             <Link href="/terms" className="text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
-              使用條款
+              {isEnglish ? 'Terms (Chinese)' : '使用條款'}
             </Link>
           </div>
         </div>

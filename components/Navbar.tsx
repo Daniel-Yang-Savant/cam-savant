@@ -6,26 +6,60 @@ import { useState } from 'react'
 import clsx from 'clsx'
 import ThemeToggle from '@/components/ThemeToggle'
 import SearchBar from '@/components/SearchBar'
-import { useLang } from '@/lib/i18n'
+import { translations, type Lang } from '@/lib/i18n'
 import { useBookmarks } from '@/lib/useBookmarks'
+import { ENGLISH_PERIOP_SLUGS } from '@/lib/locales'
 
-export default function Navbar() {
+type NavbarProps = {
+  locale?: Lang
+}
+
+function englishAlternatePath(pathname: string): string {
+  if (pathname === '/') return '/en'
+  if (pathname === '/about') return '/en/about'
+  if (pathname === '/contact') return '/en/contact'
+  if (pathname.startsWith('/doctors/')) return `/en${pathname}`
+  if (pathname.startsWith('/locations/')) return `/en${pathname}`
+  if (pathname === '/perioperative-rehab') return '/en/perioperative-rehab'
+
+  const periopMatch = pathname.match(/^\/perioperative-rehab\/([^/]+)$/)
+  if (periopMatch && ENGLISH_PERIOP_SLUGS.includes(periopMatch[1])) {
+    return `/en${pathname}`
+  }
+
+  return '/en'
+}
+
+export default function Navbar({ locale = 'zh' }: NavbarProps) {
   const pathname = usePathname()
+  const currentPath = pathname ?? (locale === 'en' ? '/en' : '/')
   const [open, setOpen] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
-  const { lang, toggleLang, t } = useLang()
   const { slugs, mounted: bmMounted } = useBookmarks()
+  const isEnglish = locale === 'en'
+  const t = (key: keyof typeof translations.zh) => translations[locale][key]
 
-  const NAV_LINKS = [
-    { href: '/',                        label: t('home')                  },
-    { href: '/about',                   label: t('about')                 },
-    { href: '/sports-medicine',         label: t('navSportsMedicine')     },
-    { href: '/rehabilitation-medicine', label: t('navRehabMedicine')      },
-    { href: '/functional-medicine',     label: t('navFunctionalMedicine') },
-    { href: '/weekly-picks',            label: t('navWeeklyPicks')        },
-    { href: '/fsm',                     label: t('navFsm')                },
-    { href: '/perioperative-rehab',     label: t('navPerioperativeRehab') },
-  ]
+  const NAV_LINKS = isEnglish
+    ? [
+        { href: '/en', label: t('home') },
+        { href: '/en/about', label: t('about') },
+        { href: '/en/contact', label: t('navContact') },
+        { href: '/en/perioperative-rehab', label: t('navPerioperativeRehab') },
+      ]
+    : [
+        { href: '/', label: t('home') },
+        { href: '/about', label: t('about') },
+        { href: '/sports-medicine', label: t('navSportsMedicine') },
+        { href: '/rehabilitation-medicine', label: t('navRehabMedicine') },
+        { href: '/functional-medicine', label: t('navFunctionalMedicine') },
+        { href: '/weekly-picks', label: t('navWeeklyPicks') },
+        { href: '/fsm', label: t('navFsm') },
+        { href: '/perioperative-rehab', label: t('navPerioperativeRehab') },
+      ]
+
+  const languageHref = isEnglish
+    ? currentPath.replace(/^\/en(?=\/|$)/, '') || '/'
+    : englishAlternatePath(currentPath)
 
   return (
     <header className="sticky top-0 z-50 bg-white dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-800">
@@ -35,10 +69,10 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
-          {pathname === '/' ? (
+          {currentPath === (isEnglish ? '/en' : '/') ? (
             <h1 className="shrink-0">
               <Link
-                href="/"
+                href={isEnglish ? '/en' : '/'}
                 className="text-lg font-bold tracking-[0.18em] text-neutral-950 dark:text-neutral-100 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
               >
                 CAM SAVANT
@@ -46,7 +80,7 @@ export default function Navbar() {
             </h1>
           ) : (
             <Link
-              href="/"
+              href={isEnglish ? '/en' : '/'}
               className="text-lg font-bold tracking-[0.18em] text-neutral-950 dark:text-neutral-100 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors shrink-0"
             >
               CAM SAVANT
@@ -57,7 +91,9 @@ export default function Navbar() {
           <ul className="hidden md:flex items-center gap-8">
             {NAV_LINKS.map(({ href, label }) => {
               const active =
-                href === '/' ? pathname === '/' : pathname?.startsWith(href)
+                href === (isEnglish ? '/en' : '/')
+                  ? currentPath === href
+                  : currentPath.startsWith(href)
               return (
                 <li key={href}>
                   <Link
@@ -80,12 +116,14 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
 
             {/* Desktop search */}
-            <div className="hidden md:block">
-              <SearchBar />
-            </div>
+            {!isEnglish && (
+              <div className="hidden md:block">
+                <SearchBar />
+              </div>
+            )}
 
             {/* Bookmark icon – desktop */}
-            <Link
+            {!isEnglish && <Link
               href="/bookmarks"
               aria-label="收藏文章"
               title="收藏文章"
@@ -99,16 +137,17 @@ export default function Navbar() {
                   {slugs.length > 9 ? '9+' : slugs.length}
                 </span>
               )}
-            </Link>
+            </Link>}
 
             {/* Language toggle – desktop */}
-            <button
-              onClick={toggleLang}
-              aria-label="切換語言"
+            <Link
+              href={languageHref}
+              aria-label={isEnglish ? '切換至繁體中文' : 'Switch to English'}
+              hrefLang={isEnglish ? 'zh-TW' : 'en'}
               className="hidden md:flex items-center px-2 py-1 rounded-lg text-xs font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
             >
-              {lang === 'zh' ? 'EN' : '中'}
-            </button>
+              {isEnglish ? '中' : 'EN'}
+            </Link>
 
             {/* Theme toggle – desktop */}
             <div className="hidden md:block">
@@ -116,7 +155,7 @@ export default function Navbar() {
             </div>
 
             {/* Mobile: search icon */}
-            <button
+            {!isEnglish && <button
               className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
               onClick={() => {
                 setMobileSearchOpen(!mobileSearchOpen)
@@ -138,7 +177,7 @@ export default function Navbar() {
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
-            </button>
+            </button>}
 
             {/* Hamburger */}
             <button
@@ -172,7 +211,7 @@ export default function Navbar() {
         </div>
 
         {/* ── Mobile search expansion (full-width row below main row) ── */}
-        {mobileSearchOpen && (
+        {!isEnglish && mobileSearchOpen && (
           <div className="md:hidden pb-3">
             <SearchBar fullWidth />
           </div>
@@ -189,7 +228,7 @@ export default function Navbar() {
                     onClick={() => setOpen(false)}
                     className={clsx(
                       'block text-sm tracking-wide py-1 transition-colors',
-                      pathname === href
+                      currentPath === href
                         ? 'text-accent-700 dark:text-accent-400 font-medium'
                         : 'text-neutral-500 dark:text-neutral-400'
                     )}
@@ -201,7 +240,7 @@ export default function Navbar() {
             </ul>
 
             {/* Bookmark link – mobile */}
-            <Link
+            {!isEnglish && <Link
               href="/bookmarks"
               onClick={() => setOpen(false)}
               className="flex items-center gap-2 text-sm tracking-wide py-1 text-neutral-500 dark:text-neutral-400"
@@ -215,16 +254,17 @@ export default function Navbar() {
                   {slugs.length}
                 </span>
               )}
-            </Link>
+            </Link>}
 
             {/* Mobile: lang + theme row */}
             <div className="mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-center gap-3">
-              <button
-                onClick={toggleLang}
+              <Link
+                href={languageHref}
+                hrefLang={isEnglish ? 'zh-TW' : 'en'}
                 className="text-xs font-medium px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
               >
-                {lang === 'zh' ? 'EN' : '中'}
-              </button>
+                {isEnglish ? '繁體中文' : 'English'}
+              </Link>
               <ThemeToggle />
             </div>
           </div>

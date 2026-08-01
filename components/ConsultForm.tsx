@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { useLang } from '@/lib/i18n'
+import { translations, type Lang } from '@/lib/i18n'
 
 interface Props {
   articleTitle?: string
+  locale?: Lang
 }
 
-export default function ConsultForm({ articleTitle }: Props) {
+export default function ConsultForm({ articleTitle, locale = 'zh' }: Props) {
   const [name, setName] = useState('')
   const [question, setQuestion] = useState('')
   const [contact, setContact] = useState('')
@@ -16,7 +17,7 @@ export default function ConsultForm({ articleTitle }: Props) {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const { t } = useLang()
+  const t = (key: keyof typeof translations.zh) => translations[locale][key]
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -167,7 +168,7 @@ export default function ConsultForm({ articleTitle }: Props) {
           <span>
             {t('consultPrivacyPrefix')}
             <Link
-              href="/privacy"
+              href={locale === 'en' ? '/privacy' : '/privacy'}
               target="_blank"
               className="underline underline-offset-2 hover:text-neutral-800 dark:hover:text-neutral-200"
             >

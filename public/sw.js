@@ -1,6 +1,6 @@
 // CAM Savant Service Worker — offline-first for public pages only
 const CACHE_PREFIX = 'cam-savant-'
-const CACHE_VERSION = 'cam-savant-v2'
+const CACHE_VERSION = 'cam-savant-v3'
 const STATIC_URLS = [
   '/',
   '/posts',
@@ -21,6 +21,7 @@ const PRIVATE_PATH_PREFIXES = [
   '/admin',
   '/admin-login',
   '/perioperative-rehab',
+  '/en/perioperative-rehab',
   '/ak-google-auth',
   '/fsm/studio',
   '/login',

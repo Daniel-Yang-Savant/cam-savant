@@ -36,6 +36,8 @@ test('private and authentication routes are excluded from offline caching', () =
     '/admin-login',
     '/perioperative-rehab',
     '/perioperative-rehab/acl-reconstruction-rehab',
+    '/en/perioperative-rehab',
+    '/en/perioperative-rehab/acl-reconstruction-rehab',
     '/ak-google-auth',
     '/fsm/studio',
     '/login',
@@ -49,6 +51,7 @@ test('private and authentication routes are excluded from offline caching', () =
   }
 
   assert.equal(evaluate("isPrivatePath('/posts')"), false)
+  assert.equal(evaluate("isPrivatePath('/en/about')"), false)
   assert.equal(evaluate("isPrivatePath('/administration-guide')"), false)
 })
 
@@ -59,9 +62,13 @@ test('private referrers prevent related assets from entering the offline cache',
   context.publicReferrerRequest = {
     referrer: 'https://camsavant.com/posts/acl-rupture-treatment-decision',
   }
+  context.englishPrivateReferrerRequest = {
+    referrer: 'https://camsavant.com/en/perioperative-rehab/tkr-rehab',
+  }
 
   assert.equal(evaluate('hasPrivateReferrer(privateReferrerRequest)'), true)
   assert.equal(evaluate('hasPrivateReferrer(publicReferrerRequest)'), false)
+  assert.equal(evaluate('hasPrivateReferrer(englishPrivateReferrerRequest)'), true)
 })
 
 test('private, no-store, and redirected protected responses are not cacheable', () => {
@@ -80,6 +87,11 @@ test('private, no-store, and redirected protected responses are not cacheable', 
     url: 'https://camsavant.com/posts/example',
     headers: new Headers({ 'cache-control': 'public, max-age=60' }),
   }
+  context.redirectedEnglishProtectedResponse = {
+    ok: true,
+    url: 'https://camsavant.com/en/perioperative-rehab/example',
+    headers: new Headers(),
+  }
 
   assert.equal(evaluate('isPublicCacheableResponse(privateResponse)'), false)
   assert.equal(
@@ -87,6 +99,10 @@ test('private, no-store, and redirected protected responses are not cacheable', 
     false
   )
   assert.equal(evaluate('isPublicCacheableResponse(publicResponse)'), true)
+  assert.equal(
+    evaluate('isPublicCacheableResponse(redirectedEnglishProtectedResponse)'),
+    false
+  )
 })
 
 test('fetch handler leaves private routes on the network without an offline fallback', () => {

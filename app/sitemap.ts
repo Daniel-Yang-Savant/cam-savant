@@ -13,6 +13,17 @@ const BASE_URL = 'https://camsavant.com'
 /** 內容幾乎不變的頁面用固定日期（避免每次部署都宣稱有更新，Google 會不信任 lastmod） */
 const STATIC_PAGE_DATE = new Date('2026-07-18')
 const TEAM_PAGE_DATE = new Date('2026-07-26')
+const ENGLISH_SITE_DATE = new Date('2026-08-01')
+
+function languageAlternates(zhPath: string, enPath = `/en${zhPath === '/' ? '' : zhPath}`) {
+  return {
+    languages: {
+      'zh-TW': `${BASE_URL}${zhPath === '/' ? '' : zhPath}`,
+      en: `${BASE_URL}${enPath}`,
+      'x-default': `${BASE_URL}${zhPath === '/' ? '' : zhPath}`,
+    },
+  }
+}
 
 /** 取一組文章中最新的日期（lastModified 優先，其次 date） */
 function latestDate(posts: { frontmatter: { date: string; lastModified?: string } }[]): Date {
@@ -52,19 +63,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   })
 
-  const doctorEntries: MetadataRoute.Sitemap = TEAM.map((doctor) => ({
-    url: `${BASE_URL}/doctors/${doctor.slug}`,
-    lastModified: TEAM_PAGE_DATE,
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-  }))
+  const doctorEntries: MetadataRoute.Sitemap = TEAM.flatMap((doctor) => {
+    const zhPath = `/doctors/${doctor.slug}`
+    const enPath = `/en/doctors/${doctor.slug}`
+    const alternates = languageAlternates(zhPath, enPath)
+    return [
+      { url: `${BASE_URL}${zhPath}`, lastModified: TEAM_PAGE_DATE, changeFrequency: 'monthly' as const, priority: 0.7, alternates },
+      { url: `${BASE_URL}${enPath}`, lastModified: ENGLISH_SITE_DATE, changeFrequency: 'monthly' as const, priority: 0.7, alternates },
+    ]
+  })
 
-  const locationEntries: MetadataRoute.Sitemap = CLINIC_LOCATIONS.map((location) => ({
-    url: `${BASE_URL}/locations/${location.slug}`,
-    lastModified: TEAM_PAGE_DATE,
-    changeFrequency: 'monthly' as const,
-    priority: 0.8,
-  }))
+  const locationEntries: MetadataRoute.Sitemap = CLINIC_LOCATIONS.flatMap((location) => {
+    const zhPath = `/locations/${location.slug}`
+    const enPath = `/en/locations/${location.slug}`
+    const alternates = languageAlternates(zhPath, enPath)
+    return [
+      { url: `${BASE_URL}${zhPath}`, lastModified: TEAM_PAGE_DATE, changeFrequency: 'monthly' as const, priority: 0.8, alternates },
+      { url: `${BASE_URL}${enPath}`, lastModified: ENGLISH_SITE_DATE, changeFrequency: 'monthly' as const, priority: 0.8, alternates },
+    ]
+  })
 
   const staticPages: MetadataRoute.Sitemap = [
     {
@@ -72,18 +89,56 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: latestDate(homepagePosts), // 首頁隨復健與運動傷害最新文章更新
       changeFrequency: 'weekly' as const,
       priority: 1.0,
+      alternates: languageAlternates('/'),
+    },
+    {
+      url: `${BASE_URL}/en`,
+      lastModified: ENGLISH_SITE_DATE,
+      changeFrequency: 'monthly' as const,
+      priority: 0.9,
+      alternates: languageAlternates('/'),
     },
     {
       url: `${BASE_URL}/about`,
       lastModified: TEAM_PAGE_DATE,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
+      alternates: languageAlternates('/about'),
+    },
+    {
+      url: `${BASE_URL}/en/about`,
+      lastModified: ENGLISH_SITE_DATE,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+      alternates: languageAlternates('/about'),
     },
     {
       url: `${BASE_URL}/contact`,
       lastModified: TEAM_PAGE_DATE,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
+      alternates: languageAlternates('/contact'),
+    },
+    {
+      url: `${BASE_URL}/en/contact`,
+      lastModified: ENGLISH_SITE_DATE,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+      alternates: languageAlternates('/contact'),
+    },
+    {
+      url: `${BASE_URL}/contact/wen-wei-lai`,
+      lastModified: TEAM_PAGE_DATE,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+      alternates: languageAlternates('/contact/wen-wei-lai'),
+    },
+    {
+      url: `${BASE_URL}/en/contact/wen-wei-lai`,
+      lastModified: ENGLISH_SITE_DATE,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+      alternates: languageAlternates('/contact/wen-wei-lai'),
     },
     {
       url: `${BASE_URL}/posts`,

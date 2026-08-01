@@ -1,10 +1,33 @@
 import fs from 'fs'
 import path from 'path'
 import { getAllPosts, PROTECTED_CATEGORIES } from '../lib/posts'
+import { getAllEnglishPosts } from '../lib/english-posts'
+import { ENGLISH_PERIOP_SLUGS } from '../lib/locales'
 
 try {
   const posts = getAllPosts()
   console.log(`✓ ${posts.length} 篇文章 frontmatter 驗證通過`)
+  const englishPosts = getAllEnglishPosts()
+  console.log(`✓ ${englishPosts.length} English article frontmatter records validated`)
+
+  const englishSlugs = new Set(englishPosts.map((post) => post.slug))
+  const missingEnglish = ENGLISH_PERIOP_SLUGS.filter((slug) => !englishSlugs.has(slug))
+  const unexpectedEnglish = englishPosts.filter(
+    (post) =>
+      post.frontmatter.translationOf !== post.slug ||
+      !posts.some((sourcePost) => sourcePost.slug === post.frontmatter.translationOf)
+  )
+
+  if (missingEnglish.length > 0) {
+    throw new Error(`Missing English postoperative translations: ${missingEnglish.join(', ')}`)
+  }
+  if (unexpectedEnglish.length > 0) {
+    throw new Error(
+      `Invalid English translationOf mapping: ${unexpectedEnglish
+        .map((post) => post.slug)
+        .join(', ')}`
+    )
+  }
 
   const missing: string[] = []
   for (const post of posts) {

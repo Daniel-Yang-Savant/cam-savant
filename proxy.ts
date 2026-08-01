@@ -21,6 +21,9 @@ function withPrivateNoStore(response: NextResponse): NextResponse {
 
 export async function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
+  const isEnglishPeriop =
+    pathname === '/en/perioperative-rehab' ||
+    pathname.startsWith('/en/perioperative-rehab/')
   const adminCookie = request.cookies.get('admin_token')
   const hasAdminAccess = Boolean(
     ADMIN_SECRET && adminCookie?.value === ADMIN_SECRET
@@ -43,7 +46,8 @@ export async function proxy(request: NextRequest) {
   // Allow the locked page and access route to pass through without auth check
   if (
     pathname === '/perioperative-rehab/locked' ||
-    pathname.startsWith('/perioperative-rehab/access')
+    pathname.startsWith('/perioperative-rehab/access') ||
+    pathname === '/en/perioperative-rehab/locked'
   ) {
     return withPrivateNoStore(NextResponse.next())
   }
@@ -63,7 +67,9 @@ export async function proxy(request: NextRequest) {
   const accessParam = searchParams.get('access')
   if (accessParam && TOKEN && accessParam === TOKEN) {
     const dest = request.nextUrl.clone()
-    dest.pathname = '/perioperative-rehab'
+    dest.pathname = isEnglishPeriop
+      ? '/en/perioperative-rehab'
+      : '/perioperative-rehab'
     dest.search = ''
     const response = NextResponse.redirect(dest)
     response.cookies.set(
@@ -82,7 +88,9 @@ export async function proxy(request: NextRequest) {
 
   // No valid access → redirect to locked page
   const locked = request.nextUrl.clone()
-  locked.pathname = '/perioperative-rehab/locked'
+  locked.pathname = isEnglishPeriop
+    ? '/en/perioperative-rehab/locked'
+    : '/perioperative-rehab/locked'
   locked.search = ''
   const response = NextResponse.redirect(locked)
   response.cookies.delete(PERIOP_COOKIE_NAME)
@@ -90,5 +98,10 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/perioperative-rehab/:path*', '/admin/:path*', '/api/admin/:path*'],
+  matcher: [
+    '/perioperative-rehab/:path*',
+    '/en/perioperative-rehab/:path*',
+    '/admin/:path*',
+    '/api/admin/:path*',
+  ],
 }

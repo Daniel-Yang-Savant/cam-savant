@@ -1,9 +1,9 @@
 'use client'
 
-import { useLang } from '@/lib/i18n'
+import { translations, type Lang } from '@/lib/i18n'
 
-export default function PrintButton() {
-  const { t } = useLang()
+export default function PrintButton({ locale = 'zh' }: { locale?: Lang }) {
+  const t = (key: keyof typeof translations.zh) => translations[locale][key]
 
   return (
     <div className="PrintButton flex items-center gap-3 flex-wrap mb-8">
