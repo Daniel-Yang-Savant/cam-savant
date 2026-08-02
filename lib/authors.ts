@@ -12,6 +12,8 @@ export interface Author {
   photo: string
   title: string
   titleEn: string
+  bio?: string
+  bioEn?: string
   location: string
   locationEn: string
   /** 服務院所（有明確院所才填，用於 schema affiliation） */
@@ -92,12 +94,44 @@ export const AUTHORS: Record<string, Author> = {
     photo: '/images/team/yu-chang-yang.jpg',
     title: '家庭醫學科專科醫師',
     titleEn: 'Board-Certified Family Physician',
+    bio: '以家庭醫學為核心，整合肥胖與代謝異常、三高與慢性病、男性更年期及骨質疏鬆照護；並具糖尿病與初期慢性腎臟病照護訓練，投入健康管理、功能與營養醫學及醫學美容。',
+    bioEn: 'His family-medicine practice integrates obesity and metabolic health, cardiometabolic and chronic disease care, male menopause, and osteoporosis. His additional training includes diabetes education and early chronic kidney disease care, alongside health management, functional and nutritional medicine, and aesthetic medicine.',
     location: '台北・桃園',
     locationEn: 'Taipei · Taoyuan, Taiwan',
-    specialties: ['針灸', '減重', '醫美', '家庭醫學'],
-    specialtiesEn: ['Acupuncture', 'Weight Management', 'Aesthetic Medicine', 'Family Medicine'],
-    credentials: ['骨質疏鬆專科醫師', 'SCOPE 國際肥胖專科認證', '糖尿病 CDE 認證'],
-    credentialsEn: ['Certified Osteoporosis Specialist', 'SCOPE-Certified Obesity Specialist', 'Certified Diabetes Educator (CDE)'],
+    affiliation: '存奕美學診所',
+    specialties: ['家庭醫學', '肥胖與體重管理', '代謝症候群與慢性病管理', '男性更年期', '骨質疏鬆', '功能與營養醫學', '醫學美容'],
+    specialtiesEn: ['Family Medicine', 'Obesity and Weight Management', 'Metabolic and Chronic Disease Care', 'Male Menopause', 'Osteoporosis', 'Functional and Nutritional Medicine', 'Aesthetic Medicine'],
+    credentials: ['家庭醫學科專科醫師', 'SCOPE 國際肥胖專科認證', '骨質疏鬆專科醫師', '糖尿病衛教師（CDE）認證', '初期慢性腎臟病照護認證'],
+    credentialsEn: ['Board-Certified Family Physician', 'SCOPE-Certified Obesity Specialist', 'Certified Osteoporosis Specialist', 'Certified Diabetes Educator (CDE)', 'Certified in Early Chronic Kidney Disease Care'],
+    education: ['中山醫學大學醫學系畢業', '中國醫藥大學針灸訓練班結業'],
+    educationEn: ['MD, Chung Shan Medical University', 'Completed acupuncture training, China Medical University'],
+    experience: [
+      '存奕美學診所專任醫師',
+      '樂菲時尚整形外科集團醫療團隊',
+      '臺北市立聯合醫院家庭醫學科總醫師',
+      '臺北市立聯合醫院優良醫師',
+      '臺北榮民總醫院一般科醫師',
+      '臺大醫院代訓醫師',
+    ],
+    experienceEn: [
+      'Staff Physician, Glow Beauty Clinic',
+      'Medical Team, ABeauty Plastic Surgery Group',
+      'Chief Resident, Department of Family Medicine, Taipei City Hospital',
+      'Outstanding Physician, Taipei City Hospital',
+      'General Practice Physician, Taipei Veterans General Hospital',
+      'Visiting Trainee Physician, National Taiwan University Hospital',
+    ],
+    publications: [
+      {
+        title: 'Factors Associated With Potentially Inappropriate Medication Use and Deprescribing Among Patients Receiving Home-Based Hospice Care',
+        citation: 'American Journal of Hospice & Palliative Medicine, 2026; 43(9):932–939. Epub 2025 Jul 27',
+        url: 'https://journals.sagepub.com/eprint/7ZFHSP9BGBVHBAYHDHJS/full',
+      },
+    ],
+    sameAs: [
+      'https://www.abeauty-hf.com.tw/member.php?act=view&id=49',
+      'https://drglowbeauty.com.tw/%e6%a5%8a%e8%82%b2%e5%bd%b0%e9%86%ab%e5%b8%ab',
+    ],
   },
   '賴玟衛醫師': {
     slug: 'wen-wei-lai',

@@ -67,7 +67,10 @@ const PHYSICIAN_SAME_AS: Record<string, string[]> = {
     'https://ny.cch.org.tw/doctor_1_detial.aspx?cID=65&key=1400', // 南投基督教醫院 醫師介紹
     'https://www.toa1997.org.tw/orthopedist/?n=%E6%A5%8A%E8%82%B2%E6%84%B7', // 中華民國骨質疏鬆症學會 專科醫師名錄（證號905）
   ],
-  'yang-yu-chang': [],
+  'yang-yu-chang': [
+    'https://www.abeauty-hf.com.tw/member.php?act=view&id=49', // 樂菲時尚整形外科集團 醫師介紹
+    'https://drglowbeauty.com.tw/%e6%a5%8a%e8%82%b2%e5%bd%b0%e9%86%ab%e5%b8%ab', // 存奕美學診所 醫師介紹
+  ],
   'lai-wen-wei': [],
   'huang-ya-chi': [],
 }
@@ -184,9 +187,13 @@ const jsonLd = {
           alternateName: 'Yu-Chang Yang, MD',
           jobTitle: '家庭醫學科專科醫師',
           medicalSpecialty: ['FamilyMedicine'],
-          knowsAbout: ['針灸', '減重', '醫美', '功能醫學'],
+          knowsAbout: ['家庭醫學', '肥胖與體重管理', '代謝症候群與慢性病管理', '男性更年期', '骨質疏鬆', '功能與營養醫學', '醫學美容'],
           url: 'https://camsavant.com/doctors/yu-chang-yang',
-          hasCredential: cred(['骨質疏鬆專科醫師', 'SCOPE 國際肥胖專科認證', '糖尿病 CDE 認證']),
+          alumniOf: {
+            '@type': 'CollegeOrUniversity',
+            name: '中山醫學大學醫學系',
+          },
+          hasCredential: cred(['家庭醫學科專科醫師', 'SCOPE 國際肥胖專科認證', '骨質疏鬆專科醫師', '糖尿病衛教師（CDE）認證', '初期慢性腎臟病照護認證']),
           ...sameAs('yang-yu-chang'),
         },
         {
