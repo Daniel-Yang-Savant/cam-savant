@@ -65,7 +65,7 @@ export default async function EnglishLocationPage({ params }: Props) {
     <div className="min-h-screen bg-[#f5f0e8] dark:bg-neutral-900">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <nav className="mb-8 text-xs text-neutral-500 dark:text-neutral-400"><Link href="/en/contact" className="hover:text-neutral-950 dark:hover:text-neutral-100">Clinic information</Link><span className="mx-2">/</span><span>{location.hospitalEn}</span></nav>
+        <nav className="mb-8 text-xs text-neutral-500 dark:text-neutral-400"><Link href="/en/locations" className="hover:text-neutral-950 dark:hover:text-neutral-100">Clinic information</Link><span className="mx-2">/</span><span>{location.hospitalEn}</span></nav>
 
         <header className="rounded-3xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-7 sm:p-10">
           <div className="grid lg:grid-cols-[1fr_340px] gap-8 lg:gap-12 items-start">
@@ -122,7 +122,7 @@ export default async function EnglishLocationPage({ params }: Props) {
 
         <nav className="mt-10 pt-8 border-t border-neutral-200 dark:border-neutral-700 flex flex-wrap gap-3">
           {CLINIC_LOCATIONS.filter((item) => item.slug !== location.slug).map((item) => <Link key={item.slug} href={`/en/locations/${item.slug}`} className="rounded-full border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm text-neutral-600 dark:text-neutral-300">{item.hospitalEn}</Link>)}
-          <Link href="/en/contact" className="rounded-full border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm text-neutral-600 dark:text-neutral-300">All clinic information</Link>
+          <Link href="/en/locations" className="rounded-full border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm text-neutral-600 dark:text-neutral-300">All clinic information</Link>
         </nav>
       </div>
     </div>

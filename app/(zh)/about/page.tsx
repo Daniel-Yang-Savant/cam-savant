@@ -165,10 +165,10 @@ export default function AboutPage() {
         {/* ── 看診資訊 CTA ── */}
         <div className="mt-12 text-center">
           <Link
-            href="/contact"
+            href="/locations"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950 text-sm font-semibold hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors"
           >
-            看診資訊 &amp; 預約掛號 →
+            依地區查看看診資訊 →
           </Link>
         </div>
 

@@ -18,6 +18,7 @@ function englishAlternatePath(pathname: string): string {
   if (pathname === '/') return '/en'
   if (pathname === '/about') return '/en/about'
   if (pathname === '/contact') return '/en/contact'
+  if (pathname === '/locations') return '/en/locations'
   if (pathname.startsWith('/doctors/')) return `/en${pathname}`
   if (pathname.startsWith('/locations/')) return `/en${pathname}`
   if (pathname === '/perioperative-rehab') return '/en/perioperative-rehab'
@@ -43,7 +44,7 @@ export default function Navbar({ locale = 'zh' }: NavbarProps) {
     ? [
         { href: '/en', label: t('home') },
         { href: '/en/about', label: t('about') },
-        { href: '/en/contact', label: t('navContact') },
+        { href: '/en/locations', label: t('navContact') },
         { href: '/en/perioperative-rehab', label: t('navPerioperativeRehab') },
       ]
     : [

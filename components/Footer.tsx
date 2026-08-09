@@ -8,7 +8,7 @@ export default function Footer({ locale = 'zh' }: { locale?: Lang }) {
   const categoryLinks = isEnglish
     ? [
         ['/en/about', 'Medical Team'],
-        ['/en/contact', 'Clinic Information'],
+        ['/en/locations', 'Clinic Information'],
         ['/en/perioperative-rehab', 'Postoperative Rehabilitation'],
       ]
     : [
@@ -22,19 +22,13 @@ export default function Footer({ locale = 'zh' }: { locale?: Lang }) {
     ? [
         ['/en', 'Home'],
         ['/en/about', 'Medical Team'],
-        ['/en/contact', 'Clinic Information'],
-        ['/en/locations/changhua', 'Changhua Christian Hospital'],
-        ['/en/locations/nantou', 'Nantou Christian Hospital'],
-        ['/en/locations/erlin', 'Erlin Christian Hospital'],
+        ['/en/locations', 'Clinic Information'],
       ]
     : [
         ['/', '首頁'],
         ['/posts', '所有文章'],
         ['/about', '醫師團隊'],
-        ['/contact', '看診資訊'],
-        ['/locations/changhua', '彰化基督教醫院'],
-        ['/locations/nantou', '南投基督教醫院'],
-        ['/locations/erlin', '二林基督教醫院'],
+        ['/locations', '看診資訊'],
       ]
 
   return (

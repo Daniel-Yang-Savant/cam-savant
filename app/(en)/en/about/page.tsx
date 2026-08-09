@@ -73,7 +73,7 @@ export default function EnglishAboutPage() {
         </div>
 
         <div className="mt-14 text-center">
-          <Link href="/en/contact" className="inline-flex rounded-full bg-neutral-950 dark:bg-neutral-100 px-6 py-3 text-sm font-semibold text-white dark:text-neutral-950 hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors">Clinic locations and appointments →</Link>
+          <Link href="/en/locations" className="inline-flex rounded-full bg-neutral-950 dark:bg-neutral-100 px-6 py-3 text-sm font-semibold text-white dark:text-neutral-950 hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors">Browse clinic locations →</Link>
         </div>
       </div>
     </div>

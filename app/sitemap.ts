@@ -113,6 +113,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
       alternates: languageAlternates('/about'),
     },
     {
+      url: `${BASE_URL}/locations`,
+      lastModified: TEAM_PAGE_DATE,
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+      alternates: languageAlternates('/locations'),
+    },
+    {
+      url: `${BASE_URL}/en/locations`,
+      lastModified: ENGLISH_SITE_DATE,
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+      alternates: languageAlternates('/locations'),
+    },
+    {
       url: `${BASE_URL}/contact`,
       lastModified: TEAM_PAGE_DATE,
       changeFrequency: 'monthly' as const,

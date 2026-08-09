@@ -111,7 +111,7 @@ export default async function LocationPage({ params }: Props) {
           __html: JSON.stringify(
             generateBreadcrumbSchema([
               { name: '首頁', url: BASE_URL },
-              { name: '看診資訊', url: `${BASE_URL}/contact` },
+              { name: '看診資訊', url: `${BASE_URL}/locations` },
               { name: location.hospital, url: pageUrl },
             ])
           ),
@@ -124,7 +124,7 @@ export default async function LocationPage({ params }: Props) {
             className="mb-8"
             items={[
               { label: '首頁', href: '/' },
-              { label: '看診資訊', href: '/contact' },
+              { label: '看診資訊', href: '/locations' },
               { label: location.hospital },
             ]}
           />
@@ -328,7 +328,7 @@ export default async function LocationPage({ params }: Props) {
                 </Link>
               ))}
               <Link
-                href="/contact"
+                href="/locations"
                 className="rounded-full border border-neutral-300 dark:border-neutral-600 px-4 py-2 text-sm text-neutral-600 dark:text-neutral-300 hover:border-neutral-950 dark:hover:border-neutral-100 transition-colors"
               >
                 返回完整看診資訊
