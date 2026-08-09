@@ -10,8 +10,7 @@ export const metadata: Metadata = {
 
 import Hero from '@/components/Hero'
 import ArticleCard from '@/components/ArticleCard'
-import PopularTopics from '@/components/PopularTopics'
-import { getAllTags, getPublicPosts } from '@/lib/posts'
+import { getPublicPosts } from '@/lib/posts'
 import Link from 'next/link'
 
 const websiteJsonLd = {
@@ -42,7 +41,6 @@ export default function HomePage() {
 
   const [heroPost, ...rest] = focusedPosts
   const latestPosts = rest.slice(0, 4)         // 復健與運動傷害最新 4 篇（Hero 以外）
-  const popularTopics = getAllTags().slice(0, 6)
 
   return (
     <>
@@ -65,35 +63,25 @@ export default function HomePage() {
 
       {/* ── Body ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div className="grid lg:grid-cols-3 gap-12 lg:gap-16">
+        <section>
+          <div className="flex items-baseline justify-between mb-8">
+            <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
+              最新復健與運動傷害文章
+            </h2>
+            <Link
+              href="/posts"
+              className="text-xs text-neutral-500 hover:text-neutral-950 transition-colors"
+            >
+              更多 →
+            </Link>
+          </div>
 
-          {/* ── Latest articles (2/3) ── */}
-          <section className="lg:col-span-2">
-            <div className="flex items-baseline justify-between mb-8">
-              <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
-                最新復健與運動傷害文章
-              </h2>
-              <Link
-                href="/posts"
-                className="text-xs text-neutral-500 hover:text-neutral-950 transition-colors"
-              >
-                更多 →
-              </Link>
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-x-8 gap-y-12">
-              {latestPosts.map((post) => (
-                <ArticleCard key={post.slug} post={post} />
-              ))}
-            </div>
-          </section>
-
-          {/* ── Popular topics (1/3) ── */}
-          <aside className="lg:border-l lg:border-neutral-100 dark:lg:border-neutral-800 lg:pl-12">
-            <PopularTopics topics={popularTopics} />
-          </aside>
-
-        </div>
+          <div className="grid sm:grid-cols-2 gap-x-8 gap-y-12">
+            {latestPosts.map((post) => (
+              <ArticleCard key={post.slug} post={post} />
+            ))}
+          </div>
+        </section>
       </div>
 
     </>

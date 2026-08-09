@@ -83,7 +83,7 @@ cam-savant/
 ├── app/                         # Next.js App Router
 │   ├── globals.css
 │   ├── layout.tsx               # 根佈局（Navbar + Footer）
-│   ├── page.tsx                 # 首頁（Hero + 最新文章 + 熱門主題）
+│   ├── page.tsx                 # 首頁（Hero + 最新文章）
 │   ├── about/page.tsx           # 關於頁面
 │   ├── posts/
 │   │   ├── page.tsx             # 全部文章列表
@@ -97,7 +97,6 @@ cam-savant/
 │   ├── Footer.tsx
 │   ├── Hero.tsx                 # 首頁大圖 Hero 區
 │   ├── ArticleCard.tsx          # 文章卡片
-│   ├── PopularTopics.tsx        # 熱門主題清單
 │   └── PostList.tsx             # 文章列表 + 分類篩選
 │
 ├── content/posts/               # ✏️  在此新增 .mdx 文章
