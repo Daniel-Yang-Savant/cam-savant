@@ -5,7 +5,7 @@ import { englishAlternates } from '@/lib/locales'
 
 export const metadata: Metadata = {
   title: 'Clinic Locations and Appointments',
-  description: 'Rehabilitation location addresses, phone numbers, maps, and official appointment links for Changhua, Nantou, Erlin, and nearby Yunlin.',
+  description: 'Rehabilitation location addresses, phone numbers, maps, and official appointment links for Changhua, Yuanlin, Nantou, Erlin, and nearby Yunlin.',
   alternates: englishAlternates('/locations'),
   openGraph: {
     title: 'Clinic Locations | CAM Savant',
@@ -14,20 +14,32 @@ export const metadata: Metadata = {
   },
 }
 
-const regionMap = {
-  changhua: {
+const regionGroups = [
+  {
+    key: 'changhua',
     name: 'Changhua Area',
-    description: 'Changhua City and central Changhua',
+    description: 'Changhua City, including the main CCH and Hanming campuses',
+    slugs: ['changhua', 'hanming'],
   },
-  nantou: {
-    name: 'Nantou Area',
-    description: 'Nantou City and nearby communities',
+  {
+    key: 'yuanlin',
+    name: 'Yuanlin Area',
+    description: 'Yuanlin City and nearby communities',
+    slugs: ['yuanlin'],
   },
-  erlin: {
+  {
+    key: 'erlin',
     name: 'Erlin and Nearby Yunlin',
     description: 'Southern Changhua with convenient access from Yunlin',
+    slugs: ['erlin'],
   },
-} as const
+  {
+    key: 'nantou',
+    name: 'Nantou Area',
+    description: 'Nantou City and nearby communities',
+    slugs: ['nantou'],
+  },
+] as const
 
 export default function EnglishLocationsPage() {
   return (
@@ -40,30 +52,43 @@ export default function EnglishLocationsPage() {
         </p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        {CLINIC_LOCATIONS.map((clinic) => {
-          const region = regionMap[clinic.slug]
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12 items-stretch">
+        {regionGroups.map((region) => {
+          const clinics = region.slugs
+            .map((slug) => CLINIC_LOCATIONS.find((clinic) => clinic.slug === slug))
+            .filter((clinic): clinic is NonNullable<typeof clinic> => clinic !== undefined)
+
           return (
-            <article key={clinic.slug} className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 flex flex-col gap-4">
-              <div>
-                <h2 className="text-xs font-bold text-accent-700 dark:text-accent-400">{region.name}</h2>
+            <section
+              key={region.key}
+              className={`rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 ${region.key === 'changhua' ? 'lg:row-span-2' : ''} ${region.key === 'nantou' ? 'lg:col-span-2' : ''}`}
+            >
+              <header className="pb-4 border-b border-neutral-100 dark:border-neutral-800">
+                <h2 className="text-base font-bold text-accent-700 dark:text-accent-400">{region.name}</h2>
                 <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">{region.description}</p>
-                <span className="mt-3 inline-block text-[10px] font-semibold tracking-widest uppercase text-neutral-500 dark:text-neutral-400">{clinic.departmentEn}</span>
-                <h3 className="mt-2 text-lg font-bold text-neutral-950 dark:text-neutral-100 leading-tight">{clinic.hospitalEn}</h3>
-                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{clinic.addressEn}</p>
+              </header>
+
+              <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
+                {clinics.map((clinic) => (
+                  <article key={clinic.slug} className="py-5 last:pb-0 flex flex-col gap-4">
+                    <div>
+                      <span className="text-[10px] font-semibold tracking-widest uppercase text-neutral-500 dark:text-neutral-400">{clinic.departmentEn}</span>
+                      <h3 className="mt-2 text-lg font-bold text-neutral-950 dark:text-neutral-100 leading-tight">{clinic.hospitalEn}</h3>
+                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{clinic.addressEn}</p>
+                    </div>
+                    <dl className="text-sm text-neutral-600 dark:text-neutral-300">
+                      <dt className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Phone</dt>
+                      <dd className="mt-1"><a href={clinic.phoneHref} className="hover:text-neutral-950 dark:hover:text-neutral-100">{clinic.phone}</a></dd>
+                    </dl>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      <Link href={`/en/locations/${clinic.slug}`} className="text-center text-xs font-semibold py-2.5 rounded-xl bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950">Details</Link>
+                      <a href={clinic.bookingUrl} target="_blank" rel="noopener noreferrer" className="text-center text-xs font-semibold py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-200">Appointment ↗</a>
+                      <a href={clinic.mapUrl} target="_blank" rel="noopener noreferrer" className="text-center text-xs py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400">Map ↗</a>
+                    </div>
+                  </article>
+                ))}
               </div>
-              <dl className="space-y-3 text-sm text-neutral-600 dark:text-neutral-300">
-                <div>
-                  <dt className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Phone</dt>
-                  <dd className="mt-1"><a href={clinic.phoneHref} className="hover:text-neutral-950 dark:hover:text-neutral-100">{clinic.phone}</a></dd>
-                </div>
-              </dl>
-              <div className="mt-auto flex flex-col gap-2 pt-2">
-                <Link href={`/en/locations/${clinic.slug}`} className="w-full text-center text-sm font-semibold py-2.5 rounded-xl bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950">Location details</Link>
-                <a href={clinic.bookingUrl} target="_blank" rel="noopener noreferrer" className="w-full text-center text-sm font-semibold py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-200">Online appointment ↗</a>
-                <a href={clinic.mapUrl} target="_blank" rel="noopener noreferrer" className="w-full text-center text-sm py-2 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400">Google Maps ↗</a>
-              </div>
-            </article>
+            </section>
           )
         })}
       </div>

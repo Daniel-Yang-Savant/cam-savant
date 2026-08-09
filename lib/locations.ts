@@ -1,7 +1,7 @@
 export type LocationColor = 'blue' | 'green' | 'amber'
 
 export interface ClinicLocation {
-  slug: 'changhua' | 'nantou' | 'erlin'
+  slug: 'changhua' | 'hanming' | 'yuanlin' | 'nantou' | 'erlin'
   hospital: string
   hospitalEn: string
   shortName: string
@@ -32,7 +32,7 @@ export interface ClinicLocation {
 }
 
 /**
- * 三院資料的唯一來源。
+ * 團隊服務院區資料的唯一來源。
  * 地址、電話、掛號與交通連結均以各醫院官方網站為準；
  * 門診時段沿用既有網站資料，不在地點頁另行維護。
  */
@@ -93,6 +93,102 @@ export const CLINIC_LOCATIONS: ClinicLocation[] = [
       'Osteoporosis assessment and treatment',
       'Preoperative and postoperative rehabilitation planning',
       'Frequency Specific Microcurrent (FSM)',
+    ],
+  },
+  {
+    slug: 'hanming',
+    hospital: '漢銘基督教醫院',
+    hospitalEn: 'Hanming Christian Hospital',
+    shortName: '漢銘醫院',
+    department: '復健科',
+    departmentEn: 'Department of Rehabilitation Medicine',
+    address: '500 彰化市中山路一段366號',
+    addressEn: 'No. 366, Sec. 1, Zhongshan Rd., Changhua City, Changhua County 500, Taiwan',
+    streetAddress: '中山路一段366號',
+    addressRegion: '彰化縣',
+    addressLocality: '彰化市',
+    postalCode: '500',
+    phone: '(04) 711-3456',
+    phoneHref: 'tel:+88647113456',
+    mapUrl: 'https://www.google.com/maps/search/?api=1&query=漢銘基督教醫院',
+    officialUrl: 'https://hm.cch.org.tw/',
+    transportUrl: 'https://hm.cch.org.tw/about_5.aspx',
+    bookingUrl: 'https://opdhm.cch.org.tw/hmrg/opd/service-e.aspx?id=1400&Page=11&#p',
+    schedule: ['週一 上午', '週三 上午'],
+    scheduleEn: ['Monday morning', 'Wednesday morning'],
+    color: 'blue',
+    areaDescription:
+      '位於彰化市中山路一段，提供彰化地區復健醫學、肌肉骨骼超音波與超音波導引注射等門診服務。',
+    areaDescriptionEn:
+      'Located on Section 1 of Zhongshan Road in Changhua City, this clinic provides rehabilitation medicine, musculoskeletal ultrasound, and ultrasound-guided procedures.',
+    transportNotes: [
+      '院區位於彰化市中山路一段，可使用 Google Maps 規劃開車、騎車或大眾運輸路線。',
+      '公車、接駁與停車資訊可能調整，出發前請查閱漢銘基督教醫院官方交通頁。',
+      '臨時交通管制與院區出入口異動，以院方現場及官方公告為準。',
+    ],
+    transportNotesEn: [
+      'The hospital is on Section 1 of Zhongshan Road in Changhua City. Use Google Maps for current driving, scooter, or public transit routes.',
+      'Bus, shuttle, and parking information may change. Check the hospital’s official transportation page before traveling.',
+      'Temporary traffic controls and entrance changes are subject to on-site and official hospital announcements.',
+    ],
+    doctorSlugs: ['wen-wei-lai'],
+    services: [
+      '復健醫學評估',
+      '肌肉骨骼超音波',
+      '超音波導引注射',
+    ],
+    servicesEn: [
+      'Rehabilitation medicine assessment',
+      'Musculoskeletal ultrasound',
+      'Ultrasound-guided injection',
+    ],
+  },
+  {
+    slug: 'yuanlin',
+    hospital: '員林基督教醫院',
+    hospitalEn: 'Yuanlin Christian Hospital',
+    shortName: '員基醫院',
+    department: '復健科',
+    departmentEn: 'Department of Rehabilitation Medicine',
+    address: '510 彰化縣員林市莒光路456號',
+    addressEn: 'No. 456, Juguang Rd., Yuanlin City, Changhua County 510, Taiwan',
+    streetAddress: '莒光路456號',
+    addressRegion: '彰化縣',
+    addressLocality: '員林市',
+    postalCode: '510',
+    phone: '(04) 838-1456',
+    phoneHref: 'tel:+88648381456',
+    mapUrl: 'https://www.google.com/maps/search/?api=1&query=員林基督教醫院',
+    officialUrl: 'https://bc.cch.org.tw/',
+    transportUrl: 'https://bc.cch.org.tw/about_5.aspx',
+    bookingUrl: 'https://bc.cch.org.tw/bcrg/opd/service-e.aspx?id=1400&Page=11&#p',
+    schedule: ['週五 下午'],
+    scheduleEn: ['Friday afternoon'],
+    color: 'amber',
+    areaDescription:
+      '位於員林市莒光路，提供員林及鄰近地區復健醫學、肌肉骨骼超音波與超音波導引注射等門診服務。',
+    areaDescriptionEn:
+      'Located on Juguang Road in Yuanlin City, this clinic provides rehabilitation medicine, musculoskeletal ultrasound, and ultrasound-guided procedures for Yuanlin and nearby areas.',
+    transportNotes: [
+      '院區位於員林市莒光路，可使用 Google Maps 規劃開車、騎車或大眾運輸路線。',
+      '公車、接駁與停車資訊可能調整，出發前請查閱員林基督教醫院官方交通頁。',
+      '臨時交通管制與院區出入口異動，以院方現場及官方公告為準。',
+    ],
+    transportNotesEn: [
+      'The hospital is on Juguang Road in Yuanlin City. Use Google Maps for current driving, scooter, or public transit routes.',
+      'Bus, shuttle, and parking information may change. Check the hospital’s official transportation page before traveling.',
+      'Temporary traffic controls and entrance changes are subject to on-site and official hospital announcements.',
+    ],
+    doctorSlugs: ['wen-wei-lai'],
+    services: [
+      '復健醫學評估',
+      '肌肉骨骼超音波',
+      '超音波導引注射',
+    ],
+    servicesEn: [
+      'Rehabilitation medicine assessment',
+      'Musculoskeletal ultrasound',
+      'Ultrasound-guided injection',
     ],
   },
   {
