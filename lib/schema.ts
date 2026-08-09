@@ -53,7 +53,7 @@ export function generateArticleSchema(post: {
   date: string
   slug: string
   category: string
-  author?: string
+  author: string
   coverImage?: string
   lastModified?: string
 }) {
@@ -70,7 +70,6 @@ export function generateArticleSchema(post: {
     lastReviewed: post.lastModified ?? post.date,
     inLanguage: 'zh-TW',
     author: generatePhysicianSchema(authorDetails),
-    reviewedBy: generatePhysicianSchema(authorDetails),
     publisher: {
       '@type': 'MedicalOrganization',
       name: 'CAM Savant',

@@ -105,7 +105,7 @@ export default async function Image({
         />
 
         {/* Top: category badge */}
-        <div style={{ display: 'flex', alignItems: 'center', zIndex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
           {categoryLabel ? (
             <div
               style={{
@@ -141,7 +141,7 @@ export default async function Image({
         </div>
 
         {/* Middle: article title */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, zIndex: 1 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <h1
             style={{
               fontSize: titleSize,
@@ -172,7 +172,6 @@ export default async function Image({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            zIndex: 1,
             borderTop: '1px solid rgba(255,255,255,0.07)',
             paddingTop: 28,
           }}

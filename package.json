@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test:sw": "node --test tests/service-worker.test.mjs",
+    "optimize:covers": "tsx scripts/optimize-cover-images.ts",
     "publish-post": "tsx scripts/publish-from-pdf.ts",
     "prompts": "ts-node scripts/today-tasks.ts",
     "draft": "ts-node scripts/convert-drafts.ts",
@@ -39,6 +40,7 @@
     "qrcode.react": "^4.2.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "sharp": "^0.35.3",
     "zod": "^4.4.2"
   },
   "devDependencies": {

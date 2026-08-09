@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 import Hero from '@/components/Hero'
 import ArticleCard from '@/components/ArticleCard'
-import FeaturedReadingList from '@/components/FeaturedReadingList'
-import { getPublicPosts } from '@/lib/posts'
+import PopularTopics from '@/components/PopularTopics'
+import { getAllTags, getPublicPosts } from '@/lib/posts'
 import Link from 'next/link'
 
 const websiteJsonLd = {
@@ -42,7 +42,7 @@ export default function HomePage() {
 
   const [heroPost, ...rest] = focusedPosts
   const latestPosts = rest.slice(0, 4)         // 復健與運動傷害最新 4 篇（Hero 以外）
-  const featuredList = focusedPosts.slice(0, 6) // 首頁內容聚焦復健與運動傷害
+  const popularTopics = getAllTags().slice(0, 6)
 
   return (
     <>
@@ -88,9 +88,9 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* ── Featured reading list (1/3) ── */}
+          {/* ── Popular topics (1/3) ── */}
           <aside className="lg:border-l lg:border-neutral-100 dark:lg:border-neutral-800 lg:pl-12">
-            <FeaturedReadingList posts={featuredList} />
+            <PopularTopics topics={popularTopics} />
           </aside>
 
         </div>

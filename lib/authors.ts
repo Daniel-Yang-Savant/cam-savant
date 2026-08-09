@@ -166,11 +166,11 @@ export const AUTHORS: Record<string, Author> = {
   },
 }
 
-export const DEFAULT_AUTHOR_KEY = '楊育愷醫師'
-
-/** 依 frontmatter author 字串取得作者資料（找不到時回傳預設作者） */
-export function getAuthor(authorKey?: string): Author {
-  return (authorKey ? AUTHORS[authorKey] : undefined) ?? AUTHORS[DEFAULT_AUTHOR_KEY]
+/** 依 frontmatter author 字串取得作者資料；未知作者應在建置時直接失敗。 */
+export function getAuthor(authorKey: string): Author {
+  const author = AUTHORS[authorKey]
+  if (!author) throw new Error(`未知的文章作者：${authorKey}`)
+  return author
 }
 
 export function getAuthorEntryBySlug(slug: string): { key: string; author: Author } | null {

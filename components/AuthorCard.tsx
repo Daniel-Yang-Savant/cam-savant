@@ -6,7 +6,7 @@ import { getAuthor } from '@/lib/authors'
  * 文章作者卡片（E-E-A-T）
  * 顯示作者頭像、職稱、專業認證，並連結至獨立醫師介紹頁。
  */
-export default function AuthorCard({ author }: { author?: string }) {
+export default function AuthorCard({ author }: { author: string }) {
   const a = getAuthor(author)
 
   return (

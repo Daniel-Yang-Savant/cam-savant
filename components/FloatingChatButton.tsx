@@ -16,10 +16,10 @@ export default function FloatingChatButton({ locale = 'zh' }: { locale?: 'zh' | 
   const isEnglish = locale === 'en'
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-3">
       {/* 展開的兩個選項 */}
       {open && (
-        <div className="flex flex-col items-end gap-2 animate-[fadeIn_0.15s_ease-out]">
+        <div id="consultation-menu" className="flex flex-col items-end gap-2 animate-[fadeIn_0.15s_ease-out]">
           <a
             href={LINE_ADD_URL}
             target="_blank"
@@ -50,14 +50,18 @@ export default function FloatingChatButton({ locale = 'zh' }: { locale?: 'zh' | 
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
+        aria-controls="consultation-menu"
         aria-label={open
           ? (isEnglish ? 'Close consultation menu' : '關閉諮詢選單')
           : (isEnglish ? 'Open consultation menu' : '開啟諮詢選單')}
-        className="flex items-center gap-2 bg-accent-700 dark:bg-accent-500 text-white dark:text-neutral-950 text-sm font-semibold px-4 py-3 rounded-full shadow-lg hover:bg-accent-600 dark:hover:bg-accent-400 hover:scale-105 transition-all duration-200"
+        className="flex h-12 w-12 sm:h-auto sm:w-auto items-center justify-center gap-2 bg-accent-700 dark:bg-accent-500 text-white dark:text-neutral-950 text-sm font-semibold sm:px-4 sm:py-3 rounded-full shadow-lg hover:bg-accent-600 dark:hover:bg-accent-400 hover:scale-105 transition-all duration-200"
       >
-        {open
-          ? (isEnglish ? '✕ Close' : '✕ 關閉')
-          : (isEnglish ? '💬 Ask a Question' : '💬 諮詢提問')}
+        <span aria-hidden="true">{open ? '✕' : '💬'}</span>
+        <span className="hidden sm:inline">
+          {open
+            ? (isEnglish ? 'Close' : '關閉')
+            : (isEnglish ? 'Ask a Question' : '諮詢提問')}
+        </span>
       </button>
 
       <style jsx>{`

@@ -32,7 +32,7 @@ const PostFrontmatterSchema = z.object({
     .string()
     .min(10, 'excerpt 至少 10 字（SEO meta description 用）')
     .max(200, 'excerpt 建議不超過 200 字'),
-  author: z.string().optional(),
+  author: z.string().min(1, 'author 不可為空'),
   coverImage: z.string().optional(),
   tags: z.array(z.string()).optional(),
   draft: z.boolean().optional().default(false),

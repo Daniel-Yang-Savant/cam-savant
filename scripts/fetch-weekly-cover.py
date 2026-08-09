@@ -50,7 +50,7 @@ def main():
     cand = [p for p in photos if p.get("width", 0) >= 1792 and p.get("width", 0) >= p.get("height", 0)] or photos
     p = cand[min(args.pick, len(cand) - 1)]
 
-    img_url = p["src"]["original"] + "?auto=compress&cs=tinysrgb&fit=crop&w=1792&h=1024"
+    img_url = p["src"]["original"] + "?auto=compress&cs=tinysrgb&fit=crop&w=1792&h=1024&fm=jpg&q=90"
     covers = os.path.join(ROOT, "public", "images", "covers")
     os.makedirs(covers, exist_ok=True)
     out = os.path.join(covers, f"{args.slug}.jpg")

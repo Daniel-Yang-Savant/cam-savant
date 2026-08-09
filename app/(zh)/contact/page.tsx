@@ -34,9 +34,15 @@ const specialties = [
   '肌肉骨骼疼痛管理',
 ]
 
+const YU_KAI_YANG_SLUG = 'yu-kai-yang'
+
 // ── Page ───────────────────────────────────────────────────────────────────
 
 export default function ContactPage() {
+  const clinics = CLINIC_LOCATIONS.filter((clinic) =>
+    clinic.doctorSlugs.includes(YU_KAI_YANG_SLUG)
+  )
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
 
@@ -97,7 +103,7 @@ export default function ContactPage() {
 
       {/* ── Clinic cards ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        {CLINIC_LOCATIONS.map((clinic) => {
+        {clinics.map((clinic) => {
           const c = colorMap[clinic.color]
           return (
             <div key={clinic.hospital} className={`rounded-2xl border ${c.border} bg-white dark:bg-neutral-900 p-6 flex flex-col gap-4`}>
