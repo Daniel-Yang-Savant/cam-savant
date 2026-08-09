@@ -117,6 +117,9 @@ export default async function PostPage({ params }: Props) {
   const formattedDate = format(new Date(frontmatter.date), 'yyyy年M月d日', {
     locale: zhTW,
   })
+  const formattedModifiedDate = frontmatter.lastModified
+    ? format(new Date(frontmatter.lastModified), 'yyyy年M月d日', { locale: zhTW })
+    : null
 
   const BASE_URL = 'https://camsavant.com'
   const readingTime = getReadingTime(content)
@@ -213,9 +216,23 @@ export default async function PostPage({ params }: Props) {
 
             <div className="mt-6 pt-6 border-t border-neutral-100 dark:border-neutral-700 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3 flex-wrap">
-                <time className="text-sm text-neutral-400 dark:text-neutral-500 font-mono" dateTime={frontmatter.date}>
-                  {formattedDate}
-                </time>
+                <span className="text-sm text-neutral-400 dark:text-neutral-500">
+                  發布：
+                  <time className="font-mono" dateTime={frontmatter.date}>
+                    {formattedDate}
+                  </time>
+                </span>
+                {formattedModifiedDate && frontmatter.lastModified && (
+                  <>
+                    <span className="text-sm text-neutral-300 dark:text-neutral-600">·</span>
+                    <span className="text-sm text-neutral-400 dark:text-neutral-500">
+                      最後更新：
+                      <time className="font-mono" dateTime={frontmatter.lastModified}>
+                        {formattedModifiedDate}
+                      </time>
+                    </span>
+                  </>
+                )}
                 {frontmatter.author && (
                   <span className="text-sm text-neutral-400 dark:text-neutral-500">
                     {frontmatter.author}
