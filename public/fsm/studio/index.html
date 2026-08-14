@@ -231,8 +231,14 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling
 .protocol-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; margin-bottom: 10px; cursor: pointer; transition: all 0.15s; }
 .protocol-card:hover { border-color: var(--accent); }
 .protocol-card.loaded { border-color: var(--accent); background: linear-gradient(180deg, var(--accent-glow), var(--bg-elev) 40%); }
+.protocol-card.mark-mode { padding-left: 48px; position: relative; }
+.protocol-card.marked { border-color: var(--polA); background: rgba(255,166,87,0.08); }
+.protocol-mark { position:absolute; left:14px; top:14px; width:22px; height:22px; border-radius:50%; border:2px solid var(--border-strong); display:grid; place-items:center; color:var(--bg); font-size:13px; font-weight:800; }
+.protocol-card.marked .protocol-mark { border-color:var(--polA); background:var(--polA); }
 .protocol-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .protocol-cat { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; background: var(--bg); border: 1px solid var(--border); color: var(--text-very-dim); padding: 2px 6px; border-radius: 3px; }
+.protocol-location { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:7px; font-family:var(--mono); font-size:10px; color:var(--text-very-dim); }
+.protocol-location span { padding:2px 7px; border-radius:999px; border:1px solid var(--border); background:var(--bg); }
 .protocol-indication { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; line-height: 1.4; }
 .protocol-meta { display: flex; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 10px; color: var(--text-very-dim); text-transform: uppercase; letter-spacing: 0.5px; }
 .steps-list { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; display: none; }
@@ -292,21 +298,68 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling
 .info-block h3:first-child { margin-top: 0; }
 .info-block code { font-family: var(--mono); font-size: 11px; background: var(--bg); padding: 1px 5px; border-radius: 3px; border: 1px solid var(--border); }
 
-.run-overlay { position: fixed; inset: 0; background: rgba(13,17,23,0.97); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 50; display: none; flex-direction: column; padding: 24px; padding-top: max(24px, env(safe-area-inset-top)); }
+.run-overlay { position: fixed; inset: 0; background: rgba(13,17,23,0.98); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 50; display: none; flex-direction: column; padding: 20px; padding-top: max(20px, env(safe-area-inset-top)); overflow: hidden; }
 .run-overlay.show { display: flex; }
-.run-overlay-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.run-overlay-title { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 1.5px; text-transform: uppercase; }
+.run-overlay-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-shrink: 0; }
+.run-overlay-heading { min-width: 0; }
+.run-overlay-title { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.run-overlay-session-meta { margin-top: 3px; font-family: var(--mono); font-size: 10px; color: var(--text-very-dim); letter-spacing: 0.6px; }
+.run-overlay-header-actions { display: flex; align-items: center; gap: 4px; }
+.run-font-btn { min-width: 38px; height: 34px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg-elev); color: var(--text-dim); font-family: var(--mono); font-size: 11px; cursor: pointer; }
+.run-font-btn:hover { color: var(--accent); border-color: var(--accent); }
 .run-overlay-close { background: transparent; border: none; color: var(--text-dim); font-size: 28px; cursor: pointer; line-height: 1; padding: 4px 8px; }
-.run-overlay-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-.run-overlay-big-freq { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
+.run-overlay-content { flex: 1; min-height: 0; }
+.run-workspace { height: 100%; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr); gap: 14px; max-width: 1180px; width: 100%; margin: 0 auto; }
+.run-workspace.manual { grid-template-columns: minmax(0, 680px); justify-content: center; }
+.run-workspace.manual .run-queue-panel, .run-workspace.manual .run-live-add { display: none; }
+.run-current-panel, .run-queue-panel { min-height: 0; background: rgba(22,27,34,0.78); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow-sm); }
+.run-current-panel { display: flex; flex-direction: column; padding: 18px; overflow-y: auto; }
+.run-queue-panel { display: flex; flex-direction: column; overflow: hidden; }
+.run-overlay-big-freq { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: auto 0 18px; }
 .run-overlay-freq-num { font-family: var(--mono); font-size: 56px; font-weight: 500; letter-spacing: -2px; line-height: 1; }
 .run-overlay-freq-num.chA { color: var(--polA); }
 .run-overlay-freq-num.chB { color: var(--polB); }
 .run-overlay-freq-lbl { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-very-dim); margin-bottom: 4px; }
 .run-overlay-freq-name { font-size: 11px; color: var(--text-dim); margin-top: 4px; min-height: 28px; }
-.run-overlay-timer { font-family: var(--mono); font-size: 64px; text-align: center; letter-spacing: 3px; margin-bottom: 8px; }
-.run-overlay-step-info { text-align: center; font-family: var(--mono); font-size: 11px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; min-height: 14px; }
-.run-overlay-controls { display: flex; gap: 8px; }
+.run-overlay-timer { font-family: var(--mono); font-size: 60px; text-align: center; letter-spacing: 3px; margin-bottom: 2px; }
+.run-overlay-step-info { text-align: center; font-family: var(--mono); font-size: 11px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; min-height: 14px; }
+.run-quick-controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+.run-tool-btn { min-height: 42px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); font-family: var(--mono); font-size: 11px; cursor: pointer; }
+.run-tool-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.run-tool-btn:disabled { opacity: 0.3; cursor: default; }
+.run-live-add { display: grid; grid-template-columns: 1fr 1fr 0.8fr auto; gap: 6px; align-items: end; padding: 10px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg); }
+.run-live-field label { display: block; font-family: var(--mono); font-size: 9px; color: var(--text-very-dim); letter-spacing: 0.8px; margin-bottom: 4px; text-transform: uppercase; }
+.run-live-field input { width: 100%; min-width: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-elev); color: var(--text); padding: 8px; font-family: var(--mono); font-size: 12px; }
+.run-live-field input:focus { outline: none; border-color: var(--accent); }
+.run-add-btn { min-height: 35px; padding: 8px 10px; border: none; border-radius: var(--radius); background: var(--accent); color: var(--bg); font-family: var(--mono); font-size: 10px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.run-overlay-controls { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 8px; margin-top: auto; }
+.run-overlay-controls .btn-run { min-width: 0; }
+.run-pause { background: var(--bg); border: 1px solid var(--border-strong); color: var(--text); }
+.run-pause:hover { border-color: var(--accent); color: var(--accent); }
+.run-queue-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 14px 14px 10px; border-bottom: 1px solid var(--border); }
+.run-queue-title { font-size: 13px; font-weight: 650; }
+.run-queue-hint { margin-top: 2px; font-size: 10px; color: var(--text-very-dim); }
+.run-queue-meta { font-family: var(--mono); font-size: 10px; color: var(--accent); white-space: nowrap; }
+.run-queue-list { min-height: 0; overflow-y: auto; padding: 6px; }
+.run-queue-item { width: 100%; display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 10px 8px; border: 1px solid transparent; border-bottom-color: var(--border); border-radius: var(--radius); background: transparent; color: var(--text); text-align: left; font: inherit; cursor: pointer; transition: 0.15s ease; }
+.run-queue-item:hover { background: var(--bg-elev-2); }
+.run-queue-item.current { border-color: var(--accent); background: var(--accent-glow); }
+.run-queue-item.done { opacity: 0.5; }
+.run-tool-btn:focus-visible, .run-font-btn:focus-visible, .run-add-btn:focus-visible, .run-queue-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.run-queue-index { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--bg); color: var(--text-very-dim); font-family: var(--mono); font-size: 9px; }
+.run-queue-item.current .run-queue-index { background: var(--accent); color: var(--bg); }
+.run-queue-freq { font-family: var(--mono); font-size: 13px; font-weight: 650; }
+.run-queue-tags { margin-top: 2px; color: var(--text-very-dim); font-size: 9px; font-family: var(--sans); }
+.run-queue-time { font-family: var(--mono); font-size: 10px; color: var(--accent); }
+.run-overlay.scale-sm .run-overlay-freq-num { font-size: 46px; }
+.run-overlay.scale-sm .run-overlay-timer { font-size: 50px; }
+.run-overlay.scale-lg .run-overlay-freq-num { font-size: 66px; }
+.run-overlay.scale-lg .run-overlay-timer { font-size: 72px; }
+.run-overlay.scale-lg .run-queue-freq { font-size: 15px; }
+
+.protocol-category-strip { display: flex; gap: 6px; overflow-x: auto; padding: 0 0 12px; scrollbar-width: none; }
+.protocol-category-strip::-webkit-scrollbar { display: none; }
+.protocol-category-strip .cat-chip { flex-shrink: 0; }
 
 .audio-status { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 10px 12px; margin-bottom: 12px; font-size: 11px; font-family: var(--mono); color: var(--text-dim); display: flex; align-items: center; gap: 10px; }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-very-dim); }
@@ -397,6 +450,32 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling
 .btn-icon.edit:hover { border-color:var(--accent); color:var(--accent); }
 .custom-badge { font-size:9px; background:rgba(0,163,124,0.15); color:var(--accent); border:1px solid rgba(0,163,124,0.3); border-radius:3px; padding:1px 5px; margin-left:4px; font-family:var(--mono); letter-spacing:0.5px; vertical-align:middle; }
 .protocol-card-actions { display:flex; gap:6px; margin-top:8px; justify-content:flex-end; }
+.protocol-library-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; margin:2px 0 10px; }
+.protocol-library-stat { background:var(--bg-elev); border:1px solid var(--border); border-radius:var(--radius); padding:8px 10px; }
+.protocol-library-stat strong { display:block; color:var(--accent); font-family:var(--mono); font-size:15px; }
+.protocol-library-stat span { color:var(--text-very-dim); font-size:10px; }
+.protocol-folder-strip { display:flex; gap:6px; overflow-x:auto; padding:0 0 10px; scrollbar-width:none; }
+.protocol-folder-strip::-webkit-scrollbar { display:none; }
+.folder-chip { flex:0 0 auto; border:1px solid var(--border); background:var(--bg-elev); color:var(--text-dim); border-radius:999px; padding:7px 10px; font-size:11px; cursor:pointer; }
+.folder-chip.active { color:var(--bg); background:var(--polB); border-color:var(--polB); }
+.protocol-manage-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+.protocol-manage-row .btn-secondary { padding:8px 10px; font-size:11px; }
+.batch-toolbar { display:none; position:sticky; top:54px; z-index:12; background:var(--bg-elev-2); border:1px solid var(--polA); border-radius:var(--radius-lg); padding:9px; margin-bottom:10px; box-shadow:0 8px 22px rgba(0,0,0,.28); }
+.batch-toolbar.show { display:block; }
+.batch-toolbar-head { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; font-size:12px; }
+.batch-toolbar-actions { display:flex; gap:6px; flex-wrap:wrap; }
+.batch-toolbar-actions button { flex:1 1 auto; min-width:86px; }
+.protocol-group { border:1px solid var(--border); background:var(--bg-elev); border-radius:var(--radius-lg); margin-bottom:10px; overflow:hidden; }
+.protocol-group-header { width:100%; border:0; background:transparent; color:var(--text); display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; text-align:left; padding:12px 14px; cursor:pointer; }
+.protocol-group-icon { color:var(--polA); font-family:var(--mono); font-size:11px; font-weight:700; }
+.protocol-group-title { font-size:13px; font-weight:700; }
+.protocol-group-meta { color:var(--text-very-dim); font-family:var(--mono); font-size:10px; }
+.protocol-group-children { display:none; border-top:1px solid var(--border); padding:10px; background:var(--bg); }
+.protocol-group.open .protocol-group-children { display:block; }
+.protocol-group .protocol-card { margin-bottom:8px; }
+.protocol-group .protocol-card:last-child { margin-bottom:0; }
+.protocol-group-actions { display:flex; gap:6px; padding:0 12px 10px; }
+.protocol-group-actions button { flex:1; }
 .modal-scroll { max-height:75vh; overflow-y:auto; padding: 0 2px; }
 
 
@@ -410,9 +489,30 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling
   .run-overlay-timer { font-size: 48px; }
   .run-overlay-big-freq { gap: 24px; }
   .run-overlay-freq-num { font-size: 40px; }
+  .run-overlay.scale-sm .run-overlay-freq-num { font-size: 34px; }
+  .run-overlay.scale-lg .run-overlay-freq-num { font-size: 48px; }
+  .run-overlay.scale-sm .run-overlay-timer { font-size: 42px; }
+  .run-overlay.scale-lg .run-overlay-timer { font-size: 56px; }
+  .run-live-add { grid-template-columns: 1fr 1fr 0.8fr; }
+  .run-add-btn { grid-column: 1 / -1; }
+  .run-tool-btn { min-height: 40px; font-size: 10px; }
+  .protocol-library-summary { grid-template-columns:repeat(3,minmax(82px,1fr)); overflow-x:auto; }
+  .protocol-manage-row .btn-secondary { flex:1 1 auto; }
+  .batch-toolbar { top:48px; }
 }
 @media (min-width: 481px) and (max-width: 768px) {
   .controls { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .run-overlay { padding: 12px; padding-top: max(12px, env(safe-area-inset-top)); overflow-y: auto; }
+  .run-overlay-header { margin-bottom: 8px; }
+  .run-overlay-content { flex: none; }
+  .run-workspace { height: auto; display: flex; flex-direction: column; }
+  .run-current-panel { overflow: visible; padding: 14px; }
+  .run-queue-panel { min-height: 220px; max-height: 38vh; }
+  .run-overlay-big-freq { margin: 8px 0 12px; }
+  .run-overlay-controls { margin-top: 0; }
+  .run-font-btn { min-width: 34px; height: 32px; }
 }
 @media (hover: none) and (pointer: coarse) {
   .btn-seg { min-height: 44px; }
@@ -565,27 +665,74 @@ details[open] .import-help summary::before { transform: rotate(90deg); }
 
   <div class="run-overlay" id="runOverlay">
     <div class="run-overlay-header">
-      <div class="run-overlay-title" id="runOverlayTitle">RUNNING</div>
-      <button class="run-overlay-close" id="runClose">×</button>
+      <div class="run-overlay-heading">
+        <div class="run-overlay-title" id="runOverlayTitle">RUNNING</div>
+        <div class="run-overlay-session-meta" id="runSessionMeta">LIVE SESSION</div>
+      </div>
+      <div class="run-overlay-header-actions">
+        <button class="run-font-btn" id="ovFontDown" aria-label="縮小執行畫面字體">A−</button>
+        <button class="run-font-btn" id="ovFontUp" aria-label="放大執行畫面字體">A+</button>
+        <button class="run-overlay-close" id="runClose" aria-label="停止並關閉">×</button>
+      </div>
     </div>
     <div class="run-overlay-content">
-      <div class="run-overlay-big-freq">
-        <div>
-          <div class="run-overlay-freq-lbl">CH A</div>
-          <div class="run-overlay-freq-num chA" id="ovFreqA">40</div>
-          <div class="run-overlay-freq-name" id="ovFreqAName">—</div>
-        </div>
-        <div>
-          <div class="run-overlay-freq-lbl">CH B</div>
-          <div class="run-overlay-freq-num chB" id="ovFreqB">116</div>
-          <div class="run-overlay-freq-name" id="ovFreqBName">—</div>
-        </div>
-      </div>
-      <div class="run-overlay-timer" id="ovTimer">04:00</div>
-      <div class="run-overlay-progress-track"><div class="run-overlay-progress-bar" id="ovProgressBar"></div></div>
-      <div class="run-overlay-step-info" id="ovStepInfo"></div>
-      <div class="run-overlay-controls">
-        <button class="btn-run stop" id="ovStop">■ STOP</button>
+      <div class="run-workspace" id="runWorkspace">
+        <section class="run-current-panel">
+          <div class="run-overlay-step-info" id="ovStepInfo"></div>
+          <div class="run-overlay-big-freq">
+            <div>
+              <div class="run-overlay-freq-lbl">CH A</div>
+              <div class="run-overlay-freq-num chA" id="ovFreqA">40</div>
+              <div class="run-overlay-freq-name" id="ovFreqAName">—</div>
+            </div>
+            <div>
+              <div class="run-overlay-freq-lbl">CH B</div>
+              <div class="run-overlay-freq-num chB" id="ovFreqB">116</div>
+              <div class="run-overlay-freq-name" id="ovFreqBName">—</div>
+            </div>
+          </div>
+          <div class="run-overlay-timer" id="ovTimer">04:00</div>
+          <div class="run-overlay-progress-track"><div class="run-overlay-progress-bar" id="ovProgressBar"></div></div>
+
+          <div class="run-quick-controls">
+            <button class="run-tool-btn" id="ovPrev" data-i18n="run_prev">← 上一步</button>
+            <button class="run-tool-btn" id="ovMinusMin" data-i18n="run_minus_min">−1 分鐘</button>
+            <button class="run-tool-btn" id="ovPlusMin" data-i18n="run_plus_min">+1 分鐘</button>
+            <button class="run-tool-btn" id="ovNext" data-i18n="run_next">下一步 →</button>
+          </div>
+
+          <div class="run-live-add" id="runLiveAdd">
+            <div class="run-live-field">
+              <label for="ovAddFreqA">CH A</label>
+              <input id="ovAddFreqA" type="number" min="0.1" max="970" step="0.1" inputmode="decimal">
+            </div>
+            <div class="run-live-field">
+              <label for="ovAddFreqB">CH B</label>
+              <input id="ovAddFreqB" type="number" min="0.1" max="970" step="0.1" inputmode="decimal">
+            </div>
+            <div class="run-live-field">
+              <label for="ovAddDuration" data-i18n="run_time">分鐘</label>
+              <input id="ovAddDuration" type="number" min="0.5" max="60" step="0.5" value="2" inputmode="decimal">
+            </div>
+            <button class="run-add-btn" id="ovAddNext" data-i18n="run_add_next">＋ 加入下一步</button>
+          </div>
+
+          <div class="run-overlay-controls">
+            <button class="btn-run run-pause" id="ovPause" data-i18n="run_pause">Ⅱ 暫停</button>
+            <button class="btn-run stop" id="ovStop" data-i18n="btn_stop">■ STOP</button>
+          </div>
+        </section>
+
+        <aside class="run-queue-panel" id="runQueuePanel">
+          <div class="run-queue-header">
+            <div>
+              <div class="run-queue-title" data-i18n="run_queue">協定序列</div>
+              <div class="run-queue-hint" data-i18n="run_queue_hint">點選任一步驟即可跳轉</div>
+            </div>
+            <div class="run-queue-meta" id="ovQueueMeta"></div>
+          </div>
+          <div class="run-queue-list" id="ovQueueList"></div>
+        </aside>
       </div>
     </div>
   </div>
@@ -644,6 +791,18 @@ details[open] .import-help summary::before { transform: rotate(90deg); }
           <label class="form-label">類別標籤（選填）</label>
           <input type="text" class="form-input" id="cpCategory" placeholder="例：MYOFASCIAL">
         </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-group">
+            <label class="form-label">資料夾（選填）</label>
+            <input type="text" class="form-input" id="cpFolder" list="protocolFolderOptions" placeholder="例：一般">
+          </div>
+          <div class="form-group">
+            <label class="form-label">協定群組（選填）</label>
+            <input type="text" class="form-input" id="cpGroup" list="protocolGroupOptions" placeholder="例：Vagal Tone">
+          </div>
+        </div>
+        <datalist id="protocolFolderOptions"></datalist>
+        <datalist id="protocolGroupOptions"></datalist>
         <div class="form-group">
           <label class="form-label">治療步驟 *</label>
           <div id="cpStepsList"></div>
@@ -898,6 +1057,12 @@ const I18N = {
     ctrl_polarity: '極性', ctrl_wave: '波形', ctrl_current: '電流強度', ctrl_duration: '時長 (分鐘)',
     wave_sharp: '銳', wave_med: '中', wave_gentle: '緩',
     btn_start: '▶ START', btn_stop: '■ STOP',
+    run_prev: '← 上一步', run_next: '下一步 →', run_minus_min: '−1 分鐘', run_plus_min: '+1 分鐘',
+    run_pause: 'Ⅱ 暫停', run_resume: '▶ 繼續', run_paused: '已暫停 — 可調整序列後繼續',
+    run_time: '分鐘', run_add_next: '＋ 加入下一步', run_queue: '協定序列',
+    run_queue_hint: '點選任一步驟即可跳轉', run_manual_meta: '手動雙頻 · 即時輸出',
+    run_protocol_meta: '臨床執行工作台', run_invalid_step: '請輸入有效的 CH A、CH B 與時間。',
+    protocol_all: '全部',
     timer_remaining: '剩餘時間',
     status_idle: '待機 — 點 START 開始輸出',
     status_running: '輸出中 — 訊號透過耳機孔送出',
@@ -976,6 +1141,12 @@ const I18N = {
     ctrl_polarity: 'Polarity', ctrl_wave: 'Waveshape', ctrl_current: 'Current', ctrl_duration: 'Duration (min)',
     wave_sharp: 'Sharp', wave_med: 'Medium', wave_gentle: 'Gentle',
     btn_start: '▶ START', btn_stop: '■ STOP',
+    run_prev: '← Previous', run_next: 'Next →', run_minus_min: '−1 min', run_plus_min: '+1 min',
+    run_pause: 'Ⅱ Pause', run_resume: '▶ Resume', run_paused: 'Paused — adjust the queue, then resume',
+    run_time: 'Minutes', run_add_next: '+ Add next', run_queue: 'Protocol queue',
+    run_queue_hint: 'Select any step to jump to it', run_manual_meta: 'Manual dual-frequency output',
+    run_protocol_meta: 'Clinical run workspace', run_invalid_step: 'Enter valid CH A, CH B, and duration values.',
+    protocol_all: 'All',
     timer_remaining: 'Time remaining',
     status_idle: 'Idle — Tap START to begin output',
     status_running: 'Running — Signal active on audio output',
@@ -1233,6 +1404,8 @@ function normalizeImportedProtocol(p) {
     name_zh: p.name_zh ? String(p.name_zh) : name,
     name_en: p.name_en ? String(p.name_en) : name,
     category: p.category ? String(p.category) : 'imported',
+    folder: p.folder ? String(p.folder) : '',
+    protocol_group: p.protocol_group ? String(p.protocol_group) : (p.group ? String(p.group) : ''),
     indication_zh: p.indication_zh ? String(p.indication_zh) : '',
     indication_en: p.indication_en ? String(p.indication_en) : '',
     _custom: true,
@@ -1633,6 +1806,13 @@ function showCustomProtocolEditor(proto, target) {
   $('cpName').value = proto ? (proto.name_zh || proto.name || '') : '';
   $('cpIndication').value = proto ? (proto.indication_zh || '') : '';
   $('cpCategory').value = proto ? (proto.category || '') : '';
+  $('cpFolder').value = proto ? (proto.folder || '') : '';
+  $('cpGroup').value = proto ? (proto.protocol_group || proto.group || '') : '';
+  const personal = USER_PROTOCOLS || [];
+  $('protocolFolderOptions').innerHTML = [...new Set(personal.map(p => String(p.folder || '').trim()).filter(Boolean))]
+    .sort().map(v => '<option value="' + escapeHtml(v) + '"></option>').join('');
+  $('protocolGroupOptions').innerHTML = [...new Set(personal.map(p => String(p.protocol_group || p.group || '').trim()).filter(Boolean))]
+    .sort().map(v => '<option value="' + escapeHtml(v) + '"></option>').join('');
   $('cpStepsList').innerHTML = '';
   const steps = proto ? proto.steps.map(s => normalizeStep(s)) : [{ freq_a: '', freq_b: '', duration: 4, polarity: 'Alternating', wave: 'Medium' }];
   steps.forEach(s => addCpStepRow(s));
@@ -1712,12 +1892,15 @@ function saveCpProtocol() {
   if (!valid) return;
   const catVal = ($('cpCategory').value.trim() || 'CUSTOM').toUpperCase();
   const indVal = $('cpIndication').value.trim();
+  const folderVal = $('cpFolder').value.trim();
+  const groupVal = $('cpGroup').value.trim();
 
   // 參考協定 (shared, admin only) — persist to KV via /reference-protocols
   if (_cpEditTarget === 'reference') {
     if (!auth.user || auth.user.email !== ADMIN_EMAIL) { alert('僅限管理員編輯參考協定。'); return; }
     const protoObj = { id: _cpEditId || ('ref_' + Date.now()), name: name, name_zh: name, name_en: name,
-      indication_zh: indVal, indication_en: '', category: catVal, steps, _ref: true };
+      indication_zh: indVal, indication_en: '', category: catVal, folder: folderVal,
+      protocol_group: groupVal, steps, _ref: true };
     (async () => {
       let current = [];
       try {
@@ -1746,10 +1929,12 @@ function saveCpProtocol() {
   const list = [...(USER_PROTOCOLS || [])];
   if (_cpEditId) {
     const idx = list.findIndex(p => p.id === _cpEditId);
-    if (idx >= 0) list[idx] = { ...list[idx], name: name, name_zh: name, indication_zh: indVal, category: catVal, steps };
+    if (idx >= 0) list[idx] = { ...list[idx], name: name, name_zh: name, indication_zh: indVal,
+      category: catVal, folder: folderVal, protocol_group: groupVal, steps };
   } else {
     list.unshift({ id: 'custom_' + Date.now(), name: name, name_zh: name,
-      indication_zh: indVal, category: catVal, steps, _custom: true });
+      indication_zh: indVal, category: catVal, folder: folderVal,
+      protocol_group: groupVal, steps, _custom: true });
   }
   USER_PROTOCOLS = list;
   saveUserProtocols(list);
@@ -1887,9 +2072,11 @@ const state = {
   freqA: 40, freqB: 116,
   polarity: 'Alternating', waveshape: 'Medium',
   current: 200, duration: 4,
-  running: false, timerInterval: null, remainingSec: 0, stepTotalSec: 0,
+  running: false, paused: false, timerInterval: null, remainingSec: 0, stepTotalSec: 0,
   loadedProtocol: null, currentStepIndex: 0, wakeLock: null,
-  protocolSet: 'curated',
+  protocolSet: 'curated', protocolCategory: 'all', protocolFolder: 'all',
+  protocolMarkMode: false, markedProtocolIds: new Set(), openProtocolGroups: new Set(),
+  runScale: localStorage.getItem('fsm_run_scale') || 'md',
   editingSessionId: null,
 };
 
@@ -1998,6 +2185,136 @@ $('runBtn').addEventListener('click', () => {
 });
 $('ovStop').addEventListener('click', stopRun);
 $('runClose').addEventListener('click', stopRun);
+$('ovPause').addEventListener('click', toggleRunPause);
+$('ovPrev').addEventListener('click', () => jumpRunStep(state.currentStepIndex - 1));
+$('ovNext').addEventListener('click', () => jumpRunStep(state.currentStepIndex + 1));
+$('ovMinusMin').addEventListener('click', () => adjustRunMinutes(-1));
+$('ovPlusMin').addEventListener('click', () => adjustRunMinutes(1));
+$('ovAddNext').addEventListener('click', addTemporaryRunStep);
+$('ovFontDown').addEventListener('click', () => adjustRunScale(-1));
+$('ovFontUp').addEventListener('click', () => adjustRunScale(1));
+
+function applyRunScale() {
+  const overlay = $('runOverlay');
+  overlay.classList.remove('scale-sm', 'scale-lg');
+  if (state.runScale === 'sm') overlay.classList.add('scale-sm');
+  if (state.runScale === 'lg') overlay.classList.add('scale-lg');
+}
+
+function adjustRunScale(direction) {
+  const scales = ['sm', 'md', 'lg'];
+  const current = Math.max(0, scales.indexOf(state.runScale));
+  state.runScale = scales[Math.max(0, Math.min(scales.length - 1, current + direction))];
+  localStorage.setItem('fsm_run_scale', state.runScale);
+  applyRunScale();
+}
+
+function startTimerLoop() {
+  if (state.timerInterval) clearInterval(state.timerInterval);
+  state.timerInterval = setInterval(() => {
+    if (state.paused) return;
+    state.remainingSec--;
+    updateTimerDisplay();
+    if (state.remainingSec <= 0) onStepEnd();
+  }, 1000);
+}
+
+function toggleRunPause() {
+  if (!state.running) return;
+  state.paused = !state.paused;
+  if (state.paused) {
+    audio.stop();
+    if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+    $('brand').classList.remove('running');
+    $('statusDot').classList.remove('live');
+    $('statusText').textContent = t('run_paused');
+    $('ovPause').textContent = t('run_resume');
+  } else {
+    audio.start(state.freqA, state.freqB, state.polarity, state.waveshape, state.current);
+    $('brand').classList.add('running');
+    $('statusDot').classList.add('live');
+    $('statusText').textContent = t('status_running');
+    $('ovPause').textContent = t('run_pause');
+    startTimerLoop();
+  }
+}
+
+function adjustRunMinutes(delta) {
+  if (!state.running) return;
+  const deltaSec = delta * 60;
+  state.stepTotalSec = Math.max(30, state.stepTotalSec + deltaSec);
+  state.remainingSec = Math.max(5, Math.min(state.stepTotalSec, state.remainingSec + deltaSec));
+  if (state.loadedProtocol && state.loadedProtocol.steps[state.currentStepIndex]) {
+    state.loadedProtocol.steps[state.currentStepIndex].duration = state.stepTotalSec / 60;
+  }
+  updateTimerDisplay();
+  renderRunQueue();
+}
+
+function jumpRunStep(index) {
+  if (!state.loadedProtocol || index < 0 || index >= state.loadedProtocol.steps.length || index === state.currentStepIndex) return;
+  audio.stop();
+  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+  state.currentStepIndex = index;
+  startStep(state.loadedProtocol.steps[index], true);
+  if ($('view-protocols').classList.contains('active')) renderProtocolList($('protocolSearch') && $('protocolSearch').value);
+}
+
+function addTemporaryRunStep() {
+  if (!state.loadedProtocol) return;
+  const freqA = parseFloat($('ovAddFreqA').value);
+  const freqB = parseFloat($('ovAddFreqB').value);
+  const duration = parseFloat($('ovAddDuration').value);
+  if (!Number.isFinite(freqA) || !Number.isFinite(freqB) || !Number.isFinite(duration) || freqA <= 0 || freqB <= 0 || duration < 0.5 || duration > 60) {
+    alert(t('run_invalid_step'));
+    return;
+  }
+  state.loadedProtocol.steps.splice(state.currentStepIndex + 1, 0, {
+    freq_a: freqA,
+    freq_b: freqB,
+    duration,
+    polarity: state.polarity,
+    wave: state.waveshape,
+    current: state.current,
+    _temporary: true,
+  });
+  $('ovAddFreqA').value = '';
+  $('ovAddFreqB').value = '';
+  renderRunQueue();
+}
+
+function renderRunQueue() {
+  const workspace = $('runWorkspace');
+  const hasProtocol = !!(state.loadedProtocol && state.loadedProtocol.steps && state.loadedProtocol.steps.length);
+  workspace.classList.toggle('manual', !hasProtocol);
+  $('runSessionMeta').textContent = hasProtocol ? t('run_protocol_meta') : t('run_manual_meta');
+  $('ovPrev').disabled = !hasProtocol || state.currentStepIndex <= 0;
+  $('ovNext').disabled = !hasProtocol || state.currentStepIndex >= state.loadedProtocol.steps.length - 1;
+  $('ovPause').textContent = state.paused ? t('run_resume') : t('run_pause');
+  if (!hasProtocol) {
+    $('ovQueueList').innerHTML = '';
+    $('ovQueueMeta').textContent = '';
+    return;
+  }
+  const steps = state.loadedProtocol.steps;
+  const total = steps.reduce((sum, raw) => sum + Number(normalizeStep(raw).duration || 0), 0);
+  $('ovQueueMeta').textContent = steps.length + ' STEPS · ' + Number(total.toFixed(1)) + ' MIN';
+  $('ovQueueList').innerHTML = steps.map((raw, i) => {
+    const s = normalizeStep(raw);
+    const status = i === state.currentStepIndex ? ' current' : (i < state.currentStepIndex ? ' done' : '');
+    const temporary = raw._temporary ? ' · SESSION' : '';
+    return '<button type="button" class="run-queue-item' + status + '" data-run-step="' + i + '">' +
+      '<span class="run-queue-index">' + String(i + 1).padStart(2, '0') + '</span>' +
+      '<span><span class="run-queue-freq">' + escapeHtml(String(s.freq_a)) + '<span style="color:var(--text-very-dim)"> / </span>' + escapeHtml(String(s.freq_b)) + '</span>' +
+      '<span class="run-queue-tags">' + (s.polarity === 'Positive' ? '+→' : '+/−') + ' · ' + escapeHtml(String(s.wave || 'Medium')) + temporary + '</span></span>' +
+      '<span class="run-queue-time">' + Number(s.duration) + 'm</span></button>';
+  }).join('');
+  $('ovQueueList').querySelectorAll('[data-run-step]').forEach(btn => {
+    btn.addEventListener('click', () => jumpRunStep(parseInt(btn.getAttribute('data-run-step'), 10)));
+  });
+  const current = $('ovQueueList').querySelector('.run-queue-item.current');
+  if (current) current.scrollIntoView({ block: 'nearest' });
+}
 
 function startManualRun() {
   state.loadedProtocol = null;
@@ -2021,6 +2338,7 @@ function startStep(step, isProtocol) {
   reflectControlState();
   audio.start(step.freq_a, step.freq_b, step.polarity, step.wave, state.current);
   state.running = true;
+  state.paused = false;
   $('brand').classList.add('running');
   $('statusDot').classList.add('live');
   $('statusText').textContent = t('status_running');
@@ -2041,13 +2359,12 @@ function startStep(step, isProtocol) {
     $('runOverlayTitle').textContent = 'MANUAL';
     $('ovStepInfo').textContent = '';
   }
+  $('ovAddFreqA').placeholder = step.freq_a;
+  $('ovAddFreqB').placeholder = step.freq_b;
+  applyRunScale();
+  renderRunQueue();
   updateTimerDisplay();
-  if (state.timerInterval) clearInterval(state.timerInterval);
-  state.timerInterval = setInterval(() => {
-    state.remainingSec--;
-    updateTimerDisplay();
-    if (state.remainingSec <= 0) onStepEnd();
-  }, 1000);
+  startTimerLoop();
   if ('wakeLock' in navigator) {
     navigator.wakeLock.request('screen').then(lock => { state.wakeLock = lock; }).catch(()=>{});
   }
@@ -2099,11 +2416,13 @@ function stopRun() {
   audio.stop();
   if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
   state.running = false;
+  state.paused = false;
   $('brand').classList.remove('running');
   $('statusDot').classList.remove('live');
   $('statusText').textContent = t('status_idle');
   $('runBtn').textContent = t('btn_start');
   $('runBtn').classList.remove('stop'); $('runBtn').classList.add('start');
+  $('ovPause').textContent = t('run_pause');
   $('runOverlay').classList.remove('show');
   if (state.wakeLock) { try { state.wakeLock.release(); } catch(e){} state.wakeLock = null; }
   state.stepTotalSec = 0;
@@ -2481,6 +2800,7 @@ function renderProtocolsView() {
       <button class="subtab active" data-pset="curated">${t('subtab_mine')}</button>
       <button class="subtab" data-pset="full">${t('subtab_modebank')}${PROTOCOLS_FULL ? ' · ' + PROTOCOLS_FULL.length : ''}</button>
     </div>
+    <div class="protocol-library-summary" id="protocolLibrarySummary"></div>
     <div class="search-bar" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
       <input type="text" class="search-input" id="protocolSearch" placeholder="${t('search_protocols')}" style="flex:1;min-width:120px;">
       <button class="btn-secondary" id="importProtoBtn" style="white-space:nowrap;padding:8px 12px;font-size:12px;flex-shrink:0;">📋 匯入</button>
@@ -2489,6 +2809,23 @@ function renderProtocolsView() {
       <button class="btn-secondary" id="exportPdfBtn" style="white-space:nowrap;padding:8px 12px;font-size:11px;flex-shrink:0;">🖨 列印</button>
       <button class="btn-secondary" id="addCustomProtocolBtn" style="white-space:nowrap;padding:8px 14px;font-size:12px;flex-shrink:0;">＋ 新增</button>
     </div>
+    <div class="protocol-manage-row" id="protocolManageRow">
+      <button class="btn-secondary" id="protocolMarkModeBtn">✓ 標記管理</button>
+      <button class="btn-secondary" id="newProtocolFolderBtn">＋ 資料夾</button>
+      <button class="btn-secondary" id="newProtocolGroupBtn">＋ 協定群組</button>
+    </div>
+    <div class="batch-toolbar" id="protocolBatchToolbar">
+      <div class="batch-toolbar-head"><strong id="protocolMarkedCount">已標記 0 個</strong><button class="btn-icon" id="exitProtocolMarkMode" type="button">×</button></div>
+      <div class="batch-toolbar-actions">
+        <button class="btn-secondary" id="markVisibleProtocolsBtn">全選目前</button>
+        <button class="btn-secondary" id="moveMarkedFolderBtn">移至資料夾</button>
+        <button class="btn-secondary" id="assignMarkedGroupBtn">加入群組</button>
+        <button class="btn-secondary" id="exportMarkedProtocolsBtn">匯出標記</button>
+        <button class="btn-secondary" id="deleteMarkedProtocolsBtn">刪除標記</button>
+      </div>
+    </div>
+    <div class="protocol-folder-strip" id="protocolFolderFilters" aria-label="Protocol folders"></div>
+    <div class="protocol-category-strip" id="protocolCategoryFilters" aria-label="Protocol categories"></div>
     <div id="protocolList"></div>
   `;
   document.querySelectorAll('.subtab[data-pset]').forEach(tab => {
@@ -2496,18 +2833,42 @@ function renderProtocolsView() {
       document.querySelectorAll('.subtab[data-pset]').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       state.protocolSet = tab.getAttribute('data-pset');
+      state.protocolCategory = 'all';
+      state.protocolFolder = 'all';
+      state.protocolMarkMode = false;
+      state.markedProtocolIds.clear();
       const addBtn = $('addCustomProtocolBtn');
       if (addBtn) addBtn.style.display = state.protocolSet === 'curated' ? '' : 'none';
+      const manageRow = $('protocolManageRow');
+      if (manageRow) manageRow.style.display = state.protocolSet === 'curated' ? '' : 'none';
       renderProtocolList();
     });
   });
   $('protocolSearch').addEventListener('input', e => renderProtocolList(e.target.value));
   $('addCustomProtocolBtn').addEventListener('click', () => showCustomProtocolEditor(null));
+  $('protocolMarkModeBtn').addEventListener('click', () => {
+    state.protocolMarkMode = !state.protocolMarkMode;
+    if (!state.protocolMarkMode) state.markedProtocolIds.clear();
+    renderProtocolList($('protocolSearch').value);
+  });
+  $('exitProtocolMarkMode').addEventListener('click', () => {
+    state.protocolMarkMode = false;
+    state.markedProtocolIds.clear();
+    renderProtocolList($('protocolSearch').value);
+  });
+  $('newProtocolFolderBtn').addEventListener('click', () => createProtocolLocation('folder'));
+  $('newProtocolGroupBtn').addEventListener('click', () => createProtocolLocation('group'));
+  $('markVisibleProtocolsBtn').addEventListener('click', markVisibleProtocols);
+  $('moveMarkedFolderBtn').addEventListener('click', () => bulkAssignProtocolLocation('folder'));
+  $('assignMarkedGroupBtn').addEventListener('click', () => bulkAssignProtocolLocation('group'));
+  $('exportMarkedProtocolsBtn').addEventListener('click', exportMarkedProtocols);
+  $('deleteMarkedProtocolsBtn').addEventListener('click', deleteMarkedProtocols);
   $('importProtoBtn').addEventListener('click', () => $('importModal').classList.add('show') && setTimeout(() => $('importTextarea').focus(), 100));
 
   // ── JSON export ──────────────────────────────────────────────────────────
   $('exportJsonBtn').addEventListener('click', () => {
-    const src = (USER_PROTOCOLS || []).filter(p => p._custom);
+    const marked = getMarkedPersonalProtocols();
+    const src = marked.length ? marked : (USER_PROTOCOLS || []).filter(p => p._custom);
     if (!src.length) { alert('尚無自訂協定可匯出。'); return; }
     const blob = new Blob([JSON.stringify(src, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
@@ -2633,9 +2994,119 @@ function renderProtocolsView() {
   renderProtocolList();
 }
 
+const PROTOCOL_LOCATIONS_KEY = 'fsm_protocol_locations_v1';
+let _visibleProtocolIds = [];
+
+function loadProtocolLocations() {
+  try {
+    const value = JSON.parse(localStorage.getItem(PROTOCOL_LOCATIONS_KEY) || '{}');
+    return { folders: Array.isArray(value.folders) ? value.folders : [], groups: Array.isArray(value.groups) ? value.groups : [] };
+  } catch (e) { return { folders: [], groups: [] }; }
+}
+function saveProtocolLocations(value) {
+  localStorage.setItem(PROTOCOL_LOCATIONS_KEY, JSON.stringify(value));
+}
+function canonicalProtocolName(value) {
+  return String(value || '')
+    .replace(/^MB\s+/i, '')
+    .replace(/\b(short|long|extended|basic|full)\b/gi, '')
+    .replace(/[^a-z0-9\u3400-\u9fff]+/gi, '')
+    .toLowerCase();
+}
+function getProtocolFolder(p, isFull) {
+  return String(p.folder || (isFull ? (p.category || p.cat || 'Mode Bank') : '')).trim();
+}
+function getProtocolGroupName(p) {
+  return String(p.protocol_group || p.group || '').trim();
+}
+function getMarkedPersonalProtocols() {
+  return (USER_PROTOCOLS || []).filter(p => state.markedProtocolIds.has(String(p.id || '')));
+}
+function persistPersonalProtocolChanges(list) {
+  USER_PROTOCOLS = list;
+  localStorage.setItem(CUSTOM_PROTO_KEY, JSON.stringify(list.filter(p => p._custom)));
+  saveUserProtocols(list);
+}
+function rememberProtocolLocation(kind, value) {
+  value = String(value || '').trim();
+  if (!value) return;
+  const locations = loadProtocolLocations();
+  const key = kind === 'folder' ? 'folders' : 'groups';
+  if (!locations[key].includes(value)) locations[key].push(value);
+  locations[key].sort((a, b) => a.localeCompare(b, LANG === 'zh' ? 'zh-Hant' : 'en'));
+  saveProtocolLocations(locations);
+}
+function createProtocolLocation(kind) {
+  const isFolder = kind === 'folder';
+  const value = prompt(isFolder ? '新資料夾名稱：' : '新協定群組名稱：');
+  if (value == null || !value.trim()) return;
+  rememberProtocolLocation(kind, value);
+  if (isFolder) state.protocolFolder = value.trim();
+  renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
+}
+function bulkAssignProtocolLocation(kind) {
+  const marked = getMarkedPersonalProtocols();
+  if (!marked.length) { alert('請先標記至少一個協定。'); return; }
+  const isFolder = kind === 'folder';
+  const value = prompt((isFolder ? '移至資料夾' : '加入協定群組') + '（留空可移除設定）：');
+  if (value == null) return;
+  const nextValue = value.trim();
+  const markedIds = new Set(marked.map(p => String(p.id || '')));
+  const next = (USER_PROTOCOLS || []).map(p => {
+    if (!markedIds.has(String(p.id || ''))) return p;
+    return isFolder ? { ...p, folder: nextValue } : { ...p, protocol_group: nextValue };
+  });
+  if (nextValue) rememberProtocolLocation(kind, nextValue);
+  persistPersonalProtocolChanges(next);
+  if (isFolder && nextValue) state.protocolFolder = nextValue;
+  renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
+}
+function markVisibleProtocols() {
+  const everyMarked = _visibleProtocolIds.length && _visibleProtocolIds.every(id => state.markedProtocolIds.has(id));
+  _visibleProtocolIds.forEach(id => everyMarked ? state.markedProtocolIds.delete(id) : state.markedProtocolIds.add(id));
+  renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
+}
+function exportProtocolBlob(protocols, filenamePrefix) {
+  const blob = new Blob([JSON.stringify(protocols, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filenamePrefix + '-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function exportMarkedProtocols() {
+  const marked = getMarkedPersonalProtocols();
+  if (!marked.length) { alert('請先標記至少一個協定。'); return; }
+  exportProtocolBlob(marked, 'fsm-marked-protocols');
+}
+function deleteMarkedProtocols() {
+  const marked = getMarkedPersonalProtocols();
+  if (!marked.length) { alert('請先標記至少一個協定。'); return; }
+  if (!confirm('確定刪除已標記的 ' + marked.length + ' 個協定？')) return;
+  const ids = new Set(marked.map(p => String(p.id || '')));
+  persistPersonalProtocolChanges((USER_PROTOCOLS || []).filter(p => !ids.has(String(p.id || ''))));
+  state.markedProtocolIds.clear();
+  state.protocolMarkMode = false;
+  renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
+}
+function runProtocolGroup(name, protocols) {
+  const steps = protocols.flatMap(p => (p.steps || []).map(normalizeStep));
+  if (!steps.length) return;
+  askLoadProtocol({
+    id: 'group_' + canonicalProtocolName(name),
+    name: name,
+    name_zh: name,
+    name_en: name,
+    indication_zh: protocols.length + ' 個協定群組，依清單順序串接執行',
+    indication_en: protocols.length + ' protocols run in list order',
+    steps
+  });
+}
+
 function totalProtocolMinutes(p) {
-  if (p.steps[0].duration !== undefined) return p.steps.reduce((a, s) => a + s.duration, 0);
-  return p.steps.reduce((a, s) => a + s.d, 0);
+  if (!p.steps || !p.steps.length) return 0;
+  if (p.steps[0].duration !== undefined) return p.steps.reduce((a, s) => a + (Number(s.duration) || 0), 0);
+  return p.steps.reduce((a, s) => a + (Number(s.d) || 0), 0);
 }
 function normalizeStep(s) {
   if (s.freq_a !== undefined) return s;
@@ -2646,13 +3117,70 @@ function normalizeStep(s) {
     wave: s.w === 'S' ? 'Sharp' : (s.w === 'G' ? 'Gentle' : 'Medium')
   };
 }
+const PROTOCOL_NAME_CORRECTIONS = {
+  'Relax and Balanc': 'Relax and Balance',
+  'SkinTraumaHealin': 'Skin Trauma Healing',
+  'Skin PO Briuse': 'Skin PO Bruise'
+};
+function correctedProtocolName(value) {
+  const raw = String(value || '');
+  return PROTOCOL_NAME_CORRECTIONS[raw] || raw;
+}
 function getProtocolName(p) {
-  if (p.name_zh) return LANG === 'zh' ? p.name_zh : p.name_en;
-  return p.name;
+  if (p.name_zh) return correctedProtocolName(LANG === 'zh' ? p.name_zh : (p.name_en || p.name_zh));
+  return correctedProtocolName(p.name_en || p.name || '');
 }
 function getProtocolIndication(p) {
-  if (p.indication_zh) return LANG === 'zh' ? p.indication_zh : p.indication_en;
+  if (p.indication_zh) return LANG === 'zh' ? p.indication_zh : (p.indication_en || p.indication_zh);
   return '';
+}
+function renderProtocolCategoryFilters(src) {
+  const strip = $('protocolCategoryFilters');
+  if (!strip) return;
+  const categories = [...new Set(src.map(p => String(p.category || p.cat || '').trim()).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, LANG === 'zh' ? 'zh-Hant' : 'en'));
+  if (state.protocolCategory !== 'all' && !categories.includes(state.protocolCategory)) state.protocolCategory = 'all';
+  const chips = [{ value: 'all', label: t('protocol_all') }, ...categories.map(c => ({ value: c, label: c }))];
+  strip.innerHTML = chips.map(chip => '<button type="button" class="cat-chip ' + (state.protocolCategory === chip.value ? 'active' : '') + '" data-protocol-cat="' + encodeURIComponent(chip.value) + '">' + escapeHtml(chip.label) + '</button>').join('');
+  strip.querySelectorAll('[data-protocol-cat]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.protocolCategory = decodeURIComponent(btn.getAttribute('data-protocol-cat'));
+      renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
+    });
+  });
+}
+function renderProtocolFolderFilters(src, isFull) {
+  const strip = $('protocolFolderFilters');
+  if (!strip) return;
+  const locations = loadProtocolLocations();
+  const folders = [...new Set([
+    ...(isFull ? [] : locations.folders),
+    ...src.map(p => getProtocolFolder(p, isFull)).filter(Boolean)
+  ])].sort((a, b) => a.localeCompare(b, LANG === 'zh' ? 'zh-Hant' : 'en'));
+  if (state.protocolFolder !== 'all' && state.protocolFolder !== '__unfiled__' && !folders.includes(state.protocolFolder)) state.protocolFolder = 'all';
+  const chips = [
+    { value: 'all', label: '全部資料夾' },
+    ...folders.map(folder => ({ value: folder, label: '▱ ' + folder })),
+    ...(!isFull ? [{ value: '__unfiled__', label: '未分類' }] : [])
+  ];
+  strip.innerHTML = chips.map(chip => '<button type="button" class="folder-chip ' + (state.protocolFolder === chip.value ? 'active' : '') + '" data-protocol-folder="' + encodeURIComponent(chip.value) + '">' + escapeHtml(chip.label) + '</button>').join('');
+  strip.querySelectorAll('[data-protocol-folder]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.protocolFolder = decodeURIComponent(btn.getAttribute('data-protocol-folder'));
+      renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
+    });
+  });
+}
+function renderProtocolLibrarySummary(src, isFull) {
+  const summary = $('protocolLibrarySummary');
+  if (!summary) return;
+  const uniqueNames = new Set(src.map(p => canonicalProtocolName(getProtocolName(p))).filter(Boolean));
+  const folders = new Set(src.map(p => getProtocolFolder(p, isFull)).filter(Boolean));
+  const explicitGroups = new Set(src.map(getProtocolGroupName).filter(Boolean));
+  summary.innerHTML =
+    '<div class="protocol-library-stat"><strong>' + src.length + '</strong><span>協定版本</span></div>' +
+    '<div class="protocol-library-stat"><strong>' + uniqueNames.size + '</strong><span>協定名稱</span></div>' +
+    '<div class="protocol-library-stat"><strong>' + (folders.size + explicitGroups.size) + '</strong><span>資料夾／群組</span></div>';
 }
 function renderProtocolList(filter) {
   filter = (filter || '').toLowerCase();
@@ -2663,75 +3191,166 @@ function renderProtocolList(filter) {
   } else {
     src = PROTOCOLS_FULL || [];
   }
-  if (!src || !src.length) { list.innerHTML = '<div class="empty-state" style="padding:32px 0;text-align:center;color:var(--text-dim);font-size:13px;">' + (state.protocolSet==='curated'?'尚無協定，點右上「＋ 新增」建立第一個自訂協定。':'') + '</div>'; return; }
   const isAdmin = !!(auth.user && auth.user.email === ADMIN_EMAIL);
   const isFull = state.protocolSet === 'full';
+  renderProtocolCategoryFilters(src || []);
+  renderProtocolFolderFilters(src || [], isFull);
+  renderProtocolLibrarySummary(src || [], isFull);
+  const batchToolbar = $('protocolBatchToolbar');
+  if (batchToolbar) batchToolbar.classList.toggle('show', state.protocolMarkMode && !isFull);
+  const markBtn = $('protocolMarkModeBtn');
+  if (markBtn) markBtn.textContent = state.protocolMarkMode ? '結束標記' : '✓ 標記管理';
+  if (!src || !src.length) { list.innerHTML = '<div class="empty-state" style="padding:32px 0;text-align:center;color:var(--text-dim);font-size:13px;">' + (state.protocolSet==='curated'?'尚無協定，點右上「＋ 新增」建立第一個自訂協定。':'') + '</div>'; return; }
   const items = src.filter(p => {
+    const cat = String(p.category || p.cat || '');
+    const folder = getProtocolFolder(p, isFull);
+    if (state.protocolCategory !== 'all' && cat !== state.protocolCategory) return false;
+    if (state.protocolFolder === '__unfiled__' && folder) return false;
+    if (state.protocolFolder !== 'all' && state.protocolFolder !== '__unfiled__' && folder !== state.protocolFolder) return false;
     if (!filter) return true;
-    const name = getProtocolName(p).toLowerCase();
-    const ind = getProtocolIndication(p).toLowerCase();
-    const cat = (p.category || p.cat || '').toLowerCase();
-    return name.includes(filter) || ind.includes(filter) || cat.includes(filter);
+    const name = String(getProtocolName(p) || '').toLowerCase();
+    const ind = String(getProtocolIndication(p) || '').toLowerCase();
+    const group = getProtocolGroupName(p).toLowerCase();
+    return name.includes(filter) || ind.includes(filter) || cat.toLowerCase().includes(filter) || folder.toLowerCase().includes(filter) || group.includes(filter);
   });
-  list.innerHTML = items.map(p => {
+  _visibleProtocolIds = items.map(p => String(p.id || '')).filter(Boolean);
+  if ($('protocolMarkedCount')) $('protocolMarkedCount').textContent = '已標記 ' + state.markedProtocolIds.size + ' 個';
+  if (!items.length) { list.innerHTML = '<div class="empty-state">找不到符合目前資料夾、類別或搜尋條件的協定。</div>'; return; }
+
+  const renderCard = p => {
     const nm = getProtocolName(p);
     const ind = getProtocolIndication(p);
     const tot = totalProtocolMinutes(p);
     const cat = p.category || p.cat || '';
+    const safeId = encodeURIComponent(String(p.id || ''));
+    const safeName = escapeHtml(String(nm || ''));
+    const safeIndication = escapeHtml(String(ind || ''));
+    const safeCategory = escapeHtml(String(cat || ''));
     const isLoaded = state.loadedProtocol && state.loadedProtocol.id === p.id;
     const isCustom = !!p._custom;
     const isRef = !!p._ref;
+    const folder = getProtocolFolder(p, isFull);
+    const explicitGroup = getProtocolGroupName(p);
+    const isMarked = state.markedProtocolIds.has(String(p.id || ''));
     // 我的協定: 每位用戶可編輯自己的；參考協定: 僅管理員可編輯匯入的協定
-    const showActions = isFull ? (isAdmin && isRef) : isCustom;
-    const stepsHtml = p.steps.map((rawStep, i) => {
+    const showActions = !state.protocolMarkMode && (isFull ? (isAdmin && isRef) : true);
+    const stepsHtml = (p.steps || []).map((rawStep, i) => {
       const s = normalizeStep(rawStep);
       const cur = (isLoaded && state.currentStepIndex === i && state.running);
       return '<div class="step-row ' + (cur?'current':'') + '">' +
         '<div class="step-num">' + (i+1) + '</div>' +
-        '<div class="step-freq">' + s.freq_a + '<span class="sep">/</span>' + s.freq_b +
-        '<span class="step-tags">' + (s.polarity==='Positive'?'+→':'+/-') + ' · ' + s.wave + '</span></div>' +
-        '<div class="step-time">' + s.duration + 'm</div></div>';
+        '<div class="step-freq">' + escapeHtml(String(s.freq_a)) + '<span class="sep">/</span>' + escapeHtml(String(s.freq_b)) +
+        '<span class="step-tags">' + (s.polarity==='Positive'?'+→':'+/-') + ' · ' + escapeHtml(String(s.wave || '')) + '</span></div>' +
+        '<div class="step-time">' + escapeHtml(String(s.duration)) + 'm</div></div>';
     }).join('');
     const refAttr = isRef ? ' data-ref="1"' : '';
     const actionsHtml = showActions ? '<div class="protocol-card-actions">' +
-      '<button class="btn-icon edit" data-edit="' + p.id + '"' + refAttr + ' title="編輯">✏️ 編輯</button>' +
-      '<button class="btn-icon" data-delete="' + p.id + '"' + refAttr + ' title="刪除">🗑️ 刪除</button>' +
+      '<button class="btn-icon edit" data-edit="' + safeId + '"' + refAttr + ' title="編輯">✏️ 編輯</button>' +
+      '<button class="btn-icon" data-delete="' + safeId + '"' + refAttr + ' title="刪除">🗑️ 刪除</button>' +
       '</div>' : '';
-    return '<div class="protocol-card ' + (isLoaded?'loaded':'') + '" data-id="' + p.id + '" data-custom="' + isCustom + '">' +
-      '<div class="protocol-name">' + nm + (isCustom ? '<span class="custom-badge">自訂</span>' : '') + ' <span class="protocol-cat">' + cat + '</span></div>' +
-      (ind ? '<div class="protocol-indication">' + ind + '</div>' : '') +
-      '<div class="protocol-meta"><span>' + p.steps.length + ' steps</span><span>· ' + tot + ' min</span></div>' +
+    const markHtml = state.protocolMarkMode && !isFull ? '<span class="protocol-mark" aria-hidden="true">' + (isMarked ? '✓' : '') + '</span>' : '';
+    const locationHtml = (folder || explicitGroup) ? '<div class="protocol-location">' +
+      (folder ? '<span>▱ ' + escapeHtml(folder) + '</span>' : '') +
+      (explicitGroup ? '<span>(G) ' + escapeHtml(explicitGroup) + '</span>' : '') + '</div>' : '';
+    return '<div class="protocol-card ' + (isLoaded?'loaded ':'') + (state.protocolMarkMode&&!isFull?'mark-mode ':'') + (isMarked?'marked':'') + '" data-id="' + safeId + '" data-custom="' + isCustom + '">' +
+      markHtml +
+      '<div class="protocol-name">' + safeName + (isCustom ? '<span class="custom-badge">自訂</span>' : '') + ' <span class="protocol-cat">' + safeCategory + '</span></div>' +
+      locationHtml +
+      (ind ? '<div class="protocol-indication">' + safeIndication + '</div>' : '') +
+      '<div class="protocol-meta"><span>' + (p.steps || []).length + ' steps</span><span>· ' + tot + ' min</span></div>' +
       '<div class="steps-list">' + stepsHtml + '</div>' +
       actionsHtml + '</div>';
+  };
+
+  const grouped = new Map();
+  const standalone = [];
+  items.forEach(p => {
+    const explicit = getProtocolGroupName(p);
+    const key = explicit ? 'explicit:' + explicit : (isFull ? 'variant:' + canonicalProtocolName(getProtocolName(p)) : '');
+    if (!key) { standalone.push(p); return; }
+    if (!grouped.has(key)) grouped.set(key, { name: explicit || getProtocolName(p), explicit: !!explicit, protocols: [] });
+    grouped.get(key).protocols.push(p);
+  });
+  [...grouped.entries()].forEach(([key, group]) => {
+    if (!group.explicit && group.protocols.length < 2) { standalone.push(...group.protocols); grouped.delete(key); }
+  });
+  const groupsHtml = [...grouped.entries()].map(([key, group]) => {
+    const encodedKey = encodeURIComponent(key);
+    const isOpen = state.openProtocolGroups.has(key) || !!filter;
+    const totalSteps = group.protocols.reduce((sum, p) => sum + (p.steps || []).length, 0);
+    const totalMinutes = group.protocols.reduce((sum, p) => sum + totalProtocolMinutes(p), 0);
+    const buttons = '<div class="protocol-group-actions">' +
+      (!isFull && state.protocolMarkMode ? '<button class="btn-secondary" data-mark-group="' + encodedKey + '">標記整組</button>' : '') +
+      '<button class="btn-secondary" data-run-group="' + encodedKey + '">▶ 執行整組</button></div>';
+    return '<section class="protocol-group ' + (isOpen ? 'open' : '') + '" data-group-key="' + encodedKey + '">' +
+      '<button class="protocol-group-header" type="button" data-toggle-group="' + encodedKey + '">' +
+      '<span class="protocol-group-icon">(G)</span><span class="protocol-group-title">' + escapeHtml(group.name) + '</span>' +
+      '<span class="protocol-group-meta">' + group.protocols.length + ' 個 · ' + totalSteps + ' 步 · ' + totalMinutes + ' 分</span></button>' +
+      '<div class="protocol-group-children">' + group.protocols.map(renderCard).join('') + buttons + '</div></section>';
   }).join('');
+  list.innerHTML = groupsHtml + standalone.map(renderCard).join('');
+
+  list.querySelectorAll('[data-toggle-group]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = decodeURIComponent(btn.getAttribute('data-toggle-group'));
+      const section = btn.closest('.protocol-group');
+      const willOpen = !section.classList.contains('open');
+      section.classList.toggle('open', willOpen);
+      if (willOpen) state.openProtocolGroups.add(key); else state.openProtocolGroups.delete(key);
+    });
+  });
+  list.querySelectorAll('[data-run-group]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = decodeURIComponent(btn.getAttribute('data-run-group'));
+      const group = grouped.get(key);
+      if (group) runProtocolGroup(group.name, group.protocols);
+    });
+  });
+  list.querySelectorAll('[data-mark-group]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = decodeURIComponent(btn.getAttribute('data-mark-group'));
+      const group = grouped.get(key);
+      if (!group) return;
+      const ids = group.protocols.map(p => String(p.id || ''));
+      const allMarked = ids.every(id => state.markedProtocolIds.has(id));
+      ids.forEach(id => allMarked ? state.markedProtocolIds.delete(id) : state.markedProtocolIds.add(id));
+      renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
+    });
+  });
   list.querySelectorAll('.protocol-card').forEach(card => {
     card.addEventListener('click', e => {
       // Don't open load modal if clicking edit/delete
       if (e.target.closest('[data-edit],[data-delete]')) return;
-      const id = card.getAttribute('data-id');
-      const proto = src.find(p => p.id === id);
+      const id = decodeURIComponent(card.getAttribute('data-id'));
+      const proto = src.find(p => String(p.id || '') === id);
+      if (state.protocolMarkMode && !isFull) {
+        if (state.markedProtocolIds.has(id)) state.markedProtocolIds.delete(id); else state.markedProtocolIds.add(id);
+        renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
+        return;
+      }
       if (proto) askLoadProtocol(proto);
     });
   });
   list.querySelectorAll('[data-edit]').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
-      const id = btn.getAttribute('data-edit');
+      const id = decodeURIComponent(btn.getAttribute('data-edit'));
       if (btn.getAttribute('data-ref')) {
-        const proto = (PROTOCOLS_FULL || []).find(p => p.id === id);
+        const proto = (PROTOCOLS_FULL || []).find(p => String(p.id || '') === id);
         if (proto) showCustomProtocolEditor(proto, 'reference');
         return;
       }
-      const proto = (USER_PROTOCOLS || []).find(p => p.id === id)
-                 || loadCustomProtocols().find(p => p.id === id);
+      const proto = (USER_PROTOCOLS || []).find(p => String(p.id || '') === id)
+                 || loadCustomProtocols().find(p => String(p.id || '') === id);
       if (proto) showCustomProtocolEditor(proto, 'user');
     });
   });
   list.querySelectorAll('[data-delete]').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
-      if (btn.getAttribute('data-ref')) { deleteReferenceProtocol(btn.getAttribute('data-delete')); return; }
-      deleteCustomProtocol(btn.getAttribute('data-delete'));
+      const id = decodeURIComponent(btn.getAttribute('data-delete'));
+      if (btn.getAttribute('data-ref')) { deleteReferenceProtocol(id); return; }
+      deleteCustomProtocol(id);
     });
   });
 }
@@ -3776,6 +4395,7 @@ $('langToggle').addEventListener('click', () => {
   localStorage.setItem('fsm_lang', LANG);
   applyI18n();
   updateFreqDisplay();
+  if (state.running) renderRunQueue();
   // Re-render active view
   const active = document.querySelector('.tab.active');
   if (active) switchToView(active.getAttribute('data-view'));
@@ -3788,6 +4408,7 @@ applyI18n();
 updateAuthUI();
 updateFreqDisplay();
 updateTimerDisplay();
+applyRunScale();
 // If logged in, load protected data in background
 if (auth.isAuthed()) loadProtectedData();
 </script>
