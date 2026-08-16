@@ -2,6 +2,9 @@
 // Returns the protected payload (full protocols, channel maps) only to authenticated users.
 // The session token (from auth.js) is required.
 
+import MB_REFERENCE from '../../data/fsm/mb-reference.json';
+import { toPublicReferenceProtocols } from '../../lib/fsm/reference-library';
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -56,14 +59,14 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: 'Email no longer authorized' });
   }
 
-  // Merge admin-curated reference protocols (stored in KV) into the shared full set
-  let payload = PROTECTED_PAYLOAD;
+  // The effective reference library has exactly one layer. A validated admin
+  // replacement in KV wins; otherwise the audited repository seed is used.
+  let referenceProtocols = MB_REFERENCE;
   try {
-    const extra = await kvGetJSON('reference_protocols_extra');
-    if (Array.isArray(extra) && extra.length) {
-      payload = { ...PROTECTED_PAYLOAD, full: [...(PROTECTED_PAYLOAD.full || []), ...extra] };
-    }
+    const stored = await kvGetJSON('reference_protocols_v2');
+    if (Array.isArray(stored)) referenceProtocols = stored;
   } catch {}
+  const payload = { ...PROTECTED_PAYLOAD, full: toPublicReferenceProtocols(referenceProtocols) };
 
   // Return the protected data payload
   return res.status(200).json({

@@ -779,6 +779,7 @@ details[open] .import-help summary::before { transform: rotate(90deg); }
     <div class="modal" style="max-width:560px;">
       <div class="modal-title" id="cpModalTitle">新增自訂協定</div>
       <div class="modal-scroll">
+        <div class="warning-banner" id="cpSourceWarning" style="display:none;margin-bottom:12px;"></div>
         <div class="form-group">
           <label class="form-label">協定名稱 *</label>
           <input type="text" class="form-input" id="cpName" placeholder="例：我的肩頸協定">
@@ -913,6 +914,7 @@ let CHANNEL_B = null;
 let PROTOCOLS_CURATED = null;
 let PROTOCOLS_FULL = null;
 let USER_PROTOCOLS = null;
+let FAVORITE_PROTOCOL_IDS = new Set();
 
 
 // ── Common Channel A → Channel B pairings ────────────────────────────────────
@@ -1075,7 +1077,7 @@ const I18N = {
     warn_79_dvt: '⚠ 頻率 79 (Veins) — 下肢使用前須排除 DVT',
     warn_pol_stenosis: 'ℹ 極化正電流 — 椎管狹窄患者若疼痛加重請立即切回 AC',
     step_label: '步驟',
-    subtab_mine: '我的協定', subtab_modebank: '參考協定',
+    subtab_favorites: '我的收藏', subtab_custom: '自訂／微調', subtab_modebank: '參考協定',
     btn_new_session: '+ 新增治療紀錄',
     session_new_title: '新增治療紀錄', session_edit_title: '編輯治療紀錄',
     session_patient: '患者', session_complaint: '主訴 / 部位', session_protocol: '使用協定',
@@ -1093,7 +1095,7 @@ const I18N = {
     encrypt_success: '已加密匯出 {n} 筆紀錄',
     decrypt_failed: '解密失敗 — 密碼錯誤或檔案損壞',
     decrypt_merged: '已合併 {n} 筆紀錄（重複的依較新者保留）',
-    music_intro: '將 FSM 雙頻訊號嵌入背景音樂，匯出 WAV 或 MP3。患者可用任何播放器搭配 iCare-Pad 或電極片在家使用。',
+    music_intro: '將 FSM 雙頻訊號嵌入背景音樂，匯出 WAV 或 MP3。患者可用任何播放器搭配 FSM 專用電極墊或電極片在家使用。',
     music_source: '音源', music_src_manual: '手動雙頻', music_src_protocol: '完整協定',
     music_duration: '時長 (分鐘)', music_select_protocol: '選擇協定',
     music_style: '背景音樂風格',
@@ -1112,7 +1114,7 @@ const I18N = {
     music_progress_render: '渲染中 {pct}%', music_progress_encode: '編碼中...',
     music_progress_done: '完成！正在下載...', music_generate_failed: '生成失敗',
     info_hardware_title: '硬體設定',
-    info_hardware_body: '手機 → USB-C 轉 3.5mm 音源轉接頭 → iCare-Pad 或自製電極片導線。Channel A 走左聲道，Channel B 走右聲道，共用 Sleeve 接地。',
+    info_hardware_body: '手機 → USB-C 轉 3.5mm 音源轉接頭 → FSM 專用電極墊或自製電極片導線。Channel A 走左聲道，Channel B 走右聲道，共用 Sleeve 接地。',
     info_polarity_title: '極性說明',
     info_polarity_body: '<strong>+/- 交流</strong>：肌肉、內臟、所有 Alternating 協定使用。<br><strong>+→ 極化正</strong>：神經、脊髓、淋巴系統使用。',
     info_warnings_title: '禁忌症警示',
@@ -1159,7 +1161,7 @@ const I18N = {
     warn_79_dvt: '⚠ Frequency 79 (Veins) — rule out DVT first',
     warn_pol_stenosis: 'ℹ Polarized + — switch to AC if stenosis patient reports increased pain',
     step_label: 'Step',
-    subtab_mine: 'My Protocols', subtab_modebank: 'Reference Protocols',
+    subtab_favorites: 'Favorites', subtab_custom: 'Custom / Adapted', subtab_modebank: 'Reference Protocols',
     btn_new_session: '+ New session',
     session_new_title: 'New session', session_edit_title: 'Edit session',
     session_patient: 'Patient', session_complaint: 'Complaint', session_protocol: 'Protocol',
@@ -1196,7 +1198,7 @@ const I18N = {
     music_progress_render: 'Rendering {pct}%', music_progress_encode: 'Encoding...',
     music_progress_done: 'Done! Downloading...', music_generate_failed: 'Generation failed',
     info_hardware_title: 'Hardware setup',
-    info_hardware_body: 'Phone → USB-C to 3.5mm adapter → iCare-Pad or DIY electrode cable.',
+    info_hardware_body: 'Phone → USB-C to 3.5mm adapter → FSM electrode pad or DIY electrode cable.',
     info_polarity_title: 'Polarity',
     info_polarity_body: '<strong>+/- AC</strong>: muscles, viscera, Alternating protocols.<br><strong>+→ Polarized+</strong>: nerves, spinal cord, lymphatics.',
     info_warnings_title: 'Contraindication warnings',
@@ -1255,7 +1257,7 @@ const auth = {
     this.user = null;
     this.save();
     CHANNEL_A = null; CHANNEL_B = null;
-    PROTOCOLS_CURATED = null; PROTOCOLS_FULL = null;
+    PROTOCOLS_CURATED = null; PROTOCOLS_FULL = null; USER_PROTOCOLS = null; FAVORITE_PROTOCOL_IDS = new Set();
     FREQ_A_MAP = PUBLIC_FREQ_MAP_A;
     FREQ_B_MAP = PUBLIC_FREQ_MAP_B;
     if (window.google && google.accounts && google.accounts.id) {
@@ -1298,8 +1300,8 @@ window.handleGoogleCredential = async function(response) {
     auth.user = data;
     auth.save();
     updateAuthUI();
-    // Fetch protected data + user protocols + personal custom protocols in parallel
-    await Promise.all([loadProtectedData(), loadUserProtocols(), _pullMyProtocolsFromServer()]);
+    // Fetch the shared reference library and the user's two personal layers.
+    await Promise.all([loadProtectedData(), loadUserProtocols()]);
     // Re-render the active view
     const active = document.querySelector('.tab.active');
     if (active) switchToView(active.getAttribute('data-view'));
@@ -1350,12 +1352,16 @@ async function loadUserProtocols() {
     if (r.ok) {
       const data = await r.json();
       USER_PROTOCOLS = data.protocols || [];
+      FAVORITE_PROTOCOL_IDS = new Set(data.favorite_protocol_ids || []);
+      localStorage.setItem(CUSTOM_PROTO_KEY, JSON.stringify(USER_PROTOCOLS.filter(p => p._custom)));
     } else {
       USER_PROTOCOLS = [];
+      FAVORITE_PROTOCOL_IDS = new Set();
     }
   } catch (e) {
     console.error('loadUserProtocols error:', e);
     USER_PROTOCOLS = [];
+    FAVORITE_PROTOCOL_IDS = new Set();
   }
 }
 
@@ -1374,17 +1380,36 @@ async function saveUserProtocols(list) {
   }
 }
 
+async function saveFavoriteProtocolIds() {
+  if (!auth.user || !auth.user.token) return false;
+  try {
+    const r = await fetch(API_BASE + '/protocols', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.user.token },
+      body: JSON.stringify({ favorite_protocol_ids: [...FAVORITE_PROTOCOL_IDS] })
+    });
+    return r.ok;
+  } catch (e) {
+    console.error('saveFavoriteProtocolIds error:', e);
+    return false;
+  }
+}
+
 // ── Bulk-import helpers ────────────────────────────────────────────────────
 function _normPolarity(v) {
   const s = String(v == null ? '' : v).toLowerCase();
+  if (!s) return null;
   if (s.includes('positive') || s === 'p' || s.includes('正') || s.includes('+→') || s.includes('polar')) return 'Positive';
-  return 'Alternating';
+  if (s.includes('alternating') || s === 'a' || s.includes('交替') || s.includes('+/-') || s.includes('+/−')) return 'Alternating';
+  return null;
 }
 function _normWave(v) {
   const s = String(v == null ? '' : v).toLowerCase();
+  if (!s) return null;
   if (s.includes('sharp') || s === 's' || s.includes('銳')) return 'Sharp';
   if (s.includes('gentle') || s.includes('soft') || s === 'g' || s.includes('柔')) return 'Gentle';
-  return 'Medium';
+  if (s.includes('medium') || s === 'm' || s.includes('中')) return 'Medium';
+  return null;
 }
 // Validate + canonicalize one incoming protocol object. Returns null if invalid.
 function normalizeImportedProtocol(p) {
@@ -1396,19 +1421,28 @@ function normalizeImportedProtocol(p) {
     if (!isFinite(fa) || !isFinite(fb)) return null;
     let dur = Number(ns.duration);
     if (!isFinite(dur) || dur <= 0) dur = 4;
-    return { freq_a: fa, freq_b: fb, polarity: _normPolarity(ns.polarity), wave: _normWave(ns.wave), duration: dur };
+    return {
+      freq_a: fa,
+      freq_b: fb,
+      polarity: _normPolarity(ns.polarity),
+      wave: _normWave(ns.wave),
+      duration: dur,
+      observed_marker: ns.observed_marker ? String(ns.observed_marker) : null
+    };
   }).filter(Boolean);
   if (!steps.length) return null;
   const name = String(p.name_zh || p.name_en || p.name || '').trim() || '匯入協定';
   return {
+    id: p.id ? String(p.id) : '',
     name_zh: p.name_zh ? String(p.name_zh) : name,
     name_en: p.name_en ? String(p.name_en) : name,
-    category: p.category ? String(p.category) : 'imported',
+    source: 'Reference',
+    category: '參考協定',
     folder: p.folder ? String(p.folder) : '',
     protocol_group: p.protocol_group ? String(p.protocol_group) : (p.group ? String(p.group) : ''),
     indication_zh: p.indication_zh ? String(p.indication_zh) : '',
     indication_en: p.indication_en ? String(p.indication_en) : '',
-    _custom: true,
+    _ref: true,
     steps
   };
 }
@@ -1772,6 +1806,29 @@ function deleteCustomProtocol(id) {
   renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
 }
 
+async function toggleFavoriteProtocol(id) {
+  id = String(id || '');
+  if (!id) return;
+  const wasFavorite = FAVORITE_PROTOCOL_IDS.has(id);
+  if (wasFavorite) FAVORITE_PROTOCOL_IDS.delete(id); else FAVORITE_PROTOCOL_IDS.add(id);
+  renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
+  const saved = await saveFavoriteProtocolIds();
+  if (!saved) {
+    if (wasFavorite) FAVORITE_PROTOCOL_IDS.add(id); else FAVORITE_PROTOCOL_IDS.delete(id);
+    renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
+    alert('收藏同步失敗，請確認網路後再試一次。');
+  }
+}
+
+function copyReferenceProtocol(id) {
+  const protocol = (PROTOCOLS_FULL || []).find(item => String(item.id || '') === String(id || ''));
+  if (!protocol) return;
+  showCustomProtocolEditor({
+    ...protocol,
+    steps: (protocol.steps || []).map(step => ({ ...normalizeStep(step), observed_marker: step.observed_marker || null }))
+  }, 'copy');
+}
+
 // Delete a shared reference protocol (admin only; removes for all users)
 async function deleteReferenceProtocol(id) {
   if (!auth.user || auth.user.email !== ADMIN_EMAIL) { alert('僅限管理員刪除參考協定。'); return; }
@@ -1796,14 +1853,23 @@ async function deleteReferenceProtocol(id) {
 
 let _cpEditId = null;
 let _cpEditTarget = 'user';  // 'user' = 我的協定 (每位用戶) ; 'reference' = 參考協定 (僅管理員)
+let _cpSourceReferenceId = '';
 
 function showCustomProtocolEditor(proto, target) {
   _cpEditTarget = target || 'user';
-  _cpEditId = proto ? proto.id : null;
+  _cpEditId = _cpEditTarget === 'copy' ? null : (proto ? proto.id : null);
+  _cpSourceReferenceId = _cpEditTarget === 'copy' ? String(proto?.id || '') : String(proto?.source_reference_id || '');
   $('cpModalTitle').textContent = _cpEditTarget === 'reference'
     ? '編輯參考協定（所有用戶可見）'
-    : (proto ? '編輯自訂協定' : '新增自訂協定');
-  $('cpName').value = proto ? (proto.name_zh || proto.name || '') : '';
+    : (_cpEditTarget === 'copy' ? '建立可微調副本' : (proto ? '編輯自訂協定' : '新增自訂協定'));
+  const sourceWarning = $('cpSourceWarning');
+  const hasUnverifiedSettings = !!(proto && (proto.steps || []).some(step => !normalizeStep(step).polarity || !normalizeStep(step).wave));
+  sourceWarning.style.display = _cpEditTarget === 'copy' ? '' : 'none';
+  sourceWarning.textContent = hasUnverifiedSettings
+    ? '此參考協定的交流極性已確認，但波形尚未設定。請為每一步選定波形後再儲存與執行。'
+    : '此副本會獨立儲存在「自訂／微調」，日後不受參考庫更新影響。';
+  const baseName = proto ? (proto.name_zh || proto.name || '') : '';
+  $('cpName').value = _cpEditTarget === 'copy' ? `${baseName}（微調）` : baseName;
   $('cpIndication').value = proto ? (proto.indication_zh || '') : '';
   $('cpCategory').value = proto ? (proto.category || '') : '';
   $('cpFolder').value = proto ? (proto.folder || '') : '';
@@ -1831,12 +1897,14 @@ function addCpStepRow(step, refEl, insertBefore) {
       <input type="number" class="form-input cp-freqb" placeholder="CH B" value="${step.freq_b !== undefined && step.freq_b !== '' ? step.freq_b : ''}" min="0" max="9999" step="0.001">
       <input type="number" class="form-input cp-dur" placeholder="min" value="${step.duration || 4}" min="1" max="120">
       <select class="form-input cp-polarity">
-        <option value="Alternating" ${step.polarity !== 'Positive' ? 'selected' : ''}>+/-</option>
+        <option value="" ${!step.polarity ? 'selected' : ''}>極性?</option>
+        <option value="Alternating" ${step.polarity === 'Alternating' ? 'selected' : ''}>+/-</option>
         <option value="Positive" ${step.polarity === 'Positive' ? 'selected' : ''}>+→</option>
       </select>
       <select class="form-input cp-wave">
+        <option value="" ${!step.wave ? 'selected' : ''}>波形?</option>
         <option value="Sharp" ${step.wave === 'Sharp' ? 'selected' : ''}>銳</option>
-        <option value="Medium" ${!step.wave || step.wave === 'Medium' ? 'selected' : ''}>中</option>
+        <option value="Medium" ${step.wave === 'Medium' ? 'selected' : ''}>中</option>
         <option value="Gentle" ${step.wave === 'Gentle' ? 'selected' : ''}>緩</option>
       </select>
       <button type="button" class="btn-icon cp-ins-step" title="在此列上方插入步驟">⤒</button>
@@ -1880,13 +1948,14 @@ function saveCpProtocol() {
     const fa = parseFloat(row.querySelector('.cp-freqa').value);
     const fb = parseFloat(row.querySelector('.cp-freqb').value);
     const dur = parseInt(row.querySelector('.cp-dur').value);
-    if (isNaN(fa) || isNaN(fb) || isNaN(dur) || dur < 1) {
+    const polarity = row.querySelector('.cp-polarity').value;
+    const wave = row.querySelector('.cp-wave').value;
+    if (isNaN(fa) || isNaN(fb) || isNaN(dur) || dur < 1 || !polarity || !wave) {
       alert('步驟 ' + (i+1) + ' 有欄位未填或格式錯誤');
       valid = false;
     } else {
       steps.push({ freq_a: fa, freq_b: fb, duration: dur,
-        polarity: row.querySelector('.cp-polarity').value,
-        wave: row.querySelector('.cp-wave').value });
+        polarity, wave });
     }
   });
   if (!valid) return;
@@ -1934,7 +2003,9 @@ function saveCpProtocol() {
   } else {
     list.unshift({ id: 'custom_' + Date.now(), name: name, name_zh: name,
       indication_zh: indVal, category: catVal, folder: folderVal,
-      protocol_group: groupVal, steps, _custom: true });
+      protocol_group: groupVal, steps, _custom: true,
+      personal_protocol_type: _cpEditTarget === 'copy' ? 'adapted_reference' : 'authored',
+      source_reference_id: _cpEditTarget === 'copy' ? _cpSourceReferenceId : '' });
   }
   USER_PROTOCOLS = list;
   saveUserProtocols(list);
@@ -2074,7 +2145,7 @@ const state = {
   current: 200, duration: 4,
   running: false, paused: false, timerInterval: null, remainingSec: 0, stepTotalSec: 0,
   loadedProtocol: null, currentStepIndex: 0, wakeLock: null,
-  protocolSet: 'curated', protocolCategory: 'all', protocolFolder: 'all',
+  protocolSet: 'favorites', protocolCategory: 'all', protocolFolder: 'all',
   protocolMarkMode: false, markedProtocolIds: new Set(), openProtocolGroups: new Set(),
   runScale: localStorage.getItem('fsm_run_scale') || 'md',
   editingSessionId: null,
@@ -2327,6 +2398,10 @@ function startManualRun() {
 }
 
 function startStep(step, isProtocol) {
+  if (!step || !step.polarity || !step.wave) {
+    alert('此步驟尚未設定極性與波形，無法執行。請先建立微調副本並完成設定。');
+    return;
+  }
   state.freqA = step.freq_a;
   state.freqB = step.freq_b;
   state.polarity = step.polarity;
@@ -2717,6 +2792,7 @@ function renderImportPreview(result) {
       category: 'imported',
       indication_zh: '', indication_en: '',
       _custom: true,
+      personal_protocol_type: 'authored',
       steps: _lastResult.steps.map(s => ({
         freq_a: s.freq_a, freq_b: s.freq_b,
         polarity: s.polarity, wave: s.wave, duration: s.duration
@@ -2797,8 +2873,9 @@ function switchToView(view) {
 function renderProtocolsView() {
   $('view-protocols').innerHTML = `
     <div class="subtabs">
-      <button class="subtab active" data-pset="curated">${t('subtab_mine')}</button>
-      <button class="subtab" data-pset="full">${t('subtab_modebank')}${PROTOCOLS_FULL ? ' · ' + PROTOCOLS_FULL.length : ''}</button>
+      <button class="subtab ${state.protocolSet === 'favorites' ? 'active' : ''}" data-pset="favorites">${t('subtab_favorites')} · ${FAVORITE_PROTOCOL_IDS.size}</button>
+      <button class="subtab ${state.protocolSet === 'custom' ? 'active' : ''}" data-pset="custom">${t('subtab_custom')} · ${(USER_PROTOCOLS || []).length}</button>
+      <button class="subtab ${state.protocolSet === 'full' ? 'active' : ''}" data-pset="full">${t('subtab_modebank')}${PROTOCOLS_FULL ? ' · ' + PROTOCOLS_FULL.length : ''}</button>
     </div>
     <div class="protocol-library-summary" id="protocolLibrarySummary"></div>
     <div class="search-bar" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
@@ -2807,9 +2884,9 @@ function renderProtocolsView() {
       ${(auth.user && auth.user.email === ADMIN_EMAIL) ? '<button class="btn-secondary" id="importJsonBtn" style="white-space:nowrap;padding:8px 12px;font-size:11px;flex-shrink:0;">📥 參考協定匯入</button>' : ''}
       <button class="btn-secondary" id="exportJsonBtn" style="white-space:nowrap;padding:8px 12px;font-size:11px;flex-shrink:0;">↓ JSON</button>
       <button class="btn-secondary" id="exportPdfBtn" style="white-space:nowrap;padding:8px 12px;font-size:11px;flex-shrink:0;">🖨 列印</button>
-      <button class="btn-secondary" id="addCustomProtocolBtn" style="white-space:nowrap;padding:8px 14px;font-size:12px;flex-shrink:0;">＋ 新增</button>
+      <button class="btn-secondary" id="addCustomProtocolBtn" style="white-space:nowrap;padding:8px 14px;font-size:12px;flex-shrink:0;${state.protocolSet === 'custom' ? '' : 'display:none;'}">＋ 新增</button>
     </div>
-    <div class="protocol-manage-row" id="protocolManageRow">
+    <div class="protocol-manage-row" id="protocolManageRow" style="${state.protocolSet === 'custom' ? '' : 'display:none;'}">
       <button class="btn-secondary" id="protocolMarkModeBtn">✓ 標記管理</button>
       <button class="btn-secondary" id="newProtocolFolderBtn">＋ 資料夾</button>
       <button class="btn-secondary" id="newProtocolGroupBtn">＋ 協定群組</button>
@@ -2838,9 +2915,9 @@ function renderProtocolsView() {
       state.protocolMarkMode = false;
       state.markedProtocolIds.clear();
       const addBtn = $('addCustomProtocolBtn');
-      if (addBtn) addBtn.style.display = state.protocolSet === 'curated' ? '' : 'none';
+      if (addBtn) addBtn.style.display = state.protocolSet === 'custom' ? '' : 'none';
       const manageRow = $('protocolManageRow');
-      if (manageRow) manageRow.style.display = state.protocolSet === 'curated' ? '' : 'none';
+      if (manageRow) manageRow.style.display = state.protocolSet === 'custom' ? '' : 'none';
       renderProtocolList();
     });
   });
@@ -2910,45 +2987,48 @@ function renderProtocolsView() {
         if (r.ok) { const d = await r.json(); current = Array.isArray(d.protocols) ? d.protocols : []; }
       } catch (e) { /* treat as empty on read failure */ }
 
-      // 4. Upsert by name: same name overwrites the existing reference protocol; new names are added
+      // 4. The imported file is the complete reference library. Replacing the
+      // whole layer avoids silently retaining list-only or intentionally skipped items.
       const _nk = p => String(p.name_zh || p.name_en || p.name || '').trim().toLowerCase();
-      const merged = current.slice();
-      const byName = new Map(merged.map((p, idx) => [_nk(p), idx]));
-      let added = 0, updated = 0;
-      normed.forEach((p, i) => {
-        p._ref = true;          // shared reference protocol
-        delete p._custom;       // not a personal protocol
-        const k = _nk(p);
-        if (byName.has(k)) {
-          const at = byName.get(k);
-          p.id = merged[at].id || ('ref_' + Date.now() + '_' + i);  // keep existing id
-          merged[at] = p; updated++;
-        } else {
-          p.id = 'ref_' + Date.now() + '_' + i;
-          byName.set(k, merged.length); merged.push(p); added++;
-        }
-      });
-      if (!added && !updated) { alert('沒有可匯入的協定。'); return; }
+      const replacement = normed.map((p, i) => ({
+        ...p,
+        id: p.id || ('ref_' + Date.now() + '_' + i),
+        source: 'Reference',
+        category: p.category || '參考協定',
+        _ref: true
+      }));
+      const ids = replacement.map(p => String(p.id));
+      const names = replacement.map(_nk);
+      if (new Set(ids).size !== ids.length || new Set(names).size !== names.length) {
+        alert('❌ 匯入檔含有重複的協定 ID 或名稱。');
+        return;
+      }
+      const currentNames = new Set(current.map(_nk));
+      const replacementNames = new Set(names);
+      const added = names.filter(name => !currentNames.has(name)).length;
+      const retained = names.length - added;
+      const removed = [...currentNames].filter(name => !replacementNames.has(name)).length;
+      if (!confirm('將以這 ' + replacement.length + ' 個協定完整取代目前參考庫。\n新增 ' + added + '、更新／保留 ' + retained + '、移除 ' + removed + '。\n\n確定繼續？')) return;
 
       // 5. Persist (server enforces admin-only)
       try {
         const r = await fetch(API_BASE + '/reference-protocols', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.user.token },
-          body: JSON.stringify({ protocols: merged })
+          body: JSON.stringify({ protocols: replacement })
         });
         if (!r.ok) { const e = await r.json().catch(() => ({})); alert('❌ 儲存失敗：' + (e.error || r.status)); return; }
       } catch (e) { alert('❌ 儲存失敗：' + e.message); return; }
 
-      // 6. Reflect immediately: replace the reference layer in PROTOCOLS_FULL (keep built-in seeds)
-      PROTOCOLS_FULL = [ ...((PROTOCOLS_FULL || []).filter(p => !p._ref)), ...merged ];
+      // 6. Reflect the exact shared reference layer immediately.
+      PROTOCOLS_FULL = replacement;
       state.protocolSet = 'full';
       if ($('view-protocols').classList.contains('active')) {
         renderProtocolsView();
         const fullTab = document.querySelector('.subtab[data-pset="full"]');
         if (fullTab) fullTab.click();
       }
-      alert('✅ 匯入完成（所有登入用戶可見）\n新增 ' + added + ' 個、覆蓋同名 ' + updated + ' 個');
+      alert('✅ 參考協定已完整更新（所有登入用戶可見）\n共 ' + replacement.length + ' 個協定；移除 ' + removed + ' 個舊項目');
     });
     inp.click();
   });
@@ -3009,12 +3089,11 @@ function saveProtocolLocations(value) {
 function canonicalProtocolName(value) {
   return String(value || '')
     .replace(/^MB\s+/i, '')
-    .replace(/\b(short|long|extended|basic|full)\b/gi, '')
     .replace(/[^a-z0-9\u3400-\u9fff]+/gi, '')
     .toLowerCase();
 }
 function getProtocolFolder(p, isFull) {
-  return String(p.folder || (isFull ? (p.category || p.cat || 'Mode Bank') : '')).trim();
+  return String(p.folder || '').trim();
 }
 function getProtocolGroupName(p) {
   return String(p.protocol_group || p.group || '').trim();
@@ -3117,6 +3196,13 @@ function normalizeStep(s) {
     wave: s.w === 'S' ? 'Sharp' : (s.w === 'G' ? 'Gentle' : 'Medium')
   };
 }
+function protocolHasVerifiedSettings(protocol) {
+  return !!(protocol && Array.isArray(protocol.steps) && protocol.steps.length &&
+    protocol.steps.every(step => {
+      const normalized = normalizeStep(step);
+      return !!(normalized.polarity && normalized.wave);
+    }));
+}
 const PROTOCOL_NAME_CORRECTIONS = {
   'Relax and Balanc': 'Relax and Balance',
   'SkinTraumaHealin': 'Skin Trauma Healing',
@@ -3186,24 +3272,33 @@ function renderProtocolList(filter) {
   filter = (filter || '').toLowerCase();
   const list = $('protocolList');
   let src;
-  if (state.protocolSet === 'curated') {
+  if (state.protocolSet === 'custom') {
     src = USER_PROTOCOLS !== null ? [...USER_PROTOCOLS] : [];
+  } else if (state.protocolSet === 'favorites') {
+    src = (PROTOCOLS_FULL || []).filter(protocol => FAVORITE_PROTOCOL_IDS.has(String(protocol.id || '')));
   } else {
     src = PROTOCOLS_FULL || [];
   }
   const isAdmin = !!(auth.user && auth.user.email === ADMIN_EMAIL);
+  const isReference = state.protocolSet === 'full' || state.protocolSet === 'favorites';
   const isFull = state.protocolSet === 'full';
   renderProtocolCategoryFilters(src || []);
-  renderProtocolFolderFilters(src || [], isFull);
-  renderProtocolLibrarySummary(src || [], isFull);
+  renderProtocolFolderFilters(src || [], isReference);
+  renderProtocolLibrarySummary(src || [], isReference);
   const batchToolbar = $('protocolBatchToolbar');
-  if (batchToolbar) batchToolbar.classList.toggle('show', state.protocolMarkMode && !isFull);
+  if (batchToolbar) batchToolbar.classList.toggle('show', state.protocolMarkMode && !isReference);
   const markBtn = $('protocolMarkModeBtn');
   if (markBtn) markBtn.textContent = state.protocolMarkMode ? '結束標記' : '✓ 標記管理';
-  if (!src || !src.length) { list.innerHTML = '<div class="empty-state" style="padding:32px 0;text-align:center;color:var(--text-dim);font-size:13px;">' + (state.protocolSet==='curated'?'尚無協定，點右上「＋ 新增」建立第一個自訂協定。':'') + '</div>'; return; }
+  if (!src || !src.length) {
+    const emptyText = state.protocolSet === 'custom'
+      ? '尚無自訂協定，點右上「＋ 新增」建立，或從參考協定建立微調副本。'
+      : (state.protocolSet === 'favorites' ? '尚無收藏。到參考協定點「☆ 收藏」即可加入。' : '');
+    list.innerHTML = '<div class="empty-state" style="padding:32px 0;text-align:center;color:var(--text-dim);font-size:13px;">' + emptyText + '</div>';
+    return;
+  }
   const items = src.filter(p => {
     const cat = String(p.category || p.cat || '');
-    const folder = getProtocolFolder(p, isFull);
+    const folder = getProtocolFolder(p, isReference);
     if (state.protocolCategory !== 'all' && cat !== state.protocolCategory) return false;
     if (state.protocolFolder === '__unfiled__' && folder) return false;
     if (state.protocolFolder !== 'all' && state.protocolFolder !== '__unfiled__' && folder !== state.protocolFolder) return false;
@@ -3229,32 +3324,48 @@ function renderProtocolList(filter) {
     const isLoaded = state.loadedProtocol && state.loadedProtocol.id === p.id;
     const isCustom = !!p._custom;
     const isRef = !!p._ref;
-    const folder = getProtocolFolder(p, isFull);
+    const folder = getProtocolFolder(p, isReference);
     const explicitGroup = getProtocolGroupName(p);
     const isMarked = state.markedProtocolIds.has(String(p.id || ''));
-    // 我的協定: 每位用戶可編輯自己的；參考協定: 僅管理員可編輯匯入的協定
-    const showActions = !state.protocolMarkMode && (isFull ? (isAdmin && isRef) : true);
     const stepsHtml = (p.steps || []).map((rawStep, i) => {
       const s = normalizeStep(rawStep);
       const cur = (isLoaded && state.currentStepIndex === i && state.running);
+      const settingTag = s.polarity && s.wave
+        ? (s.polarity === 'Positive' ? '+→' : '+/-') + ' · ' + escapeHtml(String(s.wave))
+        : (s.polarity ? '+/- · 波形待設定' : escapeHtml(String(rawStep.observed_marker || '?')) + ' · 待設定');
       return '<div class="step-row ' + (cur?'current':'') + '">' +
         '<div class="step-num">' + (i+1) + '</div>' +
         '<div class="step-freq">' + escapeHtml(String(s.freq_a)) + '<span class="sep">/</span>' + escapeHtml(String(s.freq_b)) +
-        '<span class="step-tags">' + (s.polarity==='Positive'?'+→':'+/-') + ' · ' + escapeHtml(String(s.wave || '')) + '</span></div>' +
+        '<span class="step-tags">' + settingTag + '</span></div>' +
         '<div class="step-time">' + escapeHtml(String(s.duration)) + 'm</div></div>';
     }).join('');
-    const refAttr = isRef ? ' data-ref="1"' : '';
-    const actionsHtml = showActions ? '<div class="protocol-card-actions">' +
-      '<button class="btn-icon edit" data-edit="' + safeId + '"' + refAttr + ' title="編輯">✏️ 編輯</button>' +
-      '<button class="btn-icon" data-delete="' + safeId + '"' + refAttr + ' title="刪除">🗑️ 刪除</button>' +
-      '</div>' : '';
-    const markHtml = state.protocolMarkMode && !isFull ? '<span class="protocol-mark" aria-hidden="true">' + (isMarked ? '✓' : '') + '</span>' : '';
+    let actionsHtml = '';
+    if (!state.protocolMarkMode) {
+      if (isReference) {
+        const favorite = FAVORITE_PROTOCOL_IDS.has(String(p.id || ''));
+        actionsHtml = '<div class="protocol-card-actions">' +
+          '<button class="btn-icon" data-favorite="' + safeId + '" title="' + (favorite ? '移除收藏' : '加入收藏') + '">' + (favorite ? '★ 已收藏' : '☆ 收藏') + '</button>' +
+          '<button class="btn-icon edit" data-copy-reference="' + safeId + '" title="建立個人微調副本">✎ 微調副本</button>' +
+          (isFull && isAdmin && isRef
+            ? '<button class="btn-icon edit" data-edit="' + safeId + '" data-ref="1" title="編輯參考協定">管理編輯</button><button class="btn-icon" data-delete="' + safeId + '" data-ref="1" title="刪除參考協定">刪除</button>'
+            : '') + '</div>';
+      } else {
+        actionsHtml = '<div class="protocol-card-actions">' +
+          '<button class="btn-icon edit" data-edit="' + safeId + '" title="編輯">✏️ 編輯</button>' +
+          '<button class="btn-icon" data-delete="' + safeId + '" title="刪除">🗑️ 刪除</button>' +
+          '</div>';
+      }
+    }
+    const markHtml = state.protocolMarkMode && !isReference ? '<span class="protocol-mark" aria-hidden="true">' + (isMarked ? '✓' : '') + '</span>' : '';
     const locationHtml = (folder || explicitGroup) ? '<div class="protocol-location">' +
       (folder ? '<span>▱ ' + escapeHtml(folder) + '</span>' : '') +
       (explicitGroup ? '<span>(G) ' + escapeHtml(explicitGroup) + '</span>' : '') + '</div>' : '';
-    return '<div class="protocol-card ' + (isLoaded?'loaded ':'') + (state.protocolMarkMode&&!isFull?'mark-mode ':'') + (isMarked?'marked':'') + '" data-id="' + safeId + '" data-custom="' + isCustom + '">' +
+    const personalBadge = isCustom
+      ? '<span class="custom-badge">' + (p.personal_protocol_type === 'adapted_reference' ? '微調' : '自編') + '</span>'
+      : (state.protocolSet === 'favorites' ? '<span class="custom-badge">收藏</span>' : '');
+    return '<div class="protocol-card ' + (isLoaded?'loaded ':'') + (state.protocolMarkMode&&!isReference?'mark-mode ':'') + (isMarked?'marked':'') + '" data-id="' + safeId + '" data-custom="' + isCustom + '">' +
       markHtml +
-      '<div class="protocol-name">' + safeName + (isCustom ? '<span class="custom-badge">自訂</span>' : '') + ' <span class="protocol-cat">' + safeCategory + '</span></div>' +
+      '<div class="protocol-name">' + safeName + personalBadge + ' <span class="protocol-cat">' + safeCategory + '</span></div>' +
       locationHtml +
       (ind ? '<div class="protocol-indication">' + safeIndication + '</div>' : '') +
       '<div class="protocol-meta"><span>' + (p.steps || []).length + ' steps</span><span>· ' + tot + ' min</span></div>' +
@@ -3266,7 +3377,7 @@ function renderProtocolList(filter) {
   const standalone = [];
   items.forEach(p => {
     const explicit = getProtocolGroupName(p);
-    const key = explicit ? 'explicit:' + explicit : (isFull ? 'variant:' + canonicalProtocolName(getProtocolName(p)) : '');
+    const key = explicit ? 'explicit:' + explicit : (isReference ? 'variant:' + canonicalProtocolName(getProtocolName(p)) : '');
     if (!key) { standalone.push(p); return; }
     if (!grouped.has(key)) grouped.set(key, { name: explicit || getProtocolName(p), explicit: !!explicit, protocols: [] });
     grouped.get(key).protocols.push(p);
@@ -3280,7 +3391,7 @@ function renderProtocolList(filter) {
     const totalSteps = group.protocols.reduce((sum, p) => sum + (p.steps || []).length, 0);
     const totalMinutes = group.protocols.reduce((sum, p) => sum + totalProtocolMinutes(p), 0);
     const buttons = '<div class="protocol-group-actions">' +
-      (!isFull && state.protocolMarkMode ? '<button class="btn-secondary" data-mark-group="' + encodedKey + '">標記整組</button>' : '') +
+      (!isReference && state.protocolMarkMode ? '<button class="btn-secondary" data-mark-group="' + encodedKey + '">標記整組</button>' : '') +
       '<button class="btn-secondary" data-run-group="' + encodedKey + '">▶ 執行整組</button></div>';
     return '<section class="protocol-group ' + (isOpen ? 'open' : '') + '" data-group-key="' + encodedKey + '">' +
       '<button class="protocol-group-header" type="button" data-toggle-group="' + encodedKey + '">' +
@@ -3319,16 +3430,28 @@ function renderProtocolList(filter) {
   });
   list.querySelectorAll('.protocol-card').forEach(card => {
     card.addEventListener('click', e => {
-      // Don't open load modal if clicking edit/delete
-      if (e.target.closest('[data-edit],[data-delete]')) return;
+      // Don't open the run modal when an action button was clicked.
+      if (e.target.closest('[data-edit],[data-delete],[data-favorite],[data-copy-reference]')) return;
       const id = decodeURIComponent(card.getAttribute('data-id'));
       const proto = src.find(p => String(p.id || '') === id);
-      if (state.protocolMarkMode && !isFull) {
+      if (state.protocolMarkMode && !isReference) {
         if (state.markedProtocolIds.has(id)) state.markedProtocolIds.delete(id); else state.markedProtocolIds.add(id);
         renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
         return;
       }
       if (proto) askLoadProtocol(proto);
+    });
+  });
+  list.querySelectorAll('[data-favorite]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      toggleFavoriteProtocol(decodeURIComponent(btn.getAttribute('data-favorite')));
+    });
+  });
+  list.querySelectorAll('[data-copy-reference]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      copyReferenceProtocol(decodeURIComponent(btn.getAttribute('data-copy-reference')));
     });
   });
   list.querySelectorAll('[data-edit]').forEach(btn => {
@@ -3359,6 +3482,10 @@ function askLoadProtocol(p) {
   const tot = totalProtocolMinutes(p);
   $('modalTitle').textContent = getProtocolName(p);
   let body = t('modal_load_body').replace('{n}', p.steps.length).replace('{t}', tot + ' min');
+  const hasUnverifiedSettings = !protocolHasVerifiedSettings(p);
+  if (hasUnverifiedSettings) {
+    body = '<div class="warning-banner danger">此參考協定的 CH A、CH B、時間與交流極性已核對，但波形尚未設定，因此目前不可直接執行。你可以先收藏，或建立微調副本並逐步選定波形後使用。</div>';
+  }
   const seen = new Set();
   for (const rawStep of p.steps) {
     const s = normalizeStep(rawStep);
@@ -3375,7 +3502,8 @@ function askLoadProtocol(p) {
   body += '<div style="margin-top:12px;"><button class="btn-secondary" id="exportProtocolPdfBtn" style="width:100%">📄 ' + t('btn_export_protocol_pdf') + '</button></div>';
   $('modalBody').innerHTML = body;
   $('loadModal').classList.add('show');
-  $('modalConfirm').onclick = () => {
+  $('modalConfirm').style.display = hasUnverifiedSettings ? 'none' : '';
+  $('modalConfirm').onclick = hasUnverifiedSettings ? null : () => {
     $('loadModal').classList.remove('show');
     state.loadedProtocol = Object.assign({}, p, { steps: p.steps.map(normalizeStep) });
     state.currentStepIndex = 0;
@@ -3941,8 +4069,12 @@ function initMusicViewBindings() {
   // Build merged, deduplicated list
   const seen = new Set();
   const curated = (PROTOCOLS_CURATED || []).filter(p => { if (seen.has(p.id)) return false; seen.add(p.id); return true; });
-  const full    = (PROTOCOLS_FULL    || []).filter(p => { if (seen.has(p.id)) return false; seen.add(p.id); return true; });
-  const custom  = loadCustomProtocols();
+  const full    = (PROTOCOLS_FULL || []).filter(p => {
+    if (!protocolHasVerifiedSettings(p) || seen.has(p.id)) return false;
+    seen.add(p.id);
+    return true;
+  });
+  const custom  = (USER_PROTOCOLS || loadCustomProtocols()).filter(protocolHasVerifiedSettings);
 
   // Build optgroups: My Protocols → Curated → Reference (deduplicated)
   const groups = [
@@ -4071,6 +4203,7 @@ async function generateMusicFile() {
   } else {
     const p = getProtocolFromAny(musicState.protocolId);
     if (!p) throw new Error('No protocol selected');
+    if (!protocolHasVerifiedSettings(p)) throw new Error('Protocol settings are incomplete');
     segments = p.steps.map(rawStep => { const s = normalizeStep(rawStep); return { freqA: s.freq_a, freqB: s.freq_b, polarity: s.polarity, wave: s.wave, duration: s.duration * 60 }; });
     const nm = p.name_zh ? (LANG==='zh'?p.name_zh:p.name_en) : p.name;
     labelName = `FSM_${nm.replace(/[^a-zA-Z0-9_\u4e00-\u9fa5]/g, '_')}`;
@@ -4355,8 +4488,8 @@ ${s.notes ? `<h2>${L.notes}</h2><div>${escapeHtml(s.notes).replace(/\n/g,'<br>')
 <footer>${L.footer}</footer></body></html>`;
 }
 function generateProtocolHTML(p) {
-  const L = LANG === 'zh' ? { title: 'FSM 治療協定', name: '協定名稱', category: '類別', indication: '適應症', total: '總時長', steps: '治療步驟', step: '步驟', freq: '頻率 (A / B)', polarity: '極性', wave: '波形', duration: '時長', tissue: '組織', warnings: '注意事項', hardware: '硬體建議', hwb: '手機接 USB-C 轉 3.5mm，再接 iCare-Pad 或自製電極片。起始電流 100-200 μA，依組織反應調整。', footer: '由 FSM Studio 生成' }
-    : { title: 'FSM Treatment Protocol', name: 'Protocol', category: 'Category', indication: 'Indication', total: 'Total duration', steps: 'Treatment steps', step: 'Step', freq: 'Freq (A / B)', polarity: 'Polarity', wave: 'Wave', duration: 'Dur.', tissue: 'Tissues', warnings: 'Precautions', hardware: 'Hardware', hwb: 'Phone → USB-C to 3.5mm → iCare-Pad or DIY electrode cable. Start 100-200 μA, adjust to response.', footer: 'Generated by FSM Studio' };
+  const L = LANG === 'zh' ? { title: 'FSM 治療協定', name: '協定名稱', category: '類別', indication: '適應症', total: '總時長', steps: '治療步驟', step: '步驟', freq: '頻率 (A / B)', polarity: '極性', wave: '波形', duration: '時長', tissue: '組織', warnings: '注意事項', hardware: '硬體建議', hwb: '手機接 USB-C 轉 3.5mm，再接 FSM 專用電極墊或自製電極片。起始電流 100-200 μA，依組織反應調整。', footer: '由 FSM Studio 生成' }
+    : { title: 'FSM Treatment Protocol', name: 'Protocol', category: 'Category', indication: 'Indication', total: 'Total duration', steps: 'Treatment steps', step: 'Step', freq: 'Freq (A / B)', polarity: 'Polarity', wave: 'Wave', duration: 'Dur.', tissue: 'Tissues', warnings: 'Precautions', hardware: 'Hardware', hwb: 'Phone → USB-C to 3.5mm → FSM electrode pad or DIY electrode cable. Start 100-200 μA, adjust to response.', footer: 'Generated by FSM Studio' };
   const nm = getProtocolName(p); const ind = getProtocolIndication(p);
   const cat = p.category || p.cat || ''; const tot = totalProtocolMinutes(p);
   const warnings = new Set();
@@ -4365,7 +4498,12 @@ function generateProtocolHTML(p) {
     if (s.freq_a === 13 || s.freq_b === 13) warnings.add('13');
     if (s.freq_a === 79 || s.freq_b === 79) warnings.add('79');
     if (s.polarity === 'Positive') warnings.add('pol');
-    return `<tr><td>${i+1}</td><td><span class="badge">${s.freq_a} / ${s.freq_b}</span></td><td>${s.polarity==='Positive'?'+→':'+/-'}</td><td>${s.wave}</td><td>${s.duration} min</td><td style="font-size:10px;color:#666">${FREQ_A_MAP[s.freq_a]||''} / ${FREQ_B_MAP[s.freq_b]||''}</td></tr>`;
+    const setting = s.polarity && s.wave
+      ? `<td>${s.polarity==='Positive'?'+→':'+/-'}</td><td>${s.wave}</td>`
+      : (s.polarity
+          ? `<td>+/-</td><td>待設定</td>`
+          : `<td colspan="2">${escapeHtml(String(rs.observed_marker || '?'))} · 待設定</td>`);
+    return `<tr><td>${i+1}</td><td><span class="badge">${s.freq_a} / ${s.freq_b}</span></td>${setting}<td>${s.duration} min</td><td style="font-size:10px;color:#666">${FREQ_A_MAP[s.freq_a]||''} / ${FREQ_B_MAP[s.freq_b]||''}</td></tr>`;
   }).join('');
   let warnHtml = '';
   if (warnings.size > 0) {
