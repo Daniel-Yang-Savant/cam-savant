@@ -1437,7 +1437,7 @@ function normalizeImportedProtocol(p) {
     name_zh: p.name_zh ? String(p.name_zh) : name,
     name_en: p.name_en ? String(p.name_en) : name,
     source: 'Reference',
-    category: '參考協定',
+    category: p.category ? String(p.category) : '全身調節與恢復',
     folder: p.folder ? String(p.folder) : '',
     protocol_group: p.protocol_group ? String(p.protocol_group) : (p.group ? String(p.group) : ''),
     indication_zh: p.indication_zh ? String(p.indication_zh) : '',
@@ -2994,7 +2994,7 @@ function renderProtocolsView() {
         ...p,
         id: p.id || ('ref_' + Date.now() + '_' + i),
         source: 'Reference',
-        category: p.category || '參考協定',
+        category: p.category || '全身調節與恢復',
         _ref: true
       }));
       const ids = replacement.map(p => String(p.id));
@@ -3243,6 +3243,12 @@ function renderProtocolFolderFilters(src, isFull) {
     ...(isFull ? [] : locations.folders),
     ...src.map(p => getProtocolFolder(p, isFull)).filter(Boolean)
   ])].sort((a, b) => a.localeCompare(b, LANG === 'zh' ? 'zh-Hant' : 'en'));
+  if (isFull && !folders.length) {
+    strip.style.display = 'none';
+    state.protocolFolder = 'all';
+    return;
+  }
+  strip.style.display = '';
   if (state.protocolFolder !== 'all' && state.protocolFolder !== '__unfiled__' && !folders.includes(state.protocolFolder)) state.protocolFolder = 'all';
   const chips = [
     { value: 'all', label: '全部資料夾' },
@@ -3263,10 +3269,13 @@ function renderProtocolLibrarySummary(src, isFull) {
   const uniqueNames = new Set(src.map(p => canonicalProtocolName(getProtocolName(p))).filter(Boolean));
   const folders = new Set(src.map(p => getProtocolFolder(p, isFull)).filter(Boolean));
   const explicitGroups = new Set(src.map(getProtocolGroupName).filter(Boolean));
+  const categories = new Set(src.map(p => String(p.category || p.cat || '').trim()).filter(Boolean));
+  const organizationCount = isFull ? categories.size : (folders.size + explicitGroups.size);
+  const organizationLabel = isFull ? '主要分類' : '資料夾／群組';
   summary.innerHTML =
     '<div class="protocol-library-stat"><strong>' + src.length + '</strong><span>協定版本</span></div>' +
     '<div class="protocol-library-stat"><strong>' + uniqueNames.size + '</strong><span>協定名稱</span></div>' +
-    '<div class="protocol-library-stat"><strong>' + (folders.size + explicitGroups.size) + '</strong><span>資料夾／群組</span></div>';
+    '<div class="protocol-library-stat"><strong>' + organizationCount + '</strong><span>' + organizationLabel + '</span></div>';
 }
 function renderProtocolList(filter) {
   filter = (filter || '').toLowerCase();

@@ -63,7 +63,7 @@ export default async function handler(req, res) {
   // replacement in KV wins; otherwise the audited repository seed is used.
   let referenceProtocols = MB_REFERENCE;
   try {
-    const stored = await kvGetJSON('reference_protocols_v2');
+    const stored = await kvGetJSON('reference_protocols_v3');
     if (Array.isArray(stored)) referenceProtocols = stored;
   } catch {}
   const payload = { ...PROTECTED_PAYLOAD, full: toPublicReferenceProtocols(referenceProtocols) };

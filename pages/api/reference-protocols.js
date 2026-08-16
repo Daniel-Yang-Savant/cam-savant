@@ -8,7 +8,7 @@ import MB_REFERENCE from '../../data/fsm/mb-reference.json';
 import { toPublicReferenceProtocols } from '../../lib/fsm/reference-library';
 
 const ADMIN_EMAIL = 'hermiterudite@gmail.com';
-const KV_KEY = 'reference_protocols_v2';
+const KV_KEY = 'reference_protocols_v3';
 const MAX_PROTOCOLS = 500;
 const MAX_PAYLOAD_BYTES = 2_000_000;
 
