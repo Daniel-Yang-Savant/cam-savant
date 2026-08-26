@@ -35,6 +35,11 @@ const PostFrontmatterSchema = z.object({
   author: z.string().min(1, 'author 不可為空'),
   coverImage: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  takeaways: z
+    .array(z.string().min(1, 'takeaways 不可包含空白項目').max(160, '單項 takeaways 建議不超過 160 字'))
+    .min(3, 'takeaways 至少需要 3 點')
+    .max(5, 'takeaways 最多 5 點')
+    .optional(),
   draft: z.boolean().optional().default(false),
   lastModified: z
     .string()

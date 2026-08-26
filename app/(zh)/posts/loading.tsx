@@ -12,7 +12,7 @@ export default function PostsLoading() {
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div key={i} className="space-y-3">
-            <div className="skeleton aspect-[4/3]" />
+            <div className="skeleton aspect-[16/9]" />
             <div className="skeleton h-2.5 w-16" />
             <div className="skeleton h-5 w-full" />
             <div className="skeleton h-3 w-full" />

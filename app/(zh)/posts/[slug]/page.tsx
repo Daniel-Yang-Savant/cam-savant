@@ -21,8 +21,11 @@ import { generateArticleSchema, generateBreadcrumbSchema, generateFAQSchema } fr
 import { extractFAQsFromMDX } from '@/lib/extract-faqs'
 import RelatedArticles from '@/components/RelatedArticles'
 import AuthorCard from '@/components/AuthorCard'
+import ArticleTakeaways from '@/components/ArticleTakeaways'
+import ContextualCareCTA from '@/components/ContextualCareCTA'
 import { getReadingTime } from '@/lib/reading-time'
 import { getTagHref } from '@/lib/tags'
+import { injectContextualCareCTA } from '@/lib/article-enhancements'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -46,12 +49,13 @@ function slugify(text: string) {
 const mdxComponents = {
   h2: ({ children }: { children?: React.ReactNode }) => {
     const id = slugify(String(children ?? ''))
-    return <h2 id={id}>{children}</h2>
+    return <h2 id={id} className="scroll-mt-24">{children}</h2>
   },
   h3: ({ children }: { children?: React.ReactNode }) => {
     const id = slugify(String(children ?? ''))
-    return <h3 id={id}>{children}</h3>
+    return <h3 id={id} className="scroll-mt-24">{children}</h3>
   },
+  ContextualCareCTA: () => <ContextualCareCTA />,
 }
 
 // ── Metadata ───────────────────────────────────────────────────────────────
@@ -125,6 +129,7 @@ export default async function PostPage({ params }: Props) {
   const readingTime = getReadingTime(content)
   const faqs = extractFAQsFromMDX(content)
   const faqSchema = generateFAQSchema(faqs)
+  const enhancedContent = injectContextualCareCTA(content)
 
   return (
     <>
@@ -295,9 +300,16 @@ export default async function PostPage({ params }: Props) {
             )}
           </header>
 
+          <ArticleTakeaways takeaways={frontmatter.takeaways} />
+
+          {/* Mobile table of contents */}
+          <div className="mb-8 lg:hidden">
+            <TableOfContents collapsible />
+          </div>
+
           {/* MDX content */}
           <div className="prose prose-neutral dark:prose-invert max-w-none">
-            <MDXRemote source={content} components={mdxComponents} />
+            <MDXRemote source={enhancedContent} components={mdxComponents} />
           </div>
 
           {/* Author card（E-E-A-T） */}

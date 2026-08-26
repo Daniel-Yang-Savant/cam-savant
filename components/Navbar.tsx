@@ -157,12 +157,14 @@ export default function Navbar({ locale = 'zh' }: NavbarProps) {
 
             {/* Mobile: search icon */}
             {!isEnglish && <button
-              className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
+              className="md:hidden flex h-11 w-11 items-center justify-center rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 hover:text-neutral-950 dark:hover:bg-neutral-800 dark:hover:text-neutral-100 transition-colors"
               onClick={() => {
                 setMobileSearchOpen(!mobileSearchOpen)
                 if (open) setOpen(false)
               }}
               aria-label="搜尋"
+              aria-expanded={mobileSearchOpen}
+              aria-controls="mobile-site-search"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -182,12 +184,14 @@ export default function Navbar({ locale = 'zh' }: NavbarProps) {
 
             {/* Hamburger */}
             <button
-              className="md:hidden flex flex-col gap-1.5 p-2"
+              className="md:hidden flex h-11 w-11 flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
               onClick={() => {
                 setOpen(!open)
                 if (mobileSearchOpen) setMobileSearchOpen(false)
               }}
-              aria-label="Toggle menu"
+              aria-label={isEnglish ? 'Toggle menu' : '開啟或關閉選單'}
+              aria-expanded={open}
+              aria-controls="mobile-site-menu"
             >
               <span
                 className={clsx(
@@ -213,14 +217,14 @@ export default function Navbar({ locale = 'zh' }: NavbarProps) {
 
         {/* ── Mobile search expansion (full-width row below main row) ── */}
         {!isEnglish && mobileSearchOpen && (
-          <div className="md:hidden pb-3">
+          <div id="mobile-site-search" className="md:hidden pb-3">
             <SearchBar fullWidth />
           </div>
         )}
 
         {/* ── Mobile menu ── */}
         {open && (
-          <div className="md:hidden border-t border-neutral-100 dark:border-neutral-800 py-4">
+          <div id="mobile-site-menu" className="md:hidden border-t border-neutral-100 dark:border-neutral-800 py-3">
             <ul className="flex flex-col gap-4">
               {NAV_LINKS.map(({ href, label }) => (
                 <li key={href}>
@@ -228,7 +232,7 @@ export default function Navbar({ locale = 'zh' }: NavbarProps) {
                     href={href}
                     onClick={() => setOpen(false)}
                     className={clsx(
-                      'block text-sm tracking-wide py-1 transition-colors',
+                      'flex min-h-11 items-center text-sm tracking-wide transition-colors',
                       currentPath === href
                         ? 'text-accent-700 dark:text-accent-400 font-medium'
                         : 'text-neutral-500 dark:text-neutral-400'
@@ -244,7 +248,7 @@ export default function Navbar({ locale = 'zh' }: NavbarProps) {
             {!isEnglish && <Link
               href="/bookmarks"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2 text-sm tracking-wide py-1 text-neutral-500 dark:text-neutral-400"
+              className="flex min-h-11 items-center gap-2 text-sm tracking-wide text-neutral-500 dark:text-neutral-400"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
@@ -262,7 +266,7 @@ export default function Navbar({ locale = 'zh' }: NavbarProps) {
               <Link
                 href={languageHref}
                 hrefLang={isEnglish ? 'zh-TW' : 'en'}
-                className="text-xs font-medium px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                className="inline-flex min-h-11 items-center rounded-lg border border-neutral-200 px-3 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
               >
                 {isEnglish ? '繁體中文' : 'English'}
               </Link>

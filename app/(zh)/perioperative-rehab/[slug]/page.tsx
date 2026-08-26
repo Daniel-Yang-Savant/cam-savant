@@ -10,7 +10,10 @@ import ConsultForm from '@/components/ConsultForm'
 import ReadingProgress from '@/components/ReadingProgress'
 import TableOfContents from '@/components/TableOfContents'
 import PrintButton from '@/components/PrintButton'
+import ArticleTakeaways from '@/components/ArticleTakeaways'
+import ContextualCareCTA from '@/components/ContextualCareCTA'
 import { bilingualAlternates } from '@/lib/locales'
+import { injectContextualCareCTA } from '@/lib/article-enhancements'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -36,12 +39,13 @@ function slugify(text: string) {
 const mdxComponents = {
   h2: ({ children }: { children?: React.ReactNode }) => {
     const id = slugify(String(children ?? ''))
-    return <h2 id={id}>{children}</h2>
+    return <h2 id={id} className="scroll-mt-24">{children}</h2>
   },
   h3: ({ children }: { children?: React.ReactNode }) => {
     const id = slugify(String(children ?? ''))
-    return <h3 id={id}>{children}</h3>
+    return <h3 id={id} className="scroll-mt-24">{children}</h3>
   },
+  ContextualCareCTA: () => <ContextualCareCTA variant="perioperative" />,
 }
 
 // ── Metadata ────────────────────────────────────────────────────────────────
@@ -99,6 +103,7 @@ export default async function PerioperativeRehabArticlePage({ params }: Props) {
   const formattedModifiedDate = frontmatter.lastModified
     ? format(new Date(frontmatter.lastModified), 'yyyy年M月d日', { locale: zhTW })
     : null
+  const enhancedContent = injectContextualCareCTA(content)
 
   return (
     <div className="min-h-screen bg-[#f5f0e8] dark:bg-neutral-900">
@@ -174,12 +179,18 @@ export default async function PerioperativeRehabArticlePage({ params }: Props) {
               如有疼痛加劇、腫脹異常或其他不適，請立即停止並回診。
             </div>
 
+            <ArticleTakeaways takeaways={frontmatter.takeaways} />
+
+            <div className="mb-8 lg:hidden">
+              <TableOfContents collapsible />
+            </div>
+
             {/* Print button */}
             <PrintButton />
 
             {/* MDX content */}
             <div className="prose prose-neutral dark:prose-invert max-w-none">
-              <MDXRemote source={content} components={mdxComponents} />
+              <MDXRemote source={enhancedContent} components={mdxComponents} />
             </div>
 
             {/* Consultation form */}

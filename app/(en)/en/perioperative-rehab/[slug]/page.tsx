@@ -7,6 +7,9 @@ import { englishAlternates } from '@/lib/locales'
 import ReadingProgress from '@/components/ReadingProgress'
 import TableOfContents from '@/components/TableOfContents'
 import PrintButton from '@/components/PrintButton'
+import ArticleTakeaways from '@/components/ArticleTakeaways'
+import ContextualCareCTA from '@/components/ContextualCareCTA'
+import { injectContextualCareCTA } from '@/lib/article-enhancements'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -21,8 +24,9 @@ function slugify(text: string) {
 }
 
 const mdxComponents = {
-  h2: ({ children }: { children?: React.ReactNode }) => <h2 id={slugify(String(children ?? ''))}>{children}</h2>,
-  h3: ({ children }: { children?: React.ReactNode }) => <h3 id={slugify(String(children ?? ''))}>{children}</h3>,
+  h2: ({ children }: { children?: React.ReactNode }) => <h2 id={slugify(String(children ?? ''))} className="scroll-mt-24">{children}</h2>,
+  h3: ({ children }: { children?: React.ReactNode }) => <h3 id={slugify(String(children ?? ''))} className="scroll-mt-24">{children}</h3>,
+  ContextualCareCTA: () => <ContextualCareCTA variant="perioperative" locale="en" />,
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -50,6 +54,7 @@ export default async function EnglishPerioperativeArticlePage({ params }: Props)
   if (!post) notFound()
   const { frontmatter, content } = post
   const formattedDate = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(new Date(`${frontmatter.date}T00:00:00Z`))
+  const enhancedContent = injectContextualCareCTA(content, 'en')
 
   return (
     <div className="min-h-screen bg-[#f5f0e8] dark:bg-neutral-900">
@@ -79,8 +84,14 @@ export default async function EnglishPerioperativeArticlePage({ params }: Props)
               <strong>Important:</strong> This guide provides general education only. Follow your surgeon’s and rehabilitation team’s instructions if they differ. Stop the exercise and seek medical advice for increasing pain, unusual swelling, wound problems, fever, chest pain, shortness of breath, or other concerning symptoms.
             </div>
 
+            <ArticleTakeaways takeaways={frontmatter.takeaways} locale="en" />
+
+            <div className="mb-8 lg:hidden">
+              <TableOfContents locale="en" collapsible />
+            </div>
+
             <PrintButton locale="en" />
-            <div className="prose prose-neutral dark:prose-invert max-w-none"><MDXRemote source={content} components={mdxComponents} /></div>
+            <div className="prose prose-neutral dark:prose-invert max-w-none"><MDXRemote source={enhancedContent} components={mdxComponents} /></div>
 
             <div className="mt-12 rounded-2xl bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-100 dark:border-neutral-700 p-6">
               <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">Need individualized guidance?</h2>

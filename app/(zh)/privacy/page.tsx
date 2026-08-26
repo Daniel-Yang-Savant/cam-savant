@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { LINE_ADD_URL, LINE_ID } from '@/lib/site'
 export const metadata: Metadata = {
   alternates: { canonical: '/privacy' },
   title: '隱私權政策',
@@ -9,7 +10,7 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-white dark:bg-neutral-900">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h1 className="text-3xl font-bold text-neutral-950 dark:text-neutral-100 mb-2">隱私權政策</h1>
-        <p className="text-sm text-neutral-500 mb-10">最後更新：2026年3月</p>
+        <p className="text-sm text-neutral-500 mb-10">最後更新：2026年8月</p>
         <div className="prose prose-neutral dark:prose-invert max-w-none">
           <h2>一、資料收集範圍</h2>
           <p>當您透過本網站的醫療諮詢表單提交留言時，我們會收集以下資訊：</p>
@@ -28,7 +29,7 @@ export default function PrivacyPage() {
           <h2>三、第三方資料處理服務</h2>
           <p>本網站使用 Google Forms 作為諮詢資料的代管與處理服務。除為完成諮詢回覆所必要的服務提供者，或法律另有規定外，我們不會出售或揭露您的個人資料給其他第三方。</p>
           <h2>四、資料保存期間</h2>
-          <p>諮詢資料將保存於 Google 表單中，保存期間為諮詢回覆完成後 1 年，期滿後將予以刪除。</p>
+          <p>諮詢資料以回覆完成日為基準保存 1 年。表單管理者每月檢查屆期紀錄，並從 Google Forms 與連結試算表刪除；執行紀錄只保留日期、執行者與刪除筆數，不保留個人資料或健康內容。</p>
           <h2>五、您的權利</h2>
           <p>依據《個人資料保護法》，您享有以下權利：</p>
           <ul>
@@ -39,7 +40,13 @@ export default function PrivacyPage() {
             <li>請求刪除</li>
           </ul>
           <h2>六、聯絡方式</h2>
-          <p>如需行使上述權利或有任何隱私權相關問題，請透過本網站的醫療諮詢表單聯繫我們，或於門診時直接告知醫療人員。</p>
+          <p>
+            如需行使上述權利或有任何隱私權相關問題，不必再次提交醫療諮詢表單。請透過
+            <a href={LINE_ADD_URL} target="_blank" rel="noopener noreferrer">
+              CAM Savant 官方 LINE（{LINE_ID}）
+            </a>
+            聯繫，並在訊息開頭註明「資料權利申請」。初次聯絡不需提供病情內容；我們只會要求完成必要身分核對所需的最少資料。您也可於門診時直接告知醫療人員。
+          </p>
           <h2>七、法規依據</h2>
           <p>本隱私權政策依據中華民國《個人資料保護法》及相關法規制定。</p>
         </div>

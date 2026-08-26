@@ -47,7 +47,7 @@ export default function ConsultForm({ articleTitle, locale = 'zh' }: Props) {
           question: question.trim(),
           contact: contact.trim(),
           articleTitle,
-          sourcePath: `${window.location.pathname}${window.location.search}`,
+          sourcePath: window.location.pathname,
         }),
       })
 

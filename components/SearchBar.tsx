@@ -92,12 +92,12 @@ export default function SearchBar({ fullWidth = false }: Props) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t('searchPlaceholder')}
-          className="w-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 placeholder-neutral-400 rounded-lg pl-8 pr-7 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600"
+          className={`w-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 placeholder-neutral-400 rounded-lg pl-8 text-sm focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 ${fullWidth ? 'min-h-11 pr-11 py-2.5' : 'pr-7 py-1.5'}`}
         />
         {query && (
           <button
             onClick={clear}
-            className="absolute right-2.5 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
+            className={`absolute flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors ${fullWidth ? 'right-0 h-11 w-11' : 'right-2.5'}`}
             aria-label="清除搜尋"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">

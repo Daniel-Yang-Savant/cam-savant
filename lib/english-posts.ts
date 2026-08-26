@@ -12,6 +12,7 @@ const EnglishPostFrontmatterSchema = z.object({
   category: z.literal('perioperative-rehab'),
   excerpt: z.string().min(10).max(240),
   tags: z.array(z.string()).optional(),
+  takeaways: z.array(z.string().min(1).max(200)).min(3).max(5).optional(),
   translationOf: z.string().min(1),
   draft: z.boolean().optional().default(false),
   lastModified: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),

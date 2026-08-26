@@ -23,7 +23,7 @@ export default function Hero({ post }: HeroProps) {
           <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-center">
 
             {/* ── Cover image ── */}
-            <div className="relative aspect-[4/3] overflow-hidden order-2 md:order-1">
+            <div className="relative aspect-[16/9] overflow-hidden order-2 md:order-1">
               {frontmatter.coverImage ? (
                 <CoverImage
                   src={frontmatter.coverImage}

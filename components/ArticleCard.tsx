@@ -25,11 +25,7 @@ export default function ArticleCard({ post, large = false }: ArticleCardProps) {
       <Link href={`/posts/${slug}`} className="flex flex-col flex-1">
 
         {/* ── Cover image ── */}
-        <div
-          className={`relative overflow-hidden ${
-            large ? 'aspect-[16/9]' : 'aspect-[4/3]'
-          }`}
-        >
+        <div className="relative aspect-[16/9] overflow-hidden">
           {frontmatter.coverImage ? (
             <CoverImage
               src={frontmatter.coverImage}
