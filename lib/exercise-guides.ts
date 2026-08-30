@@ -2,6 +2,13 @@ import { EXPANDED_RCT_GUIDES } from './exercise-guides-rct-expansion'
 
 export type ExerciseGuideTheme = 'orange' | 'teal' | 'violet' | 'blue' | 'green'
 export type ExerciseGuideKind = 'relaxation' | 'condition'
+export type ExerciseGuideBodyRegion =
+  | '頭頸與下顎'
+  | '上肢與手部'
+  | '脊椎與軀幹'
+  | '髖膝與大腿'
+  | '足踝'
+  | '全身與神經'
 
 export interface ExerciseGuideImage {
   src: string
@@ -21,6 +28,8 @@ export interface ExerciseGuideModule {
   id: string
   kind: ExerciseGuideKind
   selectionLabel: string
+  bodyRegion?: ExerciseGuideBodyRegion
+  searchAliases?: string[]
   theme: ExerciseGuideTheme
   eyebrow: string
   title: string
@@ -316,6 +325,8 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     id: 'deep-cervical-flexor-rct',
     kind: 'condition',
     selectionLabel: '慢性機械性頸痛',
+    bodyRegion: '頭頸與下顎',
+    searchAliases: ['頸痛', '脖子痛', '肩頸痠痛', '深層頸屈肌', '點頭運動'],
     theme: 'orange',
     eyebrow: '06 · 2019 隨機對照試驗',
     title: '深層頸屈肌：6 週低負荷點頭訓練',
@@ -368,6 +379,8 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     id: 'short-foot-rct',
     kind: 'condition',
     selectionLabel: '慢性踝不穩',
+    bodyRegion: '足踝',
+    searchAliases: ['腳踝不穩', '反覆扭傷', '拐到腳', '足弓', '短足運動'],
     theme: 'teal',
     eyebrow: '07 · 2019 隨機對照試驗',
     title: '足弓短足運動：8 週本體感覺與平衡訓練',
@@ -420,6 +433,8 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     id: 'shoulder-external-rotation-rct',
     kind: 'condition',
     selectionLabel: '肩峰下疼痛',
+    bodyRegion: '上肢與手部',
+    searchAliases: ['肩痛', '肩夾擠', '旋轉肌', '肩外旋', '抬手痛'],
     theme: 'violet',
     eyebrow: '08 · 2020 隨機對照試驗',
     title: '肩外旋肌力：8 週彈力帶訓練',
@@ -472,6 +487,8 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     id: 'patellar-tendon-loading-rct',
     kind: 'condition',
     selectionLabel: '髕腱病變',
+    bodyRegion: '髖膝與大腿',
+    searchAliases: ['膝蓋下方痛', '跳躍膝', '髕腱炎', '膝肌腱', '落地膝痛'],
     theme: 'blue',
     eyebrow: '09 · 2021 隨機對照試驗',
     title: '髕腱漸進負荷：四階段回到運動',
@@ -532,6 +549,8 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     id: 'gluteal-tendon-leap-rct',
     kind: 'condition',
     selectionLabel: '臀肌腱病變',
+    bodyRegion: '髖膝與大腿',
+    searchAliases: ['臀部外側痛', '大轉子疼痛', '側躺痛', '髖外側痛', '臀肌腱'],
     theme: 'green',
     eyebrow: '10 · 2018 LEAP 隨機對照試驗',
     title: '臀肌腱負荷：8 週教育＋運動方案',
@@ -596,6 +615,8 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     id: 'patellofemoral-telehealth-rct',
     kind: 'condition',
     selectionLabel: '髕股疼痛',
+    bodyRegion: '髖膝與大腿',
+    searchAliases: ['前膝痛', '上下樓膝痛', '跑者膝', '髕骨痛', '蹲下膝痛'],
     theme: 'orange',
     eyebrow: '11 · 2024 隨機對照試驗',
     title: '髕股疼痛：4 週髖膝肌力＋動作控制',
@@ -656,6 +677,8 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     id: 'knee-osteoarthritis-strength-rct',
     kind: 'condition',
     selectionLabel: '膝骨關節炎',
+    bodyRegion: '髖膝與大腿',
+    searchAliases: ['膝退化', '退化性關節炎', '膝痛', '坐站困難', '走路膝痛'],
     theme: 'teal',
     eyebrow: '12 · 2025 隨機臨床試驗',
     title: '膝骨關節炎：12 週漸進下肢肌力',
@@ -716,6 +739,8 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     id: 'insertional-achilles-low-compression-rct',
     kind: 'condition',
     selectionLabel: '跟腱止點病變',
+    bodyRegion: '足踝',
+    searchAliases: ['後腳跟痛', '腳跟後方痛', '止點跟腱', '阿基里斯腱痛', '提踵痛'],
     theme: 'violet',
     eyebrow: '13 · 2025 隨機對照試驗',
     title: '跟腱止點病變：低壓迫四階段負荷',
@@ -776,6 +801,8 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     id: 'scheuermann-schroth-rct',
     kind: 'condition',
     selectionLabel: 'Scheuermann 胸椎後凸',
+    bodyRegion: '脊椎與軀幹',
+    searchAliases: ['駝背', '青少年駝背', '胸椎後凸', '圓背', 'Scheuermann'],
     theme: 'blue',
     eyebrow: '14 · 2019 隨機對照試驗',
     title: 'Scheuermann 胸椎後凸：個別化 Schroth 訓練',
@@ -836,6 +863,8 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     id: 'thumb-cmc-proprioception-rct',
     kind: 'condition',
     selectionLabel: '拇指根部骨關節炎',
+    bodyRegion: '上肢與手部',
+    searchAliases: ['拇指痛', '虎口痛', '拇指關節退化', '手部退化', '捏東西痛'],
     theme: 'green',
     eyebrow: '15 · 2022 隨機對照試驗',
     title: '拇指根部骨關節炎：4 週位置覺訓練',

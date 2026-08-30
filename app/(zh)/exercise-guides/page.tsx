@@ -125,6 +125,8 @@ export default function ExerciseGuidesPage() {
             selectionLabel: guide.selectionLabel,
             title: guide.title,
             summary: guide.summary,
+            bodyRegion: guide.bodyRegion,
+            searchAliases: guide.searchAliases,
             image: {
               src: guide.images[0].src,
               alt: guide.images[0].alt,
