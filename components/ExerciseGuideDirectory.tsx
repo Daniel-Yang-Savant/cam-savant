@@ -281,10 +281,6 @@ export default function ExerciseGuideDirectory({ items }: ExerciseGuideDirectory
                     </button>
                   )}
                 </div>
-                <p className="mt-3 text-xs leading-5 text-neutral-500 dark:text-neutral-400">
-                  搜尋只在此頁即時配對，不會傳送搜尋內容。結果是內容導引，不是診斷。
-                </p>
-
                 <fieldset className="mt-5">
                   <legend className="text-sm font-bold text-neutral-950 dark:text-neutral-100">依身體部位篩選</legend>
                   <div className="mt-3 flex flex-wrap gap-2">
