@@ -5,6 +5,7 @@ import {
   getPostsByCategory,
 } from '@/lib/posts'
 import { TEAM } from '@/lib/authors'
+import { EXERCISE_GUIDE_MODULES } from '@/lib/exercise-guides'
 import { CLINIC_LOCATIONS } from '@/lib/locations'
 import { MetadataRoute } from 'next'
 
@@ -14,6 +15,7 @@ const BASE_URL = 'https://camsavant.com'
 const STATIC_PAGE_DATE = new Date('2026-07-18')
 const TEAM_PAGE_DATE = new Date('2026-07-26')
 const ENGLISH_SITE_DATE = new Date('2026-08-01')
+const EXERCISE_GUIDES_DATE = new Date('2026-08-30')
 
 function languageAlternates(zhPath: string, enPath = `/en${zhPath === '/' ? '' : zhPath}`) {
   return {
@@ -45,6 +47,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(post.frontmatter.lastModified ?? post.frontmatter.date),
     changeFrequency: 'monthly' as const,
     priority: 0.8,
+  }))
+
+  const exerciseGuideEntries: MetadataRoute.Sitemap = EXERCISE_GUIDE_MODULES.map((guide) => ({
+    url: `${BASE_URL}/exercise-guides/${guide.id}`,
+    lastModified: EXERCISE_GUIDES_DATE,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
   }))
 
   // 標籤頁：以該標籤下最新文章的日期為準
@@ -160,6 +169,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     },
+    {
+      url: `${BASE_URL}/exercise-guides`,
+      lastModified: EXERCISE_GUIDES_DATE,
+      changeFrequency: 'monthly' as const,
+      priority: 0.9,
+    },
     categoryPage('sports-medicine', 'sports-medicine'),
     categoryPage('weekly-picks', 'weekly-picks'),
     categoryPage('rehabilitation-medicine', 'rehabilitation-medicine'),
@@ -174,5 +189,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // /perioperative-rehab 為存取保護頁（middleware 會 redirect），不列入 sitemap
   ]
 
-  return [...staticPages, ...locationEntries, ...doctorEntries, ...postEntries, ...tagEntries]
+  return [
+    ...staticPages,
+    ...exerciseGuideEntries,
+    ...locationEntries,
+    ...doctorEntries,
+    ...postEntries,
+    ...tagEntries,
+  ]
 }

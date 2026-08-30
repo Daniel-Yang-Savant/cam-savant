@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   alternates: bilingualAlternates('/'),
 }
 
-import Hero from '@/components/Hero'
 import ArticleCard from '@/components/ArticleCard'
+import ExerciseGuidesPromo from '@/components/ExerciseGuidesPromo'
 import { getPublicPosts } from '@/lib/posts'
 import Link from 'next/link'
 
@@ -39,8 +39,7 @@ export default function HomePage() {
     )
   }
 
-  const [heroPost, ...rest] = focusedPosts
-  const latestPosts = rest.slice(0, 4)         // 復健與運動傷害最新 4 篇（Hero 以外）
+  const latestPosts = focusedPosts.slice(0, 4) // 復健與運動傷害最新 4 篇
 
   return (
     <>
@@ -58,8 +57,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── Hero ── */}
-      <Hero post={heroPost} />
+      {/* ── Visual exercise guides ── */}
+      <ExerciseGuidesPromo />
 
       {/* ── Body ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
