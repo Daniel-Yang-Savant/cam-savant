@@ -1,4 +1,5 @@
 import { EXPANDED_RCT_GUIDES } from './exercise-guides-rct-expansion'
+import { RECENT_RCT_GUIDES } from './exercise-guides-rct-2016-2026'
 
 export type ExerciseGuideTheme = 'orange' | 'teal' | 'violet' | 'blue' | 'green'
 export type ExerciseGuideKind = 'relaxation' | 'condition'
@@ -914,6 +915,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     ],
   },
   ...EXPANDED_RCT_GUIDES,
+  ...RECENT_RCT_GUIDES,
 ]
 
 export function getExerciseGuideById(id: string): ExerciseGuideModule | undefined {
