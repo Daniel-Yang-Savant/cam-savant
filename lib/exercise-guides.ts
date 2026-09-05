@@ -40,6 +40,7 @@ export interface ExerciseGuideModule {
   dosage: string
   cue: string
   regression: string
+  followUpLabel?: string
   followUp?: string
   signals: {
     green: string
@@ -149,6 +150,8 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     dosage: '四個動作各 15 秒，完成一輪；過程不需要拉到極限。',
     cue: '先放開抓握、再支撐前臂，最後才做不痛的小幅手腕活動。',
     regression: '只做放開手指與前臂支撐；若活動會痛，可先略過手腕屈伸。',
+    followUpLabel: '何時需要重新分類評估',
+    followUp: '這組只適用於工作後的一般肌肉疲勞。若休息並停止重複抓握後仍反覆出現，或任何時點出現夜間麻醒、持續麻刺、握力下降、明顯腫脹，請不要增加伸展幅度或次數；應停止這組流程並安排評估，重新確認是否屬於神經壓迫、肌腱、關節或其他問題。',
     signals: {
       green: '一般疲勞感沒有增加，手指與手腕活動維持順暢。',
       yellow: '局部不適稍升：減少幅度，停止重複抓握並觀察。',
@@ -201,6 +204,8 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     dosage: '四個動作各 20 秒，完成一輪；站立動作全程可扶穩。',
     cue: '先有支撐、再活動，不追求速度或單腳平衡。',
     regression: '只做坐姿踝泵；坐站可提高椅面或先用雙手協助。',
+    followUpLabel: '什麼情況要停止並評估',
+    followUp: '這組只是中斷久坐或久站，不需設定「連續做幾週」的療程門檻。若每次站起或走動都反覆不穩、疼痛已影響承重、出現單側腫脹或發熱，或近期曾跌倒，請停止這組流程並安排評估；單側突然腫痛合併胸痛或明顯呼吸困難時，依紅燈警訊儘速就醫。',
     signals: {
       green: '一般腿部出力感，能保持呼吸與控制，結束後走路正常。',
       yellow: '症狀略升或平衡不穩：改坐姿、扶穩並減少次數。',
@@ -321,7 +326,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
       yellow: '輕微頭暈或不安增加：立即停止計時並回到自然呼吸；若停止後 10 分鐘仍未回到原本程度，當次不再嘗試。',
       red: '胸痛、明顯呼吸困難、快要暈倒或危機感持續升高：立即停止並依急症或心理支持流程求助。',
     },
-    evidence: '呼吸練習的 RCT 統合分析納入 12 項壓力研究、785 人，平均呈現小到中等效果，但整體偏誤風險為中等，方案與時間也不同；Balban 研究則是單一 RCT。研究支持慢呼吸與放鬆這個方向，但沒有直接驗證本站這套 3 分鐘組合，也不能推論為立即治療效果。',
+    evidence: '呼吸練習的 RCT 統合分析納入 12 項壓力研究、785 人，平均呈現小到中等效果，但整體偏誤風險為中等，方案與時間也不同；Balban 研究則是單一 RCT。Braith 1988 對放鬆時焦慮增加的觀察來自 30 名長期焦慮成人，不能換算成一般族群的發生率。研究支持慢呼吸與放鬆這個方向，但沒有直接驗證本站這套 3 分鐘組合，也不能推論為立即治療效果。',
     audience: '適用於一般成人的短暫降速與恢復；持續失眠、耗竭、情緒或工作功能受影響者應尋求專業支持。',
     sources: [
       {

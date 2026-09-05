@@ -17,7 +17,7 @@ type NavbarProps = {
 function englishAlternatePath(pathname: string): string {
   if (pathname === '/') return '/en'
   if (pathname === '/about') return '/en/about'
-  if (pathname === '/contact') return '/en/contact'
+  if (pathname === '/contact') return '/en/locations'
   if (pathname === '/locations') return '/en/locations'
   if (pathname.startsWith('/doctors/')) return `/en${pathname}`
   if (pathname.startsWith('/locations/')) return `/en${pathname}`

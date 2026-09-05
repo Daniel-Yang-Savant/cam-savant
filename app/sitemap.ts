@@ -137,20 +137,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       alternates: languageAlternates('/locations'),
     },
     {
-      url: `${BASE_URL}/contact`,
-      lastModified: TEAM_PAGE_DATE,
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-      alternates: languageAlternates('/contact'),
-    },
-    {
-      url: `${BASE_URL}/en/contact`,
-      lastModified: ENGLISH_SITE_DATE,
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-      alternates: languageAlternates('/contact'),
-    },
-    {
       url: `${BASE_URL}/contact/wen-wei-lai`,
       lastModified: TEAM_PAGE_DATE,
       changeFrequency: 'monthly' as const,

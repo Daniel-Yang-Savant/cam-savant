@@ -23,6 +23,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const { author } = entry
   const description = `${author.name}醫師，${author.title}。專長包含${author.specialties.join('、') || '臨床醫療與健康照護'}。`
+  const profileImage = {
+    url: author.photo,
+    width: author.photoWidth,
+    height: author.photoHeight,
+    alt: `${author.name}醫師`,
+  }
 
   return {
     title: `${author.name}醫師｜${author.title}`,
@@ -32,7 +38,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'profile',
       title: `${author.name}醫師 | CAM Savant`,
       description,
-      images: [{ url: author.photo, alt: `${author.name}醫師` }],
+      url: `/doctors/${author.slug}`,
+      images: [profileImage],
+    },
+    twitter: {
+      card: 'summary',
+      title: `${author.name}醫師 | CAM Savant`,
+      description,
+      images: [profileImage],
     },
   }
 }

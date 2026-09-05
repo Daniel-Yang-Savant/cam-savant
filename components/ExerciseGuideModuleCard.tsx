@@ -190,7 +190,9 @@ export default function ExerciseGuideModuleCard({ guide, asPage = false }: Exerc
             <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">{guide.regression}</p>
           </div>
           <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900 md:col-span-2">
-            <h3 className="text-sm font-bold text-neutral-950 dark:text-neutral-100">多久沒改善要評估</h3>
+            <h3 className="text-sm font-bold text-neutral-950 dark:text-neutral-100">
+              {guide.followUpLabel ?? '多久沒改善要評估'}
+            </h3>
             <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">{getExerciseGuideFollowUp(guide)}</p>
           </div>
         </div>

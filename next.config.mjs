@@ -40,7 +40,19 @@ const nextConfig = {
     optimizeCss: true, // Critters: inline critical CSS, defer rest → 修復 render-blocking
   },
   async redirects() {
-    return getProtectedPostRedirects()
+    return [
+      {
+        source: '/contact',
+        destination: '/locations',
+        statusCode: 301,
+      },
+      {
+        source: '/en/contact',
+        destination: '/en/locations',
+        statusCode: 301,
+      },
+      ...getProtectedPostRedirects(),
+    ]
   },
   async headers() {
     const isProduction = process.env.NODE_ENV === 'production'

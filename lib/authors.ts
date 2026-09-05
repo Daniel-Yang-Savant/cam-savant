@@ -10,6 +10,8 @@ export interface Author {
   name: string
   nameEn: string
   photo: string
+  photoWidth: number
+  photoHeight: number
   title: string
   titleEn: string
   bio?: string
@@ -41,6 +43,8 @@ export const AUTHORS: Record<string, Author> = {
     name: '楊育愷',
     nameEn: 'Yu-Kai Yang, MD',
     photo: '/images/team/yu-kai-yang.jpg',
+    photoWidth: 800,
+    photoHeight: 1032,
     title: '復健科專科醫師／主治醫師',
     titleEn: 'Board-Certified Physiatrist and Attending Physician',
     location: '彰化縣・南投縣',
@@ -85,13 +89,15 @@ export const AUTHORS: Record<string, Author> = {
       'https://ny.cch.org.tw/doctor_1_detial.aspx?cID=65&key=1400',
       'https://www.toa1997.org.tw/orthopedist/?n=%E6%A5%8A%E8%82%B2%E6%84%B7',
     ],
-    contactPath: '/contact',
+    contactPath: '/locations',
   },
   '楊育彰醫師': {
     slug: 'yu-chang-yang',
     name: '楊育彰',
     nameEn: 'Yu-Chang Yang, MD',
     photo: '/images/team/yu-chang-yang.jpg',
+    photoWidth: 1872,
+    photoHeight: 2000,
     title: '家庭醫學科專科醫師',
     titleEn: 'Board-Certified Family Physician',
     bio: '以家庭醫學為核心，整合肥胖與代謝異常、三高與慢性病、男性更年期及骨質疏鬆照護；並具糖尿病與初期慢性腎臟病照護訓練，投入健康管理、功能與營養醫學及醫學美容。',
@@ -138,6 +144,8 @@ export const AUTHORS: Record<string, Author> = {
     name: '賴玟衛',
     nameEn: 'Wen-Wei Lai, MD',
     photo: '/images/team/wen-wei-lai.jpg',
+    photoWidth: 1453,
+    photoHeight: 2000,
     title: '復健科醫師',
     titleEn: 'Physician, Physical Medicine and Rehabilitation',
     location: '彰化・漢銘・員林基督教醫院',
@@ -154,6 +162,8 @@ export const AUTHORS: Record<string, Author> = {
     name: '黃雅琦',
     nameEn: 'Yachi Huang, MD',
     photo: '/images/team/huang-yachi.jpg',
+    photoWidth: 681,
+    photoHeight: 692,
     title: '復健科住院醫師',
     titleEn: 'Resident Physician, Physical Medicine and Rehabilitation',
     location: '彰化基督教醫院',

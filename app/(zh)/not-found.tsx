@@ -39,7 +39,7 @@ export default function NotFound() {
           返回首頁
         </Link>
         <Link
-          href="/contact"
+          href="/locations"
           className="px-6 py-2.5 rounded-full border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 text-sm hover:border-neutral-400 dark:hover:border-neutral-500 transition-colors"
         >
           看診資訊

@@ -41,7 +41,7 @@ export default function EnglishHomePage() {
             CAM Savant is a physician-led knowledge platform covering rehabilitation medicine, sports medicine, regenerative medicine, and postoperative recovery. Our team serves patients in Changhua and Nantou, Taiwan.
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
-            <Link href="/en/contact" className="rounded-full bg-neutral-950 dark:bg-neutral-100 px-6 py-3 text-sm font-semibold text-white dark:text-neutral-950 hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors">
+            <Link href="/en/locations" className="rounded-full bg-neutral-950 dark:bg-neutral-100 px-6 py-3 text-sm font-semibold text-white dark:text-neutral-950 hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors">
               Clinic information
             </Link>
             <Link href="/en/perioperative-rehab" className="rounded-full border border-neutral-300 dark:border-neutral-600 px-6 py-3 text-sm font-semibold text-neutral-700 dark:text-neutral-200 hover:border-neutral-950 dark:hover:border-neutral-100 transition-colors">

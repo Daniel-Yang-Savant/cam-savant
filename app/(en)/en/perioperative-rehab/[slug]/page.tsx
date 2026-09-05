@@ -96,7 +96,7 @@ export default async function EnglishPerioperativeArticlePage({ params }: Props)
             <div className="mt-12 rounded-2xl bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-100 dark:border-neutral-700 p-6">
               <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">Need individualized guidance?</h2>
               <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">Bring this guide and your surgeon’s instructions to your rehabilitation appointment. Your actual program should be adjusted to the procedure, wound healing, symptoms, and functional assessment.</p>
-              <Link href="/en/contact" className="mt-4 inline-flex text-sm font-semibold text-accent-700 dark:text-accent-400 hover:underline">Clinic information →</Link>
+              <Link href="/en/locations" className="mt-4 inline-flex text-sm font-semibold text-accent-700 dark:text-accent-400 hover:underline">Clinic information →</Link>
             </div>
 
             <div className="mt-10 pt-6 border-t border-neutral-100 dark:border-neutral-700"><Link href="/en/perioperative-rehab" className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100">← All postoperative guides</Link></div>

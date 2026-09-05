@@ -19,6 +19,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!entry) return {}
   const { author } = entry
   const description = `${author.nameEn} — ${author.titleEn}. Clinical interests include ${author.specialtiesEn.join(', ') || 'patient care and medical education'}.`
+  const profileImage = {
+    url: author.photo,
+    width: author.photoWidth,
+    height: author.photoHeight,
+    alt: author.nameEn,
+  }
 
   return {
     title: `${author.nameEn} | ${author.titleEn}`,
@@ -29,7 +35,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${author.nameEn} | CAM Savant`,
       description,
       url: `/en/doctors/${author.slug}`,
-      images: [{ url: author.photo, alt: author.nameEn }],
+      images: [profileImage],
+    },
+    twitter: {
+      card: 'summary',
+      title: `${author.nameEn} | CAM Savant`,
+      description,
+      images: [profileImage],
     },
   }
 }

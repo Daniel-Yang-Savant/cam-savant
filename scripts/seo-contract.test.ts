@@ -8,6 +8,7 @@ import {
   EXERCISE_GUIDE_MODULES,
   getExerciseGuideFollowUp,
 } from '../lib/exercise-guides'
+import { AUTHORS } from '../lib/authors'
 
 test('article schema keeps medical semantics and Google Article fields', () => {
   const schema = generateArticleSchema({
@@ -30,7 +31,7 @@ test('article schema keeps medical semantics and Google Article fields', () => {
   assert.equal(schema.publisher['@id'], 'https://camsavant.com/#organization')
 })
 
-test('every exercise guide has a reassessment threshold and indexable URL', () => {
+test('every exercise guide has a reassessment rule and indexable URL', () => {
   assert.equal(
     EXERCISE_GUIDE_MODULES.filter((guide) => guide.kind === 'relaxation').length,
     5
@@ -41,9 +42,33 @@ test('every exercise guide has a reassessment threshold and indexable URL', () =
   )
 
   for (const guide of EXERCISE_GUIDE_MODULES) {
-    assert.match(getExerciseGuideFollowUp(guide), /2–4 週/)
+    assert.ok(getExerciseGuideFollowUp(guide).length > 0)
     assert.ok(guide.id.length > 0)
   }
+
+  const handGuide = EXERCISE_GUIDE_MODULES.find((guide) => guide.id === 'hand-forearm-reset')
+  assert.ok(handGuide)
+  assert.equal(handGuide.followUpLabel, '何時需要重新分類評估')
+  assert.match(getExerciseGuideFollowUp(handGuide), /重新確認是否屬於/)
+  assert.doesNotMatch(getExerciseGuideFollowUp(handGuide), /2–4 週/)
+
+  const lowerLimbGuide = EXERCISE_GUIDE_MODULES.find((guide) => guide.id === 'lower-limb-reset')
+  assert.ok(lowerLimbGuide)
+  assert.equal(lowerLimbGuide.followUpLabel, '什麼情況要停止並評估')
+  assert.match(getExerciseGuideFollowUp(lowerLimbGuide), /不需設定「連續做幾週」/)
+  assert.doesNotMatch(getExerciseGuideFollowUp(lowerLimbGuide), /2–4 週/)
+
+  const relaxationGuide = EXERCISE_GUIDE_MODULES.find((guide) => guide.id === 'three-minute-downshift')
+  assert.ok(relaxationGuide)
+  assert.match(relaxationGuide.evidence, /30 名長期焦慮成人/)
+  assert.doesNotMatch(JSON.stringify(relaxationGuide), /17\s*%|17％/)
+})
+
+test('doctor clinic CTA uses the canonical locations path and photo dimensions', () => {
+  const author = AUTHORS['楊育愷醫師']
+  assert.equal(author.contactPath, '/locations')
+  assert.equal(author.photoWidth, 800)
+  assert.equal(author.photoHeight, 1032)
 })
 
 test('exercise guide schema links MedicalWebPage, reviewer, and HowTo steps', () => {
