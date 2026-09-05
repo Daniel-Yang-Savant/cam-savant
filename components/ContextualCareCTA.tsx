@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Lang } from '@/lib/i18n'
+import { TrackedInternalLink } from '@/components/TrackedLink'
 
 interface ContextualCareCTAProps {
   variant?: 'public' | 'perioperative'
@@ -21,12 +22,14 @@ export default function ContextualCareCTA({
           shortness of breath, heavy bleeding, new weakness, or rapid deterioration, seek
           emergency care now. This website is not an emergency service.
         </p>
-        <Link
+        <TrackedInternalLink
           href="/en/contact"
+          eventName="location_opened"
+          eventProperties={{ locale: 'en', placement: 'contextual_care_cta' }}
           className="mt-4 inline-flex min-h-11 items-center rounded-lg border border-neutral-300 bg-white px-4 text-sm font-semibold text-neutral-800 transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
         >
           View clinic information
-        </Link>
+        </TrackedInternalLink>
       </aside>
     )
   }
@@ -44,12 +47,14 @@ export default function ContextualCareCTA({
           : '若符合上述警訊，請先依警示程度就醫；若不是急症，但症狀持續、反覆或已影響走路、日常活動或運動，可安排復健科或相關專科評估。本站諮詢表單不是急診或正式預約管道。'}
       </p>
       <div className="mt-4 flex flex-wrap gap-3">
-        <Link
+        <TrackedInternalLink
           href="/locations"
+          eventName="location_opened"
+          eventProperties={{ locale: 'zh-TW', placement: 'contextual_care_cta' }}
           className="inline-flex min-h-11 items-center rounded-lg bg-neutral-900 px-4 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white"
         >
           查看看診資訊
-        </Link>
+        </TrackedInternalLink>
         {!perioperative && (
           <Link
             href="/about"

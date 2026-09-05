@@ -6,6 +6,7 @@ import {
 } from '@/lib/posts'
 import { TEAM } from '@/lib/authors'
 import { EXERCISE_GUIDE_MODULES } from '@/lib/exercise-guides'
+import { EXERCISE_GUIDE_REVIEW } from '@/lib/exercise-guide-review'
 import { CLINIC_LOCATIONS } from '@/lib/locations'
 import { MetadataRoute } from 'next'
 
@@ -15,7 +16,7 @@ const BASE_URL = 'https://camsavant.com'
 const STATIC_PAGE_DATE = new Date('2026-07-18')
 const TEAM_PAGE_DATE = new Date('2026-07-26')
 const ENGLISH_SITE_DATE = new Date('2026-08-01')
-const EXERCISE_GUIDES_DATE = new Date('2026-08-30')
+const EXERCISE_GUIDES_DATE = new Date(EXERCISE_GUIDE_REVIEW.date)
 
 function languageAlternates(zhPath: string, enPath = `/en${zhPath === '/' ? '' : zhPath}`) {
   return {

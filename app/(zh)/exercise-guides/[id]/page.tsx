@@ -5,7 +5,7 @@ import Breadcrumbs from '@/components/Breadcrumbs'
 import ExerciseGuideAnalytics from '@/components/ExerciseGuideAnalytics'
 import ExerciseGuideModuleCard from '@/components/ExerciseGuideModuleCard'
 import { EXERCISE_GUIDE_MODULES, getExerciseGuideById } from '@/lib/exercise-guides'
-import { generateBreadcrumbSchema } from '@/lib/schema'
+import { generateBreadcrumbSchema, generateExerciseGuideSchema } from '@/lib/schema'
 
 const BASE_URL = 'https://camsavant.com'
 
@@ -24,7 +24,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const category = guide.kind === 'relaxation' ? '放鬆運動' : '研究運動'
   const url = `/exercise-guides/${guide.id}`
-  const image = guide.images[0]
 
   return {
     title: `${guide.selectionLabel}｜${category}圖解`,
@@ -35,20 +34,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: guide.summary,
       url,
       type: 'article',
-      images: [
-        {
-          url: image.src,
-          width: image.width ?? 418,
-          height: image.height ?? 941,
-          alt: image.alt,
-        },
-      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: `${guide.title}｜CAM Savant 圖解運動`,
       description: guide.summary,
-      images: [image.src],
     },
   }
 }
@@ -64,24 +54,7 @@ export default async function ExerciseGuideDetailPage({ params }: Props) {
     (item) => item.kind === guide.kind && item.id !== guide.id
   ).slice(0, guide.kind === 'condition' ? 8 : 4)
 
-  const pageSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'MedicalWebPage',
-    name: guide.title,
-    description: guide.summary,
-    url: pageUrl,
-    inLanguage: 'zh-TW',
-    about: {
-      '@type': 'Thing',
-      name: guide.kind === 'condition' ? guide.selectionLabel : `${guide.selectionLabel}放鬆運動`,
-    },
-    medicalAudience: {
-      '@type': 'MedicalAudience',
-      audienceType: 'Patient',
-    },
-    primaryImageOfPage: `${BASE_URL}${guide.images[0].src}`,
-    citation: guide.sources.map((source) => source.href),
-  }
+  const pageSchema = generateExerciseGuideSchema(guide)
 
   return (
     <>
@@ -112,6 +85,10 @@ export default async function ExerciseGuideDetailPage({ params }: Props) {
               { label: guide.selectionLabel },
             ]}
           />
+          <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-neutral-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-neutral-300">
+            <strong className="text-neutral-950 dark:text-neutral-100">一般民眾衛教：</strong>
+            本頁協助理解安全自我照護與研究中的運動方向，不取代個別診斷、現場動作評估或治療處方；請先閱讀每頁的紅黃綠燈與不適用情況。
+          </div>
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <span className="rounded-full bg-teal-100 px-3 py-1.5 text-xs font-bold text-teal-800 dark:bg-teal-950 dark:text-teal-200">
               {category}
@@ -126,7 +103,7 @@ export default async function ExerciseGuideDetailPage({ params }: Props) {
       <main>
         <ExerciseGuideModuleCard guide={guide} asPage />
 
-        <section className="border-t border-neutral-200 bg-neutral-50 py-12 dark:border-neutral-800 dark:bg-neutral-950 md:py-16">
+        <section className="ExerciseGuideRelated border-t border-neutral-200 bg-neutral-50 py-12 dark:border-neutral-800 dark:bg-neutral-950 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between gap-4">
               <div>

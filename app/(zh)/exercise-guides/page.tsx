@@ -4,6 +4,7 @@ import Breadcrumbs from '@/components/Breadcrumbs'
 import ExerciseGuideAnalytics from '@/components/ExerciseGuideAnalytics'
 import ExerciseGuideDirectory from '@/components/ExerciseGuideDirectory'
 import { EXERCISE_GUIDE_MODULES } from '@/lib/exercise-guides'
+import { EXERCISE_GUIDE_REVIEW } from '@/lib/exercise-guide-review'
 import { generateBreadcrumbSchema, generateCollectionPageSchema } from '@/lib/schema'
 
 const BASE_URL = 'https://camsavant.com'
@@ -18,30 +19,30 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: '/exercise-guides',
     type: 'website',
-    images: [
-      {
-        url: '/images/exercise-guides/og-exercise-guides.png',
-        width: 1536,
-        height: 1024,
-        alt: 'CAM Savant 圖解運動專區',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: '圖解運動專區｜安全自我照護與漸進運動',
     description: DESCRIPTION,
-    images: ['/images/exercise-guides/og-exercise-guides.png'],
   },
 }
 
 export default function ExerciseGuidesPage() {
-  const collectionSchema = generateCollectionPageSchema({
-    name: '圖解運動專區',
-    description: DESCRIPTION,
-    url: `${BASE_URL}/exercise-guides`,
-    specialty: 'PhysicalMedicineAndRehabilitation',
-  })
+  const collectionSchema = {
+    ...generateCollectionPageSchema({
+      name: '圖解運動專區',
+      description: DESCRIPTION,
+      url: `${BASE_URL}/exercise-guides`,
+      specialty: 'PhysicalMedicineAndRehabilitation',
+    }),
+    dateModified: EXERCISE_GUIDE_REVIEW.date,
+    lastReviewed: EXERCISE_GUIDE_REVIEW.date,
+    reviewedBy: {
+      '@type': 'Physician',
+      '@id': `${BASE_URL}/doctors/yu-kai-yang#physician`,
+      name: '楊育愷',
+    },
+  }
 
   return (
     <>
@@ -113,6 +114,15 @@ export default function ExerciseGuidesPage() {
 
           <p className="mt-5 text-xs leading-5 text-neutral-500 dark:text-neutral-400">
             示範圖為合成教學影像；實際動作請依個別能力與當下反應調整。
+          </p>
+          <p className="mt-2 text-xs leading-5 text-neutral-500 dark:text-neutral-400">
+            最後審閱：<time dateTime={EXERCISE_GUIDE_REVIEW.date}>{EXERCISE_GUIDE_REVIEW.date}</time>
+            <span aria-hidden="true"> · </span>
+            審閱者：
+            <Link href="/doctors/yu-kai-yang" className="font-semibold underline decoration-neutral-300 underline-offset-4 hover:text-neutral-800 dark:hover:text-neutral-200">
+              {EXERCISE_GUIDE_REVIEW.reviewerName}
+            </Link>
+            （{EXERCISE_GUIDE_REVIEW.reviewerTitle}，{EXERCISE_GUIDE_REVIEW.affiliation}）
           </p>
         </div>
       </header>

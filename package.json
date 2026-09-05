@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test:sw": "node --test tests/service-worker.test.mjs",
+    "test:seo": "tsx --test scripts/seo-contract.test.ts",
     "optimize:covers": "tsx scripts/optimize-cover-images.ts",
     "publish-post": "tsx scripts/publish-from-pdf.ts",
     "prompts": "ts-node scripts/today-tasks.ts",
@@ -17,7 +18,7 @@
     "rotate-token": "ts-node scripts/rotate-token.ts",
     "new": "ts-node scripts/new-article.ts",
     "validate:posts": "tsx scripts/validate-posts.ts",
-    "prebuild": "npm run validate:posts"
+    "prebuild": "npm run validate:posts && npm run test:seo"
   },
   "ts-node": {
     "transpileOnly": true,

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { track } from '@vercel/analytics/react'
+import { trackAnalyticsEvent } from '@/lib/analytics'
 
 interface ExerciseGuideAnalyticsProps {
   slug?: string
@@ -21,18 +21,12 @@ export default function ExerciseGuideAnalytics({
       if (sent || !timeReached || !scrollReached) return
       sent = true
 
-      const properties = {
+      trackAnalyticsEvent('article_engaged', {
         slug,
         category: 'rehabilitation-medicine',
         locale: 'zh-TW',
         placement,
-      }
-
-      track('article_engaged', properties)
-      const analyticsWindow = window as typeof window & {
-        gtag?: (...args: unknown[]) => void
-      }
-      analyticsWindow.gtag?.('event', 'article_engaged', properties)
+      })
     }
 
     const checkScroll = () => {

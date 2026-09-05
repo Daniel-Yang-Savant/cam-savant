@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { englishAlternates } from '@/lib/locales'
+import { TrackedAnchor } from '@/components/TrackedLink'
 
 export const metadata: Metadata = {
   title: 'Wen-Wei Lai, MD | Clinic Information',
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 
 const clinics = [
   {
+    slug: 'changhua',
     hospital: 'Changhua Christian Hospital',
     address: 'No. 135, Nanxiao St., Changhua City, Taiwan',
     phone: '(04) 723-8595',
@@ -21,6 +23,7 @@ const clinics = [
     bookingUrl: 'https://www1.cch.org.tw/opd/service-e.aspx?id=1400&Page=11&#p',
   },
   {
+    slug: 'hanming',
     hospital: 'Hanming Christian Hospital',
     address: 'No. 366, Sec. 1, Zhongshan Rd., Changhua City, Taiwan',
     phone: '(04) 711-3456',
@@ -30,6 +33,7 @@ const clinics = [
     bookingUrl: 'https://opdhm.cch.org.tw/hmrg/opd/service-e.aspx?id=1400&Page=11&#p',
   },
   {
+    slug: 'yuanlin',
     hospital: 'Yuanlin Christian Hospital',
     address: 'No. 456, Juguang Rd., Yuanlin City, Changhua County, Taiwan',
     phone: '(04) 838-1456',
@@ -65,7 +69,7 @@ export default function EnglishLaiContactPage() {
           <article key={clinic.hospital} className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-6 flex flex-col gap-4">
             <div><span className="text-[10px] font-semibold tracking-widest uppercase text-accent-700 dark:text-accent-400">Rehabilitation Medicine</span><h2 className="mt-2 text-lg font-bold text-neutral-950 dark:text-neutral-100">{clinic.hospital}</h2></div>
             <div className="space-y-3 text-sm text-neutral-600 dark:text-neutral-300"><p>{clinic.address}</p><p><a href={clinic.phoneHref}>{clinic.phone}</a></p><div>{clinic.schedule.map((time) => <p key={time}>{time}</p>)}</div></div>
-            <div className="mt-auto flex flex-col gap-2 pt-2"><a href={clinic.bookingUrl} target="_blank" rel="noopener noreferrer" className="w-full text-center text-sm font-semibold py-2.5 rounded-xl bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950">Online appointment ↗</a><a href={clinic.mapUrl} target="_blank" rel="noopener noreferrer" className="w-full text-center text-sm py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400">Google Maps ↗</a></div>
+            <div className="mt-auto flex flex-col gap-2 pt-2"><TrackedAnchor href={clinic.bookingUrl} target="_blank" rel="noopener noreferrer" eventName="booking_clicked" eventProperties={{ locale: 'en', placement: 'doctor_contact', clinic_slug: clinic.slug }} className="w-full text-center text-sm font-semibold py-2.5 rounded-xl bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950">Online appointment ↗</TrackedAnchor><TrackedAnchor href={clinic.mapUrl} target="_blank" rel="noopener noreferrer" eventName="location_opened" eventProperties={{ locale: 'en', placement: 'doctor_contact_map', clinic_slug: clinic.slug }} className="w-full text-center text-sm py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400">Google Maps ↗</TrackedAnchor></div>
           </article>
         ))}
       </div>

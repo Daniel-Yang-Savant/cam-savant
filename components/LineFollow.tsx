@@ -2,6 +2,7 @@
 
 import { QRCodeSVG } from 'qrcode.react'
 import { LINE_ADD_URL, LINE_ID, LINE_GREEN } from '@/lib/site'
+import { trackAnalyticsEvent } from '@/lib/analytics'
 
 // LINE logo (官方綠底白字)
 function LineGlyph({ className = 'w-5 h-5' }: { className?: string }) {
@@ -36,6 +37,12 @@ export default function LineFollow({
       href={LINE_ADD_URL}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() =>
+        trackAnalyticsEvent('line_clicked', {
+          locale: 'zh-TW',
+          placement: card ? 'line_follow_card' : 'line_follow_compact',
+        })
+      }
       className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-white text-sm shadow-sm hover:opacity-90 hover:scale-[1.02] transition-all"
       style={{ backgroundColor: LINE_GREEN }}
       aria-label="加入官方 LINE 好友"

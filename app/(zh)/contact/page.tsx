@@ -4,6 +4,7 @@ import Image from 'next/image'
 import LineFollow from '@/components/LineFollow'
 import { CLINIC_LOCATIONS } from '@/lib/locations'
 import { bilingualAlternates } from '@/lib/locales'
+import { TrackedAnchor, TrackedInternalLink } from '@/components/TrackedLink'
 
 export const metadata: Metadata = {
   title: '看診資訊',
@@ -157,28 +158,34 @@ export default function ContactPage() {
 
               {/* Action buttons */}
               <div className="mt-auto flex flex-col gap-2 pt-2">
-                <Link
+                <TrackedInternalLink
                   href={`/locations/${clinic.slug}`}
+                  eventName="location_opened"
+                  eventProperties={{ locale: 'zh-TW', placement: 'doctor_contact_details', clinic_slug: clinic.slug }}
                   className="w-full text-center text-sm font-semibold py-2.5 rounded-xl bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950 hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors"
                 >
                   院區詳細資訊
-                </Link>
-                <a
+                </TrackedInternalLink>
+                <TrackedAnchor
                   href={clinic.bookingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  eventName="booking_clicked"
+                  eventProperties={{ locale: 'zh-TW', placement: 'doctor_contact', clinic_slug: clinic.slug }}
                   className="w-full text-center text-sm font-semibold py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-200 hover:border-neutral-950 dark:hover:border-neutral-100 transition-colors"
                 >
                   線上預約掛號
-                </a>
-                <a
+                </TrackedAnchor>
+                <TrackedAnchor
                   href={clinic.mapUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  eventName="location_opened"
+                  eventProperties={{ locale: 'zh-TW', placement: 'doctor_contact_map', clinic_slug: clinic.slug }}
                   className="w-full text-center text-sm py-2 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 hover:border-neutral-950 dark:hover:border-neutral-100 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
                 >
                   Google Maps 導航
-                </a>
+                </TrackedAnchor>
               </div>
             </div>
           )

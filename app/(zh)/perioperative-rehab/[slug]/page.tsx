@@ -12,6 +12,7 @@ import TableOfContents from '@/components/TableOfContents'
 import PrintButton from '@/components/PrintButton'
 import ArticleTakeaways from '@/components/ArticleTakeaways'
 import ContextualCareCTA from '@/components/ContextualCareCTA'
+import PerioperativeExerciseGallery from '@/components/PerioperativeExerciseGallery'
 import { bilingualAlternates } from '@/lib/locales'
 import { injectContextualCareCTA } from '@/lib/article-enhancements'
 
@@ -187,6 +188,8 @@ export default async function PerioperativeRehabArticlePage({ params }: Props) {
 
             {/* Print button */}
             <PrintButton />
+
+            <PerioperativeExerciseGallery slug={slug} />
 
             {/* MDX content */}
             <div className="prose prose-neutral dark:prose-invert max-w-none">

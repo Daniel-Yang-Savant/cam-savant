@@ -1,6 +1,8 @@
 const BASE_URL = 'https://camsavant.com'
 
 import { getAuthor, type Author } from './authors'
+import { EXERCISE_GUIDE_REVIEW } from './exercise-guide-review'
+import type { ExerciseGuideModule } from './exercise-guides'
 
 // ── Physician schema（E-E-A-T：含認證、服務機構、頭像、@id） ──────────────
 
@@ -58,13 +60,20 @@ export function generateArticleSchema(post: {
   lastModified?: string
 }) {
   const authorDetails = getAuthor(post.author)
+  const articleUrl = `${BASE_URL}/posts/${post.slug}`
 
   return {
     '@context': 'https://schema.org',
-    '@type': 'MedicalWebPage',
+    '@type': ['MedicalWebPage', 'Article'],
+    '@id': `${articleUrl}#article`,
     name: post.title,
+    headline: post.title,
     description: post.excerpt,
-    url: `${BASE_URL}/posts/${post.slug}`,
+    url: articleUrl,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': articleUrl,
+    },
     datePublished: post.date,
     dateModified: post.lastModified ?? post.date,
     lastReviewed: post.lastModified ?? post.date,
@@ -72,6 +81,7 @@ export function generateArticleSchema(post: {
     author: generatePhysicianSchema(authorDetails),
     publisher: {
       '@type': 'MedicalOrganization',
+      '@id': `${BASE_URL}/#organization`,
       name: 'CAM Savant',
       url: BASE_URL,
       logo: {
@@ -90,6 +100,109 @@ export function generateArticleSchema(post: {
       '@type': 'MedicalSpecialty',
       name: SPECIALTY_MAP[post.category] ?? 'PhysicalMedicineAndRehabilitation',
     },
+  }
+}
+
+// ── Exercise guide MedicalWebPage + HowTo schema ─────────────────────────
+
+function parseStepDuration(step: string): string | undefined {
+  const seconds = step.match(/^(\d+)\s*秒$/)
+  if (seconds) return `PT${seconds[1]}S`
+
+  const minutes = step.match(/^(\d+)\s*分鐘$/)
+  return minutes ? `PT${minutes[1]}M` : undefined
+}
+
+function parseGuideDuration(text: string): string | undefined {
+  const months = text.match(/(\d+)(?:[–-](\d+))?\s*個月/)
+  if (months) return `P${months[2] ?? months[1]}M`
+
+  const weeks = text.match(/(\d+)(?:[–-](\d+))?\s*週/)
+  if (weeks) return `P${weeks[2] ?? weeks[1]}W`
+
+  const minutes = text.match(/(\d+)(?:[–-](\d+))?\s*分鐘/)
+  if (minutes) return `PT${minutes[2] ?? minutes[1]}M`
+
+  return undefined
+}
+
+export function generateExerciseGuideSchema(guide: ExerciseGuideModule) {
+  const pageUrl = `${BASE_URL}/exercise-guides/${guide.id}`
+  const reviewer = {
+    ...generatePhysicianSchema(getAuthor(EXERCISE_GUIDE_REVIEW.reviewerKey)),
+    affiliation: {
+      '@type': 'Hospital',
+      name: EXERCISE_GUIDE_REVIEW.affiliation,
+    },
+  }
+  const stepDurations = guide.images.map((image) => parseStepDuration(image.step))
+  const totalSeconds = stepDurations.every(Boolean)
+    ? stepDurations.reduce((sum, duration) => {
+        const match = duration?.match(/^PT(?:(\d+)M)?(?:(\d+)S)?$/)
+        return sum + Number(match?.[1] ?? 0) * 60 + Number(match?.[2] ?? 0)
+      }, 0)
+    : 0
+  const totalTime = totalSeconds > 0
+    ? `PT${totalSeconds}S`
+    : parseGuideDuration(guide.dosage)
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'MedicalWebPage',
+        '@id': `${pageUrl}#webpage`,
+        name: guide.title,
+        description: guide.summary,
+        url: pageUrl,
+        inLanguage: 'zh-TW',
+        dateModified: EXERCISE_GUIDE_REVIEW.date,
+        lastReviewed: EXERCISE_GUIDE_REVIEW.date,
+        reviewedBy: reviewer,
+        author: reviewer,
+        publisher: {
+          '@type': 'MedicalOrganization',
+          '@id': `${BASE_URL}/#organization`,
+          name: 'CAM Savant',
+          url: BASE_URL,
+        },
+        about: {
+          '@type': 'Thing',
+          name: guide.kind === 'condition'
+            ? guide.selectionLabel
+            : `${guide.selectionLabel}放鬆運動`,
+        },
+        medicalAudience: {
+          '@type': 'MedicalAudience',
+          audienceType: 'Patient',
+        },
+        primaryImageOfPage: `${BASE_URL}${guide.images[0].src}`,
+        citation: guide.sources.map((source) => source.href),
+        mainEntity: { '@id': `${pageUrl}#howto` },
+      },
+      {
+        '@type': 'HowTo',
+        '@id': `${pageUrl}#howto`,
+        name: guide.title,
+        description: `${guide.summary} 劑量：${guide.dosage}`,
+        ...(totalTime ? { totalTime } : {}),
+        image: guide.images.map((image) => `${BASE_URL}${image.src}`),
+        step: guide.images.map((image, index) => ({
+          '@type': 'HowToStep',
+          position: index + 1,
+          name: image.caption,
+          text: `${image.step}：${image.caption}`,
+          url: `${pageUrl}#step-${index + 1}`,
+          image: {
+            '@type': 'ImageObject',
+            url: `${BASE_URL}${image.src}`,
+            width: image.width ?? 418,
+            height: image.height ?? 941,
+            caption: image.alt,
+          },
+        })),
+      },
+    ],
   }
 }
 

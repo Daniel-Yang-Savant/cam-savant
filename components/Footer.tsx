@@ -106,7 +106,7 @@ export default function Footer({ locale = 'zh' }: { locale?: Lang }) {
           <p className="text-xs text-neutral-400 dark:text-neutral-500 text-center sm:text-left">
             {isEnglish
               ? `© ${year} CAM Savant Medical Team · Content is provided for education only and does not replace individualized medical advice.`
-              : `© ${year} CAM Savant 醫療團隊 · 本站內容僅供醫療專業人員學習參考，不構成個別診療建議，未經書面授權禁止轉載、複製或商業使用。`}
+              : `© ${year} CAM Savant 醫療團隊 · 臨床實證內容供醫療專業人員參考；圖解運動專區亦提供一般民眾健康教育。所有內容均不構成個別診療建議，未經書面授權禁止轉載、複製或商業使用。`}
           </p>
           <div className="flex items-center gap-2 shrink-0">
             <Link href="/privacy" className="text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">

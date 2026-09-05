@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { translations, type Lang } from '@/lib/i18n'
+import { trackAnalyticsEvent } from '@/lib/analytics'
 
 interface Props {
   articleTitle?: string
@@ -17,7 +18,18 @@ export default function ConsultForm({ articleTitle, locale = 'zh' }: Props) {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const startedRef = useRef(false)
   const t = (key: keyof typeof translations.zh) => translations[locale][key]
+  const analyticsProperties = {
+    locale: locale === 'en' ? ('en' as const) : ('zh-TW' as const),
+    placement: articleTitle ? 'article_consult_form' : 'contact_consult_form',
+  }
+
+  function handleFormStarted() {
+    if (startedRef.current) return
+    startedRef.current = true
+    trackAnalyticsEvent('consult_started', analyticsProperties)
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -52,6 +64,7 @@ export default function ConsultForm({ articleTitle, locale = 'zh' }: Props) {
       })
 
       if (!response.ok) throw new Error('Consult submission failed')
+      trackAnalyticsEvent('consult_submitted', analyticsProperties)
       setSubmitted(true)
     } catch {
       setError(t('errorNetwork'))
@@ -90,7 +103,12 @@ export default function ConsultForm({ articleTitle, locale = 'zh' }: Props) {
         </p>
       )}
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
+      <form
+        onSubmit={handleSubmit}
+        onFocusCapture={handleFormStarted}
+        className="mt-6 space-y-4"
+        noValidate
+      >
         {/* Name (optional) */}
         <div>
           <label

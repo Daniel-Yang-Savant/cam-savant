@@ -7,6 +7,7 @@ import { getAuthorEntryBySlug } from '@/lib/authors'
 import { CLINIC_LOCATIONS, getClinicLocation } from '@/lib/locations'
 import { generateBreadcrumbSchema, generatePhysicianSchema } from '@/lib/schema'
 import { bilingualAlternates } from '@/lib/locales'
+import { TrackedAnchor } from '@/components/TrackedLink'
 
 const BASE_URL = 'https://camsavant.com'
 
@@ -184,22 +185,26 @@ export default async function LocationPage({ params }: Props) {
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <a
+              <TrackedAnchor
                 href={location.bookingUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                eventName="booking_clicked"
+                eventProperties={{ locale: 'zh-TW', placement: 'location_header', clinic_slug: location.slug }}
                 className="inline-flex items-center rounded-full bg-neutral-950 dark:bg-neutral-100 px-5 py-2.5 text-sm font-semibold text-white dark:text-neutral-950 hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors"
               >
                 官方線上掛號 ↗
-              </a>
-              <a
+              </TrackedAnchor>
+              <TrackedAnchor
                 href={location.mapUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                eventName="location_opened"
+                eventProperties={{ locale: 'zh-TW', placement: 'location_header_map', clinic_slug: location.slug }}
                 className="inline-flex items-center rounded-full border border-neutral-300 dark:border-neutral-600 px-5 py-2.5 text-sm font-semibold text-neutral-700 dark:text-neutral-200 hover:border-neutral-950 dark:hover:border-neutral-100 transition-colors"
               >
                 Google Maps 導航 ↗
-              </a>
+              </TrackedAnchor>
               <a
                 href={location.officialUrl}
                 target="_blank"

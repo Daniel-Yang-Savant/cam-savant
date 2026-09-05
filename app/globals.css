@@ -85,6 +85,43 @@ img {
     display: none !important;
   }
 
+  .ExerciseGuidePrintHide,
+  .ExerciseGuideRelated {
+    display: none !important;
+  }
+
+  .ExerciseGuideStepList {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    overflow: visible !important;
+    gap: 8pt !important;
+    padding: 8pt !important;
+    border: 1pt solid #d4d4d4 !important;
+    background: white !important;
+  }
+
+  .ExerciseGuideStepList > li {
+    width: auto !important;
+    max-width: none !important;
+    break-inside: avoid;
+    border: 1pt solid #e5e5e5;
+    box-shadow: none !important;
+  }
+
+  .ExerciseGuideStepList img {
+    max-height: 42vh !important;
+    object-fit: contain !important;
+  }
+
+  .ExerciseGuideDisclosure {
+    border: 1pt solid #e5e5e5;
+    background: white !important;
+  }
+
+  details > * {
+    display: block !important;
+  }
+
   body {
     background: white !important;
     color: black !important;

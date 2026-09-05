@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { LINE_ADD_URL, CONSULT_FORM_URL, LINE_GREEN } from '@/lib/site'
+import { trackAnalyticsEvent } from '@/lib/analytics'
 
 function LineGlyph({ className = 'w-5 h-5' }: { className?: string }) {
   return (
@@ -24,7 +25,13 @@ export default function FloatingChatButton({ locale = 'zh' }: { locale?: 'zh' | 
             href={LINE_ADD_URL}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => setOpen(false)}
+            onClick={() => {
+              trackAnalyticsEvent('line_clicked', {
+                locale: isEnglish ? 'en' : 'zh-TW',
+                placement: 'floating_consult_menu',
+              })
+              setOpen(false)
+            }}
             className="flex items-center gap-2 text-white text-sm font-semibold px-4 py-3 rounded-full shadow-lg hover:scale-105 transition-all"
             style={{ backgroundColor: LINE_GREEN }}
             aria-label={isEnglish ? 'Contact us on LINE' : '加入官方 LINE 好友'}
@@ -36,7 +43,13 @@ export default function FloatingChatButton({ locale = 'zh' }: { locale?: 'zh' | 
             href={CONSULT_FORM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => setOpen(false)}
+            onClick={() => {
+              trackAnalyticsEvent('consult_started', {
+                locale: isEnglish ? 'en' : 'zh-TW',
+                placement: 'floating_external_form',
+              })
+              setOpen(false)
+            }}
             className="flex items-center gap-2 bg-neutral-800 dark:bg-neutral-200 text-white dark:text-neutral-900 text-sm font-semibold px-4 py-3 rounded-full shadow-lg hover:scale-105 transition-all"
             aria-label={isEnglish ? 'Open consultation form' : '開啟醫療諮詢表單'}
           >

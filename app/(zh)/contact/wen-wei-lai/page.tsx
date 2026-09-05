@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { bilingualAlternates } from '@/lib/locales'
+import { TrackedAnchor } from '@/components/TrackedLink'
 
 export const metadata: Metadata = {
   title: '賴玟衛醫師 看診資訊',
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
 
 const clinics = [
   {
+    slug: 'changhua',
     hospital: '彰化基督教醫院',
     hospitalEn: 'Changhua Christian Hospital',
     dept: '復健科',
@@ -28,6 +30,7 @@ const clinics = [
     color: 'blue',
   },
   {
+    slug: 'hanming',
     hospital: '漢銘基督教醫院',
     hospitalEn: 'Hanming Christian Hospital',
     dept: '復健科',
@@ -39,6 +42,7 @@ const clinics = [
     color: 'green',
   },
   {
+    slug: 'yuanlin',
     hospital: '員林基督教醫院',
     hospitalEn: 'Yuanlin Christian Hospital',
     dept: '復健科',
@@ -169,22 +173,26 @@ export default function LaiContactPage() {
 
               {/* Action buttons */}
               <div className="mt-auto flex flex-col gap-2 pt-2">
-                <a
+                <TrackedAnchor
                   href={clinic.bookingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  eventName="booking_clicked"
+                  eventProperties={{ locale: 'zh-TW', placement: 'doctor_contact', clinic_slug: clinic.slug }}
                   className="w-full text-center text-sm font-semibold py-2.5 rounded-xl bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950 hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors"
                 >
                   線上預約掛號
-                </a>
-                <a
+                </TrackedAnchor>
+                <TrackedAnchor
                   href={clinic.mapUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  eventName="location_opened"
+                  eventProperties={{ locale: 'zh-TW', placement: 'doctor_contact_map', clinic_slug: clinic.slug }}
                   className="w-full text-center text-sm py-2 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 hover:border-neutral-950 dark:hover:border-neutral-100 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
                 >
                   Google Maps 導航
-                </a>
+                </TrackedAnchor>
               </div>
             </div>
           )

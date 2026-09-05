@@ -40,6 +40,7 @@ export interface ExerciseGuideModule {
   dosage: string
   cue: string
   regression: string
+  followUp?: string
   signals: {
     green: string
     yellow: string
@@ -70,38 +71,43 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
       },
       {
         src: `${IMAGE_ROOT}/neck-2-nod.webp`,
-        alt: '站姿做小幅點頭動作',
+        alt: '從坐姿站起後，以站姿做小幅點頭動作',
         step: '15 秒',
         caption: '小幅點頭，不硬縮下巴',
       },
       {
         src: `${IMAGE_ROOT}/neck-3-scapula.webp`,
-        alt: '站姿輕收肩胛且不聳肩',
+        alt: '從坐姿站起後，以站姿輕收肩胛且不聳肩',
         step: '15 秒',
         caption: '肩胛輕收，不聳肩',
       },
       {
         src: `${IMAGE_ROOT}/neck-4-turn.webp`,
-        alt: '站姿將頭轉向舒服的角度',
+        alt: '從坐姿站起後，以站姿將頭轉向舒服的角度',
         step: '15 秒',
         caption: '左右轉到舒服範圍',
       },
     ],
-    suitableFor: '久坐、久站、精細工作或使用螢幕後，出現一般頸肩緊繃或疲勞感，且沒有近期外傷、暈眩或手臂神經症狀。',
-    dosage: '四個動作各 15 秒，完成一輪即可；可在工作任務切換後使用。',
+    suitableFor: '久坐、久站、精細工作或使用螢幕後，出現一般頸肩緊繃或疲勞感，且沒有近期外傷、暈眩或手臂神經症狀。已知頸椎不穩定、類風濕性關節炎、唐氏症、近期鞭甩傷或頸椎術後者不適用。',
+    dosage: '四個動作各 15 秒，完成一輪即可；先坐姿支撐前臂，接著站起來完成後三個動作。可在工作任務切換後使用。',
     cue: '幅度小、呼吸自然，做完應感覺比較容易活動，而不是更痛。',
     regression: '先只做前臂支撐與舒服範圍內的左右轉頭；坐姿也可以。',
+    followUp: '規律做 2–4 週若活動或工作功能沒有改善，症狀反覆惡化，或需要持續增加止痛藥物，請安排評估。',
     signals: {
       green: '一般吃力或輕微緊繃，動作後維持穩定或較舒服。',
-      yellow: '症狀稍微增加但很快回復：縮小幅度、減少動作並觀察。',
+      yellow: '運動中疼痛或不適增加但不超過 5/10，且 24 小時內回到原本程度：縮小幅度、減少動作並觀察；若超過門檻就停止。',
       red: '尖銳痛、明顯暈眩、手臂麻木或無力、症狀向手臂擴散：立即停止並安排評估。',
     },
-    evidence: '頸痛臨床指引支持依個別表現使用活動度、頸肩帶肌力與耐力訓練。本組 60 秒流程是低門檻衛教組合，不是經單獨臨床試驗驗證的治療處方。',
-    audience: '適用於一般成人的非急性頸肩疲勞；有外傷、神經症狀或持續惡化者不適用。',
+    evidence: '頸痛臨床指引支持依個別表現使用活動度、頸肩帶肌力與耐力訓練。本組 60 秒流程是低門檻衛教組合，不是經單獨臨床試驗驗證的治療處方；頁面的 5/10 與 24 小時規則借用肌腱復健的 pain-monitoring model，並未在這套頸肩流程中單獨驗證。',
+    audience: '適用於一般成人的非急性頸肩疲勞；有外傷、神經症狀、已知上頸椎不穩定風險、頸椎術後或持續惡化者不適用。',
     sources: [
       {
         label: 'Blanpied et al. Neck Pain: Revision 2017. J Orthop Sports Phys Ther.',
         href: 'https://pubmed.ncbi.nlm.nih.gov/28666405/',
+      },
+      {
+        label: 'Silbernagel et al. Pain-monitoring model during Achilles tendinopathy rehabilitation: RCT. Am J Sports Med. 2007.',
+        href: 'https://pubmed.ncbi.nlm.nih.gov/17307888/',
       },
     ],
   },
@@ -244,12 +250,13 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     dosage: '每個動作先做 1 組、6–8 次，每週 2–3 次；隔天反應穩定後，一次只增加次數、組數、幅度或阻力其中一項。',
     cue: '保持自然呼吸；動作做到能控制的範圍，不必把腰硬壓地面或追求抬得更高。',
     regression: '腳跟點地改成只抬一腳；鳥狗式只動手或腳，或改手扶桌面的站姿；橋式縮小抬起高度。',
+    followUp: '規律做 2–4 週若活動、睡眠或工作功能沒有改善，或需要持續增加止痛藥物，請安排評估。',
     signals: {
       green: '正常吃力或短暫痠感，隔天功能與睡眠沒有變差。',
-      yellow: '症狀略升或隔天恢復較慢：減少次數、幅度或組數，延後加量。',
+      yellow: '運動中疼痛不超過 5/10、24 小時內回到原本程度，且隔天早晨僵硬沒有增加，才可先減量觀察；超過任一門檻就停止並重新評估。',
       red: '進行性無力、持續麻木、會陰麻木、大小便控制改變、發燒或快速惡化的夜間痛：停止並儘速評估。',
     },
-    evidence: 'Cochrane 系統性回顧顯示，運動治療對慢性非特異性下背痛的疼痛有中等確定性證據；功能改善的平均幅度較小。研究支持運動這個方向，但沒有證明這三個動作適合所有人。',
+    evidence: 'Cochrane 系統性回顧顯示，運動治療對慢性非特異性下背痛的疼痛有中等確定性證據；功能改善的平均幅度較小。研究支持運動這個方向，但沒有證明這三個動作適合所有人；頁面的 5/10 與 24 小時規則借用肌腱復健的 pain-monitoring model，並不是下背痛的診斷或通用進階標準。',
     audience: '適用於症狀穩定的慢性非特異性下背痛成人；急性外傷、術後或有紅旗症狀者不適用。',
     sources: [
       {
@@ -259,6 +266,10 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
       {
         label: 'WHO guideline for non-surgical management of chronic primary low back pain, 2023.',
         href: 'https://www.who.int/publications/i/item/9789240081789',
+      },
+      {
+        label: 'Silbernagel et al. Pain-monitoring model during Achilles tendinopathy rehabilitation: RCT. Am J Sports Med. 2007.',
+        href: 'https://pubmed.ncbi.nlm.nih.gov/17307888/',
       },
     ],
   },
@@ -300,16 +311,17 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
         height: 720,
       },
     ],
-    suitableFor: '工作後仍處於緊繃、呼吸偏快或難以轉換注意力，但沒有胸痛、明顯呼吸困難或急性身心危機。',
+    suitableFor: '工作後仍處於緊繃、呼吸偏快或難以轉換注意力，但沒有胸痛、明顯呼吸困難或急性身心危機。請在安全、穩定的環境練習，不要在開車、操作機械或高處作業時進行；少數人放鬆或專注呼吸時反而更不安，這不代表做錯，可直接停止並回到自然呼吸。',
     dosage: '依序完成 30、60、60、30 秒；肌肉只用輕到中等力量，不憋氣。',
     cue: '精準秒數不是重點，慢、舒服、規律即可。',
     regression: '完全不做收縮，只維持穩定坐姿與自然呼吸；也可以旁觀。',
+    followUp: '若緊繃、呼吸急促、失眠或不安反覆 2–4 週仍影響工作、睡眠或日常功能，請安排專業評估；急性危機不等待此期限。',
     signals: {
       green: '呼吸與身體逐漸放慢，過程舒服且能保持清醒。',
-      yellow: '輕微頭暈或不安增加：停止計時，回到自然呼吸。',
+      yellow: '輕微頭暈或不安增加：立即停止計時並回到自然呼吸；若停止後 10 分鐘仍未回到原本程度，當次不再嘗試。',
       red: '胸痛、明顯呼吸困難、快要暈倒或危機感持續升高：立即停止並依急症或心理支持流程求助。',
     },
-    evidence: '呼吸練習與個人層級壓力介入研究顯示平均可能有小到中等的短期幫助，但研究使用的方案與時間不同。這個 3 分鐘流程不能推論為立即治療效果。',
+    evidence: '呼吸練習的 RCT 統合分析納入 12 項壓力研究、785 人，平均呈現小到中等效果，但整體偏誤風險為中等，方案與時間也不同；Balban 研究則是單一 RCT。研究支持慢呼吸與放鬆這個方向，但沒有直接驗證本站這套 3 分鐘組合，也不能推論為立即治療效果。',
     audience: '適用於一般成人的短暫降速與恢復；持續失眠、耗竭、情緒或工作功能受影響者應尋求專業支持。',
     sources: [
       {
@@ -317,8 +329,16 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
         href: 'https://pubmed.ncbi.nlm.nih.gov/36630953/',
       },
       {
+        label: 'Fincham et al. Effect of breathwork on stress and mental health: a meta-analysis of RCTs. Sci Rep. 2023.',
+        href: 'https://pubmed.ncbi.nlm.nih.gov/36624160/',
+      },
+      {
         label: 'Cochrane Review. Individual-level interventions for reducing occupational stress in healthcare workers, 2023.',
         href: 'https://pubmed.ncbi.nlm.nih.gov/37169364/',
+      },
+      {
+        label: 'Braith et al. Relaxation-induced anxiety in chronically anxious adults. J Behav Ther Exp Psychiatry. 1988.',
+        href: 'https://pubmed.ncbi.nlm.nih.gov/3069875/',
       },
     ],
   },
@@ -920,4 +940,12 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
 
 export function getExerciseGuideById(id: string): ExerciseGuideModule | undefined {
   return EXERCISE_GUIDE_MODULES.find((guide) => guide.id === id)
+}
+
+export function getExerciseGuideFollowUp(guide: ExerciseGuideModule): string {
+  if (guide.followUp) return guide.followUp
+
+  return guide.kind === 'condition'
+    ? '規律執行 2–4 週若功能沒有任何改善、症狀持續惡化，或需要增加止痛藥物，請安排專業評估；已有治療計畫者依原回診時程。'
+    : '規律做 2–4 週若日常功能沒有改善、症狀反覆惡化，或需要增加止痛藥物，請安排專業評估。'
 }

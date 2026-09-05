@@ -90,7 +90,6 @@ export default function ExerciseGuideDirectory({ items }: ExerciseGuideDirectory
   const [activeKind, setActiveKind] = useState<ExerciseGuideKind>('relaxation')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRegion, setSelectedRegion] = useState<RegionFilter>('全部')
-  const copy = DIRECTORY_COPY[activeKind]
   const relaxationItems = useMemo(
     () => items.filter((item) => item.kind === 'relaxation'),
     [items]
@@ -159,7 +158,7 @@ export default function ExerciseGuideDirectory({ items }: ExerciseGuideDirectory
                 type="button"
                 role="tab"
                 aria-selected={selected}
-                aria-controls="exercise-directory-panel"
+                aria-controls={`exercise-directory-panel-${kind}`}
                 onClick={() => {
                   setActiveKind(kind)
                   resetConditionFilters()
@@ -193,58 +192,76 @@ export default function ExerciseGuideDirectory({ items }: ExerciseGuideDirectory
         </div>
 
         <div
-          id="exercise-directory-panel"
+          id="exercise-directory-panel-relaxation"
           role="tabpanel"
-          aria-labelledby={`exercise-tab-${activeKind}`}
+          aria-labelledby="exercise-tab-relaxation"
+          hidden={activeKind !== 'relaxation'}
           className="mt-10"
         >
           <p className="text-xs font-bold tracking-[0.16em] uppercase text-teal-700 dark:text-teal-300">
-            {copy.kicker}
+            {DIRECTORY_COPY.relaxation.kicker}
           </p>
           <h2 id="exercise-directory-title" className="mt-2 text-2xl font-bold text-neutral-950 dark:text-neutral-100 md:text-3xl">
-            {copy.heading}
+            {DIRECTORY_COPY.relaxation.heading}
           </h2>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-neutral-600 dark:text-neutral-300 md:text-base">
-            {copy.description}
+            {DIRECTORY_COPY.relaxation.description}
           </p>
 
-          {activeKind === 'relaxation' ? (
-            <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {relaxationItems.map((item) => (
-                <Link
-                  key={item.id}
-                  href={`/exercise-guides/${item.id}`}
-                  className="group overflow-hidden rounded-3xl border border-neutral-200 bg-white transition-all hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-lg dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-600"
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden bg-neutral-100 dark:bg-neutral-800">
-                    <Image
-                      src={item.image.src}
-                      alt={item.image.alt}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.025]"
-                    />
-                  </div>
-                  <div className="p-5">
-                    <p className="text-xs font-bold text-teal-700 dark:text-teal-300">部位</p>
-                    <h3 className="mt-1 text-xl font-bold text-neutral-950 dark:text-neutral-100">
-                      {item.selectionLabel}
-                    </h3>
-                    <p className="mt-2 text-sm font-medium leading-6 text-neutral-700 dark:text-neutral-300">
-                      {item.title}
-                    </p>
-                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-neutral-500 dark:text-neutral-400">
-                      {item.summary}
-                    </p>
-                    <span className="mt-5 inline-flex text-sm font-bold text-neutral-950 transition-transform group-hover:translate-x-1 dark:text-neutral-100">
-                      查看圖解與劑量 →
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="mt-7">
+          <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {relaxationItems.map((item) => (
+              <Link
+                key={item.id}
+                href={`/exercise-guides/${item.id}`}
+                className="group overflow-hidden rounded-3xl border border-neutral-200 bg-white transition-all hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-lg dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-600"
+              >
+                <div className="relative aspect-[4/3] overflow-hidden bg-neutral-100 dark:bg-neutral-800">
+                  <Image
+                    src={item.image.src}
+                    alt={item.image.alt}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.025]"
+                  />
+                </div>
+                <div className="p-5">
+                  <p className="text-xs font-bold text-teal-700 dark:text-teal-300">部位</p>
+                  <h3 className="mt-1 text-xl font-bold text-neutral-950 dark:text-neutral-100">
+                    {item.selectionLabel}
+                  </h3>
+                  <p className="mt-2 text-sm font-medium leading-6 text-neutral-700 dark:text-neutral-300">
+                    {item.title}
+                  </p>
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-neutral-500 dark:text-neutral-400">
+                    {item.summary}
+                  </p>
+                  <span className="mt-5 inline-flex text-sm font-bold text-neutral-950 transition-transform group-hover:translate-x-1 dark:text-neutral-100">
+                    查看圖解與劑量 →
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div
+          id="exercise-directory-panel-condition"
+          role="tabpanel"
+          aria-labelledby="exercise-tab-condition"
+          hidden={activeKind !== 'condition'}
+          className="mt-10"
+        >
+          <p className="text-xs font-bold tracking-[0.16em] uppercase text-teal-700 dark:text-teal-300">
+            {DIRECTORY_COPY.condition.kicker}
+          </p>
+          <h2 className="mt-2 text-2xl font-bold text-neutral-950 dark:text-neutral-100 md:text-3xl">
+            {DIRECTORY_COPY.condition.heading}
+          </h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-neutral-600 dark:text-neutral-300 md:text-base">
+            {DIRECTORY_COPY.condition.description}
+          </p>
+
+          <div className="mt-7">
               <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900/70 sm:p-6">
                 <label htmlFor="condition-guide-search" className="text-sm font-bold text-neutral-950 dark:text-neutral-100">
                   關鍵字快速配對
@@ -374,8 +391,7 @@ export default function ExerciseGuideDirectory({ items }: ExerciseGuideDirectory
                   </div>
                 </div>
               )}
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </section>

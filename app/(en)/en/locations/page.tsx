@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { CLINIC_LOCATIONS } from '@/lib/locations'
 import { englishAlternates } from '@/lib/locales'
+import { TrackedAnchor, TrackedInternalLink } from '@/components/TrackedLink'
 
 export const metadata: Metadata = {
   title: 'Clinic Locations and Appointments',
@@ -81,9 +82,34 @@ export default function EnglishLocationsPage() {
                       <dd className="mt-1"><a href={clinic.phoneHref} className="hover:text-neutral-950 dark:hover:text-neutral-100">{clinic.phone}</a></dd>
                     </dl>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                      <Link href={`/en/locations/${clinic.slug}`} className="text-center text-xs font-semibold py-2.5 rounded-xl bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950">Details</Link>
-                      <a href={clinic.bookingUrl} target="_blank" rel="noopener noreferrer" className="text-center text-xs font-semibold py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-200">Appointment ↗</a>
-                      <a href={clinic.mapUrl} target="_blank" rel="noopener noreferrer" className="text-center text-xs py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400">Map ↗</a>
+                      <TrackedInternalLink
+                        href={`/en/locations/${clinic.slug}`}
+                        eventName="location_opened"
+                        eventProperties={{ locale: 'en', placement: 'locations_index_details', clinic_slug: clinic.slug }}
+                        className="text-center text-xs font-semibold py-2.5 rounded-xl bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950"
+                      >
+                        Details
+                      </TrackedInternalLink>
+                      <TrackedAnchor
+                        href={clinic.bookingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        eventName="booking_clicked"
+                        eventProperties={{ locale: 'en', placement: 'locations_index', clinic_slug: clinic.slug }}
+                        className="text-center text-xs font-semibold py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-200"
+                      >
+                        Appointment ↗
+                      </TrackedAnchor>
+                      <TrackedAnchor
+                        href={clinic.mapUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        eventName="location_opened"
+                        eventProperties={{ locale: 'en', placement: 'locations_index_map', clinic_slug: clinic.slug }}
+                        className="text-center text-xs py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400"
+                      >
+                        Map ↗
+                      </TrackedAnchor>
                     </div>
                   </article>
                 ))}

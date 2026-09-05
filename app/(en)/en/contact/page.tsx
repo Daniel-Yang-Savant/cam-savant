@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { CLINIC_LOCATIONS } from '@/lib/locations'
 import { LINE_ADD_URL } from '@/lib/site'
 import { englishAlternates } from '@/lib/locales'
+import { TrackedAnchor, TrackedInternalLink } from '@/components/TrackedLink'
 
 export const metadata: Metadata = {
   title: 'Clinic Information and Appointments',
@@ -57,7 +58,7 @@ export default function EnglishContactPage() {
         <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
           Use the official LINE account for schedule notices and general inquiries. Hospital appointments must still be made through the hospital registration system.
         </p>
-        <a href={LINE_ADD_URL} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex rounded-full bg-[#06C755] px-5 py-2.5 text-sm font-semibold text-white">Open LINE →</a>
+        <TrackedAnchor href={LINE_ADD_URL} target="_blank" rel="noopener noreferrer" eventName="line_clicked" eventProperties={{ locale: 'en', placement: 'contact_line_card' }} className="mt-4 inline-flex rounded-full bg-[#06C755] px-5 py-2.5 text-sm font-semibold text-white">Open LINE →</TrackedAnchor>
       </section>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
@@ -73,9 +74,9 @@ export default function EnglishContactPage() {
               <div><dt className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Current clinic times</dt><dd className="mt-1 space-y-1">{clinic.scheduleEn.map((time) => <span key={time} className="block">{time}</span>)}</dd></div>
             </dl>
             <div className="mt-auto flex flex-col gap-2 pt-2">
-              <Link href={`/en/locations/${clinic.slug}`} className="w-full text-center text-sm font-semibold py-2.5 rounded-xl bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950">Location details</Link>
-              <a href={clinic.bookingUrl} target="_blank" rel="noopener noreferrer" className="w-full text-center text-sm font-semibold py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-200">Online appointment ↗</a>
-              <a href={clinic.mapUrl} target="_blank" rel="noopener noreferrer" className="w-full text-center text-sm py-2 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400">Google Maps ↗</a>
+              <TrackedInternalLink href={`/en/locations/${clinic.slug}`} eventName="location_opened" eventProperties={{ locale: 'en', placement: 'doctor_contact_details', clinic_slug: clinic.slug }} className="w-full text-center text-sm font-semibold py-2.5 rounded-xl bg-neutral-950 dark:bg-neutral-100 text-white dark:text-neutral-950">Location details</TrackedInternalLink>
+              <TrackedAnchor href={clinic.bookingUrl} target="_blank" rel="noopener noreferrer" eventName="booking_clicked" eventProperties={{ locale: 'en', placement: 'doctor_contact', clinic_slug: clinic.slug }} className="w-full text-center text-sm font-semibold py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-200">Online appointment ↗</TrackedAnchor>
+              <TrackedAnchor href={clinic.mapUrl} target="_blank" rel="noopener noreferrer" eventName="location_opened" eventProperties={{ locale: 'en', placement: 'doctor_contact_map', clinic_slug: clinic.slug }} className="w-full text-center text-sm py-2 rounded-xl border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400">Google Maps ↗</TrackedAnchor>
             </div>
           </article>
         ))}

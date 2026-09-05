@@ -1,5 +1,14 @@
+'use client'
+
 import Image from 'next/image'
-import type { ExerciseGuideModule, ExerciseGuideTheme } from '@/lib/exercise-guides'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import {
+  getExerciseGuideFollowUp,
+  type ExerciseGuideModule,
+  type ExerciseGuideTheme,
+} from '@/lib/exercise-guides'
+import { EXERCISE_GUIDE_REVIEW } from '@/lib/exercise-guide-review'
 
 const THEME_STYLES: Record<
   ExerciseGuideTheme,
@@ -45,6 +54,23 @@ interface ExerciseGuideModuleCardProps {
 export default function ExerciseGuideModuleCard({ guide, asPage = false }: ExerciseGuideModuleCardProps) {
   const theme = THEME_STYLES[guide.theme]
   const Heading = asPage ? 'h1' : 'h2'
+  const [showAllSteps, setShowAllSteps] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    fetch('/api/admin/session', {
+      cache: 'no-store',
+      signal: controller.signal,
+    })
+      .then((response) => {
+        if (response.ok) setIsAdmin(true)
+      })
+      .catch(() => {})
+
+    return () => controller.abort()
+  }, [])
 
   return (
     <section
@@ -71,7 +97,11 @@ export default function ExerciseGuideModuleCard({ guide, asPage = false }: Exerc
         </div>
 
         <ol
-          className={`mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto rounded-3xl border p-3 pb-5 md:grid md:overflow-visible md:pb-3 ${theme.surface} ${theme.border} ${
+          className={`ExerciseGuideStepList mt-8 gap-3 rounded-3xl border p-3 ${theme.surface} ${theme.border} ${
+            showAllSteps
+              ? 'grid grid-cols-1 overflow-visible pb-3'
+              : 'flex snap-x snap-mandatory overflow-x-auto pb-5'
+          } md:grid md:overflow-visible md:pb-3 ${
             guide.images.length === 1
               ? 'md:grid-cols-1'
               : guide.images.length === 3
@@ -83,7 +113,10 @@ export default function ExerciseGuideModuleCard({ guide, asPage = false }: Exerc
           {guide.images.map((image, imageIndex) => (
             <li
               key={image.src}
-              className="w-[74vw] max-w-[360px] shrink-0 snap-center overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-neutral-900 md:w-auto md:max-w-none"
+              id={`step-${imageIndex + 1}`}
+              className={`${
+                showAllSteps ? 'w-auto max-w-none' : 'w-[74vw] max-w-[360px] shrink-0 snap-center'
+              } overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-neutral-900 md:w-auto md:max-w-none`}
             >
               <Image
                 src={image.src}
@@ -111,8 +144,32 @@ export default function ExerciseGuideModuleCard({ guide, asPage = false }: Exerc
             </li>
           ))}
         </ol>
-        <p className="mt-3 text-center text-xs text-neutral-500 dark:text-neutral-400 md:hidden">
-          左右滑動查看完整步驟
+        <div className="ExerciseGuidePrintHide mt-3 flex flex-wrap items-center justify-center gap-2 text-xs md:justify-between">
+          <p className="text-neutral-500 dark:text-neutral-400 md:hidden">
+            {showAllSteps ? '已一次展開全部步驟' : '左右滑動查看完整步驟'}
+          </p>
+          <div className="flex flex-wrap justify-center gap-2 md:ml-auto">
+            <button
+              type="button"
+              onClick={() => setShowAllSteps((current) => !current)}
+              aria-expanded={showAllSteps}
+              className="inline-flex min-h-10 items-center rounded-full border border-neutral-300 bg-white px-4 font-bold text-neutral-700 transition-colors hover:border-neutral-500 hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:border-neutral-500 dark:hover:bg-neutral-800 md:hidden"
+            >
+              {showAllSteps ? '改回左右滑動' : '一次展開全部步驟'}
+            </button>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="PrintButton inline-flex min-h-10 items-center rounded-full border border-neutral-300 bg-white px-4 font-bold text-neutral-700 transition-colors hover:border-neutral-500 hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:border-neutral-500 dark:hover:bg-neutral-800"
+              >
+                列印／另存 PDF
+              </button>
+            )}
+          </div>
+        </div>
+        <p className="ExerciseGuideDisclosure mt-4 rounded-xl bg-neutral-100 px-4 py-3 text-xs leading-5 text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
+          示範圖為合成教學影像，已用於輔助理解而非取代現場動作評估；實際姿勢、幅度與支撐方式請依個別能力調整。
         </p>
 
         <div className="mt-10 grid gap-4 md:grid-cols-2">
@@ -131,6 +188,10 @@ export default function ExerciseGuideModuleCard({ guide, asPage = false }: Exerc
           <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
             <h3 className="text-sm font-bold text-neutral-950 dark:text-neutral-100">降階方式</h3>
             <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">{guide.regression}</p>
+          </div>
+          <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900 md:col-span-2">
+            <h3 className="text-sm font-bold text-neutral-950 dark:text-neutral-100">多久沒改善要評估</h3>
+            <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">{getExerciseGuideFollowUp(guide)}</p>
           </div>
         </div>
 
@@ -178,6 +239,22 @@ export default function ExerciseGuideModuleCard({ guide, asPage = false }: Exerc
             </ul>
           </div>
         </details>
+
+        <div className="mt-6 flex flex-col gap-2 border-t border-neutral-200 pt-5 text-xs leading-5 text-neutral-500 dark:border-neutral-800 dark:text-neutral-400 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5">
+          <span>
+            最後審閱：<time dateTime={EXERCISE_GUIDE_REVIEW.date}>{EXERCISE_GUIDE_REVIEW.date}</time>
+          </span>
+          <span>
+            審閱者：
+            <Link
+              href="/doctors/yu-kai-yang"
+              className="font-semibold text-neutral-700 underline decoration-neutral-300 underline-offset-4 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white"
+            >
+              {EXERCISE_GUIDE_REVIEW.reviewerName}
+            </Link>
+            （{EXERCISE_GUIDE_REVIEW.reviewerTitle}，{EXERCISE_GUIDE_REVIEW.affiliation}）
+          </span>
+        </div>
       </div>
     </section>
   )

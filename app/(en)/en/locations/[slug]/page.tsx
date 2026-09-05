@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { getAuthorEntryBySlug } from '@/lib/authors'
 import { CLINIC_LOCATIONS, getClinicLocation } from '@/lib/locations'
 import { englishAlternates } from '@/lib/locales'
+import { TrackedAnchor } from '@/components/TrackedLink'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -82,8 +83,8 @@ export default async function EnglishLocationPage({ params }: Props) {
             </dl>
           </div>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href={location.bookingUrl} target="_blank" rel="noopener noreferrer" className="rounded-full bg-neutral-950 dark:bg-neutral-100 px-5 py-2.5 text-sm font-semibold text-white dark:text-neutral-950">Official appointment system ↗</a>
-            <a href={location.mapUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-neutral-300 dark:border-neutral-600 px-5 py-2.5 text-sm font-semibold text-neutral-700 dark:text-neutral-200">Google Maps ↗</a>
+            <TrackedAnchor href={location.bookingUrl} target="_blank" rel="noopener noreferrer" eventName="booking_clicked" eventProperties={{ locale: 'en', placement: 'location_header', clinic_slug: location.slug }} className="rounded-full bg-neutral-950 dark:bg-neutral-100 px-5 py-2.5 text-sm font-semibold text-white dark:text-neutral-950">Official appointment system ↗</TrackedAnchor>
+            <TrackedAnchor href={location.mapUrl} target="_blank" rel="noopener noreferrer" eventName="location_opened" eventProperties={{ locale: 'en', placement: 'location_header_map', clinic_slug: location.slug }} className="rounded-full border border-neutral-300 dark:border-neutral-600 px-5 py-2.5 text-sm font-semibold text-neutral-700 dark:text-neutral-200">Google Maps ↗</TrackedAnchor>
             <a href={location.officialUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-neutral-300 dark:border-neutral-600 px-5 py-2.5 text-sm font-semibold text-neutral-700 dark:text-neutral-200">Hospital website ↗</a>
           </div>
         </header>

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Fuse from 'fuse.js'
 import { useLang } from '@/lib/i18n'
 import type { SearchItem } from '@/lib/search'
+import { trackAnalyticsEvent } from '@/lib/analytics'
 
 interface Props {
   fullWidth?: boolean
@@ -16,7 +17,7 @@ export default function SearchBar({ fullWidth = false }: Props) {
   const [index, setIndex] = useState<SearchItem[]>([])
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
-  const { t } = useLang()
+  const { lang, t } = useLang()
 
   // Fetch search index once on mount
   useEffect(() => {
@@ -73,6 +74,16 @@ export default function SearchBar({ fullWidth = false }: Props) {
     setOpen(false)
   }
 
+  const selectResult = (item: SearchItem) => {
+    trackAnalyticsEvent('site_search_used', {
+      slug: item.slug,
+      category: item.category,
+      locale: lang === 'en' ? 'en' : 'zh-TW',
+      placement: fullWidth ? 'full_width_search' : 'navigation_search',
+    })
+    clear()
+  }
+
   return (
     <div ref={containerRef} className={`relative ${fullWidth ? 'w-full' : 'w-44'}`}>
       {/* Input */}
@@ -119,7 +130,7 @@ export default function SearchBar({ fullWidth = false }: Props) {
                 <li key={item.slug}>
                   <Link
                     href={`/posts/${item.slug}`}
-                    onClick={clear}
+                    onClick={() => selectResult(item)}
                     className="block px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors border-b border-neutral-100 dark:border-neutral-800 last:border-0"
                   >
                     <span className="text-[0.6rem] tracking-widest uppercase text-neutral-500 font-medium">
