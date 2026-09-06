@@ -47,7 +47,10 @@ export default function Footer({ locale = 'zh' }: { locale?: Lang }) {
             <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
               {isEnglish
                 ? 'An integrative medical knowledge platform focused on rehabilitation medicine, sports medicine, functional medicine, and Frequency Specific Microcurrent.'
-                : '整合醫學知識平台，深入探索復健醫學、運動醫學、功能醫學與 FSM 頻率特異性微電流的臨床實證。'}
+                : <>
+                    整合醫學知識平台，深入探索復健醫學、運動醫學與功能醫學，
+                    <span className="md:whitespace-nowrap">並整理 FSM 頻率特異性微電流的臨床實證。</span>
+                  </>}
             </p>
           </div>
 
