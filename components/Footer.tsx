@@ -37,7 +37,7 @@ export default function Footer({ locale = 'zh' }: { locale?: Lang }) {
         <div className="flex flex-col md:flex-row justify-between gap-10">
 
           {/* ── Brand ── */}
-          <div className="max-w-xs">
+          <div className="max-w-md">
             <Link
               href={homeHref}
               className="text-base font-bold tracking-[0.18em] text-neutral-950 dark:text-neutral-100"
