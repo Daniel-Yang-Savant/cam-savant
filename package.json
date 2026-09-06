@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test:sw": "node --test tests/service-worker.test.mjs",
-    "test:seo": "tsx --test scripts/seo-contract.test.ts",
+    "test:seo": "tsx --test scripts/seo-contract.test.ts scripts/exercise-guide-related.test.ts",
     "optimize:covers": "tsx scripts/optimize-cover-images.ts",
     "publish-post": "tsx scripts/publish-from-pdf.ts",
     "prompts": "ts-node scripts/today-tasks.ts",

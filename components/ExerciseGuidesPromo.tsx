@@ -4,7 +4,7 @@ import Link from 'next/link'
 const PREVIEWS = [
   {
     src: '/images/exercise-guides/neck-1-support.webp',
-    alt: '前臂支撐並放鬆肩膀的圖解運動',
+    alt: '站姿雙手輕放桌面並放鬆肩膀的圖解運動',
   },
   {
     src: '/images/exercise-guides/legs-3-march.webp',
@@ -19,7 +19,10 @@ const PREVIEWS = [
 export default function ExerciseGuidesPromo() {
   return (
     <section className="border-b border-neutral-200 bg-neutral-950 text-white dark:border-neutral-800" aria-labelledby="exercise-guides-promo-title">
-      <Link href="/exercise-guides" className="group block">
+      <Link
+        href="/exercise-guides"
+        className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-300"
+      >
         <div className="max-w-7xl mx-auto grid gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1fr_1.1fr] md:items-center md:py-14 lg:px-8">
           <div>
             <p className="text-xs font-bold tracking-[0.18em] uppercase text-teal-300">New · Visual Guides</p>
@@ -27,7 +30,7 @@ export default function ExerciseGuidesPromo() {
               圖解運動專區
             </h2>
             <p className="mt-4 max-w-xl text-base leading-7 text-neutral-300">
-              先選放鬆部位，或依適應證進入 RCT 運動方案，再查看圖解、劑量與停止警訊。
+              先選想放鬆的部位，或依症狀與已確認的診斷查看隨機對照試驗中的運動方案，再閱讀圖解、研究劑量與停止警訊。
             </p>
             <span className="mt-7 inline-flex min-h-11 items-center rounded-full bg-white px-5 text-sm font-bold text-neutral-950 transition-transform group-hover:translate-x-1">
               進入圖解運動專區 →

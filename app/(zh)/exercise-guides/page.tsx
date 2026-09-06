@@ -3,12 +3,15 @@ import Link from 'next/link'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import ExerciseGuideAnalytics from '@/components/ExerciseGuideAnalytics'
 import ExerciseGuideDirectory from '@/components/ExerciseGuideDirectory'
-import { EXERCISE_GUIDE_MODULES } from '@/lib/exercise-guides'
+import {
+  EXERCISE_GUIDE_MODULES,
+  getExerciseGuideSupervision,
+} from '@/lib/exercise-guides'
 import { EXERCISE_GUIDE_REVIEW } from '@/lib/exercise-guide-review'
 import { generateBreadcrumbSchema, generateCollectionPageSchema } from '@/lib/schema'
 
 const BASE_URL = 'https://camsavant.com'
-const DESCRIPTION = '先選擇放鬆運動的身體部位，或依適應證進入有隨機對照試驗支持的運動方案，再查看連續圖片、劑量、降階方式與停止警訊。'
+const DESCRIPTION = '先選擇想放鬆的身體部位，或依症狀與已確認的診斷查找隨機對照試驗中的運動方案，再查看連續圖解、研究劑量、簡化方式與停止警訊。'
 
 export const metadata: Metadata = {
   title: '圖解運動專區｜安全自我照護與漸進運動',
@@ -35,7 +38,8 @@ export default function ExerciseGuidesPage() {
       url: `${BASE_URL}/exercise-guides`,
       specialty: 'PhysicalMedicineAndRehabilitation',
     }),
-    dateModified: EXERCISE_GUIDE_REVIEW.date,
+    datePublished: EXERCISE_GUIDE_REVIEW.publishedDate,
+    dateModified: EXERCISE_GUIDE_REVIEW.modifiedDate,
     lastReviewed: EXERCISE_GUIDE_REVIEW.date,
     reviewedBy: {
       '@type': 'Physician',
@@ -116,18 +120,12 @@ export default function ExerciseGuidesPage() {
             示範圖為合成教學影像；實際動作請依個別能力與當下反應調整。
           </p>
           <p className="mt-2 text-xs leading-5 text-neutral-500 dark:text-neutral-400">
-            最後審閱：<time dateTime={EXERCISE_GUIDE_REVIEW.date}>{EXERCISE_GUIDE_REVIEW.date}</time>
-            <span aria-hidden="true"> · </span>
-            審閱者：
-            <Link href="/doctors/yu-kai-yang" className="font-semibold underline decoration-neutral-300 underline-offset-4 hover:text-neutral-800 dark:hover:text-neutral-200">
-              {EXERCISE_GUIDE_REVIEW.reviewerName}
-            </Link>
-            （{EXERCISE_GUIDE_REVIEW.reviewerTitle}，{EXERCISE_GUIDE_REVIEW.affiliation}）
+            發布日期：<time dateTime={EXERCISE_GUIDE_REVIEW.publishedDate}>{EXERCISE_GUIDE_REVIEW.publishedDate}</time>
           </p>
         </div>
       </header>
 
-      <main>
+      <div>
         <ExerciseGuideDirectory
           items={EXERCISE_GUIDE_MODULES.map((guide) => ({
             id: guide.id,
@@ -137,13 +135,14 @@ export default function ExerciseGuidesPage() {
             summary: guide.summary,
             bodyRegion: guide.bodyRegion,
             searchAliases: guide.searchAliases,
+            supervision: getExerciseGuideSupervision(guide),
             image: {
               src: guide.images[0].src,
               alt: guide.images[0].alt,
             },
           }))}
         />
-      </main>
+      </div>
     </>
   )
 }

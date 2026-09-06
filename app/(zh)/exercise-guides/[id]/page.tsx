@@ -5,6 +5,7 @@ import Breadcrumbs from '@/components/Breadcrumbs'
 import ExerciseGuideAnalytics from '@/components/ExerciseGuideAnalytics'
 import ExerciseGuideModuleCard from '@/components/ExerciseGuideModuleCard'
 import { EXERCISE_GUIDE_MODULES, getExerciseGuideById } from '@/lib/exercise-guides'
+import { getRelatedExerciseGuides } from '@/lib/exercise-guide-related'
 import { generateBreadcrumbSchema, generateExerciseGuideSchema } from '@/lib/schema'
 
 const BASE_URL = 'https://camsavant.com'
@@ -22,11 +23,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const guide = getExerciseGuideById(id)
   if (!guide) return {}
 
-  const category = guide.kind === 'relaxation' ? '放鬆運動' : '研究運動'
   const url = `/exercise-guides/${guide.id}`
 
   return {
-    title: `${guide.selectionLabel}｜${category}圖解`,
+    title: guide.title,
     description: guide.summary,
     alternates: { canonical: url },
     openGraph: {
@@ -50,9 +50,11 @@ export default async function ExerciseGuideDetailPage({ params }: Props) {
 
   const category = guide.kind === 'relaxation' ? '放鬆運動' : '研究運動'
   const pageUrl = `${BASE_URL}/exercise-guides/${guide.id}`
-  const relatedGuides = EXERCISE_GUIDE_MODULES.filter(
-    (item) => item.kind === guide.kind && item.id !== guide.id
-  ).slice(0, guide.kind === 'condition' ? 8 : 4)
+  const relatedGuides = getRelatedExerciseGuides(
+    guide,
+    EXERCISE_GUIDE_MODULES,
+    guide.kind === 'condition' ? 8 : 4
+  )
 
   const pageSchema = generateExerciseGuideSchema(guide)
 
@@ -94,13 +96,15 @@ export default async function ExerciseGuideDetailPage({ params }: Props) {
               {category}
             </span>
             <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
-              {guide.kind === 'relaxation' ? `部位：${guide.selectionLabel}` : `適應證：${guide.selectionLabel}`}
+              {guide.kind === 'relaxation'
+                ? `部位：${guide.selectionLabel}`
+                : `適合情況：${guide.selectionLabel}`}
             </span>
           </div>
         </div>
       </div>
 
-      <main>
+      <div>
         <ExerciseGuideModuleCard guide={guide} asPage />
 
         <section className="ExerciseGuideRelated border-t border-neutral-200 bg-neutral-50 py-12 dark:border-neutral-800 dark:bg-neutral-950 md:py-16">
@@ -111,7 +115,7 @@ export default async function ExerciseGuideDetailPage({ params }: Props) {
                   {category}
                 </p>
                 <h2 className="mt-2 text-2xl font-bold text-neutral-950 dark:text-neutral-100">
-                  選擇其他{guide.kind === 'relaxation' ? '部位' : '適應證'}
+                  選擇其他{guide.kind === 'relaxation' ? '部位' : '適合情況'}
                 </h2>
               </div>
               <Link
@@ -140,7 +144,7 @@ export default async function ExerciseGuideDetailPage({ params }: Props) {
             </div>
           </div>
         </section>
-      </main>
+      </div>
     </>
   )
 }

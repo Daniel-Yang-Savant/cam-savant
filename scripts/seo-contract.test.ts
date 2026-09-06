@@ -7,6 +7,7 @@ import {
 import {
   EXERCISE_GUIDE_MODULES,
   getExerciseGuideFollowUp,
+  getExerciseGuideSupervision,
 } from '../lib/exercise-guides'
 import { AUTHORS } from '../lib/authors'
 
@@ -44,6 +45,11 @@ test('every exercise guide has a reassessment rule and indexable URL', () => {
   for (const guide of EXERCISE_GUIDE_MODULES) {
     assert.ok(getExerciseGuideFollowUp(guide).length > 0)
     assert.ok(guide.id.length > 0)
+
+    if (guide.kind === 'condition') {
+      assert.doesNotMatch(getExerciseGuideFollowUp(guide), /規律執行 2–4 週/)
+      assert.notEqual(getExerciseGuideSupervision(guide), 'self-guided')
+    }
   }
 
   const handGuide = EXERCISE_GUIDE_MODULES.find((guide) => guide.id === 'hand-forearm-reset')
@@ -71,7 +77,7 @@ test('doctor clinic CTA uses the canonical locations path and photo dimensions',
   assert.equal(author.photoHeight, 1032)
 })
 
-test('exercise guide schema links MedicalWebPage, reviewer, and HowTo steps', () => {
+test('exercise guide schema links MedicalWebPage, reviewer, and ExercisePlan parts', () => {
   const guide = EXERCISE_GUIDE_MODULES.find(
     (item) => item.id === 'neck-shoulder-reset'
   )
@@ -79,20 +85,77 @@ test('exercise guide schema links MedicalWebPage, reviewer, and HowTo steps', ()
 
   const schema = generateExerciseGuideSchema(guide)
   const webPage = schema['@graph'][0]
-  const howTo = schema['@graph'][1] as {
+  const exercisePlan = schema['@graph'][1] as {
     '@type': string
     '@id': string
-    totalTime?: string
-    step: { url: string }[]
+    activityDuration?: string
+    activityFrequency: string
+    hasPart: { url: string }[]
   }
 
   assert.equal(webPage['@type'], 'MedicalWebPage')
+  assert.equal(webPage.datePublished, '2026-08-31')
+  assert.equal(webPage.dateModified, '2026-09-06')
   assert.equal(webPage.lastReviewed, '2026-09-05')
   assert.equal(webPage.reviewedBy.name, '楊育愷')
   assert.equal(webPage.reviewedBy.affiliation.name, '彰化基督教醫院復健醫學部')
-  assert.equal(webPage.mainEntity['@id'], howTo['@id'])
-  assert.equal(howTo['@type'], 'HowTo')
-  assert.equal(howTo.totalTime, 'PT60S')
-  assert.equal(howTo.step.length, guide.images.length)
-  assert.equal(howTo.step[0].url, 'https://camsavant.com/exercise-guides/neck-shoulder-reset#step-1')
+  assert.equal(webPage.mainEntity['@id'], exercisePlan['@id'])
+  assert.equal(exercisePlan['@type'], 'ExercisePlan')
+  assert.equal(exercisePlan.activityDuration, 'PT60S')
+  assert.equal(exercisePlan.activityFrequency, guide.dosage)
+  assert.equal(exercisePlan.hasPart.length, guide.images.length)
+  assert.equal(exercisePlan.hasPart[0].url, 'https://camsavant.com/exercise-guides/neck-shoulder-reset#step-1')
+})
+
+test('condition guide schema never infers a programme duration from prose', () => {
+  const guide = EXERCISE_GUIDE_MODULES.find(
+    (item) => item.id === 'achilles-rupture-early-loading-rct'
+  )
+  assert.ok(guide)
+
+  const schema = generateExerciseGuideSchema(guide)
+  const exercisePlan = schema['@graph'][1] as {
+    '@type': string
+    activityDuration?: string
+  }
+
+  assert.equal(exercisePlan['@type'], 'ExercisePlan')
+  assert.equal(exercisePlan.activityDuration, undefined)
+})
+
+test('verified exercise-guide corrections remain attached to their sources', () => {
+  const byId = (id: string) => {
+    const guide = EXERCISE_GUIDE_MODULES.find((item) => item.id === id)
+    assert.ok(guide)
+    return guide
+  }
+
+  const cardioOncology = byId('cardio-oncology-core-rct')
+  assert.equal(cardioOncology.selectionLabel, '腫瘤心臟復健')
+  assert.match(cardioOncology.sources[0].label, /Viamonte.*JAMA Cardiol\. 2023/)
+  assert.doesNotMatch(cardioOncology.sources[0].label, /Circulation/)
+
+  const thumbCombo = byId('thumb-oa-combo-rct')
+  assert.match(thumbCombo.dosage, /1% 雙氯芬酸鈉凝膠/)
+  assert.match(thumbCombo.sources[0].label, /^Deveza/)
+
+  const trio = byId('tka-trio-targeted-rct')
+  assert.match(trio.dosage, /18 次運動/)
+  assert.match(trio.sources[0].label, /^Hamilton/)
+
+  const lungCancer = byId('lung-cancer-exercise-rct')
+  assert.match(lungCancer.suitableFor, /完成所有根治性治療後 1 年至未滿 10 年/)
+  assert.doesNotMatch(lungCancer.suitableFor, /正在穩定治療/)
+
+  const postpartum = byId('postpartum-dra-rct')
+  assert.match(postpartum.suitableFor, /72 小時內/)
+
+  const plantar = byId('plantar-fascia-high-load-rct')
+  assert.match(plantar.eyebrow, /^2015 /)
+
+  const neckSupport = byId('neck-shoulder-reset')
+  assert.match(neckSupport.images[0].alt, /雙手輕放於穩定桌面/)
+
+  const deepNeck = byId('deep-cervical-flexor-rct')
+  assert.match(deepNeck.sources[0].label, /^Suvarnnato/)
 })

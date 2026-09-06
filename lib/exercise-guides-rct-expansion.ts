@@ -10,7 +10,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '足踝',
     searchAliases: ['腳踝扭傷', '翻船', '拐到腳', '踝腫', '走路腳踝痛'],
     theme: 'orange',
-    eyebrow: '16 · 2025 隨機對照試驗',
+    eyebrow: '2025 隨機對照試驗',
     title: '第一、二級踝扭傷：4 週結構化居家運動',
     summary: '一般照護之外加入每日踝部活動、足趾控制、提踵與平衡進階，4 週功能改善較大。研究用視訊管理，但比較重點是「有沒有加入完整運動方案」，不是遠距與門診是否等效。',
     images: [
@@ -48,7 +48,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '足踝',
     searchAliases: ['跟腱斷裂', '阿基里斯腱斷裂', '小腿後方斷裂', '非手術跟腱', '術後負重'],
     theme: 'teal',
-    eyebrow: '17 · 2022 隨機對照試驗',
+    eyebrow: '2022 隨機對照試驗',
     title: '非手術治療阿基里斯腱斷裂：早期可控張力負荷',
     summary: '研究在保護固定下，從第 3 週加入可量化的足踝踩踏負荷，改變了癒合肌腱的結構與彈性；這不是自行提前脫靴或做站姿提踵的依據。',
     images: [
@@ -86,8 +86,8 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '髖膝與大腿',
     searchAliases: ['大腿後側拉傷', '腿後肌受傷', 'hamstring', '跑步拉傷', '衝刺拉傷'],
     theme: 'violet',
-    eyebrow: '18 · 2013 隨機對照試驗',
-    title: '急性腿後肌拉傷：漸進敏捷穩定 vs 跑步離心進階',
+    eyebrow: '2013 隨機對照試驗',
+    title: '急性腿後肌拉傷：漸進敏捷穩定與跑步離心進階比較',
     summary: '兩套三階段主動復健都讓運動員逐步回到跑步與高速動作；研究沒有證明其中一套明顯更快，重點是依症狀與功能標準漸進。',
     images: [
       {
@@ -124,7 +124,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '髖膝與大腿',
     searchAliases: ['鼠蹊痛', '腹股溝痛', '內收肌', '哥本哈根運動', '足球傷害預防'],
     theme: 'blue',
-    eyebrow: '19 · 2022 群集隨機對照試驗',
+    eyebrow: '2022 群集隨機對照試驗',
     title: '高中足球員：哥本哈根內收＋北歐腿後肌預防方案',
     summary: '16 週把內收肌與腿後肌離心訓練放入球隊課表，受傷與缺席天數較一般訓練少；成果來自完整球隊方案，不是單做一個動作。',
     images: [
@@ -162,7 +162,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '髖膝與大腿',
     searchAliases: ['ACL 術後', '前十字韌帶手術', '膝韌帶重建', '回場', '跳躍復健'],
     theme: 'green',
-    eyebrow: '20 · 2025 隨機對照試驗',
+    eyebrow: '2025 隨機對照試驗',
     title: 'ACL 重建術後：達標才進階的客觀標準復健',
     summary: '相較以時間為主的一般復健，依腫脹、活動度、力量與功能測試達標後才進到跑跳的方案，在 6 與 12 個月有較好的跳躍表現。',
     images: [
@@ -200,7 +200,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '脊椎與軀幹',
     searchAliases: ['脊椎側彎', '青少年側彎', 'Schroth', 'Cobb 角', '高低肩'],
     theme: 'orange',
-    eyebrow: '21 · 2016 隨機對照試驗',
+    eyebrow: '2016 隨機對照試驗',
     title: '青少年脊柱側彎：Schroth 專項運動加上標準照護',
     summary: '由受訓治療師依曲線型態設定三維自我矯正、呼吸與姿勢耐力，6 個月的 Cobb 角結果優於只接受標準照護。',
     images: [
@@ -238,7 +238,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '足踝',
     searchAliases: ['足底筋膜炎', '腳跟痛', '下床第一步痛', '足底痛', '提踵'],
     theme: 'teal',
-    eyebrow: '22 · 2014 隨機對照試驗',
+    eyebrow: '2015 隨機對照試驗',
     title: '足底筋膜病變：墊毛巾的單腳高負荷提踵',
     summary: '鞋墊之外，每隔一天做慢速、漸進加重的單腳提踵，3 個月功能改善快於每日伸展；6–12 個月差異則不再明顯。',
     images: [
@@ -264,7 +264,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     audience: '適用於已確認的慢性足底筋膜病變；急性足底撕裂、骨折、神經病變或無法安全單腳承重者不適用。',
     sources: [
       {
-        label: 'Rathleff et al. High-load strength training improves outcome in patients with plantar fasciitis: RCT. 2014.',
+        label: 'Rathleff et al. High-load Strength Training Improves Outcome in Patients With Plantar Fasciitis: RCT. Scand J Med Sci Sports. 2015.',
         href: 'https://pubmed.ncbi.nlm.nih.gov/25145882/',
       },
     ],
@@ -276,7 +276,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '上肢與手部',
     searchAliases: ['手腕骨折', '橈骨骨折術後', '手腕鋼板', '腕部活動', '跌倒手撐地'],
     theme: 'violet',
-    eyebrow: '23 · 2019 隨機對照試驗',
+    eyebrow: '2019 隨機對照試驗',
     title: '腕骨折鋼板固定後：早期主動活動與居家運動',
     summary: '術後第 2–3 天拆副木並接受較密集物理治療，長期功能沒有優於固定 2 週後做相同居家運動；研究支持安全時機，也提醒增加門診次數不必然更好。',
     images: [
@@ -314,7 +314,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '上肢與手部',
     searchAliases: ['手麻', '夜間手麻', '腕隧道', '正中神經', '拇指食指麻'],
     theme: 'blue',
-    eyebrow: '24 · 2021 隨機對照試驗',
+    eyebrow: '2021 隨機對照試驗',
     title: '輕度腕隧道：護具之外加入肌腱與神經滑動',
     summary: '兩組都使用中立位護具；額外加入 6 週滑動運動，並沒有顯示更好的組間結果。這篇保留的是「運動加值有限」的負向 RCT，不把常見動作包裝成必然有效。',
     images: [
@@ -352,7 +352,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '上肢與手部',
     searchAliases: ['網球肘', '手肘外側痛', '拿東西肘痛', '前臂痛', '手腕伸肌'],
     theme: 'green',
-    eyebrow: '25 · 2010 隨機對照試驗',
+    eyebrow: '2010 隨機對照試驗',
     title: '慢性網球肘：彈性扭力棒手腕伸肌離心訓練',
     summary: '在標準物理治療之外加入手腕伸肌離心扭轉，疼痛、功能與力量改善幅度較大；但試驗只有 21 人，效果大小不宜直接當成一般預測。',
     images: [
@@ -390,7 +390,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '脊椎與軀幹',
     searchAliases: ['腰痛', '下背痛', '久坐腰痠', '核心運動', '鳥狗式'],
     theme: 'orange',
-    eyebrow: '26 · 2019 隨機對照試驗',
+    eyebrow: '2019 隨機對照試驗',
     title: '慢性下背痛：6 週個別化穩定運動與步行',
     summary: '四組主動運動後活動痛都下降；步行與穩定運動也改善部分軀幹耐力。研究沒有證明只有核心運動有效，規律可持續的主動方案同樣重要。',
     images: [
@@ -428,7 +428,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '髖膝與大腿',
     searchAliases: ['髖退化', '髖關節痛', '鼠蹊痛', '走路髖痛', '髖關節炎'],
     theme: 'teal',
-    eyebrow: '27 · 2014 隨機對照試驗',
+    eyebrow: '2014 隨機對照試驗',
     title: '髖骨關節炎：12 週髖部肌力、平衡與活動方案',
     summary: '每週團體課加每週兩次居家練習，相較不治療與安慰性超音波，可減少髖痛並改善功能；一般健康相關生活品質則沒有明顯差異。',
     images: [
@@ -466,7 +466,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '脊椎與軀幹',
     searchAliases: ['老人駝背', '高齡駝背', '胸椎後凸', '姿勢訓練', '背伸肌'],
     theme: 'violet',
-    eyebrow: '28 · 2017 隨機對照試驗',
+    eyebrow: '2017 隨機對照試驗',
     title: '高齡過度後凸：6 個月脊柱肌力與姿勢訓練',
     summary: '每週三次、以脊柱伸展肌力與姿勢控制為核心的團體訓練，相較健康教育可小幅改善 Cobb 角與自我形象；整體身體功能沒有明顯組間差異。',
     images: [
@@ -504,7 +504,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '足踝',
     searchAliases: ['糖尿病足', '腳麻', '足部感覺差', '周邊神經病變', '糖尿病腳部運動'],
     theme: 'blue',
-    eyebrow: '29 · 2022 隨機對照試驗',
+    eyebrow: '2022 隨機對照試驗',
     title: '糖尿病周邊神經病變：12 週足踝運動方案',
     summary: '一般照護之外加入足趾、踝部肌力與平衡訓練，可改善快速步行速度、踝活動與震動感覺；日常步數、症狀與腳趾力量不一定跟著改善。',
     images: [
@@ -542,7 +542,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '上肢與手部',
     searchAliases: ['乳癌術後', '肩膀活動受限', '手臂抬不起來', '腋下緊', 'PROSPER'],
     theme: 'green',
-    eyebrow: '30 · 2021 隨機對照試驗',
+    eyebrow: '2021 隨機對照試驗',
     title: '乳癌手術後：PROSPER 漸進肩活動與肌力方案',
     summary: '高風險女性在術後 7–10 天開始由物理治療師帶領、逐步從活動度進到阻力訓練，12 個月肩臂功能與疼痛優於一般照護，且未增加淋巴水腫。',
     images: [
@@ -580,7 +580,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '全身與神經',
     searchAliases: ['跌倒', '防跌', '長者平衡', '走路不穩', 'Otago'],
     theme: 'orange',
-    eyebrow: '31 · 2019 隨機對照試驗',
+    eyebrow: '2019 隨機對照試驗',
     title: '曾跌倒高齡者：12 個月 Otago 居家肌力與平衡',
     summary: '物理治療師個別調整的居家肌力、平衡與步行計畫，相較老年醫療一般照護，可降低 12 個月內跌倒發生率。',
     images: [
@@ -618,7 +618,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '上肢與手部',
     searchAliases: ['類風濕手痛', '手指僵硬', '手部無力', '關節炎手部', 'SARAH'],
     theme: 'teal',
-    eyebrow: '32 · 2015 隨機對照試驗',
+    eyebrow: '2015 隨機對照試驗',
     title: '類風濕性關節炎：SARAH 漸進手部伸展與肌力',
     summary: '穩定藥物治療之外加入治療師量身調整的手部伸展與漸進肌力，12 個月手部功能較佳；延長追蹤時差異縮小，遵從性是重要限制。',
     images: [
@@ -660,7 +660,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '頭頸與下顎',
     searchAliases: ['顳顎關節', '下巴痛', '張口痛', '嘴巴打不開', '咬東西痛'],
     theme: 'violet',
-    eyebrow: '33 · 2022 隨機對照試驗',
+    eyebrow: '2022 隨機對照試驗',
     title: '疼痛性顳顎障礙：8 週主動張口運動',
     summary: '兩組每天練習張口；在專業指導下做到疼痛邊緣的輔助組，最大張口幅度改善較大，但也較難執行。本站圖解只呈現安全的主動版本，不建議自行強推下顎。',
     images: [
@@ -698,7 +698,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '足踝',
     searchAliases: ['阿基里斯腱痛', '跟腱痛', '小腿後方痛', '跑步跟腱痛', '離心提踵'],
     theme: 'blue',
-    eyebrow: '34 · 2007 隨機對照試驗',
+    eyebrow: '2007 隨機對照試驗',
     title: '慢性中段阿基里斯腱病變：12 週漸進離心提踵',
     summary: '相較等待觀察，12 週漸進離心負荷在 4 個月時有較好的 VISA-A、疼痛與自評恢復；這篇直接測試運動負荷效果，不是服務方式的不劣性研究。',
     images: [
@@ -736,7 +736,7 @@ export const EXPANDED_RCT_GUIDES: ExerciseGuideModule[] = [
     bodyRegion: '全身與神經',
     searchAliases: ['巴金森', '帕金森', '平衡不好', '走路不穩', '太極'],
     theme: 'green',
-    eyebrow: '35 · 2012 隨機對照試驗',
+    eyebrow: '2012 隨機對照試驗',
     title: '輕中度巴金森病：24 週太極姿勢與重心訓練',
     summary: '每週兩次監督太極，相較阻力與伸展，可改善極限穩定與方向控制；跌倒次數低於伸展組，但沒有證明一定優於阻力訓練。',
     images: [

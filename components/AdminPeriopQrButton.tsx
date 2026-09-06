@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
+import { useAdminSession } from '@/components/AdminSessionProvider'
 
 type QrAccess = {
   url: string
@@ -16,28 +17,13 @@ function secondsUntil(expiresAt: string): number {
 }
 
 export default function AdminPeriopQrButton({ locale = 'zh' }: { locale?: 'zh' | 'en' }) {
-  const [authenticated, setAuthenticated] = useState(false)
+  const { authenticated } = useAdminSession()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [qrAccess, setQrAccess] = useState<QrAccess | null>(null)
   const [remainingSeconds, setRemainingSeconds] = useState(0)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    fetch('/api/admin/session', {
-      cache: 'no-store',
-      signal: controller.signal,
-    })
-      .then((response) => {
-        if (response.ok) setAuthenticated(true)
-      })
-      .catch(() => {})
-
-    return () => controller.abort()
-  }, [])
 
   const generateQr = useCallback(async () => {
     setLoading(true)

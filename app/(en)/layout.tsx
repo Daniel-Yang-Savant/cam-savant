@@ -7,6 +7,7 @@ import Footer from '@/components/Footer'
 import FloatingChatButton from '@/components/FloatingChatButton'
 import BackToTop from '@/components/BackToTop'
 import AdminPeriopQrButton from '@/components/AdminPeriopQrButton'
+import { AdminSessionProvider } from '@/components/AdminSessionProvider'
 
 const BASE_URL = 'https://camsavant.com'
 
@@ -113,13 +114,15 @@ export default function EnglishRootLayout({ children }: { children: React.ReactN
     });
   }
 ` }} />
-        <Navbar locale="en" />
-        <main className="flex-1">{children}</main>
-        <Footer locale="en" />
-        <FloatingChatButton locale="en" />
-        <AdminPeriopQrButton locale="en" />
-        <BackToTop locale="en" />
-        <Analytics />
+        <AdminSessionProvider>
+          <Navbar locale="en" />
+          <main className="flex-1">{children}</main>
+          <Footer locale="en" />
+          <FloatingChatButton locale="en" />
+          <AdminPeriopQrButton locale="en" />
+          <BackToTop locale="en" />
+          <Analytics />
+        </AdminSessionProvider>
       </body>
     </html>
   )

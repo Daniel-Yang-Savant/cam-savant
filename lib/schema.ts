@@ -2,7 +2,10 @@ const BASE_URL = 'https://camsavant.com'
 
 import { getAuthor, type Author } from './authors'
 import { EXERCISE_GUIDE_REVIEW } from './exercise-guide-review'
-import type { ExerciseGuideModule } from './exercise-guides'
+import {
+  getExerciseGuideFollowUp,
+  type ExerciseGuideModule,
+} from './exercise-guides'
 
 // ── Physician schema（E-E-A-T：含認證、服務機構、頭像、@id） ──────────────
 
@@ -103,7 +106,7 @@ export function generateArticleSchema(post: {
   }
 }
 
-// ── Exercise guide MedicalWebPage + HowTo schema ─────────────────────────
+// ── Exercise guide MedicalWebPage + ExercisePlan schema ──────────────────
 
 function parseStepDuration(step: string): string | undefined {
   const seconds = step.match(/^(\d+)\s*秒$/)
@@ -111,19 +114,6 @@ function parseStepDuration(step: string): string | undefined {
 
   const minutes = step.match(/^(\d+)\s*分鐘$/)
   return minutes ? `PT${minutes[1]}M` : undefined
-}
-
-function parseGuideDuration(text: string): string | undefined {
-  const months = text.match(/(\d+)(?:[–-](\d+))?\s*個月/)
-  if (months) return `P${months[2] ?? months[1]}M`
-
-  const weeks = text.match(/(\d+)(?:[–-](\d+))?\s*週/)
-  if (weeks) return `P${weeks[2] ?? weeks[1]}W`
-
-  const minutes = text.match(/(\d+)(?:[–-](\d+))?\s*分鐘/)
-  if (minutes) return `PT${minutes[2] ?? minutes[1]}M`
-
-  return undefined
 }
 
 export function generateExerciseGuideSchema(guide: ExerciseGuideModule) {
@@ -142,9 +132,7 @@ export function generateExerciseGuideSchema(guide: ExerciseGuideModule) {
         return sum + Number(match?.[1] ?? 0) * 60 + Number(match?.[2] ?? 0)
       }, 0)
     : 0
-  const totalTime = totalSeconds > 0
-    ? `PT${totalSeconds}S`
-    : parseGuideDuration(guide.dosage)
+  const activityDuration = totalSeconds > 0 ? `PT${totalSeconds}S` : undefined
 
   return {
     '@context': 'https://schema.org',
@@ -156,7 +144,8 @@ export function generateExerciseGuideSchema(guide: ExerciseGuideModule) {
         description: guide.summary,
         url: pageUrl,
         inLanguage: 'zh-TW',
-        dateModified: EXERCISE_GUIDE_REVIEW.date,
+        datePublished: EXERCISE_GUIDE_REVIEW.publishedDate,
+        dateModified: EXERCISE_GUIDE_REVIEW.modifiedDate,
         lastReviewed: EXERCISE_GUIDE_REVIEW.date,
         reviewedBy: reviewer,
         author: reviewer,
@@ -178,20 +167,37 @@ export function generateExerciseGuideSchema(guide: ExerciseGuideModule) {
         },
         primaryImageOfPage: `${BASE_URL}${guide.images[0].src}`,
         citation: guide.sources.map((source) => source.href),
-        mainEntity: { '@id': `${pageUrl}#howto` },
+        mainEntity: { '@id': `${pageUrl}#exercise-plan` },
       },
       {
-        '@type': 'HowTo',
-        '@id': `${pageUrl}#howto`,
+        '@type': 'ExercisePlan',
+        '@id': `${pageUrl}#exercise-plan`,
         name: guide.title,
-        description: `${guide.summary} 劑量：${guide.dosage}`,
-        ...(totalTime ? { totalTime } : {}),
-        image: guide.images.map((image) => `${BASE_URL}${image.src}`),
-        step: guide.images.map((image, index) => ({
-          '@type': 'HowToStep',
+        description: guide.summary,
+        exerciseType: guide.kind === 'condition'
+          ? guide.selectionLabel
+          : `${guide.selectionLabel}放鬆運動`,
+        activityFrequency: guide.dosage,
+        ...(activityDuration ? { activityDuration } : {}),
+        intensity: guide.cue,
+        additionalVariable: `降階方式：${guide.regression}；重新評估：${getExerciseGuideFollowUp(guide)}`,
+        audience: {
+          '@type': 'MedicalAudience',
+          audienceType: 'Patient',
+        },
+        citation: guide.sources.map((source) => source.href),
+        image: guide.images.map((image) => ({
+          '@type': 'ImageObject',
+          url: `${BASE_URL}${image.src}`,
+          width: image.width ?? 418,
+          height: image.height ?? 941,
+          caption: image.alt,
+        })),
+        hasPart: guide.images.map((image, index) => ({
+          '@type': 'CreativeWork',
           position: index + 1,
           name: image.caption,
-          text: `${image.step}：${image.caption}`,
+          description: `${image.step}：${image.caption}`,
           url: `${pageUrl}#step-${index + 1}`,
           image: {
             '@type': 'ImageObject',

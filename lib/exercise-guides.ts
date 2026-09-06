@@ -3,6 +3,10 @@ import { RECENT_RCT_GUIDES } from './exercise-guides-rct-2016-2026'
 
 export type ExerciseGuideTheme = 'orange' | 'teal' | 'violet' | 'blue' | 'green'
 export type ExerciseGuideKind = 'relaxation' | 'condition'
+export type ExerciseGuideSupervision =
+  | 'self-guided'
+  | 'professional-guidance'
+  | 'medical-team'
 export type ExerciseGuideBodyRegion =
   | '頭頸與下顎'
   | '上肢與手部'
@@ -60,39 +64,39 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     kind: 'relaxation',
     selectionLabel: '頸肩',
     theme: 'orange',
-    eyebrow: '01 · 工作中的短舒緩',
+    eyebrow: '工作中的短舒緩',
     title: '頸肩 60 秒：先卸載，再小幅活動',
     summary: '先讓手臂與肩膀有支撐，再用舒服的小幅動作改變固定姿勢。目標不是把頸部拉到最緊。',
     images: [
       {
         src: `${IMAGE_ROOT}/neck-1-support.webp`,
-        alt: '前臂支撐在穩定桌面，肩膀放鬆',
+        alt: '站姿雙手輕放於穩定桌面，閉眼放鬆肩膀',
         step: '15 秒',
-        caption: '前臂支撐，肩膀放下',
+        caption: '雙手輕放桌面，肩膀放下',
       },
       {
         src: `${IMAGE_ROOT}/neck-2-nod.webp`,
-        alt: '從坐姿站起後，以站姿做小幅點頭動作',
+        alt: '站姿做小幅點頭動作',
         step: '15 秒',
         caption: '小幅點頭，不硬縮下巴',
       },
       {
         src: `${IMAGE_ROOT}/neck-3-scapula.webp`,
-        alt: '從坐姿站起後，以站姿輕收肩胛且不聳肩',
+        alt: '站姿輕收肩胛且不聳肩',
         step: '15 秒',
         caption: '肩胛輕收，不聳肩',
       },
       {
         src: `${IMAGE_ROOT}/neck-4-turn.webp`,
-        alt: '從坐姿站起後，以站姿將頭轉向舒服的角度',
+        alt: '站姿將頭轉向舒服的角度',
         step: '15 秒',
         caption: '左右轉到舒服範圍',
       },
     ],
     suitableFor: '久坐、久站、精細工作或使用螢幕後，出現一般頸肩緊繃或疲勞感，且沒有近期外傷、暈眩或手臂神經症狀。已知頸椎不穩定、類風濕性關節炎、唐氏症、近期鞭甩傷或頸椎術後者不適用。',
-    dosage: '四個動作各 15 秒，完成一輪即可；先坐姿支撐前臂，接著站起來完成後三個動作。可在工作任務切換後使用。',
+    dosage: '四個動作各 15 秒，完成一輪即可；先以站姿將雙手輕放在穩定桌面，放下肩膀，接著站姿完成後三個動作。可在工作任務切換後使用。',
     cue: '幅度小、呼吸自然，做完應感覺比較容易活動，而不是更痛。',
-    regression: '先只做前臂支撐與舒服範圍內的左右轉頭；坐姿也可以。',
+    regression: '站姿不穩時，可改成坐姿前臂支撐，只保留舒服範圍內的小幅點頭或左右轉頭。',
     followUp: '規律做 2–4 週若活動或工作功能沒有改善，症狀反覆惡化，或需要持續增加止痛藥物，請安排評估。',
     signals: {
       green: '一般吃力或輕微緊繃，動作後維持穩定或較舒服。',
@@ -117,7 +121,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     kind: 'relaxation',
     selectionLabel: '手與前臂',
     theme: 'teal',
-    eyebrow: '02 · 手部負荷重置',
+    eyebrow: '手部負荷重置',
     title: '手與前臂 60 秒：放開、甩鬆、支撐、小幅活動',
     summary: '這組只處理工作後的一般肌肉疲勞。若有夜間麻醒、持續麻刺或握力下降，不要靠加大伸展處理。',
     images: [
@@ -171,7 +175,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     kind: 'relaxation',
     selectionLabel: '下肢',
     theme: 'violet',
-    eyebrow: '03 · 久站久坐換負荷',
+    eyebrow: '久站久坐換負荷',
     title: '下肢 80 秒：踝泵、提踵、踏步、坐站',
     summary: '用四個簡單動作讓久站或久坐變成動態。這不是平衡測驗，站立動作都先找到穩固支撐。',
     images: [
@@ -225,7 +229,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     kind: 'relaxation',
     selectionLabel: '下背與核心',
     theme: 'blue',
-    eyebrow: '04 · 漸進軀幹訓練',
+    eyebrow: '漸進軀幹訓練',
     title: '下背 4–6 分鐘：腳跟點地、鳥狗式、橋式',
     summary: '三個動作是可調整的起步選項，不是保護脊椎的唯一方法。先追求控制與隔天恢復，再逐步增加。',
     images: [
@@ -283,7 +287,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     kind: 'relaxation',
     selectionLabel: '全身與呼吸',
     theme: 'green',
-    eyebrow: '05 · 壓力與疲勞降速',
+    eyebrow: '壓力與疲勞降速',
     title: '3 分鐘降速：慢吐氣＋漸進式放鬆',
     summary: '用輕微收縮與較慢吐氣降低當下的生理喚起。這是短暫調節工具，不等於治療倦怠或焦慮症。',
     images: [
@@ -354,7 +358,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     bodyRegion: '頭頸與下顎',
     searchAliases: ['頸痛', '脖子痛', '肩頸痠痛', '深層頸屈肌', '點頭運動'],
     theme: 'orange',
-    eyebrow: '06 · 2019 隨機對照試驗',
+    eyebrow: '2019 隨機對照試驗',
     title: '深層頸屈肌：6 週低負荷點頭訓練',
     summary: '研究先用壓力回饋確認動作，再練習像輕輕說「是」的小幅點頭。重點是頭不離開支撐、表層頸肌不搶著出力。',
     images: [
@@ -396,7 +400,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     audience: '適用於經評估的慢性機械性頸痛成人；不能直接外推到急性頸痛、神經根病變、鞭甩傷或頸椎術後。',
     sources: [
       {
-        label: 'Chotiyarnwong et al. Specific deep cervical muscle exercises for chronic mechanical neck pain: RCT. J Pain Res. 2019.',
+        label: 'Suvarnnato et al. Effect of Specific Deep Cervical Muscle Exercises on Chronic Mechanical Neck Pain: RCT. J Pain Res. 2019.',
         href: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6411318/',
       },
     ],
@@ -408,7 +412,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     bodyRegion: '足踝',
     searchAliases: ['腳踝不穩', '反覆扭傷', '拐到腳', '足弓', '短足運動'],
     theme: 'teal',
-    eyebrow: '07 · 2019 隨機對照試驗',
+    eyebrow: '2019 隨機對照試驗',
     title: '足弓短足運動：8 週本體感覺與平衡訓練',
     summary: '把大拇趾球往腳跟方向輕收，讓足弓變短、變高，但腳趾保持平貼不抓地。先坐姿學會，再進階承重。',
     images: [
@@ -462,7 +466,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     bodyRegion: '上肢與手部',
     searchAliases: ['肩痛', '肩夾擠', '旋轉肌', '肩外旋', '抬手痛'],
     theme: 'violet',
-    eyebrow: '08 · 2020 隨機對照試驗',
+    eyebrow: '2020 隨機對照試驗',
     title: '肩外旋肌力：8 週彈力帶訓練',
     summary: '上臂貼近身體、手肘彎曲，雙手慢慢把彈力帶拉開再控制回來。研究測試的是高訓練量方案，不是只做幾下就一定有效。',
     images: [
@@ -516,7 +520,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     bodyRegion: '髖膝與大腿',
     searchAliases: ['膝蓋下方痛', '跳躍膝', '髕腱炎', '膝肌腱', '落地膝痛'],
     theme: 'blue',
-    eyebrow: '09 · 2021 隨機對照試驗',
+    eyebrow: '2021 隨機對照試驗',
     title: '髕腱漸進負荷：四階段回到運動',
     summary: '從等長、慢速動態、能量儲存到運動專項逐階增加。這是給已確診髕腱病變運動者的完整復健架構，不是膝痛都能直接套用。',
     images: [
@@ -578,7 +582,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     bodyRegion: '髖膝與大腿',
     searchAliases: ['臀部外側痛', '大轉子疼痛', '側躺痛', '髖外側痛', '臀肌腱'],
     theme: 'green',
-    eyebrow: '10 · 2018 LEAP 隨機對照試驗',
+    eyebrow: '2018 LEAP 隨機對照試驗',
     title: '臀肌腱負荷：8 週教育＋運動方案',
     summary: '先減少壓迫臀肌腱的姿勢，再用等長、橋式、蹲與側向負荷逐步增加能力。療效來自教育與個別化運動的組合，不是某一個動作。',
     images: [
@@ -644,7 +648,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     bodyRegion: '髖膝與大腿',
     searchAliases: ['前膝痛', '上下樓膝痛', '跑者膝', '髕骨痛', '蹲下膝痛'],
     theme: 'orange',
-    eyebrow: '11 · 2024 隨機對照試驗',
+    eyebrow: '2024 隨機對照試驗',
     title: '髕股疼痛：4 週髖膝肌力＋動作控制',
     summary: '研究把髖膝肌力與四種階梯動作放在即時視訊監督的完整方案中；重點是骨盆、膝蓋與腳掌的控制，不是硬把膝蓋推向某個位置。',
     images: [
@@ -706,7 +710,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     bodyRegion: '髖膝與大腿',
     searchAliases: ['膝退化', '退化性關節炎', '膝痛', '坐站困難', '走路膝痛'],
     theme: 'teal',
-    eyebrow: '12 · 2025 隨機臨床試驗',
+    eyebrow: '2025 隨機臨床試驗',
     title: '膝骨關節炎：12 週漸進下肢肌力',
     summary: '大型試驗比較完整瑜伽與完整下肢強化方案；本頁呈現強化組手冊中的四個代表動作，並保留研究沒有證明單一動作療效的限制。',
     images: [
@@ -768,7 +772,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     bodyRegion: '足踝',
     searchAliases: ['後腳跟痛', '腳跟後方痛', '止點跟腱', '阿基里斯腱痛', '提踵痛'],
     theme: 'violet',
-    eyebrow: '13 · 2025 隨機對照試驗',
+    eyebrow: '2025 隨機對照試驗',
     title: '跟腱止點病變：低壓迫四階段負荷',
     summary: '從等長、等張、能量儲存到跑跳逐階增加，但全程限制深度背屈、避免小腿伸展並配合鞋內墊高；這與中段跟腱病變的處方不同。',
     images: [
@@ -830,7 +834,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     bodyRegion: '脊椎與軀幹',
     searchAliases: ['駝背', '青少年駝背', '胸椎後凸', '圓背', 'Scheuermann'],
     theme: 'blue',
-    eyebrow: '14 · 2019 隨機對照試驗',
+    eyebrow: '2019 隨機對照試驗',
     title: 'Scheuermann 胸椎後凸：個別化 Schroth 訓練',
     summary: '論文的五種姿勢都需要依個別後凸型態調整延伸、呼吸與支撐；本頁只呈現研究流程，不提供可以自行套用的矯正方向。',
     images: [
@@ -892,7 +896,7 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
     bodyRegion: '上肢與手部',
     searchAliases: ['拇指痛', '虎口痛', '拇指關節退化', '手部退化', '捏東西痛'],
     theme: 'green',
-    eyebrow: '15 · 2022 隨機對照試驗',
+    eyebrow: '2022 隨機對照試驗',
     title: '拇指根部骨關節炎：4 週位置覺訓練',
     summary: '先由治療師示範舒服的拇指位置，再主動重現與用小物做精細控制；研究支持位置覺與部分功能改善，但沒有證明長期疼痛會額外下降。',
     images: [
@@ -947,10 +951,41 @@ export function getExerciseGuideById(id: string): ExerciseGuideModule | undefine
   return EXERCISE_GUIDE_MODULES.find((guide) => guide.id === id)
 }
 
+const MEDICAL_TEAM_GUIDE_IDS = new Set([
+  'acute-ankle-sprain-exercise-rct',
+  'achilles-rupture-early-loading-rct',
+  'acute-hamstring-rehab-rct',
+  'acl-criteria-rehab-rct',
+  'distal-radius-early-motion-rct',
+  'breast-cancer-prosper-rct',
+  'shoulder-dislocation-sinex-rct',
+  'reverse-shoulder-early-active-rct',
+  'vertebral-fracture-home-rct',
+  'tka-high-intensity-rct',
+  'tka-trio-targeted-rct',
+  'diabetic-neuropathy-foot-ankle-rct',
+  'stroke-virtual-arm-rct',
+  'concussion-aerobic-rct',
+  'pad-lite-walking-rct',
+  'copd-rehab-duration-rct',
+  'lung-cancer-exercise-rct',
+  'cardio-oncology-core-rct',
+  'postpartum-dra-rct',
+])
+
+export function getExerciseGuideSupervision(
+  guide: ExerciseGuideModule
+): ExerciseGuideSupervision {
+  if (guide.kind === 'relaxation') return 'self-guided'
+  return MEDICAL_TEAM_GUIDE_IDS.has(guide.id)
+    ? 'medical-team'
+    : 'professional-guidance'
+}
+
 export function getExerciseGuideFollowUp(guide: ExerciseGuideModule): string {
   if (guide.followUp) return guide.followUp
 
   return guide.kind === 'condition'
-    ? '規律執行 2–4 週若功能沒有任何改善、症狀持續惡化，或需要增加止痛藥物，請安排專業評估；已有治療計畫者依原回診時程。'
+    ? '若症狀尚未經專業評估、近期明顯惡化、日常功能持續下降，或運動後反應無法回到原本程度，請停止自行加量並安排評估；術後、骨折、神經、心肺或癌症相關情況，應依原醫療團隊安排回診與調整運動，不以固定「做滿幾週」取代追蹤。'
     : '規律做 2–4 週若日常功能沒有改善、症狀反覆惡化，或需要增加止痛藥物，請安排專業評估。'
 }

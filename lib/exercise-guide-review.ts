@@ -1,4 +1,6 @@
 export const EXERCISE_GUIDE_REVIEW = {
+  publishedDate: '2026-08-31',
+  modifiedDate: '2026-09-06',
   date: '2026-09-05',
   reviewerKey: '楊育愷醫師',
   reviewerName: '楊育愷醫師',

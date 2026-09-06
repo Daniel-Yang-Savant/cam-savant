@@ -7,6 +7,7 @@ import Footer from '@/components/Footer'
 import FloatingChatButton from '@/components/FloatingChatButton'
 import BackToTop from '@/components/BackToTop'
 import AdminPeriopQrButton from '@/components/AdminPeriopQrButton'
+import { AdminSessionProvider } from '@/components/AdminSessionProvider'
 
 const BASE_URL = 'https://camsavant.com'
 
@@ -272,13 +273,15 @@ export default function RootLayout({
     });
   }
 ` }} />
-        <Navbar locale="zh" />
-        <main className="flex-1">{children}</main>
-        <Footer locale="zh" />
-        <FloatingChatButton locale="zh" />
-        <AdminPeriopQrButton />
-        <BackToTop locale="zh" />
-        <Analytics />
+        <AdminSessionProvider>
+          <Navbar locale="zh" />
+          <main className="flex-1">{children}</main>
+          <Footer locale="zh" />
+          <FloatingChatButton locale="zh" />
+          <AdminPeriopQrButton />
+          <BackToTop locale="zh" />
+          <Analytics />
+        </AdminSessionProvider>
       </body>
     </html>
   )
