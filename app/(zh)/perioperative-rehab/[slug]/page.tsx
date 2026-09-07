@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import ArticleReview from '@/components/ArticleReview'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { MDXRemote } from 'next-mdx-remote/rsc'
@@ -171,6 +172,7 @@ export default async function PerioperativeRehabArticlePage({ params }: Props) {
                   術後復健
                 </span>
               </div>
+              <ArticleReview metadata={frontmatter} locale="zh" />
             </header>
 
             {/* ── Medical disclaimer ── */}

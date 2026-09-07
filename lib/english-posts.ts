@@ -2,10 +2,13 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import { z } from 'zod'
+import { contentReviewFields, validateContentReview } from './content-review'
+import { AUTHORS } from './authors'
 
 const englishPostsDirectory = path.join(process.cwd(), 'content', 'posts-en')
 
 const EnglishPostFrontmatterSchema = z.object({
+  ...contentReviewFields,
   title: z.string().min(1),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   author: z.string().optional(),
@@ -16,7 +19,7 @@ const EnglishPostFrontmatterSchema = z.object({
   translationOf: z.string().min(1),
   draft: z.boolean().optional().default(false),
   lastModified: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-})
+}).superRefine(validateContentReview)
 
 export type EnglishPostFrontmatter = z.infer<typeof EnglishPostFrontmatterSchema>
 
@@ -39,7 +42,10 @@ function readEnglishPost(fileName: string): EnglishPost {
     throw new Error(`\n[English frontmatter validation failed] content/posts-en/${fileName}\n${issues}\n`)
   }
 
-  return { slug, frontmatter: result.data, content }
+  const author = result.data.author
+  const authorKey = Object.keys(AUTHORS).find((key) => key === author || AUTHORS[key].nameEn === author)
+  if (author && !authorKey) throw new Error(`Unknown English article author: ${author}`)
+  return { slug, frontmatter: { ...result.data, author: authorKey }, content }
 }
 
 export function getAllEnglishPosts(): EnglishPost[] {

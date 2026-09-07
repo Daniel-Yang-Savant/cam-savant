@@ -14,9 +14,10 @@ const BASE_URL = 'https://camsavant.com'
 
 /** 內容幾乎不變的頁面用固定日期（避免每次部署都宣稱有更新，Google 會不信任 lastmod） */
 const STATIC_PAGE_DATE = new Date('2026-07-18')
-const TEAM_PAGE_DATE = new Date('2026-07-26')
+// Physician profiles and doctor-specific clinic information updated together.
+const TEAM_PAGE_DATE = new Date('2026-09-07')
 const ENGLISH_SITE_DATE = new Date('2026-08-01')
-const EXERCISE_GUIDES_DATE = new Date(EXERCISE_GUIDE_REVIEW.date)
+const EXERCISE_GUIDES_DATE = new Date(EXERCISE_GUIDE_REVIEW.modifiedDate)
 
 function languageAlternates(zhPath: string, enPath = `/en${zhPath === '/' ? '' : zhPath}`) {
   return {
@@ -79,7 +80,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const alternates = languageAlternates(zhPath, enPath)
     return [
       { url: `${BASE_URL}${zhPath}`, lastModified: TEAM_PAGE_DATE, changeFrequency: 'monthly' as const, priority: 0.7, alternates },
-      { url: `${BASE_URL}${enPath}`, lastModified: ENGLISH_SITE_DATE, changeFrequency: 'monthly' as const, priority: 0.7, alternates },
+      { url: `${BASE_URL}${enPath}`, lastModified: TEAM_PAGE_DATE, changeFrequency: 'monthly' as const, priority: 0.7, alternates },
     ]
   })
 
@@ -89,7 +90,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const alternates = languageAlternates(zhPath, enPath)
     return [
       { url: `${BASE_URL}${zhPath}`, lastModified: TEAM_PAGE_DATE, changeFrequency: 'monthly' as const, priority: 0.8, alternates },
-      { url: `${BASE_URL}${enPath}`, lastModified: ENGLISH_SITE_DATE, changeFrequency: 'monthly' as const, priority: 0.8, alternates },
+      { url: `${BASE_URL}${enPath}`, lastModified: TEAM_PAGE_DATE, changeFrequency: 'monthly' as const, priority: 0.8, alternates },
     ]
   })
 
@@ -117,7 +118,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${BASE_URL}/en/about`,
-      lastModified: ENGLISH_SITE_DATE,
+      lastModified: TEAM_PAGE_DATE,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
       alternates: languageAlternates('/about'),
@@ -131,7 +132,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${BASE_URL}/en/locations`,
-      lastModified: ENGLISH_SITE_DATE,
+      lastModified: TEAM_PAGE_DATE,
       changeFrequency: 'monthly' as const,
       priority: 0.8,
       alternates: languageAlternates('/locations'),
@@ -145,7 +146,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${BASE_URL}/en/contact/wen-wei-lai`,
-      lastModified: ENGLISH_SITE_DATE,
+      lastModified: TEAM_PAGE_DATE,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
       alternates: languageAlternates('/contact/wen-wei-lai'),

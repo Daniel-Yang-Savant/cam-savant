@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { TEAM } from '@/lib/authors'
 import { englishAlternates } from '@/lib/locales'
+import { generateOrganizationSchema } from '@/lib/schema'
 
 export const metadata: Metadata = {
   title: 'Medical Team',
@@ -17,23 +18,7 @@ export const metadata: Metadata = {
 }
 
 export default function EnglishAboutPage() {
-  const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'MedicalOrganization',
-    name: 'CAM Savant',
-    url: 'https://camsavant.com/en',
-    inLanguage: 'en',
-    member: TEAM.map((doctor) => ({
-      '@type': 'Physician',
-      name: doctor.nameEn,
-      alternateName: doctor.name,
-      jobTitle: doctor.titleEn,
-      url: `https://camsavant.com/en/doctors/${doctor.slug}`,
-      image: `https://camsavant.com${doctor.photo}`,
-      knowsAbout: doctor.specialtiesEn,
-      sameAs: doctor.sameAs,
-    })),
-  }
+  const schema = generateOrganizationSchema('en')
 
   return (
     <div className="min-h-screen bg-[#f5f0e8] dark:bg-neutral-900">

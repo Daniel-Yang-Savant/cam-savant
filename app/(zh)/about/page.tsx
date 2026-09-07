@@ -5,12 +5,12 @@ import { bilingualAlternates } from '@/lib/locales'
 
 export const metadata: Metadata = {
   title: '醫師團隊',
-  description: 'CAM Savant 團隊成員——楊育愷醫師（復健科）、楊育彰醫師（家庭醫學科）、賴玟衛醫師及黃雅琦醫師，服務彰化、南投、台中、雲林地區。',
+  description: `認識 CAM Savant 醫師團隊：${TEAM.map((author) => `${author.name}醫師`).join('、')}。查看各醫師專長、官方介紹、學術著作與個人看診資訊。`,
   alternates: bilingualAlternates('/about'),
 }
 
 import { TEAM } from '@/lib/authors'
-import { generatePhysicianSchema } from '@/lib/schema'
+import { generateOrganizationSchema } from '@/lib/schema'
 
 const team = TEAM
 
@@ -39,13 +39,7 @@ function MapPin() {
 // ── Page ───────────────────────────────────────────────────────────────────
 
 export default function AboutPage() {
-  const orgSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'MedicalOrganization',
-    name: 'CAM Savant',
-    url: 'https://camsavant.com',
-    member: team.map((m) => generatePhysicianSchema(m)),
-  }
+  const orgSchema = generateOrganizationSchema('zh')
 
   return (
     <div className="min-h-screen bg-[#f5f0e8] dark:bg-neutral-900">

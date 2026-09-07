@@ -33,7 +33,12 @@ export interface Author {
     citation: string
     url: string
   }[]
-  sameAs?: string[]
+  /** 可見的官方身分來源；schema 的 sameAs 也由這份資料產生。 */
+  profileSources?: {
+    label: string
+    labelEn: string
+    url: string
+  }[]
   contactPath?: string
 }
 
@@ -47,6 +52,8 @@ export const AUTHORS: Record<string, Author> = {
     photoHeight: 1032,
     title: '復健科專科醫師／主治醫師',
     titleEn: 'Board-Certified Physiatrist and Attending Physician',
+    bio: '楊育愷醫師為復健科專科醫師，於彰化、南投及二林基督教醫院看診，現任南投基督教醫院復健科主任。臨床專長包括運動傷害、肌肉骨骼超音波檢查與導引注射。',
+    bioEn: 'Dr. Yu-Kai Yang is a board-certified physiatrist who sees patients at Changhua, Nantou, and Erlin Christian Hospitals and serves as Director of Rehabilitation Medicine at Nantou Christian Hospital. His clinical areas include sports injuries, musculoskeletal ultrasound, and ultrasound-guided injections.',
     location: '彰化縣・南投縣',
     locationEn: 'Changhua County · Nantou County, Taiwan',
     specialties: ['增生療法', 'PRP治療', '運動醫學', '骨質疏鬆', '超音波導引注射', 'FSM'],
@@ -84,12 +91,24 @@ export const AUTHORS: Record<string, Author> = {
         url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11122293/',
       },
     ],
-    sameAs: [
-      'https://dpt.cch.org.tw/layout/layout_1/doctor.aspx?ID=1400&Key=11334',
-      'https://ny.cch.org.tw/doctor_1_detial.aspx?cID=65&key=1400',
-      'https://www.toa1997.org.tw/orthopedist/?n=%E6%A5%8A%E8%82%B2%E6%84%B7',
+    profileSources: [
+      {
+        label: '彰化基督教醫院｜楊育愷醫師介紹',
+        labelEn: 'Changhua Christian Hospital — physician profile',
+        url: 'https://dpt.cch.org.tw/layout/layout_1/doctor.aspx?ID=1400&Key=11334',
+      },
+      {
+        label: '南投基督教醫院｜復健科醫師介紹',
+        labelEn: 'Nantou Christian Hospital — rehabilitation physicians',
+        url: 'https://ny.cch.org.tw/doctor_1_detial.aspx?cID=65&key=1400',
+      },
+      {
+        label: '中華民國骨質疏鬆症學會｜楊育愷專科醫師名錄',
+        labelEn: 'Taiwanese Osteoporosis Association — specialist directory',
+        url: 'https://www.toa1997.org.tw/orthopedist/?n=%E6%A5%8A%E8%82%B2%E6%84%B7',
+      },
     ],
-    contactPath: '/locations',
+    contactPath: '/doctors/yu-kai-yang#clinics',
   },
   '楊育彰醫師': {
     slug: 'yu-chang-yang',
@@ -134,9 +153,17 @@ export const AUTHORS: Record<string, Author> = {
         url: 'https://journals.sagepub.com/eprint/7ZFHSP9BGBVHBAYHDHJS/full',
       },
     ],
-    sameAs: [
-      'https://www.abeauty-hf.com.tw/member.php?act=view&id=49',
-      'https://drglowbeauty.com.tw/%e6%a5%8a%e8%82%b2%e5%bd%b0%e9%86%ab%e5%b8%ab',
+    profileSources: [
+      {
+        label: '樂菲整形外科集團｜楊育彰醫師介紹',
+        labelEn: 'ABeauty Plastic Surgery Group — physician profile',
+        url: 'https://www.abeauty-hf.com.tw/member.php?act=view&id=49',
+      },
+      {
+        label: '存奕美學診所｜楊育彰醫師介紹',
+        labelEn: 'Glow Beauty Clinic — physician profile',
+        url: 'https://drglowbeauty.com.tw/%e6%a5%8a%e8%82%b2%e5%bd%b0%e9%86%ab%e5%b8%ab',
+      },
     ],
   },
   '賴玟衛醫師': {
@@ -153,9 +180,16 @@ export const AUTHORS: Record<string, Author> = {
     affiliation: '彰化基督教醫院、漢銘基督教醫院、員林基督教醫院',
     specialties: ['復健醫學'],
     specialtiesEn: ['Physical Medicine and Rehabilitation'],
-    credentials: ['骨鬆醫學會會員', '增生醫學會會員'],
-    credentialsEn: ['Member, Taiwanese Osteoporosis Association', 'Member, Taiwan Association of Prolotherapy and Regenerative Medicine'],
-    contactPath: '/contact/wen-wei-lai',
+    credentials: ['中華民國骨質疏鬆症學會準會員', '台灣增生療法醫學會會員'],
+    credentialsEn: ['Associate Member, Taiwanese Osteoporosis Association', 'Member, Taiwan Association of Prolotherapy and Regenerative Medicine'],
+    profileSources: [
+      {
+        label: '漢銘基督教醫院｜復健科醫師介紹',
+        labelEn: 'Hanming Christian Hospital — rehabilitation physicians',
+        url: 'https://hm.cch.org.tw/doctor_1_detial.aspx?cID=65&key=1400',
+      },
+    ],
+    contactPath: '/doctors/wen-wei-lai#clinics',
   },
   '黃雅琦醫師': {
     slug: 'huang-yachi',

@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { CLINIC_LOCATIONS } from '@/lib/locations'
+import { getClinicDoctors } from '@/lib/doctor-clinics'
+import { getAuthorEntryBySlug } from '@/lib/authors'
 import { englishAlternates } from '@/lib/locales'
 import { TrackedAnchor, TrackedInternalLink } from '@/components/TrackedLink'
 
@@ -49,7 +51,7 @@ export default function EnglishLocationsPage() {
         <span className="text-xs font-semibold tracking-widest uppercase text-neutral-500">Clinic Locations</span>
         <h1 className="mt-2 text-3xl md:text-4xl font-bold text-neutral-950 dark:text-neutral-100">Locations and Appointments</h1>
         <p className="mt-3 text-neutral-500 dark:text-neutral-400 max-w-2xl leading-relaxed">
-          Browse rehabilitation locations by area. Each location page includes its address, phone number, transportation details, and official appointment link.
+          Browse each physician’s clinic locations, schedules, official appointment links, and source check dates. Open a location for transport information and schedule notes.
         </p>
       </header>
 
@@ -81,7 +83,23 @@ export default function EnglishLocationsPage() {
                       <dt className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Phone</dt>
                       <dd className="mt-1"><a href={clinic.phoneHref} className="hover:text-neutral-950 dark:hover:text-neutral-100">{clinic.phone}</a></dd>
                     </dl>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="space-y-4 rounded-xl border border-neutral-100 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-800">
+                      {getClinicDoctors(clinic.slug).map((record) => {
+                        const doctor = getAuthorEntryBySlug(record.doctorSlug)?.author
+                        if (!doctor) return null
+                        return (
+                          <div key={record.doctorSlug} className="text-sm">
+                            <Link href={`/en/doctors/${doctor.slug}#clinics`} className="font-semibold text-neutral-950 hover:underline dark:text-neutral-100">{doctor.nameEn}</Link>
+                            <p className="mt-1 text-xs leading-6 text-neutral-600 dark:text-neutral-300">{record.scheduleEn.join(" · ")}</p>
+                            <a href={record.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-neutral-500 hover:underline dark:text-neutral-400">{record.checkedAt ? `Source checked: ${record.checkedAt}` : "Not yet checked"}{record.verificationStatus === "pending" ? " · schedule unresolved" : ""} ↗</a>
+                            <p className="mt-1 text-xs leading-6 text-neutral-500 dark:text-neutral-400">{record.noteEn}</p>
+                            <TrackedAnchor href={record.bookingUrl} target="_blank" rel="noopener noreferrer" eventName="booking_clicked" eventProperties={{ locale: 'en', placement: 'locations_index_doctor', clinic_slug: clinic.slug }} className="mt-2 block text-xs font-semibold text-accent-700 hover:underline dark:text-accent-400">Official appointments: select {doctor.name} ↗</TrackedAnchor>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <TrackedInternalLink
                         href={`/en/locations/${clinic.slug}`}
                         eventName="location_opened"
@@ -90,16 +108,6 @@ export default function EnglishLocationsPage() {
                       >
                         Details
                       </TrackedInternalLink>
-                      <TrackedAnchor
-                        href={clinic.bookingUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        eventName="booking_clicked"
-                        eventProperties={{ locale: 'en', placement: 'locations_index', clinic_slug: clinic.slug }}
-                        className="text-center text-xs font-semibold py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-200"
-                      >
-                        Appointment ↗
-                      </TrackedAnchor>
                       <TrackedAnchor
                         href={clinic.mapUrl}
                         target="_blank"

@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { CLINIC_LOCATIONS } from '@/lib/locations'
+import { getClinicDoctors } from '@/lib/doctor-clinics'
+import { getAuthorEntryBySlug } from '@/lib/authors'
 import { bilingualAlternates } from '@/lib/locales'
 import { TrackedAnchor, TrackedInternalLink } from '@/components/TrackedLink'
 
@@ -62,7 +64,7 @@ export default function LocationsPage() {
           看診資訊
         </h1>
         <p className="mt-3 text-neutral-500 dark:text-neutral-400 max-w-xl leading-relaxed">
-          依地區查看團隊成員目前服務的復健科院所。各院區頁面提供地址、電話、交通方式與官方掛號連結。
+          依醫師與院區查看門診時段、官方掛號入口及資料核對日期。院區詳情另提供交通方式、門診異動與約診注意事項。
         </p>
       </header>
 
@@ -109,7 +111,23 @@ export default function LocationsPage() {
                       </li>
                     </ul>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="space-y-4 rounded-xl border border-neutral-100 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-800">
+                      {getClinicDoctors(clinic.slug).map((record) => {
+                        const doctor = getAuthorEntryBySlug(record.doctorSlug)?.author
+                        if (!doctor) return null
+                        return (
+                          <div key={record.doctorSlug} className="text-sm">
+                            <Link href={`/doctors/${doctor.slug}#clinics`} className="font-semibold text-neutral-950 hover:underline dark:text-neutral-100">{doctor.name}醫師</Link>
+                            <p className="mt-1 text-xs leading-6 text-neutral-600 dark:text-neutral-300">{record.schedule.join("、")}</p>
+                            <a href={record.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-neutral-500 hover:underline dark:text-neutral-400">{record.checkedAt ? `資料核對：${record.checkedAt}` : "尚未核對"}{record.verificationStatus === "pending" ? "・時段尚未確認" : ""} ↗</a>
+                            <p className="mt-1 text-xs leading-6 text-neutral-500 dark:text-neutral-400">{record.note}</p>
+                            <TrackedAnchor href={record.bookingUrl} target="_blank" rel="noopener noreferrer" eventName="booking_clicked" eventProperties={{ locale: 'zh-TW', placement: 'locations_index_doctor', clinic_slug: clinic.slug }} className="mt-2 block text-xs font-semibold text-accent-700 hover:underline dark:text-accent-400">官方掛號：請選擇「{doctor.name}」↗</TrackedAnchor>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <TrackedInternalLink
                         href={`/locations/${clinic.slug}`}
                         eventName="location_opened"
@@ -118,16 +136,6 @@ export default function LocationsPage() {
                       >
                         院區詳情
                       </TrackedInternalLink>
-                      <TrackedAnchor
-                        href={clinic.bookingUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        eventName="booking_clicked"
-                        eventProperties={{ locale: 'zh-TW', placement: 'locations_index', clinic_slug: clinic.slug }}
-                        className="text-center text-xs font-semibold py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-200 hover:border-neutral-950 dark:hover:border-neutral-100 transition-colors"
-                      >
-                        預約掛號
-                      </TrackedAnchor>
                       <TrackedAnchor
                         href={clinic.mapUrl}
                         target="_blank"

@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import { z } from 'zod'
+import { contentReviewFields, validateContentReview } from './content-review'
 import { CATEGORY_KEYS, CATEGORY_LABELS, CATEGORY_DESCRIPTIONS } from '@/lib/category'
 import {
   TAG_INDEX_MIN_POSTS,
@@ -18,6 +19,7 @@ const postsDirectory = path.join(process.cwd(), 'content', 'posts')
 // ── Schema ─────────────────────────────────────────────────────────────────
 
 const PostFrontmatterSchema = z.object({
+  ...contentReviewFields,
   title: z.string().min(1, 'title 不可為空'),
   date: z
     .string()
@@ -45,7 +47,7 @@ const PostFrontmatterSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'lastModified 格式須為 YYYY-MM-DD')
     .optional(),
-})
+}).superRefine(validateContentReview)
 
 // ── Types ──────────────────────────────────────────────────────────────────
 

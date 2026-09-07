@@ -1,6 +1,9 @@
 const BASE_URL = 'https://camsavant.com'
 
-import { getAuthor, type Author } from './authors'
+import { getAuthor, TEAM, type Author } from './authors'
+import { getContentReview, type ContentReviewMetadata } from './content-review'
+import { getDoctorClinics } from './doctor-clinics'
+import { getClinicLocation } from './locations'
 import { EXERCISE_GUIDE_REVIEW } from './exercise-guide-review'
 import {
   getExerciseGuideFollowUp,
@@ -9,16 +12,34 @@ import {
 
 // ── Physician schema（E-E-A-T：含認證、服務機構、頭像、@id） ──────────────
 
-export function generatePhysicianSchema(author: Author) {
+export function generatePhysicianSchema(author: Author, locale: 'zh' | 'en' = 'zh') {
+  const english = locale === 'en'
+  const clinics = getDoctorClinics(author.slug).flatMap((entry) => {
+    const clinic = getClinicLocation(entry.clinicSlug)
+    return clinic ? [clinic] : []
+  })
+  const credentials = english ? author.credentialsEn : author.credentials
+  const specialties = english ? author.specialtiesEn : author.specialties
+  const sources = author.profileSources?.map((source) => source.url) ?? []
   return {
     '@type': 'Physician',
     '@id': `${BASE_URL}/doctors/${author.slug}#physician`,
-    name: author.name,
-    alternateName: author.nameEn,
-    jobTitle: author.title,
+    name: english ? author.nameEn : author.name,
+    alternateName: english ? author.name : author.nameEn,
+    jobTitle: english ? author.titleEn : author.title,
     image: `${BASE_URL}${author.photo}`,
-    url: `${BASE_URL}/doctors/${author.slug}`,
-    ...(author.affiliation
+    url: `${BASE_URL}${english ? '/en' : ''}/doctors/${author.slug}`,
+    ...(clinics.length
+      ? {
+          affiliation: clinics.map((clinic) => ({
+            '@type': 'Hospital',
+            '@id': `${clinic.officialUrl}#hospital`,
+            name: english ? clinic.hospitalEn : clinic.hospital,
+            url: clinic.officialUrl,
+          })),
+          areaServed: [...new Set(clinics.map((clinic) => clinic.addressRegion))],
+        }
+      : author.affiliation
       ? {
           affiliation: {
             '@type': 'MedicalOrganization',
@@ -26,16 +47,32 @@ export function generatePhysicianSchema(author: Author) {
           },
         }
       : {}),
-    ...(author.credentials.length > 0
+    ...(credentials.length > 0
       ? {
-          hasCredential: author.credentials.map((c) => ({
+          hasCredential: credentials.map((c) => ({
             '@type': 'EducationalOccupationalCredential',
             name: c,
           })),
         }
       : {}),
-    ...(author.specialties.length > 0 ? { knowsAbout: author.specialties } : {}),
-    ...(author.sameAs?.length ? { sameAs: author.sameAs } : {}),
+    ...(specialties.length > 0 ? { knowsAbout: specialties } : {}),
+    ...(sources.length ? { sameAs: sources } : {}),
+  }
+}
+
+export function generateOrganizationSchema(locale: 'zh' | 'en' = 'zh') {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'MedicalOrganization',
+    '@id': `${BASE_URL}/#organization`,
+    name: 'CAM Savant',
+    alternateName: ['CAMsavant', 'CAM SAVANT'],
+    description: locale === 'en'
+      ? 'A physician-led medical education platform covering rehabilitation medicine, sports medicine, and family medicine.'
+      : '由醫師團隊主筆的醫療衛教知識平台，涵蓋復健醫學、運動醫學與家庭醫學。',
+    url: `${BASE_URL}${locale === 'en' ? '/en' : ''}`,
+    logo: { '@type': 'ImageObject', url: `${BASE_URL}/images/logo.png` },
+    member: TEAM.map((author) => generatePhysicianSchema(author, locale)),
   }
 }
 
@@ -52,7 +89,7 @@ const SPECIALTY_MAP: Record<string, string> = {
 
 // ── MedicalWebPage schema ──────────────────────────────────────────────────
 
-export function generateArticleSchema(post: {
+export function generateArticleSchema(post: ContentReviewMetadata & {
   title: string
   excerpt: string
   date: string
@@ -64,6 +101,7 @@ export function generateArticleSchema(post: {
 }) {
   const authorDetails = getAuthor(post.author)
   const articleUrl = `${BASE_URL}/posts/${post.slug}`
+  const review = getContentReview(post)
 
   return {
     '@context': 'https://schema.org',
@@ -79,7 +117,10 @@ export function generateArticleSchema(post: {
     },
     datePublished: post.date,
     dateModified: post.lastModified ?? post.date,
-    lastReviewed: post.lastModified ?? post.date,
+    ...(review ? {
+      lastReviewed: review.date,
+      reviewedBy: generatePhysicianSchema(review.reviewer),
+    } : {}),
     inLanguage: 'zh-TW',
     author: generatePhysicianSchema(authorDetails),
     publisher: {
@@ -118,13 +159,7 @@ function parseStepDuration(step: string): string | undefined {
 
 export function generateExerciseGuideSchema(guide: ExerciseGuideModule) {
   const pageUrl = `${BASE_URL}/exercise-guides/${guide.id}`
-  const reviewer = {
-    ...generatePhysicianSchema(getAuthor(EXERCISE_GUIDE_REVIEW.reviewerKey)),
-    affiliation: {
-      '@type': 'Hospital',
-      name: EXERCISE_GUIDE_REVIEW.affiliation,
-    },
-  }
+  const reviewer = generatePhysicianSchema(getAuthor(EXERCISE_GUIDE_REVIEW.reviewerKey))
   const stepDurations = guide.images.map((image) => parseStepDuration(image.step))
   const totalSeconds = stepDurations.every(Boolean)
     ? stepDurations.reduce((sum, duration) => {

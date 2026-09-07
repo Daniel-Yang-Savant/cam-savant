@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { TEAM, getAuthorEntryBySlug } from '@/lib/authors'
 import { englishAlternates } from '@/lib/locales'
+import { generatePhysicianSchema } from '@/lib/schema'
+import { getDoctorClinics } from '@/lib/doctor-clinics'
+import DoctorClinicCards from '@/components/DoctorClinicCards'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -51,6 +54,7 @@ export default async function EnglishDoctorPage({ params }: Props) {
   const entry = getAuthorEntryBySlug(slug)
   if (!entry) notFound()
   const { author } = entry
+  const hasClinics = getDoctorClinics(author.slug).length > 0
   const pageUrl = `https://camsavant.com/en/doctors/${author.slug}`
 
   const schema = {
@@ -60,16 +64,7 @@ export default async function EnglishDoctorPage({ params }: Props) {
     url: pageUrl,
     name: `${author.nameEn} | ${author.titleEn}`,
     inLanguage: 'en',
-    mainEntity: {
-      '@type': 'Physician',
-      name: author.nameEn,
-      alternateName: author.name,
-      jobTitle: author.titleEn,
-      image: `https://camsavant.com${author.photo}`,
-      url: pageUrl,
-      knowsAbout: author.specialtiesEn,
-      sameAs: author.sameAs,
-    },
+    mainEntity: generatePhysicianSchema(author, 'en'),
   }
 
   return (
@@ -99,7 +94,7 @@ export default async function EnglishDoctorPage({ params }: Props) {
                 </div>
               )}
               <div className="mt-7 flex flex-wrap gap-3">
-                {author.contactPath && <Link href={`/en${author.contactPath}`} className="rounded-full bg-neutral-950 dark:bg-neutral-100 px-5 py-2.5 text-sm font-semibold text-white dark:text-neutral-950">Clinic information</Link>}
+                {hasClinics && <Link href="#clinics" className="rounded-full bg-neutral-950 dark:bg-neutral-100 px-5 py-2.5 text-sm font-semibold text-white dark:text-neutral-950">Clinic locations and appointments</Link>}
                 <Link href="/en/about" className="rounded-full border border-neutral-200 dark:border-neutral-600 px-5 py-2.5 text-sm font-semibold text-neutral-600 dark:text-neutral-300">Back to team</Link>
               </div>
             </div>
@@ -110,6 +105,13 @@ export default async function EnglishDoctorPage({ params }: Props) {
           <section className="mt-8 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 p-7 sm:p-9">
             <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">Professional Profile</h2>
             <p className="mt-4 text-sm sm:text-base leading-7 text-neutral-600 dark:text-neutral-300">{author.bioEn}</p>
+          </section>
+        )}
+
+        {hasClinics && (
+          <section id="clinics" className="mt-8 scroll-mt-24" aria-labelledby="clinics-heading">
+            <h2 id="clinics-heading" className="mb-5 text-2xl font-bold text-neutral-900 dark:text-neutral-100">Clinic Locations and Appointments</h2>
+            <DoctorClinicCards doctorSlug={author.slug} locale="en" />
           </section>
         )}
 
@@ -130,6 +132,20 @@ export default async function EnglishDoctorPage({ params }: Props) {
             </section>
           )}
         </div>
+
+        {author.profileSources && author.profileSources.length > 0 && (
+          <section className="mt-8 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 p-7 sm:p-9">
+            <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">Official Profiles and Professional Directories</h2>
+            <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">External sources are in Chinese.</p>
+            <ul className="mt-5 space-y-4">
+              {author.profileSources.map((source) => (
+                <li key={source.url}>
+                  <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold leading-6 text-accent-700 dark:text-accent-400 hover:underline">{source.labelEn} ↗</a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {author.publications && author.publications.length > 0 && (
           <section className="mt-8 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 p-7 sm:p-9">

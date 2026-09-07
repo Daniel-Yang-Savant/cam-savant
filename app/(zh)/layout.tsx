@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { generateOrganizationSchema } from '@/lib/schema'
 import Script from 'next/script'
 import '../globals.css'
 import { Analytics } from '@vercel/analytics/react'
@@ -18,14 +19,14 @@ export const metadata: Metadata = {
     template: '%s | CAM Savant',
   },
   description:
-    '彰化、南投、台中、雲林地區復健科與運動醫學專業團隊，提供增生療法、PRP治療、骨質疏鬆、超音波導引注射、FSM頻率共振微電流與功能醫學服務。',
+    '由醫師團隊主筆的復健醫學、運動醫學與家庭醫學知識平台，提供醫師介紹、醫療衛教與各醫師看診資訊。',
   openGraph: {
     type: 'website',
     locale: 'zh_TW',
     siteName: 'CAM Savant',
     title: 'CAM Savant｜中部復健科・運動醫學・增生療法',
     description:
-      '彰化、南投、台中、雲林地區復健科與運動醫學專業團隊，提供增生療法、PRP治療、骨質疏鬆、超音波導引注射、FSM及功能醫學服務。',
+      '由醫師團隊主筆的醫療衛教知識平台，提供醫師專長、官方資料與各院區看診入口。',
     images: [
       {
         url: '/images/og-default.png',
@@ -44,180 +45,7 @@ export const metadata: Metadata = {
   },
 }
 
-// ── JSON-LD Structured Data ────────────────────────────────────────────────
-
-// 👉 待補：各醫師的權威外部檔案 URL，例如：
-//    - 彰化基督教醫院／南投基督教醫院官網的醫師介紹頁
-//    - Google 商家（Google Business Profile）連結
-//    - 台灣運動醫學醫學會、增生醫學會等學會會員頁
-//    - 官方 Facebook／Instagram 專頁
-// 填入真實網址後，ChatGPT／Gemini／Claude 更容易確認醫師身分並具名推薦。
-// 留空陣列則不會輸出 sameAs（切勿填入非本人的網址）。
-const PHYSICIAN_SAME_AS: Record<string, string[]> = {
-  'yang-yu-kai': [
-    'https://dpt.cch.org.tw/layout/layout_1/doctor.aspx?ID=1400&Key=11334', // 彰化基督教醫院 復健醫學部 醫師介紹
-    'https://ny.cch.org.tw/doctor_1_detial.aspx?cID=65&key=1400', // 南投基督教醫院 醫師介紹
-    'https://www.toa1997.org.tw/orthopedist/?n=%E6%A5%8A%E8%82%B2%E6%84%B7', // 中華民國骨質疏鬆症學會 專科醫師名錄（證號905）
-  ],
-  'yang-yu-chang': [
-    'https://www.abeauty-hf.com.tw/member.php?act=view&id=49', // 樂菲時尚整形外科集團 醫師介紹
-    'https://drglowbeauty.com.tw/%e6%a5%8a%e8%82%b2%e5%bd%b0%e9%86%ab%e5%b8%ab', // 存奕美學診所 醫師介紹
-  ],
-  'lai-wen-wei': [],
-  'huang-ya-chi': [],
-}
-
-// 將字串證照轉為 schema.org 的 EducationalOccupationalCredential
-const cred = (names: string[]) =>
-  names.map((name) => ({
-    '@type': 'EducationalOccupationalCredential',
-    credentialCategory: 'professional certification',
-    name,
-  }))
-
-// 若有外部檔案 URL 才輸出 sameAs
-const sameAs = (key: string) => {
-  const urls = PHYSICIAN_SAME_AS[key] ?? []
-  return urls.length ? { sameAs: urls } : {}
-}
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'MedicalOrganization',
-      '@id': 'https://camsavant.com/#organization',
-      name: 'CAM Savant',
-      alternateName: ['CAMsavant', 'CAM SAVANT'],
-      description:
-        '彰化、南投、台中、雲林地區復健科・運動醫學・增生療法・PRP・FSM專業醫療團隊',
-      url: 'https://camsavant.com',
-      logo: {
-        '@type': 'ImageObject',
-        url: 'https://camsavant.com/images/logo.png',
-        width: 512,
-        height: 512,
-      },
-      address: {
-        '@type': 'PostalAddress',
-        addressCountry: 'TW',
-        addressRegion: '彰化縣',
-        addressLocality: '彰化市',
-      },
-      areaServed: ['彰化縣', '南投縣', '台中市', '雲林縣'],
-      medicalSpecialty: [
-        'PhysicalMedicineAndRehabilitation',
-        'SportsMedicine',
-        'InternalMedicine',
-        'PhysicalTherapy',
-      ],
-      member: [
-        {
-          '@type': 'Physician',
-          '@id': 'https://camsavant.com/doctors/yu-kai-yang#physician',
-          name: '楊育愷',
-          alternateName: 'Yu-Kai Yang, MD',
-          jobTitle: [
-            '復健科專科醫師',
-            '彰化基督教醫院復健醫學部主治醫師',
-            '南投基督教醫院復健科主任',
-            '二林基督教醫院復健醫學科主治醫師',
-          ],
-          areaServed: ['彰化縣', '南投縣'],
-          medicalSpecialty: [
-            'PhysicalMedicineAndRehabilitation',
-            'SportsMedicine',
-          ],
-          affiliation: [
-            {
-              '@type': 'Hospital',
-              name: '彰化基督教醫院',
-              address: {
-                '@type': 'PostalAddress',
-                addressCountry: 'TW',
-                addressRegion: '彰化縣',
-                addressLocality: '彰化市',
-              },
-            },
-            {
-              '@type': 'Hospital',
-              name: '南投基督教醫院',
-              address: {
-                '@type': 'PostalAddress',
-                addressCountry: 'TW',
-                addressRegion: '南投縣',
-                addressLocality: '南投市',
-              },
-            },
-            {
-              '@type': 'Hospital',
-              name: '二林基督教醫院',
-              address: {
-                '@type': 'PostalAddress',
-                addressCountry: 'TW',
-                addressRegion: '彰化縣',
-                addressLocality: '二林鎮',
-              },
-            },
-          ],
-          knowsAbout: ['增生療法', 'PRP治療', '骨質疏鬆', 'FSM頻率共振微電流', '超音波導引注射', '運動傷害'],
-          url: 'https://camsavant.com/doctors/yu-kai-yang',
-          alumniOf: {
-            '@type': 'CollegeOrUniversity',
-            name: '國立陽明大學醫學系',
-          },
-          hasCredential: cred([
-            '復健科專科醫師',
-            '中華民國骨質疏鬆症學會 骨質疏鬆症專科醫師（證號905）',
-            '台灣增生療法醫學會會員',
-            '台灣運動醫學醫學會會員',
-          ]),
-          ...sameAs('yang-yu-kai'),
-        },
-        {
-          '@type': 'Physician',
-          '@id': 'https://camsavant.com/doctors/yu-chang-yang#physician',
-          name: '楊育彰',
-          alternateName: 'Yu-Chang Yang, MD',
-          jobTitle: '家庭醫學科專科醫師',
-          medicalSpecialty: ['FamilyMedicine'],
-          knowsAbout: ['家庭醫學', '肥胖與體重管理', '代謝症候群與慢性病管理', '男性更年期', '骨質疏鬆', '功能與營養醫學', '醫學美容'],
-          url: 'https://camsavant.com/doctors/yu-chang-yang',
-          alumniOf: {
-            '@type': 'CollegeOrUniversity',
-            name: '中山醫學大學醫學系',
-          },
-          hasCredential: cred(['家庭醫學科專科醫師', 'SCOPE 國際肥胖專科認證', '骨質疏鬆專科醫師', '糖尿病衛教師（CDE）認證', '初期慢性腎臟病照護認證']),
-          ...sameAs('yang-yu-chang'),
-        },
-        {
-          '@type': 'Physician',
-          '@id': 'https://camsavant.com/doctors/wen-wei-lai#physician',
-          name: '賴玟衛',
-          alternateName: 'Wen-Wei Lai, MD',
-          jobTitle: '復健科醫師',
-          areaServed: ['彰化縣', '南投縣'],
-          medicalSpecialty: ['PhysicalMedicineAndRehabilitation'],
-          knowsAbout: ['復健醫學', '骨質疏鬆', '增生療法'],
-          url: 'https://camsavant.com/doctors/wen-wei-lai',
-          hasCredential: cred(['骨鬆醫學會會員', '增生醫學會會員']),
-          ...sameAs('lai-wen-wei'),
-        },
-        {
-          '@type': 'Physician',
-          '@id': 'https://camsavant.com/doctors/huang-yachi#physician',
-          name: '黃雅琦',
-          alternateName: 'Ya-Chi Huang, MD',
-          jobTitle: '復健科住院醫師',
-          medicalSpecialty: ['PhysicalMedicineAndRehabilitation'],
-          knowsAbout: ['復健醫學'],
-          url: 'https://camsavant.com/doctors/huang-yachi',
-          ...sameAs('huang-ya-chi'),
-        },
-      ],
-    },
-  ],
-}
+const jsonLd = generateOrganizationSchema('zh')
 
 // ── Root Layout ────────────────────────────────────────────────────────────
 

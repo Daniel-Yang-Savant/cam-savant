@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation'
 import { TEAM, getAuthorEntryBySlug } from '@/lib/authors'
 import { generateBreadcrumbSchema, generatePhysicianSchema } from '@/lib/schema'
 import { bilingualAlternates } from '@/lib/locales'
+import { getDoctorClinics } from '@/lib/doctor-clinics'
+import DoctorClinicCards from '@/components/DoctorClinicCards'
 
 const BASE_URL = 'https://camsavant.com'
 
@@ -56,6 +58,7 @@ export default async function DoctorProfilePage({ params }: Props) {
   if (!entry) notFound()
 
   const { author } = entry
+  const hasClinics = getDoctorClinics(author.slug).length > 0
 
   const profileSchema = {
     '@context': 'https://schema.org',
@@ -63,6 +66,7 @@ export default async function DoctorProfilePage({ params }: Props) {
     '@id': `${BASE_URL}/doctors/${author.slug}#profile`,
     url: `${BASE_URL}/doctors/${author.slug}`,
     name: `${author.name}醫師｜${author.title}`,
+    inLanguage: 'zh-TW',
     mainEntity: generatePhysicianSchema(author),
   }
 
@@ -142,12 +146,12 @@ export default async function DoctorProfilePage({ params }: Props) {
                 )}
 
                 <div className="mt-7 flex flex-wrap gap-3">
-                  {author.contactPath && (
+                  {hasClinics && (
                     <Link
-                      href={author.contactPath}
+                      href="#clinics"
                       className="inline-flex items-center rounded-full bg-neutral-950 dark:bg-neutral-100 px-5 py-2.5 text-sm font-semibold text-white dark:text-neutral-950 hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors"
                     >
-                      看診資訊
+                      {author.name}醫師看診資訊
                     </Link>
                   )}
                   <Link
@@ -167,6 +171,15 @@ export default async function DoctorProfilePage({ params }: Props) {
               <p className="mt-4 text-sm sm:text-base leading-7 text-neutral-600 dark:text-neutral-300">
                 {author.bio}
               </p>
+            </section>
+          )}
+
+          {hasClinics && (
+            <section id="clinics" className="mt-8 scroll-mt-24" aria-labelledby="clinics-heading">
+              <h2 id="clinics-heading" className="mb-5 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+                院區與門診
+              </h2>
+              <DoctorClinicCards doctorSlug={author.slug} locale="zh" />
             </section>
           )}
 
@@ -202,6 +215,21 @@ export default async function DoctorProfilePage({ params }: Props) {
               </section>
             )}
           </div>
+
+          {author.profileSources && author.profileSources.length > 0 && (
+            <section className="mt-8 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 p-7 sm:p-9">
+              <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">官方介紹與專業名錄</h2>
+              <ul className="mt-5 space-y-4">
+                {author.profileSources.map((source) => (
+                  <li key={source.url}>
+                    <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold leading-6 text-accent-700 dark:text-accent-400 hover:underline">
+                      {source.label} ↗
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           {author.publications && author.publications.length > 0 && (
             <section className="mt-8 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 p-7 sm:p-9">

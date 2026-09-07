@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import { getAuthorEntryBySlug } from '@/lib/authors'
+import { getClinicDoctors } from '@/lib/doctor-clinics'
+import DoctorClinicCards from '@/components/DoctorClinicCards'
 import { CLINIC_LOCATIONS, getClinicLocation } from '@/lib/locations'
 import { generateBreadcrumbSchema, generatePhysicianSchema } from '@/lib/schema'
 import { bilingualAlternates } from '@/lib/locales'
@@ -64,8 +65,8 @@ export default async function LocationPage({ params }: Props) {
   const location = getClinicLocation(slug)
   if (!location) notFound()
 
-  const doctors = location.doctorSlugs.flatMap((slug) => {
-    const entry = getAuthorEntryBySlug(slug)
+  const doctors = getClinicDoctors(location.slug).flatMap(({ doctorSlug }) => {
+    const entry = getAuthorEntryBySlug(doctorSlug)
     return entry ? [entry.author] : []
   })
   const accent = accentMap[location.color]
@@ -167,34 +168,12 @@ export default async function LocationPage({ params }: Props) {
                       </a>
                     </dd>
                   </div>
-                  <div>
-                    <dt className="text-xs font-semibold tracking-widest uppercase text-neutral-400">現有門診時段</dt>
-                    <dd className="mt-2 flex flex-wrap gap-2">
-                      {location.schedule.map((schedule) => (
-                        <span
-                          key={schedule}
-                          className={`rounded-full px-2.5 py-1 text-xs font-medium ${accent.badge}`}
-                        >
-                          {schedule}
-                        </span>
-                      ))}
-                    </dd>
-                  </div>
                 </dl>
               </div>
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <TrackedAnchor
-                href={location.bookingUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                eventName="booking_clicked"
-                eventProperties={{ locale: 'zh-TW', placement: 'location_header', clinic_slug: location.slug }}
-                className="inline-flex items-center rounded-full bg-neutral-950 dark:bg-neutral-100 px-5 py-2.5 text-sm font-semibold text-white dark:text-neutral-950 hover:bg-neutral-700 dark:hover:bg-neutral-300 transition-colors"
-              >
-                官方線上掛號 ↗
-              </TrackedAnchor>
+              <a href="#doctors" className="inline-flex items-center rounded-full bg-neutral-950 px-5 py-2.5 text-sm font-semibold text-white dark:bg-neutral-100 dark:text-neutral-950">選擇醫師與查看門診 ↓</a>
               <TrackedAnchor
                 href={location.mapUrl}
                 target="_blank"
@@ -215,6 +194,11 @@ export default async function LocationPage({ params }: Props) {
               </a>
             </div>
           </header>
+
+          <section id="doctors" className="mt-8 scroll-mt-24 rounded-2xl border border-neutral-100 bg-white p-7 dark:border-neutral-700 dark:bg-neutral-800 sm:p-8">
+            <h2 className="mb-6 text-2xl font-bold text-neutral-950 dark:text-neutral-100">各醫師門診與官方掛號</h2>
+            <DoctorClinicCards clinicSlug={location.slug} />
+          </section>
 
           <div className="mt-8 grid lg:grid-cols-2 gap-8">
             <section className="rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 p-7 sm:p-8">
@@ -268,45 +252,6 @@ export default async function LocationPage({ params }: Props) {
               </a>
             </section>
           </div>
-
-          <section className="mt-8 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 p-7 sm:p-8">
-            <p className="text-xs font-semibold tracking-widest uppercase text-neutral-400">
-              Physicians
-            </p>
-            <h2 className="mt-2 text-2xl font-bold text-neutral-950 dark:text-neutral-100">
-              看診醫師
-            </h2>
-            <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {doctors.map((doctor) => (
-                <Link
-                  key={doctor.slug}
-                  href={`/doctors/${doctor.slug}`}
-                  className="group flex items-center gap-4 rounded-2xl border border-neutral-100 dark:border-neutral-700 p-4 hover:border-neutral-300 dark:hover:border-neutral-500 transition-colors"
-                >
-                  <div className="relative h-20 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-700">
-                    <Image
-                      src={doctor.photo}
-                      alt={`${doctor.name}醫師`}
-                      fill
-                      className="object-cover object-top"
-                      sizes="64px"
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-neutral-900 dark:text-neutral-100 group-hover:text-accent-700 dark:group-hover:text-accent-400 transition-colors">
-                      {doctor.name} 醫師
-                    </h3>
-                    <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                      {doctor.title}
-                    </p>
-                    <p className="mt-2 text-xs font-medium text-accent-700 dark:text-accent-400">
-                      查看醫師介紹 →
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
 
           <section className="mt-8 rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/60 p-6">
             <h2 className="text-sm font-bold text-neutral-800 dark:text-neutral-200">

@@ -19,14 +19,11 @@ export interface ClinicLocation {
   officialUrl: string
   transportUrl: string
   bookingUrl: string
-  schedule: string[]
-  scheduleEn: string[]
   color: LocationColor
   areaDescription: string
   areaDescriptionEn: string
   transportNotes: string[]
   transportNotesEn: string[]
-  doctorSlugs: string[]
   services: string[]
   servicesEn: string[]
 }
@@ -34,7 +31,7 @@ export interface ClinicLocation {
 /**
  * 團隊服務院區資料的唯一來源。
  * 地址、電話、掛號與交通連結均以各醫院官方網站為準；
- * 門診時段沿用既有網站資料，不在地點頁另行維護。
+ * 各醫師的時段、掛號入口與核對日期統一維護於 doctor-clinics.ts。
  */
 export const CLINIC_LOCATIONS: ClinicLocation[] = [
   {
@@ -56,8 +53,6 @@ export const CLINIC_LOCATIONS: ClinicLocation[] = [
     officialUrl: 'https://www.cch.org.tw/',
     transportUrl: 'https://www.cch.org.tw/about_page.aspx?Id=69',
     bookingUrl: 'https://www1.cch.org.tw/opd/service-e.aspx?id=1400&Page=11&#p',
-    schedule: ['週一 晚上', '週三 下午', '週五 上午'],
-    scheduleEn: ['Monday evening', 'Wednesday afternoon', 'Friday morning'],
     color: 'blue',
     areaDescription:
       '位於彰化市南校街的彰基總院，提供復健醫學、運動傷害與肌肉骨骼疼痛相關評估與治療。',
@@ -73,7 +68,6 @@ export const CLINIC_LOCATIONS: ClinicLocation[] = [
       'Drivers may enter Changhua City from the Changhua Interchange on National Freeway 1 or the Kuaiguan Interchange on Provincial Highway 74.',
       'Parking, shuttle services, and temporary traffic changes are subject to the hospital’s latest announcements.',
     ],
-    doctorSlugs: ['yu-kai-yang', 'wen-wei-lai'],
     services: [
       '復健醫學評估',
       '運動傷害診斷與復健',
@@ -114,8 +108,6 @@ export const CLINIC_LOCATIONS: ClinicLocation[] = [
     officialUrl: 'https://hm.cch.org.tw/',
     transportUrl: 'https://hm.cch.org.tw/about_5.aspx',
     bookingUrl: 'https://opdhm.cch.org.tw/hmrg/opd/service-e.aspx?id=1400&Page=11&#p',
-    schedule: ['週一 上午', '週三 上午'],
-    scheduleEn: ['Monday morning', 'Wednesday morning'],
     color: 'blue',
     areaDescription:
       '位於彰化市中山路一段，提供彰化地區復健醫學、肌肉骨骼超音波與超音波導引注射等門診服務。',
@@ -131,7 +123,6 @@ export const CLINIC_LOCATIONS: ClinicLocation[] = [
       'Bus, shuttle, and parking information may change. Check the hospital’s official transportation page before traveling.',
       'Temporary traffic controls and entrance changes are subject to on-site and official hospital announcements.',
     ],
-    doctorSlugs: ['wen-wei-lai'],
     services: [
       '復健醫學評估',
       '肌肉骨骼超音波',
@@ -162,8 +153,6 @@ export const CLINIC_LOCATIONS: ClinicLocation[] = [
     officialUrl: 'https://bc.cch.org.tw/',
     transportUrl: 'https://bc.cch.org.tw/about_5.aspx',
     bookingUrl: 'https://bc.cch.org.tw/bcrg/opd/service-e.aspx?id=1400&Page=11&#p',
-    schedule: ['週五 下午'],
-    scheduleEn: ['Friday afternoon'],
     color: 'amber',
     areaDescription:
       '位於員林市莒光路，提供員林及鄰近地區復健醫學、肌肉骨骼超音波與超音波導引注射等門診服務。',
@@ -179,7 +168,6 @@ export const CLINIC_LOCATIONS: ClinicLocation[] = [
       'Bus, shuttle, and parking information may change. Check the hospital’s official transportation page before traveling.',
       'Temporary traffic controls and entrance changes are subject to on-site and official hospital announcements.',
     ],
-    doctorSlugs: ['wen-wei-lai'],
     services: [
       '復健醫學評估',
       '肌肉骨骼超音波',
@@ -210,8 +198,6 @@ export const CLINIC_LOCATIONS: ClinicLocation[] = [
     officialUrl: 'https://ny.cch.org.tw/',
     transportUrl: 'https://ny.cch.org.tw/about_5_1.aspx',
     bookingUrl: 'https://ny.cch.org.tw/nyrg/opd/service-e.aspx?id=1400&Page=11&#p',
-    schedule: ['週一 上午', '週四 上午'],
-    scheduleEn: ['Monday morning', 'Thursday morning'],
     color: 'green',
     areaDescription:
       '位於南投市中興路，提供南投地區復健科、運動傷害、疼痛與功能恢復相關門診服務。',
@@ -227,7 +213,6 @@ export const CLINIC_LOCATIONS: ClinicLocation[] = [
       'From Changhua Bus Nantou Station, transfer to a local bus or taxi. Confirm current routes with the bus operator.',
       'The hospital operates a medical shuttle. Check the official transportation page for routes, schedules, and parking information.',
     ],
-    doctorSlugs: ['yu-kai-yang'],
     services: [
       '復健醫學評估',
       '運動傷害診斷與復健',
@@ -268,8 +253,6 @@ export const CLINIC_LOCATIONS: ClinicLocation[] = [
     officialUrl: 'https://erhlin.cch.org.tw/',
     transportUrl: 'https://www.cch.org.tw/about_page.aspx?Id=69',
     bookingUrl: 'https://erhlin.cch.org.tw/20rg/opd/service-e.aspx?id=1400&Page=11&#p',
-    schedule: ['週三 上午'],
-    scheduleEn: ['Wednesday morning'],
     color: 'amber',
     areaDescription:
       '位於二林鎮大成路一段，服務南彰化地區的復健醫學、運動傷害、疼痛與功能恢復需求。',
@@ -285,7 +268,6 @@ export const CLINIC_LOCATIONS: ClinicLocation[] = [
       'Hospital shuttle schedules may change; check the latest official notice before traveling.',
       'Parking, shuttle arrangements, and temporary access routes are subject to on-site and official hospital announcements.',
     ],
-    doctorSlugs: ['yu-kai-yang'],
     services: [
       '復健醫學評估',
       '運動傷害診斷與復健',

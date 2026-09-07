@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getAuthorEntryBySlug } from '@/lib/authors'
+import { getClinicDoctors } from '@/lib/doctor-clinics'
+import DoctorClinicCards from '@/components/DoctorClinicCards'
 import { CLINIC_LOCATIONS, getClinicLocation } from '@/lib/locations'
 import { englishAlternates } from '@/lib/locales'
+import { generatePhysicianSchema } from '@/lib/schema'
 import { TrackedAnchor } from '@/components/TrackedLink'
 
 type Props = { params: Promise<{ slug: string }> }
@@ -33,7 +35,7 @@ export default async function EnglishLocationPage({ params }: Props) {
   const { slug } = await params
   const location = getClinicLocation(slug)
   if (!location) notFound()
-  const doctors = location.doctorSlugs.flatMap((doctorSlug) => {
+  const doctors = getClinicDoctors(location.slug).flatMap(({ doctorSlug }) => {
     const entry = getAuthorEntryBySlug(doctorSlug)
     return entry ? [entry.author] : []
   })
@@ -45,8 +47,10 @@ export default async function EnglishLocationPage({ params }: Props) {
     url: pageUrl,
     name: `${location.hospitalEn} rehabilitation clinic information`,
     inLanguage: 'en',
+    mentions: doctors.map((doctor) => generatePhysicianSchema(doctor, 'en')),
     mainEntity: {
       '@type': 'Hospital',
+      '@id': `${location.officialUrl}#hospital`,
       name: location.hospitalEn,
       alternateName: location.hospital,
       url: location.officialUrl,
@@ -79,15 +83,19 @@ export default async function EnglishLocationPage({ params }: Props) {
             <dl className="rounded-2xl bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-100 dark:border-neutral-700 p-5 space-y-4">
               <div><dt className="text-xs font-semibold tracking-widest uppercase text-neutral-400">Address</dt><dd className="mt-1 text-sm leading-6 text-neutral-700 dark:text-neutral-300">{location.addressEn}</dd></div>
               <div><dt className="text-xs font-semibold tracking-widest uppercase text-neutral-400">Phone</dt><dd className="mt-1"><a href={location.phoneHref} className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">{location.phone}</a></dd></div>
-              <div><dt className="text-xs font-semibold tracking-widest uppercase text-neutral-400">Current clinic times</dt><dd className="mt-2 flex flex-wrap gap-2">{location.scheduleEn.map((time) => <span key={time} className="rounded-full bg-neutral-200 dark:bg-neutral-700 px-2.5 py-1 text-xs font-medium text-neutral-700 dark:text-neutral-200">{time}</span>)}</dd></div>
             </dl>
           </div>
           <div className="mt-8 flex flex-wrap gap-3">
-            <TrackedAnchor href={location.bookingUrl} target="_blank" rel="noopener noreferrer" eventName="booking_clicked" eventProperties={{ locale: 'en', placement: 'location_header', clinic_slug: location.slug }} className="rounded-full bg-neutral-950 dark:bg-neutral-100 px-5 py-2.5 text-sm font-semibold text-white dark:text-neutral-950">Official appointment system ↗</TrackedAnchor>
+            <a href="#doctors" className="rounded-full bg-neutral-950 px-5 py-2.5 text-sm font-semibold text-white dark:bg-neutral-100 dark:text-neutral-950">Choose a physician and clinic session ↓</a>
             <TrackedAnchor href={location.mapUrl} target="_blank" rel="noopener noreferrer" eventName="location_opened" eventProperties={{ locale: 'en', placement: 'location_header_map', clinic_slug: location.slug }} className="rounded-full border border-neutral-300 dark:border-neutral-600 px-5 py-2.5 text-sm font-semibold text-neutral-700 dark:text-neutral-200">Google Maps ↗</TrackedAnchor>
             <a href={location.officialUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-neutral-300 dark:border-neutral-600 px-5 py-2.5 text-sm font-semibold text-neutral-700 dark:text-neutral-200">Hospital website ↗</a>
           </div>
         </header>
+
+        <section id="doctors" className="mt-8 scroll-mt-24 rounded-2xl border border-neutral-100 bg-white p-7 dark:border-neutral-700 dark:bg-neutral-800 sm:p-8">
+          <h2 className="mb-6 text-2xl font-bold text-neutral-950 dark:text-neutral-100">Physician schedules and official appointments</h2>
+          <DoctorClinicCards clinicSlug={location.slug} locale="en" />
+        </section>
 
         <div className="mt-8 grid lg:grid-cols-2 gap-8">
           <section className="rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 p-7 sm:p-8">
@@ -103,19 +111,6 @@ export default async function EnglishLocationPage({ params }: Props) {
             <a href={location.transportUrl} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex text-sm font-semibold text-accent-700 dark:text-accent-400 hover:underline">Latest hospital transportation information ↗</a>
           </section>
         </div>
-
-        <section className="mt-8 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 p-7 sm:p-8">
-          <p className="text-xs font-semibold tracking-widest uppercase text-neutral-400">Physicians</p>
-          <h2 className="mt-2 text-2xl font-bold text-neutral-950 dark:text-neutral-100">Medical team at this location</h2>
-          <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {doctors.map((doctor) => (
-              <Link key={doctor.slug} href={`/en/doctors/${doctor.slug}`} className="group flex items-center gap-4 rounded-2xl border border-neutral-100 dark:border-neutral-700 p-4 hover:border-neutral-300 dark:hover:border-neutral-500">
-                <div className="relative h-20 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-700"><Image src={doctor.photo} alt={doctor.nameEn} fill className="object-cover object-top" sizes="64px" /></div>
-                <div><h3 className="font-bold text-neutral-900 dark:text-neutral-100">{doctor.nameEn}</h3><p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{doctor.titleEn}</p><p className="mt-2 text-xs font-medium text-accent-700 dark:text-accent-400">View profile →</p></div>
-              </Link>
-            ))}
-          </div>
-        </section>
 
         <aside className="mt-8 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 p-6 text-sm leading-7 text-amber-900 dark:text-amber-100">
           Clinic, transportation, and appointment information may change without notice. Confirm details on the hospital’s official website or appointment system before traveling.

@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import ArticleReview from '@/components/ArticleReview'
+import { getAuthor } from '@/lib/authors'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { MDXRemote } from 'next-mdx-remote/rsc'
@@ -53,6 +55,7 @@ export default async function EnglishPerioperativeArticlePage({ params }: Props)
   const post = getEnglishPostBySlug(slug)
   if (!post) notFound()
   const { frontmatter, content } = post
+  const author = frontmatter.author ? getAuthor(frontmatter.author) : null
   const formattedDate = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(new Date(`${frontmatter.date}T00:00:00Z`))
   const enhancedContent = injectContextualCareCTA(content, 'en')
 
@@ -75,9 +78,10 @@ export default async function EnglishPerioperativeArticlePage({ params }: Props)
               <h1 className="mt-2 text-2xl md:text-3xl lg:text-4xl font-bold text-neutral-950 dark:text-neutral-100 leading-tight">{frontmatter.title}</h1>
               <p className="mt-4 text-base text-neutral-500 dark:text-neutral-400 leading-relaxed">{frontmatter.excerpt}</p>
               <div className="mt-6 pt-6 border-t border-neutral-100 dark:border-neutral-700 flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-4"><time className="text-sm text-neutral-400 dark:text-neutral-500 font-mono" dateTime={frontmatter.date}>{formattedDate}</time>{frontmatter.author && <span className="text-sm text-neutral-400 dark:text-neutral-500">Reviewed by {frontmatter.author}</span>}</div>
+                <div className="flex flex-wrap items-center gap-4"><time className="text-sm text-neutral-400 dark:text-neutral-500 font-mono" dateTime={frontmatter.date}>{formattedDate}</time>{frontmatter.lastModified && <span className="text-sm text-neutral-400 dark:text-neutral-500">Updated: <time dateTime={frontmatter.lastModified}>{frontmatter.lastModified}</time></span>}{author && <span className="text-sm text-neutral-400 dark:text-neutral-500">Author: <Link href={`/en/doctors/${author.slug}`} className="underline underline-offset-4">{author.nameEn}</Link></span>}</div>
                 <span className="text-xs font-semibold tracking-widest uppercase px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-600">English</span>
               </div>
+              <ArticleReview metadata={frontmatter} locale="en" />
             </header>
 
             <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-xl px-5 py-4 mb-8 text-sm text-amber-900 dark:text-amber-100 leading-relaxed">

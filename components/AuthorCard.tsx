@@ -43,12 +43,16 @@ export default function AuthorCard({ author }: { author: string }) {
               {a.credentials.join('・')}
             </p>
           )}
-          <Link
-            href={`/doctors/${a.slug}`}
-            className="mt-2.5 inline-block text-xs font-semibold text-accent-700 dark:text-accent-400 hover:underline"
-          >
-            查看完整介紹 →
-          </Link>
+          <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-accent-700 dark:text-accent-400">
+            <Link href={`/doctors/${a.slug}`} className="hover:underline">
+              查看完整介紹 →
+            </Link>
+            {a.contactPath && (
+              <Link href={a.contactPath} className="hover:underline">
+                {a.name}醫師看診資訊 →
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </aside>

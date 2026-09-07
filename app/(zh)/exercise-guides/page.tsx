@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import ArticleReview from '@/components/ArticleReview'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import ExerciseGuideAnalytics from '@/components/ExerciseGuideAnalytics'
 import ExerciseGuideDirectory from '@/components/ExerciseGuideDirectory'
@@ -8,7 +9,8 @@ import {
   getExerciseGuideSupervision,
 } from '@/lib/exercise-guides'
 import { EXERCISE_GUIDE_REVIEW } from '@/lib/exercise-guide-review'
-import { generateBreadcrumbSchema, generateCollectionPageSchema } from '@/lib/schema'
+import { getAuthor } from '@/lib/authors'
+import { generateBreadcrumbSchema, generateCollectionPageSchema, generatePhysicianSchema } from '@/lib/schema'
 
 const BASE_URL = 'https://camsavant.com'
 const DESCRIPTION = '先選擇想放鬆的身體部位，或依症狀與已確認的診斷查找隨機對照試驗中的運動方案，再查看連續圖解、研究劑量、簡化方式與停止警訊。'
@@ -41,11 +43,7 @@ export default function ExerciseGuidesPage() {
     datePublished: EXERCISE_GUIDE_REVIEW.publishedDate,
     dateModified: EXERCISE_GUIDE_REVIEW.modifiedDate,
     lastReviewed: EXERCISE_GUIDE_REVIEW.date,
-    reviewedBy: {
-      '@type': 'Physician',
-      '@id': `${BASE_URL}/doctors/yu-kai-yang#physician`,
-      name: '楊育愷',
-    },
+    reviewedBy: generatePhysicianSchema(getAuthor(EXERCISE_GUIDE_REVIEW.reviewerKey)),
   }
 
   return (
@@ -121,7 +119,9 @@ export default function ExerciseGuidesPage() {
           </p>
           <p className="mt-2 text-xs leading-5 text-neutral-500 dark:text-neutral-400">
             發布日期：<time dateTime={EXERCISE_GUIDE_REVIEW.publishedDate}>{EXERCISE_GUIDE_REVIEW.publishedDate}</time>
+            {' · '}內容更新：<time dateTime={EXERCISE_GUIDE_REVIEW.modifiedDate}>{EXERCISE_GUIDE_REVIEW.modifiedDate}</time>
           </p>
+          <ArticleReview metadata={{ reviewedBy: EXERCISE_GUIDE_REVIEW.reviewerKey, lastReviewed: EXERCISE_GUIDE_REVIEW.date }} />
         </div>
       </header>
 

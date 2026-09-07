@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import ArticleReview from '@/components/ArticleReview'
 import { notFound, permanentRedirect } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -147,6 +148,8 @@ export default async function PostPage({ params }: Props) {
               author: frontmatter.author,
               coverImage: frontmatter.coverImage,
               lastModified: frontmatter.lastModified,
+              reviewedBy: frontmatter.reviewedBy,
+              lastReviewed: frontmatter.lastReviewed,
             }),
             speakable: {
               '@type': 'SpeakableSpecification',
@@ -298,6 +301,7 @@ export default async function PostPage({ params }: Props) {
                 ))}
               </div>
             )}
+            <ArticleReview metadata={frontmatter} locale="zh" />
           </header>
 
           <ArticleTakeaways takeaways={frontmatter.takeaways} />

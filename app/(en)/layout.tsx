@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { generateOrganizationSchema } from '@/lib/schema'
 import Script from 'next/script'
 import '../globals.css'
 import { Analytics } from '@vercel/analytics/react'
@@ -54,23 +55,7 @@ export const metadata: Metadata = {
   },
 }
 
-const organizationJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'MedicalOrganization',
-  '@id': `${BASE_URL}/#organization`,
-  name: 'CAM Savant',
-  alternateName: ['CAMsavant', 'CAM SAVANT'],
-  description:
-    'A physician-led rehabilitation medicine, sports medicine, regenerative medicine, and postoperative rehabilitation knowledge platform in central Taiwan.',
-  url: `${BASE_URL}/en`,
-  logo: `${BASE_URL}/images/logo.png`,
-  areaServed: ['Changhua County', 'Nantou County', 'Taichung City', 'Yunlin County'],
-  medicalSpecialty: [
-    'PhysicalMedicineAndRehabilitation',
-    'SportsMedicine',
-    'FamilyMedicine',
-  ],
-}
+const organizationJsonLd = generateOrganizationSchema('en')
 
 export default function EnglishRootLayout({ children }: { children: React.ReactNode }) {
   return (

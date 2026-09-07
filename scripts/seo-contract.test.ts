@@ -72,7 +72,7 @@ test('every exercise guide has a reassessment rule and indexable URL', () => {
 
 test('doctor clinic CTA uses the canonical locations path and photo dimensions', () => {
   const author = AUTHORS['楊育愷醫師']
-  assert.equal(author.contactPath, '/locations')
+  assert.equal(author.contactPath, '/doctors/yu-kai-yang#clinics')
   assert.equal(author.photoWidth, 800)
   assert.equal(author.photoHeight, 1032)
 })
@@ -98,7 +98,8 @@ test('exercise guide schema links MedicalWebPage, reviewer, and ExercisePlan par
   assert.equal(webPage.dateModified, '2026-09-06')
   assert.equal(webPage.lastReviewed, '2026-09-05')
   assert.equal(webPage.reviewedBy.name, '楊育愷')
-  assert.equal(webPage.reviewedBy.affiliation.name, '彰化基督教醫院復健醫學部')
+  assert.ok(Array.isArray(webPage.reviewedBy.affiliation))
+  assert.ok(webPage.reviewedBy.affiliation.some((clinic) => clinic.name === '彰化基督教醫院'))
   assert.equal(webPage.mainEntity['@id'], exercisePlan['@id'])
   assert.equal(exercisePlan['@type'], 'ExercisePlan')
   assert.equal(exercisePlan.activityDuration, 'PT60S')

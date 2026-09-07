@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { useAdminSession } from '@/components/AdminSessionProvider'
 import {
@@ -359,6 +360,11 @@ export default function ExerciseGuideModuleCard({ guide, asPage = false }: Exerc
 
         <div className="mt-6 border-t border-neutral-200 pt-5 text-xs leading-5 text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
           發布日期：<time dateTime={EXERCISE_GUIDE_REVIEW.publishedDate}>{EXERCISE_GUIDE_REVIEW.publishedDate}</time>
+          {' · '}內容更新：<time dateTime={EXERCISE_GUIDE_REVIEW.modifiedDate}>{EXERCISE_GUIDE_REVIEW.modifiedDate}</time>
+          <p className="mt-1">
+            醫療審閱：<Link href={`/doctors/${EXERCISE_GUIDE_REVIEW.reviewerSlug}`} className="underline underline-offset-4">{EXERCISE_GUIDE_REVIEW.reviewerName}</Link>
+            {' · '}<time dateTime={EXERCISE_GUIDE_REVIEW.date}>{EXERCISE_GUIDE_REVIEW.date}</time>
+          </p>
         </div>
       </div>
     </section>
