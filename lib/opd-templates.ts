@@ -17,7 +17,32 @@ export interface OpdTemplate {
   reviewedAt: string
 }
 
-const REVIEWED_AT = '2026-09-01'
+const REVIEWED_AT = '2026-09-08'
+
+// Internal provenance for the copy-ready ROM defaults. These links stay out of
+// the clinical workspace but keep every numeric default traceable for review.
+export const opdRomReferences = [
+  {
+    title: 'Veterans Affairs Canada — average joint and spine range of motion',
+    url: 'https://www.veterans.gc.ca/en/mental-and-physical-health/physical-health-and-wellness/compensation-illness-or-injury/disability-benefits/table-disabilities/chapter-17-musculoskeletal-impairment',
+  },
+  {
+    title: 'U.S. Department of Veterans Affairs — Hand and Fingers DBQ',
+    url: 'https://www.benefits.va.gov/compensation/docs/Hand_and_Finger.pdf',
+  },
+  {
+    title: 'DC/TMD clinical and research diagnostic criteria',
+    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4478082/',
+  },
+  {
+    title: 'First MTP extension required for normal walking',
+    url: 'https://pubmed.ncbi.nlm.nih.gov/7738816/',
+  },
+  {
+    title: 'Standardized ankle dorsiflexion reference values',
+    url: 'https://pubmed.ncbi.nlm.nih.gov/27418341/',
+  },
+] as const
 
 export const opdTemplates: OpdTemplate[] = [
   {
@@ -29,7 +54,7 @@ export const opdTemplates: OpdTemplate[] = [
 Ambulates with/without ＿＿; gait: ＿＿
 No gross deformity, erythema, warmth, or swelling over ＿＿
 Focal tenderness at ＿＿
-AROM/PROM: ＿＿; familiar pain: ＿＿
+AROM/PROM: full and symmetric for the examined joint/region; familiar pain: ＿＿
 Strength: ＿＿/5
 Sensation: ＿＿; DTR: ＿＿
 Distal pulses: ＿＿; capillary refill: ＿＿ sec
@@ -49,10 +74,10 @@ Function: ＿＿`,
     objective: `Cervical posture/alignment: ＿＿
 Visible swelling or deformity: absent / present ＿＿
 Tenderness: ＿＿
-Cervical flexion: ＿＿°
-Cervical extension: ＿＿°
-Cervical rotation R/L: ＿＿° / ＿＿°
-Cervical lateral flexion R/L: ＿＿° / ＿＿°
+Cervical flexion: 60°
+Cervical extension: 60°
+Cervical rotation R/L: 70° / 70°
+Cervical lateral flexion R/L: 45° / 45°
 Pain or symptom response during ROM: ＿＿
 UE myotomes C5–T1: ＿＿/5
 Sensation C5–T1: ＿＿
@@ -76,10 +101,11 @@ Gait/tandem gait: ＿＿`,
     objective: `Shoulder contour and scapular motion: ＿＿
 Erythema, warmth, swelling, or muscle wasting: absent / present ＿＿
 Tenderness: ＿＿
-Flexion AROM/PROM R/L: ＿＿ / ＿＿
-Abduction AROM/PROM R/L: ＿＿ / ＿＿
-External rotation AROM/PROM R/L: ＿＿ / ＿＿
-Internal rotation functional level R/L: ＿＿ / ＿＿
+Flexion AROM/PROM R: 170° / 170°; L: 170° / 170°
+Abduction AROM/PROM R: 180° / 180°; L: 180° / 180°
+External rotation AROM/PROM R: 90° / 90°; L: 90° / 90°
+Internal rotation AROM/PROM R: 90° / 90°; L: 90° / 90°
+Internal rotation functional level R/L: symmetric
 Abduction strength: ＿＿/5
 External rotation strength: ＿＿/5
 Internal rotation strength: ＿＿/5
@@ -103,10 +129,10 @@ Distal neurovascular exam: intact / abnormal ＿＿`,
     hint: '疼痛位置、ROM、阻力測試與 ulnar nerve／distal NV 一起記。',
     objective: `Elbow deformity, erythema, warmth, or effusion: absent / present ＿＿
 Tenderness: ＿＿
-Flexion R/L: ＿＿° / ＿＿°
-Extension R/L: ＿＿° / ＿＿°
-Pronation R/L: ＿＿° / ＿＿°
-Supination R/L: ＿＿° / ＿＿°
+Flexion R/L: 140° / 140°
+Extension R/L: 0° / 0°
+Pronation R/L: 80° / 80°
+Supination R/L: 80° / 80°
 Pain during ROM: ＿＿
 Resisted wrist or finger extension: ＿＿
 Resisted wrist flexion or pronation: ＿＿
@@ -128,12 +154,12 @@ Distal motor, sensation, and pulses: intact / abnormal ＿＿`,
     objective: `Wrist or hand deformity, erythema, or marked swelling: absent / present ＿＿
 Tenderness: ＿＿
 Anatomical snuffbox/scaphoid tubercle tenderness: ＿＿
-Flexion R/L: ＿＿° / ＿＿°
-Extension R/L: ＿＿° / ＿＿°
-Radial deviation R/L: ＿＿° / ＿＿°
-Ulnar deviation R/L: ＿＿° / ＿＿°
-Pronation R/L: ＿＿° / ＿＿°
-Supination R/L: ＿＿° / ＿＿°
+Flexion R/L: 70° / 70°
+Extension R/L: 60° / 60°
+Radial deviation R/L: 20° / 20°
+Ulnar deviation R/L: 30° / 30°
+Pronation R/L: 80° / 80°
+Supination R/L: 80° / 80°
 Grip strength: ＿＿/5
 Watson test: ＿＿
 TFCC fovea/load test: ＿＿
@@ -157,7 +183,8 @@ Open wound, erythema, or gross deformity: absent / present ＿＿
 Swelling or ecchymosis: ＿＿
 Tenderness: ＿＿
 Cascade and rotational alignment: ＿＿
-MCP/PIP/DIP active and passive ROM: ＿＿
+MCP/PIP/DIP flexion AROM/PROM: 90° / 100° / 70°
+MCP/PIP/DIP extension AROM/PROM: 0° / 0° / 0°
 FDS tendon function: intact / abnormal ＿＿
 FDP tendon function: intact / abnormal ＿＿
 Extensor tendon function: intact / abnormal ＿＿
@@ -180,9 +207,9 @@ Distal sensation and capillary refill: intact / abnormal ＿＿`,
 Thoracic posture/alignment: ＿＿
 Rash, swelling, or deformity: absent / present ＿＿
 Tenderness and location: ＿＿
-Thoracic flexion: ＿＿
-Thoracic extension: ＿＿
-Thoracic rotation R/L: ＿＿ / ＿＿
+Thoracic flexion: full and symmetric
+Thoracic extension: full and symmetric
+Thoracic rotation R/L: full and symmetric
 Pain or symptom response during ROM: ＿＿
 Rib/chest expansion: ＿＿
 Scapular motion and resisted UE testing: ＿＿
@@ -205,9 +232,10 @@ Lumbar posture/alignment: ＿＿
 Skin change or deformity: absent / present ＿＿
 Tenderness: ＿＿
 Midline percussion tenderness: absent / present ＿＿
-Lumbar flexion: ＿＿
-Lumbar extension: ＿＿
-Lumbar side-bend R/L: ＿＿ / ＿＿
+Thoracolumbar flexion: 90°
+Thoracolumbar extension: 30°
+Thoracolumbar side-bend R/L: 35° / 35°
+Thoracolumbar rotation R/L: 35° / 35°
 Pain or symptom response during ROM: ＿＿
 Centralization/peripheralization with repeated movement: ＿＿
 L2 hip flexion strength: ＿＿/5
@@ -217,7 +245,7 @@ L5 great-toe extension strength: ＿＿/5
 S1 plantarflexion strength: ＿＿/5
 Sensation L2–S1: ＿＿
 Patellar/Achilles DTR: ＿＿
-SLR R/L: ＿＿° / ＿＿°
+SLR R/L: 70° / 70° without familiar distal symptoms
 Crossed SLR: ＿＿
 Slump test: ＿＿
 Femoral stretch test: ＿＿
@@ -236,7 +264,8 @@ Distal pulses: ＿＿`,
     objective: `Gait and pelvic loading: ＿＿
 Fortin area tenderness: ＿＿
 Lumbar repeated movement response: ＿＿
-Hip ROM/FADIR/FABER: ＿＿
+Hip ROM R/L: flexion 120° / 120°; extension 30° / 30°; abduction 40° / 40°; IR 30° / 30°; ER 45° / 45°
+FADIR/FABER symptom response: ＿＿
 SIJ distraction test with familiar pain: ＿＿
 SIJ thigh-thrust test with familiar pain: ＿＿
 SIJ compression test with familiar pain: ＿＿
@@ -258,11 +287,11 @@ Distal neurovascular exam: intact / abnormal ＿＿`,
 Trendelenburg sign: ＿＿
 Deformity or erythema: absent / present ＿＿
 Tenderness over groin, greater trochanter, ischial tuberosity, or posterior hip: ＿＿
-Flexion AROM/PROM R/L: ＿＿ / ＿＿
-Extension AROM/PROM R/L: ＿＿ / ＿＿
-Internal rotation AROM/PROM R/L: ＿＿ / ＿＿
-External rotation AROM/PROM R/L: ＿＿ / ＿＿
-Abduction AROM/PROM R/L: ＿＿ / ＿＿
+Flexion AROM/PROM R: 120° / 120°; L: 120° / 120°
+Extension AROM/PROM R: 30° / 30°; L: 30° / 30°
+Internal rotation AROM/PROM R: 30° / 30°; L: 30° / 30°
+External rotation AROM/PROM R: 45° / 45°; L: 45° / 45°
+Abduction AROM/PROM R: 40° / 40°; L: 40° / 40°
 Pain or symptom response during ROM: ＿＿
 Hip flexion strength: ＿＿/5
 Hip abduction strength: ＿＿/5
@@ -290,8 +319,8 @@ Deformity, erythema, or warmth: absent / present ＿＿
 Effusion: ＿＿
 Bulge/patellar tap: ＿＿
 Tenderness: ＿＿
-Flexion R/L: ＿＿° / ＿＿°
-Extension R/L: ＿＿° / ＿＿°
+Flexion R/L: 130° / 130°
+Extension R/L: 0° / 0°
 Pain or crepitus during ROM: ＿＿
 Extensor mechanism: intact / abnormal ＿＿
 Quadriceps/hamstring strength: ＿＿/5
@@ -325,10 +354,10 @@ Base of 5th metatarsal tenderness: ＿＿
 ATFL/CFL tenderness: ＿＿
 Syndesmosis tenderness: ＿＿
 Achilles tenderness or gap: ＿＿
-Dorsiflexion R/L: ＿＿° / ＿＿°
-Plantarflexion R/L: ＿＿° / ＿＿°
-Inversion R/L: ＿＿° / ＿＿°
-Eversion R/L: ＿＿° / ＿＿°
+Dorsiflexion R/L: 25° / 25°
+Plantarflexion R/L: 40° / 40°
+Inversion R/L: 30° / 30°
+Eversion R/L: 20° / 20°
 Strength: ＿＿/5
 Anterior drawer test: ＿＿
 Talar tilt test: ＿＿
@@ -347,7 +376,7 @@ Distal pulses, capillary refill, and sensation: intact / abnormal ＿＿`,
     category: '部位檢查',
     hint: '用可觀察的 findings 描述，不把單一觸診點直接等同確定診斷。',
     objective: `Posture: ＿＿
-Regional AROM: ＿＿
+Regional AROM: full, symmetric, and pain-free for the examined joint/region
 Palpable taut band and location: ＿＿
 Focal hypersensitive spot: ＿＿
 Familiar local or referred pain reproduced by pressure: ＿＿
@@ -367,11 +396,11 @@ Erythema, warmth, swelling, or systemic signs: absent / present ＿＿`,
     category: '部位檢查',
     hint: '依 DC/TMD 概念，重點是 examination 是否重現熟悉的顳顎／咀嚼肌疼痛。',
     objective: `Facial symmetry and occlusion: ＿＿
-Maximum unassisted opening: ＿＿ mm
-Maximum assisted opening: ＿＿ mm
+Maximum unassisted opening: >35 mm
+Maximum assisted opening: ≥40 mm
 Deviation or deflection: ＿＿
-Protrusion: ＿＿ mm
-Lateral excursion R/L: ＿＿ mm / ＿＿ mm
+Protrusion: ≥7 mm
+Lateral excursion R/L: ≥7 mm / ≥7 mm
 TMJ click on opening or closing: ＿＿
 TMJ crepitus: ＿＿
 TMJ palpation reproducing familiar pain: ＿＿
@@ -404,7 +433,7 @@ Sensation: ＿＿
 DTR: ＿＿
 Coordination: ＿＿
 Gait/tandem gait: ＿＿
-Neck ROM: ＿＿
+Neck ROM: flexion 60°; extension 60°; rotation R/L 70° / 70°; lateral flexion R/L 45° / 45°
 Meningismus: ＿＿
 Temporal artery, scalp, sinus, or TMJ tenderness: ＿＿
 Focal neurologic deficit: absent / present ＿＿`,
@@ -428,7 +457,8 @@ Pain with deep inspiration, cough, or trunk rotation: ＿＿
 Chest expansion: ＿＿
 Breath sounds: ＿＿
 Cardiac exam: ＿＿
-Shoulder/thoracic ROM: ＿＿
+Shoulder ROM R/L: flexion 170° / 170°; abduction 180° / 180°; ER 90° / 90°; IR 90° / 90°
+Thoracic ROM: full and symmetric
 Distal neurovascular exam: ＿＿`,
     sourceUrl:
       'https://app.notion.com/p/3ca451a33b6681059c4ffb17f5ad2c0c',
@@ -447,8 +477,8 @@ Medial calcaneal tubercle/plantar fascia tenderness: ＿＿
 Achilles tenderness: ＿＿
 Navicular/base of 5th tenderness: ＿＿
 Metatarsal-head tenderness: ＿＿
-Ankle ROM: ＿＿
-Hallux ROM: ＿＿
+Ankle ROM R/L: DF 25° / 25°; PF 40° / 40°; inversion 30° / 30°; eversion 20° / 20°
+Hallux MTP extension R/L: 65° / 65° functional walking reference
 DF/PF/inversion/eversion strength: ＿＿/5
 Toe flexion/extension strength: ＿＿/5
 Windlass test: ＿＿
@@ -479,7 +509,8 @@ Calf circumference R/L: ＿＿ cm / ＿＿ cm
 Tenderness: ＿＿
 Compartments: soft / tense ＿＿
 Pain with passive stretch: ＿＿
-Knee and ankle ROM: ＿＿
+Knee ROM R/L: flexion 130° / 130°; extension 0° / 0°
+Ankle ROM R/L: DF 25° / 25°; PF 40° / 40°; inversion 30° / 30°; eversion 20° / 20°
 Resisted testing: ＿＿
 DP/PT pulses: ＿＿
 Capillary refill: ＿＿ sec
@@ -520,7 +551,8 @@ Turning: ＿＿`,
     title: '頸神經根病變 Cervical radiculopathy',
     category: '常見病況',
     hint: '記錄測試是否重現或減輕病人的 familiar arm symptom，並完成 myelopathy screen。',
-    objective: `Arm pain or paresthesia distribution: ＿＿
+    objective: `Cervical ROM: flexion 60°; extension 60°; rotation R/L 70° / 70°; lateral flexion R/L 45° / 45°
+Arm pain or paresthesia distribution: ＿＿
 C5 shoulder abduction strength: ＿＿/5
 C6 elbow flexion/wrist extension strength: ＿＿/5
 C7 elbow extension strength: ＿＿/5
@@ -531,7 +563,7 @@ Biceps/brachioradialis/triceps DTR: ＿＿
 Spurling test reproducing familiar arm symptom: ＿＿
 Cervical distraction relieving arm symptom: ＿＿
 ULNT1 reproducing familiar symptom with structural differentiation: ＿＿
-Cervical rotation toward symptomatic side: ＿＿°
+Cervical rotation toward symptomatic side: 70°
 Shoulder-abduction relief sign: ＿＿
 Myelopathy screen: negative / abnormal ＿＿`,
     sourceUrl:
@@ -543,7 +575,8 @@ Myelopathy screen: negative / abnormal ＿＿`,
     title: '頸髓病變篩檢 Degenerative cervical myelopathy',
     category: '安全與功能',
     hint: '整合手部精細動作、步態、反射與括約肌症狀；單一 Hoffmann sign 不能確診。',
-    objective: `Hand intrinsic strength R/L: ＿＿/5 / ＿＿/5
+    objective: `Cervical ROM: flexion 60°; extension 60°; rotation R/L 70° / 70°; lateral flexion R/L 45° / 45°
+Hand intrinsic strength R/L: ＿＿/5 / ＿＿/5
 Grip-release test in 10 seconds R/L: ＿＿ / ＿＿
 Finger escape sign: ＿＿
 Fine-motor task or buttoning/handwriting difficulty observed: ＿＿
@@ -574,6 +607,8 @@ Tinel sign over supraclavicular plexus reproducing familiar symptom: ＿＿
 Infraclavicular Tinel sign reproducing familiar symptom: ＿＿
 EAST/Roos reproducing familiar symptom and duration: ＿＿
 Symptoms with 90° abduction/external rotation: ＿＿
+Shoulder ROM R/L: flexion 170° / 170°; abduction 180° / 180°; ER 90° / 90°; IR 90° / 90°
+Cervical ROM: flexion 60°; extension 60°; rotation R/L 70° / 70°; lateral flexion R/L 45° / 45°
 ULTT reproducing familiar symptom: ＿＿
 Hand intrinsic strength and atrophy: ＿＿
 Median, ulnar and radial sensory-motor screen: ＿＿
@@ -588,12 +623,13 @@ Radial/ulnar pulses and limb color/temperature: ＿＿`,
     title: '五十肩 Adhesive capsulitis',
     category: '常見病況',
     hint: '比較主動與被動活動度，尤其外旋，並記錄 end feel 與代償。',
-    objective: `Shoulder AROM flexion R/L: ＿＿° / ＿＿°
-Shoulder PROM flexion R/L: ＿＿° / ＿＿°
-Shoulder AROM abduction R/L: ＿＿° / ＿＿°
-Shoulder PROM abduction R/L: ＿＿° / ＿＿°
-External rotation at side PROM R/L: ＿＿° / ＿＿°
-Internal rotation functional level R/L: ＿＿ / ＿＿
+    objective: `Shoulder AROM flexion R/L: 170° / 170°
+Shoulder PROM flexion R/L: 170° / 170°
+Shoulder AROM abduction R/L: 180° / 180°
+Shoulder PROM abduction R/L: 180° / 180°
+External rotation PROM R/L: 90° / 90°
+Internal rotation PROM R/L: 90° / 90°
+Internal rotation functional level R/L: symmetric
 Pain at end range: ＿＿
 End feel: ＿＿
 Scapular substitution during elevation: ＿＿
@@ -608,8 +644,10 @@ Cervical and distal neurologic screen: ＿＿`,
     title: '旋轉肌袖 Rotator cuff',
     category: '常見病況',
     hint: '以 AROM／PROM、力量、lag signs 與 pain inhibition 的整體圖像判斷。',
-    objective: `Active elevation R/L: ＿＿° / ＿＿°
-Passive elevation R/L: ＿＿° / ＿＿°
+    objective: `Active elevation R/L: 170° / 170°
+Passive elevation R/L: 170° / 170°
+Shoulder abduction R/L: 180° / 180°
+Shoulder external/internal rotation R/L: 90° / 90°
 Painful arc: ＿＿
 Scaption/abduction strength R/L: ＿＿/5 / ＿＿/5
 External-rotation strength R/L: ＿＿/5 / ＿＿/5
@@ -629,7 +667,9 @@ Distal neurologic screen: ＿＿`,
     title: '網球肘 Lateral epicondylalgia',
     category: '常見病況',
     hint: '確認熟悉的外側肘痛是否被阻力測試重現，並與 radial tunnel／cervical source 比較。',
-    objective: `Lateral epicondyle/common extensor origin tenderness: ＿＿
+    objective: `Elbow ROM R/L: flexion 140° / 140°; extension 0° / 0°; pronation 80° / 80°; supination 80° / 80°
+Wrist ROM R/L: flexion 70° / 70°; extension 60° / 60°
+Lateral epicondyle/common extensor origin tenderness: ＿＿
 Resisted wrist extension reproducing familiar pain: ＿＿
 Resisted middle-finger extension reproducing familiar pain: ＿＿
 Passive wrist flexion with elbow extension reproducing familiar pain: ＿＿
@@ -648,7 +688,9 @@ Cervical radiculopathy screen: ＿＿`,
     title: '腕隧道症候群 Carpal tunnel',
     category: '常見病況',
     hint: '記錄症狀分布、thenar 功能與 provocative tests，並排除近端或其他神經來源。',
-    objective: `Median-distribution sensory symptoms: ＿＿
+    objective: `Wrist ROM R/L: flexion 70° / 70°; extension 60° / 60°; radial deviation 20° / 20°; ulnar deviation 30° / 30°
+Finger MCP/PIP/DIP flexion: 90° / 100° / 70°; extension: 0° / 0° / 0°
+Median-distribution sensory symptoms: ＿＿
 Small-finger sparing: ＿＿
 Thenar eminence sensory sparing: ＿＿
 Thenar atrophy: absent / present ＿＿
@@ -669,7 +711,9 @@ Cervical radiculopathy/proximal median nerve screen: ＿＿`,
     title: '橈側腕痛 De Quervain',
     category: '常見病況',
     hint: '定位第一伸肌腱室，並與 CMC、intersection syndrome、scaphoid injury 比較。',
-    objective: `Swelling over first dorsal compartment: ＿＿
+    objective: `Wrist ROM R/L: flexion 70° / 70°; extension 60° / 60°; radial deviation 20° / 20°; ulnar deviation 30° / 30°
+Thumb IP flexion/extension: 90° / 20°; MCP flexion/extension: 50° / 0°; CMC abduction: 70°
+Swelling over first dorsal compartment: ＿＿
 Tenderness over radial styloid/first dorsal compartment: ＿＿
 Pain with resisted thumb abduction: ＿＿
 Pain with resisted thumb extension: ＿＿
@@ -694,9 +738,9 @@ Palpable flexor-tendon nodule: ＿＿
 Crepitus during tendon excursion: ＿＿
 Active triggering: absent / present ＿＿
 Locking requiring passive correction: absent / present ＿＿
-PIP flexion contracture: ＿＿°
-Active MCP/PIP/DIP ROM: ＿＿
-Passive MCP/PIP/DIP ROM: ＿＿
+PIP flexion contracture: 0°
+Active MCP/PIP/DIP flexion ROM: 90° / 100° / 70°; extension: 0° / 0° / 0°
+Passive MCP/PIP/DIP flexion ROM: 90° / 100° / 70°; extension: 0° / 0° / 0°
 FDS/FDP tendon continuity: ＿＿
 Digital sensation and capillary refill: ＿＿`,
     sourceUrl:
@@ -708,7 +752,8 @@ Digital sensation and capillary refill: ＿＿`,
     title: '腰薦神經根病變 Lumbar radiculopathy',
     category: '常見病況',
     hint: '記錄熟悉的遠端症狀、L2–S1 神經學檢查、neural tension 與 cauda-equina screen。',
-    objective: `Leg pain or paresthesia distribution: ＿＿
+    objective: `Thoracolumbar ROM: flexion 90°; extension 30°; side-bend R/L 35° / 35°; rotation R/L 35° / 35°
+Leg pain or paresthesia distribution: ＿＿
 L2 hip flexion strength: ＿＿/5
 L3 knee extension strength: ＿＿/5
 L4 ankle dorsiflexion strength: ＿＿/5
@@ -717,7 +762,7 @@ S1 plantarflexion strength: ＿＿/5
 L2–S1 sensory examination: ＿＿
 Patellar/Achilles DTR: ＿＿
 Heel walk/toe walk: ＿＿
-SLR reproducing familiar distal symptom R/L: ＿＿° / ＿＿°
+SLR reproducing familiar distal symptom R/L: not reproduced through 70° / 70°
 SLR structural differentiation: ＿＿
 Crossed SLR: ＿＿
 Slump test: ＿＿
@@ -733,7 +778,8 @@ Cauda-equina screen: negative / abnormal ＿＿`,
     title: '腰椎狹窄 Lumbar spinal stenosis',
     category: '常見病況',
     hint: '量化站立／步行耐受與屈曲緩解，並比較神經性與血管性跛行。',
-    objective: `Standing tolerance before familiar leg symptom: ＿＿ min
+    objective: `Thoracolumbar ROM: flexion 90°; extension 30°; side-bend R/L 35° / 35°; rotation R/L 35° / 35°
+Standing tolerance before familiar leg symptom: ＿＿ min
 Walking distance before familiar leg symptom: ＿＿ m
 Symptom distribution with standing/walking: ＿＿
 Symptom relief with sitting: ＿＿
@@ -745,7 +791,8 @@ Heel/toe walk: ＿＿
 L2–S1 strength: ＿＿
 L2–S1 sensation: ＿＿
 Patellar/Achilles DTR: ＿＿
-Hip ROM and symptom response: ＿＿
+Hip ROM R/L: flexion 120° / 120°; extension 30° / 30°; abduction 40° / 40°; IR 30° / 30°; ER 45° / 45°
+Hip ROM symptom response: ＿＿
 DP/PT pulses: ＿＿
 Vascular claudication/ABI screen: ＿＿`,
     safety:
@@ -762,9 +809,9 @@ Vascular claudication/ABI screen: ＿＿`,
     objective: `Gait and stance time: ＿＿
 Sit-to-stand: ＿＿
 Groin/anterior-thigh familiar pain: ＿＿
-Hip flexion PROM R/L: ＿＿° / ＿＿°
-Hip internal-rotation PROM R/L: ＿＿° / ＿＿°
-Hip external-rotation PROM R/L: ＿＿° / ＿＿°
+Hip flexion PROM R/L: 120° / 120°
+Hip internal-rotation PROM R/L: 30° / 30°
+Hip external-rotation PROM R/L: 45° / 45°
 Pain during passive hip rotation: ＿＿
 Log-roll test: ＿＿
 Squat or functional loading response: ＿＿
@@ -782,7 +829,8 @@ Lumbar and knee comparison screen: ＿＿`,
     title: '大轉子疼痛 Greater trochanteric pain',
     category: '常見病況',
     hint: '確認 lateral-hip familiar pain，整合 palpation、resisted testing 與 single-leg loading。',
-    objective: `Lateral-hip familiar pain location: ＿＿
+    objective: `Hip ROM R/L: flexion 120° / 120°; extension 30° / 30°; abduction 40° / 40°; IR 30° / 30°; ER 45° / 45°
+Lateral-hip familiar pain location: ＿＿
 Greater-trochanter/gluteal-tendon palpation reproducing familiar pain: ＿＿
 Resisted hip abduction reproducing familiar pain: ＿＿
 Hip abduction strength R/L: ＿＿/5 / ＿＿/5
@@ -808,8 +856,8 @@ Joint warmth: absent / present ＿＿
 Effusion: ＿＿
 Medial/lateral joint-line tenderness: ＿＿
 Crepitus during active motion: ＿＿
-Knee flexion R/L: ＿＿° / ＿＿°
-Knee extension deficit R/L: ＿＿° / ＿＿°
+Knee flexion R/L: 130° / 130°
+Knee extension deficit R/L: 0° / 0°
 Quadriceps strength R/L: ＿＿/5 / ＿＿/5
 Five Times Sit-to-Stand: ＿＿ sec
 Squat or stair response: ＿＿
@@ -823,7 +871,8 @@ Hip and distal neurovascular screen: ＿＿`,
     title: '髕股疼痛 Patellofemoral pain',
     category: '常見病況',
     hint: '以 squat、stairs、step-down 與 prolonged sitting 重現熟悉症狀，並記錄動作品質。',
-    objective: `Anterior/retropatellar pain location: ＿＿
+    objective: `Knee ROM R/L: flexion 130° / 130°; extension 0° / 0°
+Anterior/retropatellar pain location: ＿＿
 Pain during squat: ＿＿
 Pain during stair ascent/descent: ＿＿
 Pain during step-down: ＿＿
@@ -848,8 +897,8 @@ Effusion or joint-line tenderness: absent / present ＿＿`,
 Medial calcaneal tubercle tenderness: ＿＿
 Tenderness along proximal plantar fascia: ＿＿
 Windlass test reproducing familiar pain: ＿＿
-Ankle dorsiflexion with knee extended R/L: ＿＿° / ＿＿°
-Ankle dorsiflexion with knee flexed R/L: ＿＿° / ＿＿°
+Ankle dorsiflexion with knee extended R/L: 23° / 23°
+Ankle dorsiflexion with knee flexed R/L: 33° / 33°
 Foot posture and arch: ＿＿
 Single-leg heel raise: ＿＿
 Calcaneal squeeze test: ＿＿
@@ -874,7 +923,7 @@ Pain during single-leg heel raise: ＿＿
 Hop response when safe: ＿＿
 Royal London Hospital test: ＿＿
 Arc sign: ＿＿
-Ankle dorsiflexion R/L: ＿＿° / ＿＿°
+Ankle dorsiflexion R/L: 25° / 25°
 Thompson test: ＿＿
 Palpable tendon gap: absent / present ＿＿`,
     sourceUrl:
@@ -890,8 +939,8 @@ Palpable tendon gap: absent / present ＿＿`,
 Affected joint and side: ＿＿
 Erythema and warmth: ＿＿
 Swelling or effusion: ＿＿
-Active ROM: ＿＿
-Passive ROM and pain: ＿＿
+Active ROM: full for the examined joint
+Passive ROM and pain: full and pain-free for the examined joint
 Weight bearing or functional use: ＿＿
 Skin wound, ulcer, cellulitis, or recent procedure: ＿＿
 Tophus at ear, olecranon, finger, toe or Achilles region: ＿＿
@@ -928,7 +977,9 @@ Inflammatory, neurologic or systemic red flags: negative / abnormal ＿＿`,
     title: '糖尿病周邊神經／足部風險',
     category: '安全與功能',
     hint: '整合 skin、deformity、protective sensation、vascular、footwear 與 gait。',
-    objective: `Foot skin, fissure, callus, ulcer or infection R/L: ＿＿ / ＿＿
+    objective: `Ankle ROM R/L: DF 25° / 25°; PF 40° / 40°; inversion 30° / 30°; eversion 20° / 20°
+Hallux MTP extension R/L: 65° / 65° functional walking reference
+Foot skin, fissure, callus, ulcer or infection R/L: ＿＿ / ＿＿
 Nail and trophic change R/L: ＿＿ / ＿＿
 Foot deformity or Charcot change R/L: ＿＿ / ＿＿
 Semmes-Weinstein 10-g monofilament R/L: ＿＿ / ＿＿

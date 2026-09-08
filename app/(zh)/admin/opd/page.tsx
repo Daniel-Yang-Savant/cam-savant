@@ -398,7 +398,7 @@ export default function OpdPage() {
               </div>
               {libraryMode === 'exam' && (
                 <span className="rounded-md bg-stone-100 px-2 py-1 text-[10px] text-stone-500 dark:bg-neutral-800 dark:text-neutral-400">
-                  review 2026-09-01
+                  ROM 參考 {templates[0]?.reviewedAt ?? '2026-09-08'}
                 </span>
               )}
             </div>
@@ -527,6 +527,10 @@ export default function OpdPage() {
                   <p className="mt-1 text-sm leading-relaxed text-stone-600 dark:text-neutral-400">
                     {selectedTemplate.hint}
                   </p>
+                  <p className="mt-3 rounded-lg border border-amber-300 bg-white/80 px-3 py-2 text-xs leading-relaxed text-amber-950 dark:border-amber-800 dark:bg-neutral-950/40 dark:text-amber-200">
+                    <span className="font-bold">正常角度預設：</span>
+                    O 內數值是成人常用參考值，只能在實際完成檢查且結果相符時保留；異常請改為實測值，未檢查請記錄 not assessed。
+                  </p>
                   {selectedTemplate.safety && (
                     <p className="mt-3 rounded-lg border border-rose-200 bg-white/70 px-3 py-2 text-xs leading-relaxed text-rose-800 dark:border-rose-900/70 dark:bg-neutral-950/40 dark:text-rose-300">
                       <span className="font-bold">安全提醒：</span>
@@ -575,7 +579,11 @@ export default function OpdPage() {
             <SoapSection
               label="O"
               title="Objective"
-              helper="點選左側檢查模板後直接載入"
+              helper={
+                libraryMode === 'exam'
+                  ? '點選模板即載入；請核對並修改預設正常角度'
+                  : '點選術後處方後直接載入'
+              }
               value={objective}
               rows={20}
               textareaRef={objectiveRef}
