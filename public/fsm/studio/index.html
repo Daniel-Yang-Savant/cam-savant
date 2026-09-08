@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,7 +14,7 @@
 :root {
   --bg: #0d1117; --bg-elev: #161b22; --bg-elev-2: #1c232e;
   --border: #2d3441; --border-strong: #3d4452;
-  --text: #e6edf3; --text-dim: #8b949e; --text-very-dim: #545d68;
+  --text: #e6edf3; --text-dim: #a5afbb; --text-very-dim: #929eac;
   --accent: #00d9a3; --accent-dim: #00a37c;
   --accent-glow: rgba(0, 217, 163, 0.15);
   --warning: #ffa657; --danger: #f85149; --info: #58a6ff;
@@ -555,6 +555,55 @@ details[open] .import-help summary::before { transform: rotate(90deg); }
 .import-name-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
 .import-name-row input { flex: 1; }
 
+/* Readable working controls, with every main tab visible on phones. */
+html, body { font-size: 16px; }
+button, input, select, textarea { font: inherit; }
+button:focus-visible, [tabindex]:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+.tabs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); overflow: visible; }
+.tab { min-width: 0; min-height: 46px; font-size: 0.875rem; letter-spacing: 0; white-space: normal; overflow-wrap: anywhere; }
+.tab.locked::after { font-size: 0.75rem; margin-left: 3px; }
+.freq-label, .control-label, .form-label, .card-title { font-size: 0.875rem; letter-spacing: 0.04em; }
+.control-label { display: block; text-transform: none; }
+.freq-name, .protocol-indication, .info-block, .modal-body, .session-name, .session-complaint, .lib-name, .warning-banner { font-size: 0.875rem; line-height: 1.6; }
+.freq-name { min-height: 2.8em; -webkit-line-clamp: 3; }
+.freq-card input.freq-input, .form-input, .form-select, .form-textarea, .search-input, .import-textarea { font-size: 1rem; min-height: 44px; }
+.audio-status, .timer-elapsed, .slider-value, .protocol-meta, .protocol-location, .step-time, .step-tags, .lib-name-zh, .run-queue-tags, .run-queue-time, .control-note { font-size: 0.8125rem; }
+.control-note { color: var(--text-dim); line-height: 1.6; margin-top: 10px; }
+.btn-seg, .subtab, .libtab, .cat-chip, .folder-chip, .btn-secondary, .btn-icon, .run-tool-btn { font-size: 0.875rem; min-height: 44px; }
+.search-bar .btn-secondary { font-size: 0.875rem !important; }
+.protocol-name, .modal-title, .run-queue-freq { font-size: 1rem; }
+.protocol-cat, .custom-badge, .protocol-library-stat span, .info-block h3, .import-help { font-size: 0.8125rem; }
+.import-preview { overflow-x: auto; }
+.import-step-table { font-size: 0.875rem; }
+.import-step-table th, .import-step-note, .import-step-warn, .import-step-err { font-size: 0.8125rem; }
+.import-step-table td, .import-step-table td div { font-size: 0.8125rem !important; }
+.protocol-sync-status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-dim); font-size: 0.875rem; line-height: 1.6; }
+.protocol-sync-status[data-state="error"], .protocol-sync-status[data-state="pending"] { border-color: var(--warning); color: var(--warning); }
+.protocol-sync-status button { margin-left: auto; }
+.recent-protocols { margin: 0 0 16px; }
+.recent-protocols h2 { font-size: 0.875rem; font-weight: 600; margin-bottom: 8px; color: var(--text-dim); }
+.recent-protocol-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.recent-protocol-btn { max-width: 100%; text-align: left; overflow-wrap: anywhere; }
+.user-chip { min-width: 0; }
+#userEmail { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 600px) {
+  .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .view { padding: 12px; }
+  .header-right { flex-wrap: wrap; justify-content: flex-end; min-width: 0; }
+  #userEmail { max-width: 100px; }
+  .subtabs { flex-wrap: wrap; }
+  .subtab { flex: 1 1 90px; }
+  .run-overlay-header { flex-wrap: wrap; }
+  .modal-bg { padding: 10px; }
+  .modal { padding: 16px; max-height: 90dvh; }
+  .modal-actions { flex-wrap: wrap; }
+  .protocol-library-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .run-live-add { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .run-add-btn { grid-column: 1 / -1; }
+  .protocol-card-actions { flex-wrap: wrap; }
+}
+
 </style>
 </head>
 <body>
@@ -596,14 +645,14 @@ details[open] .import-help summary::before { transform: rotate(90deg); }
           <div class="freq-label">CH A</div>
           <div class="freq-value" id="freqAVal">40</div>
           <div class="freq-name" id="freqAName">—</div>
-          <input type="number" class="freq-input" id="freqAInput" value="40" min="0.1" max="970" step="0.1" inputmode="decimal">
+          <input type="number" class="freq-input" id="freqAInput" value="40" min="0.1" max="999" step="any" inputmode="decimal" aria-label="CH A 頻率 (Hz)">
           <div class="suggest" id="suggestA"></div>
         </div>
         <div class="freq-card chB">
           <div class="freq-label">CH B</div>
           <div class="freq-value" id="freqBVal">116</div>
           <div class="freq-name" id="freqBName">—</div>
-          <input type="number" class="freq-input" id="freqBInput" value="116" min="0.1" max="970" step="0.1" inputmode="decimal">
+          <input type="number" class="freq-input" id="freqBInput" value="116" min="0.1" max="999" step="any" inputmode="decimal" aria-label="CH B 頻率 (Hz)">
           <div class="suggest" id="suggestB"></div>
         </div>
       </div>
@@ -625,15 +674,16 @@ details[open] .import-help summary::before { transform: rotate(90deg); }
         </div>
         <div class="control-group full">
           <div class="control-label">
-            <span data-i18n="ctrl_current">電流強度</span> · <span id="currentValLabel">200 μA</span>
+            <label for="currentSlider" data-i18n="ctrl_current">音訊增益</label> · <span id="currentValLabel">×1.20</span>
           </div>
           <div class="slider-row">
-            <input type="range" class="slider" id="currentSlider" min="20" max="500" step="20" value="200">
-            <div class="slider-value" id="currentVal">200 μA</div>
+            <input type="range" class="slider" id="currentSlider" min="20" max="500" step="20" value="200" aria-describedby="outputLevelNote" aria-valuetext="×1.20">
+            <div class="slider-value" id="currentVal">×1.20</div>
           </div>
+          <p class="control-note" id="outputLevelNote" data-i18n="output_level_note">控制數位音訊振幅；此數值不是實測電流（μA）。</p>
         </div>
         <div class="control-group full">
-          <div class="control-label" data-i18n="ctrl_duration">時長 (分鐘)</div>
+          <label for="durSlider" class="control-label" data-i18n="ctrl_duration">時長 (分鐘)</label>
           <div class="slider-row">
             <input type="range" class="slider" id="durSlider" min="1" max="60" step="1" value="4">
             <div class="slider-value" id="durVal">4 min</div>
@@ -810,6 +860,7 @@ details[open] .import-help summary::before { transform: rotate(90deg); }
           <button type="button" class="btn-secondary" id="cpAddStep" style="margin-top:8px;width:100%;font-size:12px;">＋ 新增步驟</button>
         </div>
       </div>
+      <div class="protocol-sync-status" data-personal-sync role="status" aria-live="polite"><span data-sync-message></span> <button type="button" class="btn-secondary" data-sync-retry hidden>重試</button></div>
       <div class="modal-actions">
         <button id="cpCancel">取消</button>
         <button id="cpSave" class="primary">儲存協定</button>
@@ -885,6 +936,7 @@ Step 2: 40/396 +/- medium 4min - nerves</pre>
         <div class="import-empty">貼上內容後即時預覽解析結果</div>
       </div>
 
+      <div class="protocol-sync-status" data-personal-sync role="status" aria-live="polite"><span data-sync-message></span> <button type="button" class="btn-secondary" data-sync-retry hidden>重試</button></div>
       <div class="modal-actions" style="margin-top:14px;flex-wrap:wrap;gap:6px;">
         <button id="importCancel" style="flex:none;padding:10px 16px;">取消</button>
         <button id="importSave" class="primary" style="flex:1;" disabled>💾 儲存為我的協定</button>
@@ -1056,7 +1108,8 @@ let FREQ_B_MAP = PUBLIC_FREQ_MAP_B;
 const I18N = {
   zh: {
     tab_manual: '手動', tab_protocols: '協定', tab_library: '頻率庫', tab_music: '音樂', tab_records: '紀錄', tab_info: '說明',
-    ctrl_polarity: '極性', ctrl_wave: '波形', ctrl_current: '電流強度', ctrl_duration: '時長 (分鐘)',
+    ctrl_polarity: '極性', ctrl_wave: '波形', ctrl_current: '音訊增益', ctrl_duration: '時長 (分鐘)',
+    output_level_note: '控制數位音訊振幅；此數值不是實測電流（μA）。',
     wave_sharp: '銳', wave_med: '中', wave_gentle: '緩',
     btn_start: '▶ START', btn_stop: '■ STOP',
     run_prev: '← 上一步', run_next: '下一步 →', run_minus_min: '−1 分鐘', run_plus_min: '+1 分鐘',
@@ -1112,7 +1165,7 @@ const I18N = {
     music_size_estimate: '預計檔案大小', music_generate: '▼ 生成並下載',
     music_generating: '生成中...', music_progress_init: '初始化音訊...',
     music_progress_render: '渲染中 {pct}%', music_progress_encode: '編碼中...',
-    music_progress_done: '完成！正在下載...', music_generate_failed: '生成失敗',
+    music_progress_done: '檔案已備妥，可點選下方檔名下載。', music_ready: '檔案已備妥', music_generate_failed: '生成失敗',
     info_hardware_title: '硬體設定',
     info_hardware_body: '手機 → USB-C 轉 3.5mm 音源轉接頭 → FSM 專用電極墊或自製電極片導線。Channel A 走左聲道，Channel B 走右聲道，共用 Sleeve 接地。',
     info_polarity_title: '極性說明',
@@ -1120,7 +1173,7 @@ const I18N = {
     info_warnings_title: '禁忌症警示',
     info_warnings_body: '· 頻率 13 (Scar tissue) — 損傷後 6 週內慎用<br>· 頻率 79 (Veins) — DVT 未排除前避免下肢使用<br>· 極化正電流 — 椎管狹窄患者疼痛加重時立即切回 AC<br>· 孕婦、癌症腫瘤部位 — 絕對禁忌',
     info_audio_title: '關於音頻 FSM',
-    info_audio_body: '透過手機耳機輸出產生 FSM 雙頻訊號。<br>· 低頻 (&lt;20 Hz) 採用 AM 振幅調變<br>· 波形 slope 透過 envelope 包絡實現<br>· 電流量依使用者下游電阻決定',
+    info_audio_body: '透過手機耳機輸出產生 FSM 雙頻訊號。<br>· 低頻 (&lt;20 Hz) 採用 AM 振幅調變<br>· 波形 slope 透過 envelope 包絡實現<br>· 音訊增益控制數位振幅，未量測或校準實際電流',
     info_data_title: '資料儲存與備份',
     info_data_body: '治療紀錄僅儲存於本機瀏覽器 (localStorage)。<br>· 從不上傳至伺服器<br>· 用「加密匯出」定期備份到雲端或隨身碟<br>· 加密採 AES-GCM 256-bit，密碼遺失無法復原',
     info_disclaimer_title: '免責聲明',
@@ -1140,7 +1193,8 @@ const I18N = {
   },
   en: {
     tab_manual: 'Manual', tab_protocols: 'Protocols', tab_library: 'Library', tab_music: 'Music', tab_records: 'Records', tab_info: 'Info',
-    ctrl_polarity: 'Polarity', ctrl_wave: 'Waveshape', ctrl_current: 'Current', ctrl_duration: 'Duration (min)',
+    ctrl_polarity: 'Polarity', ctrl_wave: 'Waveshape', ctrl_current: 'Audio gain', ctrl_duration: 'Duration (min)',
+    output_level_note: 'Controls digital audio amplitude; this is not measured current (μA).',
     wave_sharp: 'Sharp', wave_med: 'Medium', wave_gentle: 'Gentle',
     btn_start: '▶ START', btn_stop: '■ STOP',
     run_prev: '← Previous', run_next: 'Next →', run_minus_min: '−1 min', run_plus_min: '+1 min',
@@ -1196,7 +1250,7 @@ const I18N = {
     music_size_estimate: 'Estimated size', music_generate: '▼ Generate & download',
     music_generating: 'Generating...', music_progress_init: 'Initializing...',
     music_progress_render: 'Rendering {pct}%', music_progress_encode: 'Encoding...',
-    music_progress_done: 'Done! Downloading...', music_generate_failed: 'Generation failed',
+    music_progress_done: 'Your file is ready. Select the filename below to download.', music_ready: 'File ready', music_generate_failed: 'Generation failed',
     info_hardware_title: 'Hardware setup',
     info_hardware_body: 'Phone → USB-C to 3.5mm adapter → FSM electrode pad or DIY electrode cable.',
     info_polarity_title: 'Polarity',
@@ -1204,7 +1258,7 @@ const I18N = {
     info_warnings_title: 'Contraindication warnings',
     info_warnings_body: '· Frequency 13 — caution within 6 weeks post-injury<br>· Frequency 79 — rule out DVT first<br>· Polarized+ — switch to AC if stenosis patient pain increases<br>· Pregnancy, cancer tumor sites — absolute contraindication',
     info_audio_title: 'About audio-FSM',
-    info_audio_body: 'Phone audio output generates FSM dual frequencies.<br>· Low freq (&lt;20 Hz) via AM modulation<br>· Waveshape via envelope<br>· Current set by downstream resistor',
+    info_audio_body: 'Phone audio output generates FSM dual frequencies.<br>· Low freq (&lt;20 Hz) via AM modulation<br>· Waveshape via envelope<br>· Audio gain controls digital amplitude; actual current is not measured or calibrated',
     info_data_title: 'Data storage & backup',
     info_data_body: 'Session records stored only in your local browser (localStorage).<br>· Never uploaded to server<br>· Use Encrypted Export to back up<br>· AES-GCM 256-bit encryption — lost password cannot be recovered',
     info_disclaimer_title: 'Disclaimer',
@@ -1256,6 +1310,7 @@ const auth = {
     if (!confirm(t('logout_confirm'))) return;
     this.user = null;
     this.save();
+    resetPersonalProtocolState();
     CHANNEL_A = null; CHANNEL_B = null;
     PROTOCOLS_CURATED = null; PROTOCOLS_FULL = null; USER_PROTOCOLS = null; FAVORITE_PROTOCOL_IDS = new Set();
     FREQ_A_MAP = PUBLIC_FREQ_MAP_A;
@@ -1301,7 +1356,7 @@ window.handleGoogleCredential = async function(response) {
     auth.save();
     updateAuthUI();
     // Fetch the shared reference library and the user's two personal layers.
-    await Promise.all([loadProtectedData(), loadUserProtocols()]);
+    await initializeAuthenticatedData();
     // Re-render the active view
     const active = document.querySelector('.tab.active');
     if (active) switchToView(active.getAttribute('data-view'));
@@ -1312,87 +1367,228 @@ window.handleGoogleCredential = async function(response) {
 };
 
 async function loadProtectedData() {
-  if (!auth.user || !auth.user.token) return;
-  try {
-    const r = await fetch(API_BASE + '/protected-data', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + auth.user.token
+  if (!auth.user || !auth.user.token) return false;
+  const session = auth.user;
+  if (protectedDataRequest && protectedDataRequest.session === session) return protectedDataRequest.promise;
+  const promise = (async () => {
+    try {
+      const r = await fetch(API_BASE + '/protected-data', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.token }
+      });
+      if (auth.user !== session) return false;
+      if (!r.ok) {
+        if (r.status === 401 || r.status === 403) {
+          auth.user = null;
+          auth.save();
+          resetPersonalProtocolState();
+          updateAuthUI();
+        }
+        throw new Error('Load failed: ' + r.status);
       }
-    });
-    if (!r.ok) {
-      if (r.status === 401 || r.status === 403) {
-        auth.user = null;
-        auth.save();
-        updateAuthUI();
-      }
-      return;
-    }
-    const data = await r.json();
-    CHANNEL_A = data.data.channel_a;
-    CHANNEL_B = data.data.channel_b;
-    PROTOCOLS_CURATED = data.data.curated;
-    PROTOCOLS_FULL = data.data.full;
-    FREQ_A_MAP = Object.fromEntries(CHANNEL_A.map(f => [f.freq, f.name]));
-    FREQ_B_MAP = Object.fromEntries(CHANNEL_B.map(f => [f.freq, f.name]));
-    updateFreqDisplay();
-  } catch (e) {
-    console.error('Failed to load protected data:', e);
-  }
-}
-
-// ── Load user's personal protocols from server ────────────────────────────
-async function loadUserProtocols() {
-  if (!auth.user || !auth.user.token) return;
-  try {
-    const r = await fetch(API_BASE + '/protocols', {
-      headers: { 'Authorization': 'Bearer ' + auth.user.token }
-    });
-    if (r.ok) {
       const data = await r.json();
-      USER_PROTOCOLS = data.protocols || [];
-      FAVORITE_PROTOCOL_IDS = new Set(data.favorite_protocol_ids || []);
-      localStorage.setItem(CUSTOM_PROTO_KEY, JSON.stringify(USER_PROTOCOLS.filter(p => p._custom)));
-    } else {
-      USER_PROTOCOLS = [];
-      FAVORITE_PROTOCOL_IDS = new Set();
+      if (auth.user !== session) return false;
+      if (!data.data || !Array.isArray(data.data.channel_a) || !Array.isArray(data.data.channel_b) || !Array.isArray(data.data.curated) || !Array.isArray(data.data.full)) throw new Error('Invalid reference response');
+      CHANNEL_A = data.data.channel_a;
+      CHANNEL_B = data.data.channel_b;
+      PROTOCOLS_CURATED = data.data.curated;
+      PROTOCOLS_FULL = data.data.full;
+      FREQ_A_MAP = Object.fromEntries(CHANNEL_A.map(f => [f.freq, f.name]));
+      FREQ_B_MAP = Object.fromEntries(CHANNEL_B.map(f => [f.freq, f.name]));
+      updateFreqDisplay();
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      if (protectedDataRequest && protectedDataRequest.session === session) protectedDataRequest = null;
     }
-  } catch (e) {
-    console.error('loadUserProtocols error:', e);
-    USER_PROTOCOLS = [];
-    FAVORITE_PROTOCOL_IDS = new Set();
-  }
+  })();
+  protectedDataRequest = { session, promise };
+  return promise;
 }
 
-async function saveUserProtocols(list) {
+// ── Personal protocol loading and recoverable saves ─────────────────────────
+const personalSync = {
+  owner: '', ready: false, loading: null, saving: false, pending: null,
+  status: 'idle', error: '', draftStored: false, conflict: false, base: null, epoch: 0
+};
+let protectedDataRequest = null;
+
+function resetPersonalProtocolState() {
+  personalSync.epoch += 1;
+  Object.assign(personalSync, { owner: auth.user ? auth.user.email : '', ready: false,
+    loading: null, saving: false, pending: null, status: 'idle', error: '',
+    draftStored: false, conflict: false, base: null });
+  USER_PROTOCOLS = null;
+  FAVORITE_PROTOCOL_IDS = new Set();
+}
+function personalDraftKey(email) { return 'fsm_personal_pending_v1:' + email; }
+function personalCacheKey() { return 'fsm_custom_protocols:' + (auth.user ? auth.user.email : 'guest'); }
+function personalSnapshot() {
+  return { protocols: USER_PROTOCOLS || [], favorite_protocol_ids: [...FAVORITE_PROTOCOL_IDS] };
+}
+function applyPersonalPatch(patch) {
+  if (Array.isArray(patch.protocols)) USER_PROTOCOLS = patch.protocols;
+  if (Array.isArray(patch.favorite_protocol_ids)) FAVORITE_PROTOCOL_IDS = new Set(patch.favorite_protocol_ids);
+}
+function storePersonalDraft() {
+  try {
+    localStorage.setItem(personalDraftKey(personalSync.owner), JSON.stringify(personalSync.pending));
+    personalSync.draftStored = true;
+  } catch (e) { personalSync.draftStored = false; }
+}
+function protocolSyncMarkup() {
+  return '<div class="protocol-sync-status" data-personal-sync role="status" aria-live="polite">' +
+    '<span data-sync-message></span> <button type="button" class="btn-secondary" data-sync-retry hidden>重試</button></div>';
+}
+function renderPersonalSyncStatus() {
+  const messages = {
+    idle: '正在準備個人協定…', loading: '正在載入我的協定與收藏…',
+    saved: '已同步至雲端', saving: '儲存中…',
+    error: personalSync.pending
+      ? (personalSync.conflict ? '雲端已有不同版本；未同步草稿已保留，請確認後重試。'
+        : (personalSync.draftStored ? '尚未同步；草稿已保留在此裝置，可重試。' : '尚未同步；變更保留在此頁，請勿關閉並重試。'))
+      : '載入失敗，尚未取得我的協定與收藏。請重試後再編輯。'
+  };
+  document.querySelectorAll('[data-personal-sync]').forEach(el => {
+    el.dataset.state = personalSync.status;
+    const message = el.querySelector('[data-sync-message]');
+    if (message) message.textContent = messages[personalSync.status] || '';
+    const retry = el.querySelector('[data-sync-retry]');
+    if (retry) {
+      retry.hidden = personalSync.status !== 'error';
+      retry.disabled = personalSync.saving || !!personalSync.loading;
+      retry.onclick = retryPersonalSync;
+    }
+  });
+  ['addCustomProtocolBtn', 'moveMarkedFolderBtn', 'assignMarkedGroupBtn', 'deleteMarkedProtocolsBtn', 'newProtocolFolderBtn', 'newProtocolGroupBtn'].forEach(id => {
+    if ($(id)) $(id).disabled = !personalSync.ready || personalSync.saving;
+  });
+  if ($('cpSave')) $('cpSave').disabled = _cpEditTarget !== 'reference' && (!personalSync.ready || personalSync.saving);
+  // Prevent changes to an editor while its submitted snapshot is being saved.
+  document.querySelectorAll('#customProtocolModal input, #customProtocolModal select, #customProtocolModal textarea, #cpAddStep, #customProtocolModal .cp-ins-step, #customProtocolModal .cp-ins-below-step, #customProtocolModal .cp-del-step, #importTextarea, #importProtoName').forEach(el => {
+    el.disabled = personalSync.saving;
+  });
+}
+function refreshPersonalProtocols() {
+  if ($('view-protocols') && $('view-protocols').classList.contains('active') && $('protocolList')) {
+    renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
+  }
+  renderPersonalSyncStatus();
+}
+function ensurePersonalProtocolsReady() {
+  if (!auth.user || !personalSync.ready || personalSync.owner !== auth.user.email) {
+    alert('請先成功載入我的協定與收藏，再進行修改。');
+    renderPersonalSyncStatus();
+    return false;
+  }
+  if (personalSync.saving) { alert('協定正在儲存，請稍候。'); return false; }
+  return true;
+}
+async function initializeAuthenticatedData() {
+  if (!auth.user) return false;
+  if (personalSync.owner !== auth.user.email) resetPersonalProtocolState();
+  const results = await Promise.all([loadProtectedData(), loadUserProtocols()]);
+  return results.every(Boolean);
+}
+async function loadUserProtocols() {
   if (!auth.user || !auth.user.token) return false;
+  if (personalSync.owner !== auth.user.email) resetPersonalProtocolState();
+  if (personalSync.loading) return personalSync.loading;
+  const session = auth.user;
+  const epoch = personalSync.epoch;
+  personalSync.status = 'loading';
+  personalSync.ready = false;
+  renderPersonalSyncStatus();
+  const request = (async () => {
+    try {
+      const r = await fetch(API_BASE + '/protocols', { headers: { 'Authorization': 'Bearer ' + session.token } });
+      if (!r.ok) throw new Error('Load failed: ' + r.status);
+      const data = await r.json();
+      if (!Array.isArray(data.protocols) || !Array.isArray(data.favorite_protocol_ids)) throw new Error('Invalid protocol response');
+      if (epoch !== personalSync.epoch || auth.user !== session) return false;
+      applyPersonalPatch(data);
+      personalSync.base = JSON.parse(JSON.stringify(personalSnapshot()));
+      personalSync.pending = null;
+      personalSync.conflict = false;
+      try {
+        const draft = JSON.parse(localStorage.getItem(personalDraftKey(session.email)) || 'null');
+        const patch = draft && draft.patch;
+        if (patch && (Array.isArray(patch.protocols) || Array.isArray(patch.favorite_protocol_ids))) {
+          personalSync.pending = draft;
+          personalSync.conflict = Object.keys(patch).some(key => JSON.stringify(draft.base && draft.base[key]) !== JSON.stringify(personalSync.base[key]));
+          applyPersonalPatch(patch);
+          personalSync.draftStored = true;
+        }
+      } catch (e) { /* A damaged local draft never replaces the cloud response. */ }
+      personalSync.ready = true;
+      personalSync.status = personalSync.pending ? 'error' : 'saved';
+      if ($('view-music') && $('view-music').classList.contains('active')) renderMusicView();
+      return true;
+    } catch (e) {
+      if (epoch !== personalSync.epoch || auth.user !== session) return false;
+      personalSync.status = 'error';
+      personalSync.error = e.message;
+      return false;
+    } finally {
+      if (epoch === personalSync.epoch && auth.user === session) {
+        personalSync.loading = null;
+        refreshPersonalProtocols();
+      }
+    }
+  })();
+  personalSync.loading = request;
+  return request;
+}
+async function persistPersonalPatch(patch) {
+  if (!ensurePersonalProtocolsReady()) return false;
+  if (personalSync.conflict && !confirm('此裝置的未同步草稿與雲端版本不同。重試會以此裝置草稿更新雲端的對應資料，確定繼續？')) return false;
+  const session = auth.user;
+  const epoch = personalSync.epoch;
+  const previous = personalSync.pending;
+  const combined = { ...(previous ? previous.patch : {}), ...patch };
+  personalSync.pending = JSON.parse(JSON.stringify({ patch: combined, base: previous ? previous.base : personalSync.base }));
+  applyPersonalPatch(personalSync.pending.patch);
+  storePersonalDraft();
+  personalSync.saving = true;
+  personalSync.status = 'saving';
+  refreshPersonalProtocols();
   try {
     const r = await fetch(API_BASE + '/protocols', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.user.token },
-      body: JSON.stringify({ protocols: list })
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.token },
+      body: JSON.stringify(personalSync.pending.patch)
     });
-    return r.ok;
+    if (!r.ok) throw new Error('Save failed: ' + r.status);
+    const result = await r.json();
+    if (!result.ok) throw new Error('Save was not confirmed');
+    if (epoch !== personalSync.epoch || auth.user !== session) return false;
+    personalSync.base = JSON.parse(JSON.stringify(personalSnapshot()));
+    personalSync.pending = null;
+    personalSync.conflict = false;
+    personalSync.status = 'saved';
+    try {
+      localStorage.removeItem(personalDraftKey(session.email));
+      localStorage.setItem(personalCacheKey(), JSON.stringify((USER_PROTOCOLS || []).filter(p => p._custom)));
+    } catch (e) { /* Cloud acknowledgement is authoritative; local cache is optional. */ }
+    return true;
   } catch (e) {
-    console.error('saveUserProtocols error:', e);
+    if (epoch !== personalSync.epoch || auth.user !== session) return false;
+    personalSync.status = 'error';
+    personalSync.error = e.message;
     return false;
+  } finally {
+    if (epoch === personalSync.epoch && auth.user === session) {
+      personalSync.saving = false;
+      refreshPersonalProtocols();
+    }
   }
 }
-
-async function saveFavoriteProtocolIds() {
-  if (!auth.user || !auth.user.token) return false;
-  try {
-    const r = await fetch(API_BASE + '/protocols', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.user.token },
-      body: JSON.stringify({ favorite_protocol_ids: [...FAVORITE_PROTOCOL_IDS] })
-    });
-    return r.ok;
-  } catch (e) {
-    console.error('saveFavoriteProtocolIds error:', e);
-    return false;
-  }
+async function retryPersonalSync() {
+  if (personalSync.pending && personalSync.ready) return persistPersonalPatch(personalSync.pending.patch);
+  return loadUserProtocols();
+}
+async function saveUserProtocols(list) { return persistPersonalPatch({ protocols: list }); }
+async function saveFavoriteProtocolIds(ids) {
+  return persistPersonalPatch({ favorite_protocol_ids: [...(ids || FAVORITE_PROTOCOL_IDS)] });
 }
 
 // ── Bulk-import helpers ────────────────────────────────────────────────────
@@ -1453,6 +1649,7 @@ function _protoSignature(p) {
 }
 
 function updateAuthUI() {
+  syncMusicDownload();
   const chip = document.getElementById('userChip');
   const adminBtn = document.getElementById('adminBadgeBtn');
   if (auth.isAuthed()) {
@@ -1747,77 +1944,28 @@ function renderGate(viewId) {
 
 
 // ============================================================
-// CUSTOM PROTOCOLS — localStorage (primary) + server sync (per-user)
+// CUSTOM PROTOCOLS — account-scoped cache; cloud writes use the reliable save path
 // ============================================================
-const CUSTOM_PROTO_KEY = 'fsm_custom_protocols';
-
 function loadCustomProtocols() {
-  try { return JSON.parse(localStorage.getItem(CUSTOM_PROTO_KEY) || '[]'); }
+  if (!auth.user) return [];
+  try { const list = JSON.parse(localStorage.getItem(personalCacheKey()) || '[]'); return Array.isArray(list) ? list : []; }
   catch(e) { return []; }
 }
 
-function saveCustomProtocols(list) {
-  localStorage.setItem(CUSTOM_PROTO_KEY, JSON.stringify(list));
-  _pushMyProtocolsToServer(list);  // fire-and-forget background sync
-}
-
-// ── Server sync ───────────────────────────────────────────────────────────────
-async function _pushMyProtocolsToServer(list) {
-  if (!auth.user || !auth.user.token) return;
-  try {
-    await fetch(API_BASE + '/my-protocols', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + auth.user.token
-      },
-      body: JSON.stringify({ protocols: list })
-    });
-  } catch(e) { /* silent — localStorage copy is the fallback */ }
-}
-
-async function _pullMyProtocolsFromServer() {
-  if (!auth.user || !auth.user.token) return;
-  try {
-    const r = await fetch(API_BASE + '/my-protocols', {
-      headers: { 'Authorization': 'Bearer ' + auth.user.token }
-    });
-    if (!r.ok) return;
-    const { protocols } = await r.json();
-    if (!Array.isArray(protocols)) return;
-
-    // Merge: server wins for overlapping IDs; keep local-only entries
-    const serverById = new Map(protocols.map(p => [p.id, p]));
-    const local = loadCustomProtocols();
-    const localOnly = local.filter(p => !serverById.has(p.id));
-    const merged = [...protocols, ...localOnly];
-
-    localStorage.setItem(CUSTOM_PROTO_KEY, JSON.stringify(merged));
-    renderProtocolList();  // refresh UI
-
-    // If local had extras the server didn't know about, push merged up
-    if (localOnly.length > 0) _pushMyProtocolsToServer(merged);
-  } catch(e) { /* silent */ }
-}
-function deleteCustomProtocol(id) {
+async function deleteCustomProtocol(id) {
+  if (!ensurePersonalProtocolsReady()) return;
   if (!confirm('確定要刪除這個自訂協定？')) return;
-  USER_PROTOCOLS = (USER_PROTOCOLS || []).filter(p => p.id !== id);
-  saveUserProtocols(USER_PROTOCOLS);
+  if (!await saveUserProtocols(USER_PROTOCOLS.filter(p => p.id !== id))) return;
   renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
 }
 
 async function toggleFavoriteProtocol(id) {
+  if (!ensurePersonalProtocolsReady()) return;
   id = String(id || '');
   if (!id) return;
-  const wasFavorite = FAVORITE_PROTOCOL_IDS.has(id);
-  if (wasFavorite) FAVORITE_PROTOCOL_IDS.delete(id); else FAVORITE_PROTOCOL_IDS.add(id);
-  renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
-  const saved = await saveFavoriteProtocolIds();
-  if (!saved) {
-    if (wasFavorite) FAVORITE_PROTOCOL_IDS.add(id); else FAVORITE_PROTOCOL_IDS.delete(id);
-    renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
-    alert('收藏同步失敗，請確認網路後再試一次。');
-  }
+  const next = new Set(FAVORITE_PROTOCOL_IDS);
+  if (next.has(id)) next.delete(id); else next.add(id);
+  await saveFavoriteProtocolIds(next);
 }
 
 function copyReferenceProtocol(id) {
@@ -1836,8 +1984,11 @@ async function deleteReferenceProtocol(id) {
   let current = [];
   try {
     const r = await fetch(API_BASE + '/reference-protocols', { headers: { 'Authorization': 'Bearer ' + auth.user.token } });
-    if (r.ok) { const d = await r.json(); current = Array.isArray(d.protocols) ? d.protocols : []; }
-  } catch (e) {}
+    if (!r.ok) throw new Error('讀取失敗：' + r.status);
+    const d = await r.json();
+    if (!Array.isArray(d.protocols)) throw new Error('參考庫格式錯誤');
+    current = d.protocols;
+  } catch (e) { alert('參考庫讀取失敗，已停止變更。請重試。'); return; }
   const next = current.filter(p => p.id !== id);
   try {
     const r = await fetch(API_BASE + '/reference-protocols', {
@@ -1856,6 +2007,7 @@ let _cpEditTarget = 'user';  // 'user' = 我的協定 (每位用戶) ; 'referenc
 let _cpSourceReferenceId = '';
 
 function showCustomProtocolEditor(proto, target) {
+  if (target !== 'reference' && !ensurePersonalProtocolsReady()) return;
   _cpEditTarget = target || 'user';
   _cpEditId = _cpEditTarget === 'copy' ? null : (proto ? proto.id : null);
   _cpSourceReferenceId = _cpEditTarget === 'copy' ? String(proto?.id || '') : String(proto?.source_reference_id || '');
@@ -1883,19 +2035,21 @@ function showCustomProtocolEditor(proto, target) {
   const steps = proto ? proto.steps.map(s => normalizeStep(s)) : [{ freq_a: '', freq_b: '', duration: 4, polarity: 'Alternating', wave: 'Medium' }];
   steps.forEach(s => addCpStepRow(s));
   $('customProtocolModal').classList.add('show');
+  renderPersonalSyncStatus();
 }
 
 function addCpStepRow(step, refEl, insertBefore) {
+  if (personalSync.saving) return null;
   step = step || { freq_a: '', freq_b: '', duration: 4, polarity: 'Alternating', wave: 'Medium' };
   const div = document.createElement('div');
   div.className = 'cp-step-row';
   div.innerHTML = `
     <span class="cp-step-num"></span>
     <div class="cp-step-fields">
-      <input type="number" class="form-input cp-freqa" placeholder="CH A" value="${step.freq_a !== undefined && step.freq_a !== '' ? step.freq_a : ''}" min="0" max="9999" step="0.001">
+      <input type="number" class="form-input cp-freqa" placeholder="CH A" value="${step.freq_a !== undefined && step.freq_a !== '' ? step.freq_a : ''}" min="0.1" max="999" step="any">
       <span class="cp-sep">/</span>
-      <input type="number" class="form-input cp-freqb" placeholder="CH B" value="${step.freq_b !== undefined && step.freq_b !== '' ? step.freq_b : ''}" min="0" max="9999" step="0.001">
-      <input type="number" class="form-input cp-dur" placeholder="min" value="${step.duration || 4}" min="1" max="120">
+      <input type="number" class="form-input cp-freqb" placeholder="CH B" value="${step.freq_b !== undefined && step.freq_b !== '' ? step.freq_b : ''}" min="0.1" max="999" step="any">
+      <input type="number" class="form-input cp-dur" placeholder="min" value="${step.duration || 4}" min="0" max="60" step="any">
       <select class="form-input cp-polarity">
         <option value="" ${!step.polarity ? 'selected' : ''}>極性?</option>
         <option value="Alternating" ${step.polarity === 'Alternating' ? 'selected' : ''}>+/-</option>
@@ -1913,14 +2067,17 @@ function addCpStepRow(step, refEl, insertBefore) {
     </div>
   `;
   div.querySelector('.cp-del-step').addEventListener('click', () => {
+    if (personalSync.saving) return;
     div.remove();
     updateCpStepNums();
   });
   div.querySelector('.cp-ins-step').addEventListener('click', () => {
+    if (personalSync.saving) return;
     const nu = addCpStepRow(null, div, true);   // insert ABOVE this row
     const fa = nu.querySelector('.cp-freqa'); if (fa) fa.focus();
   });
   div.querySelector('.cp-ins-below-step').addEventListener('click', () => {
+    if (personalSync.saving) return;
     const nu = addCpStepRow(null, div, false);  // insert BELOW this row
     const fa = nu.querySelector('.cp-freqa'); if (fa) fa.focus();
   });
@@ -1937,7 +2094,8 @@ function updateCpStepNums() {
   document.querySelectorAll('.cp-step-num').forEach((el, i) => el.textContent = i + 1);
 }
 
-function saveCpProtocol() {
+async function saveCpProtocol() {
+  if (_cpEditTarget !== 'reference' && !ensurePersonalProtocolsReady()) return;
   const name = $('cpName').value.trim();
   if (!name) { alert('請輸入協定名稱'); return; }
   const stepRows = $('cpStepsList').querySelectorAll('.cp-step-row');
@@ -1947,10 +2105,10 @@ function saveCpProtocol() {
   stepRows.forEach((row, i) => {
     const fa = parseFloat(row.querySelector('.cp-freqa').value);
     const fb = parseFloat(row.querySelector('.cp-freqb').value);
-    const dur = parseInt(row.querySelector('.cp-dur').value);
+    const dur = Number(row.querySelector('.cp-dur').value);
     const polarity = row.querySelector('.cp-polarity').value;
     const wave = row.querySelector('.cp-wave').value;
-    if (isNaN(fa) || isNaN(fb) || isNaN(dur) || dur < 1 || !polarity || !wave) {
+    if (!isValidFrequency(fa) || !isValidFrequency(fb) || !isValidStepDuration(dur) || !polarity || !wave) {
       alert('步驟 ' + (i+1) + ' 有欄位未填或格式錯誤');
       valid = false;
     } else {
@@ -1974,8 +2132,11 @@ function saveCpProtocol() {
       let current = [];
       try {
         const r = await fetch(API_BASE + '/reference-protocols', { headers: { 'Authorization': 'Bearer ' + auth.user.token } });
-        if (r.ok) { const d = await r.json(); current = Array.isArray(d.protocols) ? d.protocols : []; }
-      } catch (e) {}
+        if (!r.ok) throw new Error('讀取失敗：' + r.status);
+        const d = await r.json();
+        if (!Array.isArray(d.protocols)) throw new Error('參考庫格式錯誤');
+        current = d.protocols;
+      } catch (e) { alert('參考庫讀取失敗，編輯內容已保留。請重試。'); return; }
       const idx = current.findIndex(p => p.id === protoObj.id);
       if (idx >= 0) current[idx] = protoObj; else current.push(protoObj);
       try {
@@ -1995,20 +2156,23 @@ function saveCpProtocol() {
     return;
   }
 
-  const list = [...(USER_PROTOCOLS || [])];
+  const list = [...USER_PROTOCOLS];
+  const createdId = _cpEditId ? null : ('custom_' + Date.now());
   if (_cpEditId) {
     const idx = list.findIndex(p => p.id === _cpEditId);
-    if (idx >= 0) list[idx] = { ...list[idx], name: name, name_zh: name, indication_zh: indVal,
+    if (idx < 0) { alert('此協定已不存在，請重新載入後再試。'); return; }
+    list[idx] = { ...list[idx], name: name, name_zh: name, indication_zh: indVal,
       category: catVal, folder: folderVal, protocol_group: groupVal, steps };
   } else {
-    list.unshift({ id: 'custom_' + Date.now(), name: name, name_zh: name,
+    list.unshift({ id: createdId, name: name, name_zh: name,
       indication_zh: indVal, category: catVal, folder: folderVal,
       protocol_group: groupVal, steps, _custom: true,
       personal_protocol_type: _cpEditTarget === 'copy' ? 'adapted_reference' : 'authored',
       source_reference_id: _cpEditTarget === 'copy' ? _cpSourceReferenceId : '' });
   }
-  USER_PROTOCOLS = list;
-  saveUserProtocols(list);
+  const saved = await saveUserProtocols(list);
+  if (createdId && (USER_PROTOCOLS || []).some(p => p.id === createdId)) _cpEditId = createdId;
+  if (!saved) return;
   $('customProtocolModal').classList.remove('show');
   renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
 }
@@ -2144,6 +2308,7 @@ const state = {
   polarity: 'Alternating', waveshape: 'Medium',
   current: 200, duration: 4,
   running: false, paused: false, timerInterval: null, remainingSec: 0, stepTotalSec: 0,
+  timerDeadlineMs: null, transitionTimeout: null, runGeneration: 0,
   loadedProtocol: null, currentStepIndex: 0, wakeLock: null,
   protocolSet: 'favorites', protocolCategory: 'all', protocolFolder: 'all',
   protocolMarkMode: false, markedProtocolIds: new Set(), openProtocolGroups: new Set(),
@@ -2152,6 +2317,10 @@ const state = {
 };
 
 function $(id) { return document.getElementById(id); }
+function isValidFrequency(value) { return typeof value === 'number' && Number.isFinite(value) && value >= 0.1 && value <= 999; }
+function isValidStepDuration(value) { return typeof value === 'number' && Number.isFinite(value) && value > 0 && value <= 60; }
+// Retain legacy protocol intensity values; show their actual digital gain, not μA.
+function formatAudioGain(value) { return '×' + (Number(value) / 100 * 0.6).toFixed(2); }
 function fmtTime(sec) { sec = Math.max(0, Math.floor(sec)); const m = Math.floor(sec / 60); const s = sec % 60; return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0'); }
 function updateFreqDisplay() {
   $('freqAVal').textContent = state.freqA;
@@ -2160,6 +2329,12 @@ function updateFreqDisplay() {
   $('freqBName').textContent = FREQ_B_MAP[state.freqB] || '—';
   $('freqAInput').value = state.freqA;
   $('freqBInput').value = state.freqB;
+  ['A', 'B'].forEach(channel => {
+    const valid = isValidFrequency(state['freq' + channel]);
+    $('freq' + channel + 'Input').setAttribute('aria-invalid', String(!valid));
+    $('freq' + channel + 'Input').setCustomValidity(valid ? '' : '0.1–999 Hz');
+  });
+  $('runBtn').disabled = !state.running && (!isValidFrequency(state.freqA) || !isValidFrequency(state.freqB));
   checkWarnings();
 }
 function updateTimerDisplay() {
@@ -2185,14 +2360,21 @@ function checkWarnings() {
   ).join('');
 }
 
-$('freqAInput').addEventListener('input', e => {
-  const v = parseFloat(e.target.value);
-  if (!isNaN(v) && v > 0) { state.freqA = v; updateFreqDisplay(); showSuggest('A', v); }
-});
-$('freqBInput').addEventListener('input', e => {
-  const v = parseFloat(e.target.value);
-  if (!isNaN(v) && v > 0) { state.freqB = v; updateFreqDisplay(); showSuggest('B', v); }
-});
+function updateManualFrequency(channel, input) {
+  const value = Number(input.value);
+  const valid = input.value.trim() !== '' && isValidFrequency(value);
+  input.setAttribute('aria-invalid', String(!valid));
+  input.setCustomValidity(valid ? '' : (LANG === 'zh' ? '請輸入 0.1–999 Hz。' : 'Enter 0.1–999 Hz.'));
+  state['freq' + channel] = valid ? value : NaN;
+  $('freq' + channel + 'Val').textContent = valid ? value : '—';
+  $('freq' + channel + 'Name').textContent = valid ? ((channel === 'A' ? FREQ_A_MAP : FREQ_B_MAP)[value] || '—') : (LANG === 'zh' ? '請輸入 0.1–999 Hz' : 'Enter 0.1–999 Hz');
+  if (valid) showSuggest(channel, value);
+  else $('suggest' + channel).classList.remove('show');
+  $('runBtn').disabled = !state.running && (!isValidFrequency(state.freqA) || !isValidFrequency(state.freqB));
+  checkWarnings();
+}
+$('freqAInput').addEventListener('input', e => updateManualFrequency('A', e.target));
+$('freqBInput').addEventListener('input', e => updateManualFrequency('B', e.target));
 $('freqAInput').addEventListener('focus', e => showSuggest('A', parseFloat(e.target.value) || 0));
 $('freqBInput').addEventListener('focus', e => showSuggest('B', parseFloat(e.target.value) || 0));
 document.addEventListener('click', e => {
@@ -2241,8 +2423,9 @@ document.querySelectorAll('#waveGroup .btn-seg').forEach(btn => {
 });
 $('currentSlider').addEventListener('input', e => {
   state.current = parseInt(e.target.value);
-  $('currentVal').textContent = state.current + ' μA';
-  $('currentValLabel').textContent = state.current + ' μA';
+  $('currentVal').textContent = formatAudioGain(state.current);
+  $('currentValLabel').textContent = formatAudioGain(state.current);
+  $('currentSlider').setAttribute('aria-valuetext', formatAudioGain(state.current));
 });
 $('durSlider').addEventListener('input', e => {
   state.duration = parseInt(e.target.value);
@@ -2280,11 +2463,47 @@ function adjustRunScale(direction) {
   applyRunScale();
 }
 
+function syncRunRemaining() {
+  if (state.timerDeadlineMs !== null) {
+    state.remainingSec = Math.max(0, (state.timerDeadlineMs - performance.now()) / 1000);
+  }
+}
+
+function clearRunScheduling() {
+  state.runGeneration++;
+  if (state.timerInterval !== null) clearInterval(state.timerInterval);
+  if (state.transitionTimeout !== null) clearTimeout(state.transitionTimeout);
+  state.timerInterval = null;
+  state.transitionTimeout = null;
+  state.timerDeadlineMs = null;
+}
+
+function releaseRunWakeLock() {
+  const lock = state.wakeLock;
+  state.wakeLock = null;
+  if (lock) { try { Promise.resolve(lock.release()).catch(() => {}); } catch(e) {} }
+}
+
+function requestRunWakeLock() {
+  if (!('wakeLock' in navigator) || !state.running || state.paused || document.hidden) return;
+  if (state.wakeLock && !state.wakeLock.released) return;
+  const generation = state.runGeneration;
+  navigator.wakeLock.request('screen').then(lock => {
+    if (generation !== state.runGeneration || !state.running || state.paused || document.hidden || (state.wakeLock && !state.wakeLock.released)) {
+      return lock.release();
+    }
+    state.wakeLock = lock;
+    lock.addEventListener('release', () => { if (state.wakeLock === lock) state.wakeLock = null; }, { once: true });
+  }).catch(() => {});
+}
+
 function startTimerLoop() {
-  if (state.timerInterval) clearInterval(state.timerInterval);
+  if (state.timerInterval !== null) clearInterval(state.timerInterval);
+  state.timerDeadlineMs = performance.now() + state.remainingSec * 1000;
+  const generation = state.runGeneration;
   state.timerInterval = setInterval(() => {
-    if (state.paused) return;
-    state.remainingSec--;
+    if (generation !== state.runGeneration || !state.running || state.paused) return;
+    syncRunRemaining();
     updateTimerDisplay();
     if (state.remainingSec <= 0) onStepEnd();
   }, 1000);
@@ -2292,40 +2511,49 @@ function startTimerLoop() {
 
 function toggleRunPause() {
   if (!state.running) return;
+  syncRunRemaining();
+  clearRunScheduling();
   state.paused = !state.paused;
   if (state.paused) {
     audio.stop();
-    if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+    releaseRunWakeLock();
     $('brand').classList.remove('running');
     $('statusDot').classList.remove('live');
     $('statusText').textContent = t('run_paused');
     $('ovPause').textContent = t('run_resume');
   } else {
-    audio.start(state.freqA, state.freqB, state.polarity, state.waveshape, state.current);
     $('brand').classList.add('running');
     $('statusDot').classList.add('live');
     $('statusText').textContent = t('status_running');
     $('ovPause').textContent = t('run_pause');
+    if (state.remainingSec <= 0) { onStepEnd(); return; }
+    audio.start(state.freqA, state.freqB, state.polarity, state.waveshape, state.current);
     startTimerLoop();
+    requestRunWakeLock();
   }
+  updateTimerDisplay();
 }
 
 function adjustRunMinutes(delta) {
   if (!state.running) return;
-  const deltaSec = delta * 60;
-  state.stepTotalSec = Math.max(30, state.stepTotalSec + deltaSec);
+  syncRunRemaining();
+  if (state.transitionTimeout !== null || state.remainingSec <= 0) return;
+  const nextTotalSec = Math.max(30, Math.min(60 * 60, state.stepTotalSec + delta * 60));
+  const deltaSec = nextTotalSec - state.stepTotalSec;
+  state.stepTotalSec = nextTotalSec;
   state.remainingSec = Math.max(5, Math.min(state.stepTotalSec, state.remainingSec + deltaSec));
   if (state.loadedProtocol && state.loadedProtocol.steps[state.currentStepIndex]) {
     state.loadedProtocol.steps[state.currentStepIndex].duration = state.stepTotalSec / 60;
   }
+  if (!state.paused) startTimerLoop();
   updateTimerDisplay();
   renderRunQueue();
 }
 
 function jumpRunStep(index) {
   if (!state.loadedProtocol || index < 0 || index >= state.loadedProtocol.steps.length || index === state.currentStepIndex) return;
+  clearRunScheduling();
   audio.stop();
-  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
   state.currentStepIndex = index;
   startStep(state.loadedProtocol.steps[index], true);
   if ($('view-protocols').classList.contains('active')) renderProtocolList($('protocolSearch') && $('protocolSearch').value);
@@ -2336,7 +2564,7 @@ function addTemporaryRunStep() {
   const freqA = parseFloat($('ovAddFreqA').value);
   const freqB = parseFloat($('ovAddFreqB').value);
   const duration = parseFloat($('ovAddDuration').value);
-  if (!Number.isFinite(freqA) || !Number.isFinite(freqB) || !Number.isFinite(duration) || freqA <= 0 || freqB <= 0 || duration < 0.5 || duration > 60) {
+  if (!isValidFrequency(freqA) || !isValidFrequency(freqB) || !isValidStepDuration(duration) || duration < 0.5) {
     alert(t('run_invalid_step'));
     return;
   }
@@ -2398,10 +2626,13 @@ function startManualRun() {
 }
 
 function startStep(step, isProtocol) {
-  if (!step || !step.polarity || !step.wave) {
-    alert('此步驟尚未設定極性與波形，無法執行。請先建立微調副本並完成設定。');
+  clearRunScheduling();
+  if (!step || !step.polarity || !step.wave || !isValidFrequency(Number(step.freq_a)) || !isValidFrequency(Number(step.freq_b)) || !isValidStepDuration(Number(step.duration))) {
+    stopRun();
+    alert(LANG === 'zh' ? '此步驟的頻率、時長、極性或波形設定不完整，無法執行。請先修正設定。' : 'This step has invalid frequency, duration, polarity, or waveform settings. Please correct them before running.');
     return;
   }
+  step = { ...step, freq_a: Number(step.freq_a), freq_b: Number(step.freq_b), duration: Number(step.duration) };
   state.freqA = step.freq_a;
   state.freqB = step.freq_b;
   state.polarity = step.polarity;
@@ -2440,9 +2671,7 @@ function startStep(step, isProtocol) {
   renderRunQueue();
   updateTimerDisplay();
   startTimerLoop();
-  if ('wakeLock' in navigator) {
-    navigator.wakeLock.request('screen').then(lock => { state.wakeLock = lock; }).catch(()=>{});
-  }
+  requestRunWakeLock();
 }
 
 function reflectControlState() {
@@ -2453,16 +2682,26 @@ function reflectControlState() {
     b.classList.toggle('active', b.getAttribute('data-wave') === state.waveshape);
   });
   $('currentSlider').value = state.current;
-  $('currentVal').textContent = state.current + ' μA';
-  $('currentValLabel').textContent = state.current + ' μA';
+  $('currentVal').textContent = formatAudioGain(state.current);
+  $('currentValLabel').textContent = formatAudioGain(state.current);
+  $('currentSlider').setAttribute('aria-valuetext', formatAudioGain(state.current));
 }
 
 function onStepEnd() {
+  if (!state.running || state.paused || state.transitionTimeout !== null) return;
+  clearRunScheduling();
+  state.remainingSec = 0;
+  updateTimerDisplay();
   if (state.loadedProtocol && state.currentStepIndex < state.loadedProtocol.steps.length - 1) {
     audio.stop();
-    state.currentStepIndex++;
-    setTimeout(() => {
-      const step = state.loadedProtocol.steps[state.currentStepIndex];
+    const generation = state.runGeneration;
+    const protocol = state.loadedProtocol;
+    const nextIndex = state.currentStepIndex + 1;
+    state.transitionTimeout = setTimeout(() => {
+      if (generation !== state.runGeneration || !state.running || state.paused || state.loadedProtocol !== protocol) return;
+      state.transitionTimeout = null;
+      state.currentStepIndex = nextIndex;
+      const step = protocol.steps[nextIndex];
       startStep(step, true);
       if ($('view-protocols').classList.contains('active')) renderProtocolList($('protocolSearch') && $('protocolSearch').value);
     }, 300);
@@ -2488,8 +2727,8 @@ function playEndChime() {
 }
 
 function stopRun() {
+  clearRunScheduling();
   audio.stop();
-  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
   state.running = false;
   state.paused = false;
   $('brand').classList.remove('running');
@@ -2499,12 +2738,17 @@ function stopRun() {
   $('runBtn').classList.remove('stop'); $('runBtn').classList.add('start');
   $('ovPause').textContent = t('run_pause');
   $('runOverlay').classList.remove('show');
-  if (state.wakeLock) { try { state.wakeLock.release(); } catch(e){} state.wakeLock = null; }
+  releaseRunWakeLock();
   state.stepTotalSec = 0;
   updateTimerDisplay();
   const pb2 = $('timerProgressBar'); if (pb2) pb2.style.width = '0%';
   const ovpb2 = $('ovProgressBar'); if (ovpb2) ovpb2.style.width = '0%';
 }
+
+window.addEventListener('pagehide', stopRun);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) requestRunWakeLock();
+});
 
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -2537,36 +2781,37 @@ function parseImportText(raw) {
 
   const reFreqPair = /(\d+\.?\d*)\s*[\/]\s*(\d+\.?\d*)/;
   const reMultiB   = /(\d+\.?\d*)\s*[\/]\s*((?:\d+\.?\d*\s*[,，]\s*)+\d+\.?\d*)/; // A/B1,B2,..
-  const reDuration = /各?\s*(\d+(?:[.-]\d+)?)\s*(?:分鐘?|min(?:s|utes?)?\b)/i;  // 不匹配 "m" in "Medium"；支援 "各 4 分鐘"
+  const reDuration = /各?\s*([^\s|]+(?:\s*[-–]\s*[^\s|]+)?)\s*(?:分鐘?|min(?:s|utes?)?\b)/i;
   const rePolarity = /\+\/-|\balternating\b|\bac\b|\bpositive\b|\bpos\b|\+→|交流|極化|正極/i;
   const reWave     = /\bsharp\b|\bgentle\b|\bmedium\b|(?<![a-z])[sgm](?![a-z])|銳波?|緩波?|中波?/i;
 
-  // Scan text for all valid A/B freq pairs (fa, fb ≤ 999 to exclude concatenation artifacts)
+  // Match complete decimal tokens. Invalid values are reported, never truncated or skipped.
   function scanAllFreqPairs(text) {
     const pairs = [];
+    const consumed = [];
     let pos = 0;
     while (pos < text.length) {
       const slice = text.slice(pos);
-      const m = slice.match(/(\d+)\s*\/\s*(\d+)/);
+      const m = slice.match(/(?<![\w.+\/-])(-?(?:\d+(?:\.\d+)?|\.\d+))\s*\/\s*(-?(?:\d+(?:\.\d+)?|\.\d+))(?![\w.\/])/);
       if (!m) break;
-      const fa = parseInt(m[1]);
-      const fb = parseInt(m[2]);
+      const fa = Number(m[1]);
+      const fb = Number(m[2]);
       let advance = m.index + m[0].length;
-      if (fa <= 999 && fb <= 999) {
-        // Check for trailing comma B-values: A/B1,B2,...
-        const afterM = slice.slice(advance);
-        const commaM = afterM.match(/^(\s*[,，]\s*\d+)+/);
-        if (commaM) {
-          const allB = [fb];
-          (commaM[0].match(/\d+/g) || []).forEach(n => { const v = parseInt(n); if (v <= 999) allB.push(v); });
-          allB.forEach(b => pairs.push({ fa, fb: b }));
-          advance += commaM[0].length;
-        } else {
-          pairs.push({ fa, fb });
-        }
+      pairs.push({ fa, fb });
+      while (true) {
+        const next = slice.slice(advance).match(/^\s*[,，]\s*(-?(?:\d+(?:\.\d+)?|\.\d+))(?![\w.])/);
+        if (!next || /^\s*\//.test(slice.slice(advance + next[0].length))) break;
+        pairs.push({ fa, fb: Number(next[1]) });
+        advance += next[0].length;
       }
+      consumed.push([pos + m.index, pos + advance]);
       pos += advance;
     }
+    let remainder = text;
+    consumed.reverse().forEach(([start, end]) => { remainder = remainder.slice(0, start) + ' ' + remainder.slice(end); });
+    remainder = remainder.replace(/\+\s*\/\s*[-−]/g, '');
+    // A malformed second pair or B-list must invalidate the line rather than disappear.
+    if (/\/|[,，]\s*[-.\d]/.test(remainder)) return [];
     return pairs;
   }
 
@@ -2587,13 +2832,13 @@ function parseImportText(raw) {
   }
   function parseDur(s) {
     if (!s) return 4;
-    const m = s.match(/(\d+\.?\d*)\s*(?:min|m|分)?/i);
-    return m ? parseFloat(m[1]) : 4;
+    const m = s.match(reDuration);
+    return m && /^-?(?:\d+(?:\.\d+)?|\.\d+)$/.test(m[1]) ? Number(m[1]) : NaN;
   }
 
   function extractNote(s) {
     // text after - or # (but not +/-)
-    const m = s.match(/(?:^|\s+)[-–](?!\s*\/)(?:\s*)(.+)$/) || s.match(/#(.+)$/);
+    const m = s.match(/(?:^|\s+)[-–](?!\s*[\/\d])(?:\s*)(.+)$/) || s.match(/#(.+)$/);
     return m ? m[1].trim() : '';
   }
 
@@ -2620,7 +2865,7 @@ function parseImportText(raw) {
     if (/^\|?\s*[A-Za-z\s]+\|/.test(line) && !reFreqPair.test(line)) continue;
 
     // Strip step prefix: "Step 1:", "1.", "1、", "第1階段" etc.
-    line = line.replace(/^\s*(?:第\s*\d+\s*(?:階段|步驟|步)\s*[:：]?\s*|(?:Step\s*)?\d+\s*[:.、]\s*)/i, '');
+    line = line.replace(/^\s*(?:第\s*\d+\s*(?:階段|步驟|步)\s*[:：]?\s*|(?:Step\s*)?\d+\s*[:、]\s*|(?:Step\s*)?\d+\.\s+)/i, '');
 
     // Strip leading pipe (table format)
     line = line.replace(/^\s*\|/, '');
@@ -2628,7 +2873,7 @@ function parseImportText(raw) {
     // Extract note (text after " - " or " # ")
     const note = extractNote(line);
     // Remove note from parsing string
-    const parseStr = line.replace(/(?:\s+[-–](?!\s*\/)[^\|]+|#.*)$/, '').trim();
+    const parseStr = line.replace(/(?:\s+[-–](?!\s*[\/\d])[^\|]+|#.*)$/, '').trim();
 
     // ── Markdown table row: find freq cell, extract ALL pairs ──────────────
     if (rawLine.includes('|')) {
@@ -2650,7 +2895,7 @@ function parseImportText(raw) {
           if (!waveMatch) warns.push('⚠ 波形預設 Medium');
           if (!durMatch) warns.push('⚠ 時長預設 4 min');
           cellPairs.forEach(({ fa, fb }) => {
-            steps.push({ freq_a: fa, freq_b: fb, polarity: pol, wave: wave, duration: dur, note: '', warn: warns.join(' ') });
+            steps.push({ freq_a: fa, freq_b: fb, polarity: pol, wave: wave, duration: dur, note: '', warn: warns.join(' '), sourceLine: lineNum });
           });
           continue;
         }
@@ -2671,7 +2916,7 @@ function parseImportText(raw) {
       if (!waveMatch) warns.push('⚠ 波形預設 Medium');
       if (!durMatch) warns.push('⚠ 時長預設 4 min');
       linePairs.forEach(({ fa, fb }) => {
-        steps.push({ freq_a: fa, freq_b: fb, polarity: pol, wave: wave, duration: dur, note, warn: warns.join(' ') });
+        steps.push({ freq_a: fa, freq_b: fb, polarity: pol, wave: wave, duration: dur, note, warn: warns.join(' '), sourceLine: lineNum });
       });
       continue;
     }
@@ -2683,6 +2928,12 @@ function parseImportText(raw) {
     }
   }
 
+  steps.forEach(step => {
+    let reason = '';
+    if (!isValidFrequency(step.freq_a) || !isValidFrequency(step.freq_b)) reason = '頻率需為 0.1–999 Hz，請檢查原文數值。';
+    else if (!isValidStepDuration(step.duration)) reason = '時長需為大於 0 且不超過 60 分鐘的單一數值。';
+    if (reason && !errors.some(error => error.line === step.sourceLine)) errors.push({ line: step.sourceLine, text: lines[step.sourceLine - 1].trim(), reason });
+  });
   return { name: detectedName, steps, errors };
 }
 
@@ -2699,13 +2950,13 @@ function renderImportPreview(result) {
   }
 
   const hasSteps = steps.length > 0;
-  saveBtn.disabled = !hasSteps;
-  loadBtn.disabled = !hasSteps;
+  saveBtn.disabled = !hasSteps || errors.length > 0;
+  loadBtn.disabled = !hasSteps || errors.length > 0;
 
   let html = '<div class="import-preview-title">解析結果</div>';
 
   if (name) {
-    html += '<div class="import-proto-name">📋 ' + name + '</div>';
+    html += '<div class="import-proto-name">📋 ' + escapeHtml(name) + '</div>';
   }
 
   if (hasSteps) {
@@ -2728,7 +2979,7 @@ function renderImportPreview(result) {
         '<td style="font-size:11px">' + s.wave + '</td>' +
         '<td style="font-family:var(--mono);font-size:11px">' + s.duration + ' min</td>' +
         '<td>' +
-          (s.note ? '<div class="import-step-note">' + s.note + '</div>' : '') +
+          (s.note ? '<div class="import-step-note">' + escapeHtml(s.note) + '</div>' : '') +
           (s.warn ? '<div class="import-step-warn">' + s.warn + '</div>' : '') +
         '</td></tr>';
     });
@@ -2736,10 +2987,10 @@ function renderImportPreview(result) {
   }
 
   if (errors.length) {
-    html += '<div style="margin-top:10px;">' +
+    html += '<div class="warning-banner danger">請先修正下列錯誤，再儲存或執行。</div><div style="margin-top:10px;">' +
       errors.map(e => '<div class="import-step-err" style="padding:4px 0;border-bottom:1px solid rgba(248,81,73,0.2)">' +
         '第 ' + e.line + ' 行：' + e.reason + '<br>' +
-        '<span style="font-family:var(--mono);font-size:10px;opacity:0.7">' + e.text + '</span></div>').join('') +
+        '<span style="font-family:var(--mono);opacity:0.85">' + escapeHtml(e.text) + '</span></div>').join('') +
       '</div>';
   }
 
@@ -2749,6 +3000,7 @@ function renderImportPreview(result) {
 // ── Modal wiring (runs once after DOM ready) ──────────────────────────────────
 (function initImportModal() {
   let _lastResult = null;
+  let _importDraftId = null;
 
   function openImportModal() {
     $('importTextarea').value = '';
@@ -2784,10 +3036,11 @@ function renderImportPreview(result) {
 
   // Save to My Protocols
   $('importSave').addEventListener('click', async () => {
-    if (!_lastResult || !_lastResult.steps.length) return;
+    if (!_lastResult || !_lastResult.steps.length || _lastResult.errors.length) return;
+    if (!ensurePersonalProtocolsReady()) return;
     const name = $('importProtoName').value.trim() || _lastResult.name || '匯入協定 ' + new Date().toLocaleTimeString('zh-TW');
     const proto = {
-      id: 'import_' + Date.now(),
+      id: _importDraftId || ('import_' + Date.now()),
       name_zh: name, name_en: name,
       category: 'imported',
       indication_zh: '', indication_en: '',
@@ -2798,9 +3051,10 @@ function renderImportPreview(result) {
         polarity: s.polarity, wave: s.wave, duration: s.duration
       }))
     };
-    const list = [...(USER_PROTOCOLS || []), proto];
-    USER_PROTOCOLS = list;
-    await saveUserProtocols(list);
+    _importDraftId = proto.id;
+    const list = [...USER_PROTOCOLS.filter(p => p.id !== proto.id), proto];
+    if (!await saveUserProtocols(list)) return;
+    _importDraftId = null;
     closeImportModal();
     if ($('view-protocols').classList.contains('active')) renderProtocolsView();
     alert('✅ 已儲存：' + name);
@@ -2808,7 +3062,7 @@ function renderImportPreview(result) {
 
   // Load & start immediately
   $('importLoad').addEventListener('click', () => {
-    if (!_lastResult || !_lastResult.steps.length) return;
+    if (!_lastResult || !_lastResult.steps.length || _lastResult.errors.length) return;
     const name = $('importProtoName').value.trim() || _lastResult.name || '即時匯入';
     const proto = {
       id: 'tmp_' + Date.now(),
@@ -2821,7 +3075,7 @@ function renderImportPreview(result) {
       }))
     };
     closeImportModal();
-    loadAndConfirmProtocol(proto);
+    askLoadProtocol(proto);
   });
 })();
 
@@ -2856,7 +3110,13 @@ function switchToView(view) {
   if ((!CHANNEL_A || !PROTOCOLS_CURATED) && view !== 'manual') {
     // Trigger lazy load
     $('view-' + view).innerHTML = '<div class="empty-state"><p>Loading...</p></div>';
-    loadProtectedData().then(() => switchToView(view));
+    loadProtectedData().then(loaded => {
+      if (loaded || !auth.isAuthed()) { switchToView(view); return; }
+      const active = document.querySelector('.tab.active');
+      if (!active || active.getAttribute('data-view') !== view) return;
+      $('view-' + view).innerHTML = '<div class="empty-state"><p>資料載入失敗，請確認網路後重試。</p><button type="button" class="btn-secondary" data-retry-reference>重試</button></div>';
+      $('view-' + view).querySelector('[data-retry-reference]').onclick = () => switchToView(view);
+    });
     return;
   }
 
@@ -2872,11 +3132,13 @@ function switchToView(view) {
 // ============================================================
 function renderProtocolsView() {
   $('view-protocols').innerHTML = `
+    ${protocolSyncMarkup()}
     <div class="subtabs">
       <button class="subtab ${state.protocolSet === 'favorites' ? 'active' : ''}" data-pset="favorites">${t('subtab_favorites')} · ${FAVORITE_PROTOCOL_IDS.size}</button>
       <button class="subtab ${state.protocolSet === 'custom' ? 'active' : ''}" data-pset="custom">${t('subtab_custom')} · ${(USER_PROTOCOLS || []).length}</button>
       <button class="subtab ${state.protocolSet === 'full' ? 'active' : ''}" data-pset="full">${t('subtab_modebank')}${PROTOCOLS_FULL ? ' · ' + PROTOCOLS_FULL.length : ''}</button>
     </div>
+    <section class="recent-protocols" id="recentProtocols" hidden></section>
     <div class="protocol-library-summary" id="protocolLibrarySummary"></div>
     <div class="search-bar" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
       <input type="text" class="search-input" id="protocolSearch" placeholder="${t('search_protocols')}" style="flex:1;min-width:120px;">
@@ -2984,8 +3246,11 @@ function renderProtocolsView() {
       let current = [];
       try {
         const r = await fetch(API_BASE + '/reference-protocols', { headers: { 'Authorization': 'Bearer ' + auth.user.token } });
-        if (r.ok) { const d = await r.json(); current = Array.isArray(d.protocols) ? d.protocols : []; }
-      } catch (e) { /* treat as empty on read failure */ }
+        if (!r.ok) throw new Error('讀取失敗：' + r.status);
+        const d = await r.json();
+        if (!Array.isArray(d.protocols)) throw new Error('參考庫格式錯誤');
+        current = d.protocols;
+      } catch (e) { alert('參考庫讀取失敗，已停止匯入。請重試。'); return; }
 
       // 4. The imported file is the complete reference library. Replacing the
       // whole layer avoids silently retaining list-only or intentionally skipped items.
@@ -3101,10 +3366,8 @@ function getProtocolGroupName(p) {
 function getMarkedPersonalProtocols() {
   return (USER_PROTOCOLS || []).filter(p => state.markedProtocolIds.has(String(p.id || '')));
 }
-function persistPersonalProtocolChanges(list) {
-  USER_PROTOCOLS = list;
-  localStorage.setItem(CUSTOM_PROTO_KEY, JSON.stringify(list.filter(p => p._custom)));
-  saveUserProtocols(list);
+async function persistPersonalProtocolChanges(list) {
+  return saveUserProtocols(list);
 }
 function rememberProtocolLocation(kind, value) {
   value = String(value || '').trim();
@@ -3116,6 +3379,7 @@ function rememberProtocolLocation(kind, value) {
   saveProtocolLocations(locations);
 }
 function createProtocolLocation(kind) {
+  if (!ensurePersonalProtocolsReady()) return;
   const isFolder = kind === 'folder';
   const value = prompt(isFolder ? '新資料夾名稱：' : '新協定群組名稱：');
   if (value == null || !value.trim()) return;
@@ -3123,7 +3387,8 @@ function createProtocolLocation(kind) {
   if (isFolder) state.protocolFolder = value.trim();
   renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
 }
-function bulkAssignProtocolLocation(kind) {
+async function bulkAssignProtocolLocation(kind) {
+  if (!ensurePersonalProtocolsReady()) return;
   const marked = getMarkedPersonalProtocols();
   if (!marked.length) { alert('請先標記至少一個協定。'); return; }
   const isFolder = kind === 'folder';
@@ -3136,7 +3401,7 @@ function bulkAssignProtocolLocation(kind) {
     return isFolder ? { ...p, folder: nextValue } : { ...p, protocol_group: nextValue };
   });
   if (nextValue) rememberProtocolLocation(kind, nextValue);
-  persistPersonalProtocolChanges(next);
+  if (!await persistPersonalProtocolChanges(next)) return;
   if (isFolder && nextValue) state.protocolFolder = nextValue;
   renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
 }
@@ -3158,12 +3423,13 @@ function exportMarkedProtocols() {
   if (!marked.length) { alert('請先標記至少一個協定。'); return; }
   exportProtocolBlob(marked, 'fsm-marked-protocols');
 }
-function deleteMarkedProtocols() {
+async function deleteMarkedProtocols() {
+  if (!ensurePersonalProtocolsReady()) return;
   const marked = getMarkedPersonalProtocols();
   if (!marked.length) { alert('請先標記至少一個協定。'); return; }
   if (!confirm('確定刪除已標記的 ' + marked.length + ' 個協定？')) return;
   const ids = new Set(marked.map(p => String(p.id || '')));
-  persistPersonalProtocolChanges((USER_PROTOCOLS || []).filter(p => !ids.has(String(p.id || ''))));
+  if (!await persistPersonalProtocolChanges(USER_PROTOCOLS.filter(p => !ids.has(String(p.id || ''))))) return;
   state.markedProtocolIds.clear();
   state.protocolMarkMode = false;
   renderProtocolList($('protocolSearch') ? $('protocolSearch').value : '');
@@ -3178,6 +3444,7 @@ function runProtocolGroup(name, protocols) {
     name_en: name,
     indication_zh: protocols.length + ' 個協定群組，依清單順序串接執行',
     indication_en: protocols.length + ' protocols run in list order',
+    recentProtocolIds: protocols.map(protocol => String(protocol.id || '')),
     steps
   });
 }
@@ -3277,9 +3544,54 @@ function renderProtocolLibrarySummary(src, isFull) {
     '<div class="protocol-library-stat"><strong>' + uniqueNames.size + '</strong><span>協定名稱</span></div>' +
     '<div class="protocol-library-stat"><strong>' + organizationCount + '</strong><span>' + organizationLabel + '</span></div>';
 }
+function recentProtocolStorageKey() {
+  return auth.user && auth.user.email ? 'fsm_recent_protocols_v1:' + encodeURIComponent(auth.user.email.toLowerCase()) : null;
+}
+function loadRecentProtocolIds() {
+  const key = recentProtocolStorageKey();
+  if (!key) return [];
+  try {
+    const stored = JSON.parse(localStorage.getItem(key) || '[]');
+    return Array.isArray(stored) ? [...new Set(stored.filter(id => typeof id === 'string' && id.length <= 160))].slice(0, 8) : [];
+  } catch (e) { return []; }
+}
+function getRecentProtocols() {
+  const available = new Map([...(PROTOCOLS_FULL || []), ...(USER_PROTOCOLS || [])].map(protocol => [String(protocol.id || ''), protocol]));
+  return loadRecentProtocolIds().map(id => available.get(id)).filter(Boolean);
+}
+function rememberRecentProtocol(protocol) {
+  const key = recentProtocolStorageKey();
+  if (!key) return;
+  const available = new Set([...(PROTOCOLS_FULL || []), ...(USER_PROTOCOLS || [])].map(item => String(item.id || '')));
+  const ids = (protocol.recentProtocolIds || [String(protocol.id || '')]).filter(id => available.has(id));
+  if (!ids.length) return;
+  const recent = [...new Set([...ids, ...loadRecentProtocolIds()])].slice(0, 8);
+  try { localStorage.setItem(key, JSON.stringify(recent)); } catch (e) { /* Optional local shortcut; running remains available. */ }
+  renderRecentProtocols();
+}
+function renderRecentProtocols() {
+  const section = $('recentProtocols');
+  if (!section) return;
+  const recent = getRecentProtocols();
+  section.hidden = !recent.length;
+  section.innerHTML = recent.length ? '<h2>' + (LANG === 'zh' ? '最近使用' : 'Recently used') + '</h2><div class="recent-protocol-list">' + recent.map(protocol =>
+    '<button type="button" class="btn-secondary recent-protocol-btn" data-recent-id="' + encodeURIComponent(String(protocol.id)) + '">' + escapeHtml(getProtocolName(protocol)) + '</button>'
+  ).join('') + '</div>' : '';
+  section.querySelectorAll('[data-recent-id]').forEach(button => button.addEventListener('click', () => {
+    const protocol = recent.find(item => String(item.id) === decodeURIComponent(button.getAttribute('data-recent-id')));
+    if (protocol) askLoadProtocol(protocol);
+  }));
+}
 function renderProtocolList(filter) {
+  renderRecentProtocols();
+  renderPersonalSyncStatus();
   filter = (filter || '').toLowerCase();
   const list = $('protocolList');
+  if (!list) return;
+  if (state.protocolSet !== 'full' && !personalSync.ready) {
+    list.innerHTML = '<div class="empty-state">' + (personalSync.status === 'loading' ? '正在載入個人資料…' : '個人資料尚未載入，請按上方「重試」。') + '</div>';
+    return;
+  }
   let src;
   if (state.protocolSet === 'custom') {
     src = USER_PROTOCOLS !== null ? [...USER_PROTOCOLS] : [];
@@ -3517,6 +3829,7 @@ function askLoadProtocol(p) {
     state.loadedProtocol = Object.assign({}, p, { steps: p.steps.map(normalizeStep) });
     state.currentStepIndex = 0;
     startStep(state.loadedProtocol.steps[0], true);
+    if (state.running) rememberRecentProtocol(p);
     renderProtocolList($('protocolSearch') && $('protocolSearch').value);
   };
   $('modalCancel').onclick = () => $('loadModal').classList.remove('show');
@@ -4008,9 +4321,49 @@ async function importEncryptedRecords(evt) {
 // ============================================================
 // PROTECTED: MUSIC VIEW
 // ============================================================
-const musicState = { source: 'manual', freqA: 40, freqB: 116, duration: 20, protocolId: null, style: 'ambient', treatmentLevel: 0.7, bgLevel: 0.3, format: 'wav' };
+const MUSIC_MAX_MINUTES = 50;
+const MUSIC_MP3_ENCODER_URL = '/fsm/studio/vendor/lamejs-1.2.1/lame.min.js';
+const musicState = { initialized: false, source: 'manual', freqA: 40, freqB: 116, polarity: 'Alternating', wave: 'Medium', duration: 20, protocolId: null, style: 'ambient', treatmentLevel: 0.7, bgLevel: 0.3, format: 'wav' };
+let musicExportInProgress = false;
+let musicEncoderPromise = null;
+let musicDownload = null;
+let musicPageGeneration = 0;
+
+function clearMusicDownload() {
+  if (musicDownload) URL.revokeObjectURL(musicDownload.url);
+  musicDownload = null;
+  const link = $('musicDownloadLink');
+  if (link) {
+    link.removeAttribute('href');
+    link.removeAttribute('download');
+    link.textContent = '';
+  }
+  if ($('musicDownload')) $('musicDownload').style.display = 'none';
+}
+
+function syncMusicDownload() {
+  if (musicDownload && (!auth.user || musicDownload.owner !== auth.user.email)) clearMusicDownload();
+  const link = $('musicDownloadLink');
+  if (!link || !musicDownload) return;
+  link.href = musicDownload.url;
+  link.download = musicDownload.filename;
+  link.textContent = musicDownload.filename;
+  $('musicDownload').style.display = 'block';
+}
+
+window.addEventListener('pagehide', () => {
+  musicPageGeneration += 1;
+  clearMusicDownload();
+});
 
 function renderMusicView() {
+  if (!musicState.initialized) {
+    musicState.freqA = state.freqA;
+    musicState.freqB = state.freqB;
+    musicState.polarity = state.polarity;
+    musicState.wave = state.waveshape;
+    musicState.initialized = true;
+  }
   $('view-music').innerHTML = `
     <div class="info-block" style="margin-bottom: 16px;">
       <p style="color: var(--text-dim); font-size: 12px; line-height: 1.6;">${t('music_intro')}</p>
@@ -4018,17 +4371,19 @@ function renderMusicView() {
     <div class="card">
       <div class="card-title">${t('music_source')}</div>
       <div class="subtabs">
-        <button class="subtab active" data-msrc="manual">${t('music_src_manual')}</button>
-        <button class="subtab" data-msrc="protocol">${t('music_src_protocol')}</button>
+        <button class="subtab ${musicState.source==='manual'?'active':''}" data-msrc="manual">${t('music_src_manual')}</button>
+        <button class="subtab ${musicState.source==='protocol'?'active':''}" data-msrc="protocol">${t('music_src_protocol')}</button>
       </div>
-      <div id="musicManualSource">
+      <div id="musicManualSource" style="display:${musicState.source==='manual'?'':'none'}">
         <div class="freq-display" style="margin-bottom: 8px;">
-          <div class="freq-card chA"><div class="freq-label">CH A</div><div class="freq-value" id="musicFreqAVal">${musicState.freqA}</div><div class="freq-name" id="musicFreqAName">—</div><input type="number" class="freq-input" id="musicFreqAInput" value="${musicState.freqA}" min="0.1" max="970" step="0.1" inputmode="decimal"></div>
-          <div class="freq-card chB"><div class="freq-label">CH B</div><div class="freq-value" id="musicFreqBVal">${musicState.freqB}</div><div class="freq-name" id="musicFreqBName">—</div><input type="number" class="freq-input" id="musicFreqBInput" value="${musicState.freqB}" min="0.1" max="970" step="0.1" inputmode="decimal"></div>
+          <div class="freq-card chA"><div class="freq-label">CH A</div><div class="freq-value" id="musicFreqAVal">${musicState.freqA}</div><div class="freq-name" id="musicFreqAName">—</div><input aria-label="CH A (Hz)" type="number" class="freq-input" id="musicFreqAInput" value="${musicState.freqA}" min="0.1" max="999" step="0.1" inputmode="decimal"></div>
+          <div class="freq-card chB"><div class="freq-label">CH B</div><div class="freq-value" id="musicFreqBVal">${musicState.freqB}</div><div class="freq-name" id="musicFreqBName">—</div><input aria-label="CH B (Hz)" type="number" class="freq-input" id="musicFreqBInput" value="${musicState.freqB}" min="0.1" max="999" step="0.1" inputmode="decimal"></div>
         </div>
-        <div class="form-group"><label class="form-label">${t('music_duration')}</label><div class="slider-row"><input type="range" class="slider" id="musicDurSlider" min="1" max="60" step="1" value="${musicState.duration}"><div class="slider-value" id="musicDurVal">${musicState.duration} min</div></div></div>
+        <div class="form-group"><label class="form-label" for="musicPolaritySelect">${LANG==='zh'?'極性':'Polarity'}</label><select class="form-select" id="musicPolaritySelect"><option value="Alternating" ${musicState.polarity==='Alternating'?'selected':''}>+/−</option><option value="Positive" ${musicState.polarity==='Positive'?'selected':''}>+→</option></select></div>
+        <div class="form-group"><label class="form-label" for="musicWaveSelect">${LANG==='zh'?'波形':'Waveform'}</label><select class="form-select" id="musicWaveSelect">${['Sharp','Medium','Gentle'].map(w => `<option value="${w}" ${musicState.wave===w?'selected':''}>${w}</option>`).join('')}</select></div>
+        <div class="form-group"><label class="form-label" for="musicDurSlider">${t('music_duration')} · ${LANG==='zh'?'上限':'Maximum'} ${MUSIC_MAX_MINUTES} min</label><div class="slider-row"><input type="range" class="slider" id="musicDurSlider" min="1" max="${MUSIC_MAX_MINUTES}" step="1" value="${musicState.duration}"><div class="slider-value" id="musicDurVal">${musicState.duration} min</div></div></div>
       </div>
-      <div id="musicProtocolSource" style="display:none">
+      <div id="musicProtocolSource" style="display:${musicState.source==='protocol'?'':'none'}">
         <div class="form-group"><label class="form-label">${t('music_select_protocol')}</label><select class="form-select" id="musicProtocolSelect"></select></div>
         <div class="info-block" style="font-size: 11px;"><p id="musicProtocolInfo" style="color: var(--text-dim);">—</p></div>
       </div>
@@ -4055,14 +4410,21 @@ function renderMusicView() {
         <button class="btn-seg ${musicState.format==='mp3'?'active':''}" data-fmt="mp3">MP3 192k</button>
       </div>
       <div style="font-size: 11px; color: var(--text-dim); margin-top: 8px;" id="musicFormatDesc">${musicState.format==='wav'?t('music_format_wav_desc'):t('music_format_mp3_desc')}</div>
+      <div style="margin-top:8px;"><a href="/fsm/studio/vendor/lamejs-1.2.1/NOTICE.txt" target="_blank" rel="noopener">MP3: lamejs / LAME · ${LANG==='zh'?'授權與原始碼':'License and source'}</a></div>
     </div>
     <div class="warning-banner info" id="musicSizeEstimate">${t('music_size_estimate')}: <span id="musicSizeVal">~ — MB</span></div>
     <button class="btn-primary" id="generateMusicBtn">${t('music_generate')}</button>
     <div id="musicProgress" style="display: none;">
       <div class="card"><div class="card-title" id="musicProgressTitle">${t('music_generating')}</div><div style="background: var(--bg); border-radius: var(--radius); height: 8px; overflow: hidden; margin: 12px 0;"><div id="musicProgressBar" style="background: var(--accent); height: 100%; width: 0%; transition: width 0.3s;"></div></div><div style="font-size: 11px; color: var(--text-dim); font-family: var(--mono);" id="musicProgressStatus">—</div></div>
     </div>
+    <div class="card" id="musicDownload" style="display:none;" aria-live="polite">
+      <p>${LANG==='zh'?'檔案已備妥。如未自動下載，請點選檔名下載：':'Your file is ready. If downloading did not start, select the filename:'}</p>
+      <a class="btn-secondary" id="musicDownloadLink" style="display:inline-block;max-width:100%;overflow-wrap:anywhere;"></a>
+    </div>
   `;
   initMusicViewBindings();
+  setMusicExportBusy(musicExportInProgress);
+  syncMusicDownload();
 }
 
 function initMusicViewBindings() {
@@ -4077,7 +4439,7 @@ function initMusicViewBindings() {
 
   // Build merged, deduplicated list
   const seen = new Set();
-  const curated = (PROTOCOLS_CURATED || []).filter(p => { if (seen.has(p.id)) return false; seen.add(p.id); return true; });
+  const curated = (PROTOCOLS_CURATED || []).filter(p => { if (!protocolHasVerifiedSettings(p) || seen.has(p.id)) return false; seen.add(p.id); return true; });
   const full    = (PROTOCOLS_FULL || []).filter(p => {
     if (!protocolHasVerifiedSettings(p) || seen.has(p.id)) return false;
     seen.add(p.id);
@@ -4088,34 +4450,40 @@ function initMusicViewBindings() {
   // Build optgroups: My Protocols → Curated → Reference (deduplicated)
   const groups = [
     custom.length  ? `<optgroup label="── ${LANG==='zh'?'我的協定':'My Protocols'} ──">${
-      custom.map(p => `<option value="${p.id}">✦ ${p.name || p.condition || '—'}</option>`).join('')}</optgroup>` : '',
+      custom.map(p => `<option value="${escapeHtml(String(p.id))}">✦ ${escapeHtml(p.name || p.condition || '—')}</option>`).join('')}</optgroup>` : '',
     curated.length ? `<optgroup label="── ${LANG==='zh'?'精選':'Curated'} ──">${
-      curated.map(p => `<option value="${p.id}">★ ${protoDisplayName(p)}</option>`).join('')}</optgroup>` : '',
+      curated.map(p => `<option value="${escapeHtml(String(p.id))}">★ ${escapeHtml(protoDisplayName(p))}</option>`).join('')}</optgroup>` : '',
     full.length    ? `<optgroup label="── ${LANG==='zh'?'參考協定':'Reference'} ──">${
-      full.map(p => `<option value="${p.id}">${protoDisplayName(p)}</option>`).join('')}</optgroup>` : '',
+      full.map(p => `<option value="${escapeHtml(String(p.id))}">${escapeHtml(protoDisplayName(p))}</option>`).join('')}</optgroup>` : '',
   ].filter(Boolean);
-  sel.innerHTML = groups.length ? groups.join('') : '<option>—</option>';
+  sel.innerHTML = groups.length ? groups.join('') : '<option value="">—</option>';
 
   const all_flat = [...custom, ...curated, ...full];
-  const firstId = all_flat[0]?.id;
-  if (firstId && !musicState.protocolId) { sel.value = firstId; musicState.protocolId = firstId; }
+  const selectedProtocol = all_flat.find(p => p.id === musicState.protocolId) || all_flat[0];
+  sel.value = selectedProtocol?.id || '';
   updateMusicProtocolInfo();
 
   sel.addEventListener('change', updateMusicProtocolInfo);
 
-  musicState.freqA = state.freqA;
-  musicState.freqB = state.freqB;
   $('musicFreqAName').textContent = FREQ_A_MAP[musicState.freqA] || '—';
   $('musicFreqBName').textContent = FREQ_B_MAP[musicState.freqB] || '—';
 
   $('musicFreqAInput').addEventListener('input', e => {
-    const v = parseFloat(e.target.value);
-    if (!isNaN(v) && v > 0) { musicState.freqA = v; $('musicFreqAVal').textContent = v; $('musicFreqAName').textContent = FREQ_A_MAP[v] || '—'; }
+    const v = Number(e.target.value);
+    const valid = isValidFrequency(v);
+    $('musicFreqAVal').textContent = valid ? v : '—';
+    $('musicFreqAName').textContent = valid ? FREQ_A_MAP[v] || '—' : '—';
+    if (valid) musicState.freqA = v;
   });
   $('musicFreqBInput').addEventListener('input', e => {
-    const v = parseFloat(e.target.value);
-    if (!isNaN(v) && v > 0) { musicState.freqB = v; $('musicFreqBVal').textContent = v; $('musicFreqBName').textContent = FREQ_B_MAP[v] || '—'; }
+    const v = Number(e.target.value);
+    const valid = isValidFrequency(v);
+    $('musicFreqBVal').textContent = valid ? v : '—';
+    $('musicFreqBName').textContent = valid ? FREQ_B_MAP[v] || '—' : '—';
+    if (valid) musicState.freqB = v;
   });
+  $('musicPolaritySelect').addEventListener('change', e => { musicState.polarity = e.target.value; });
+  $('musicWaveSelect').addEventListener('change', e => { musicState.wave = e.target.value; });
   $('musicDurSlider').addEventListener('input', e => {
     musicState.duration = parseInt(e.target.value);
     $('musicDurVal').textContent = musicState.duration + ' min';
@@ -4163,16 +4531,12 @@ function initMusicViewBindings() {
     });
   });
   $('generateMusicBtn').addEventListener('click', async () => {
-    const btn = $('generateMusicBtn');
-    btn.disabled = true; btn.style.opacity = '0.5';
-    $('musicProgress').style.display = 'block';
     try { await generateMusicFile(); }
     catch (err) {
       console.error(err);
+      $('musicProgressTitle').textContent = t('music_generate_failed');
       $('musicProgressStatus').textContent = t('music_generate_failed') + ': ' + (err.message || err);
       $('musicProgressBar').style.background = 'var(--danger)';
-    } finally {
-      setTimeout(() => { btn.disabled = false; btn.style.opacity = ''; }, 1000);
     }
   });
   updateMusicSizeEstimate();
@@ -4186,11 +4550,11 @@ function getProtocolFromAny(id) {
 }
 function updateMusicProtocolInfo() {
   const id = $('musicProtocolSelect').value;
-  if (!id) return;
   const p = getProtocolFromAny(id);
-  if (!p) return;
-  musicState.protocolId = id;
-  $('musicProtocolInfo').textContent = `${p.steps.length} steps · ${totalProtocolMinutes(p)} min`;
+  musicState.protocolId = p ? id : null;
+  $('musicProtocolInfo').textContent = p
+    ? `${p.steps.length} steps · ${totalProtocolMinutes(p)} min · ${LANG==='zh'?'匯出上限':'Export maximum'} ${MUSIC_MAX_MINUTES} min`
+    : '—';
   updateMusicSizeEstimate();
 }
 function updateMusicSizeEstimate() {
@@ -4203,90 +4567,156 @@ function updateMusicSizeEstimate() {
   $('musicSizeVal').textContent = `~ ${sizeMB} MB`;
 }
 
-async function generateMusicFile() {
-  const SR = 44100;
+function readMusicExportSettings() {
+  // Read the rendered controls once, before any asynchronous preparation.
+  const source = document.querySelector('#view-music [data-msrc].active')?.getAttribute('data-msrc');
+  const style = document.querySelector('#musicStyleGroup .active')?.getAttribute('data-style');
+  const format = document.querySelector('#musicFormatGroup .active')?.getAttribute('data-fmt');
+  const treatmentLevel = Number($('musicTreatmentSlider').value) / 100;
+  const bgLevel = Number($('musicBgSlider').value) / 100;
+  const invalidSettings = () => new Error(LANG==='zh'?'請確認目前顯示的音樂匯出設定。':'Check the displayed music export settings.');
+  if (!['manual', 'protocol'].includes(source) || !['ambient', 'binaural', 'nature', 'silent'].includes(style) ||
+      !['wav', 'mp3'].includes(format) || !Number.isFinite(treatmentLevel) || treatmentLevel < 0.3 || treatmentLevel > 1 ||
+      !Number.isFinite(bgLevel) || bgLevel < 0 || bgLevel > 0.6) throw invalidSettings();
+
   let segments, labelName;
-  if (musicState.source === 'manual') {
-    segments = [{ freqA: musicState.freqA, freqB: musicState.freqB, polarity: state.polarity, wave: state.waveshape, duration: musicState.duration * 60 }];
-    labelName = `FSM_${musicState.freqA}_${musicState.freqB}_${musicState.duration}min`;
-  } else {
-    const p = getProtocolFromAny(musicState.protocolId);
-    if (!p) throw new Error('No protocol selected');
-    if (!protocolHasVerifiedSettings(p)) throw new Error('Protocol settings are incomplete');
-    segments = p.steps.map(rawStep => { const s = normalizeStep(rawStep); return { freqA: s.freq_a, freqB: s.freq_b, polarity: s.polarity, wave: s.wave, duration: s.duration * 60 }; });
-    const nm = p.name_zh ? (LANG==='zh'?p.name_zh:p.name_en) : p.name;
-    labelName = `FSM_${nm.replace(/[^a-zA-Z0-9_\u4e00-\u9fa5]/g, '_')}`;
-  }
-  const totalSec = segments.reduce((a, s) => a + s.duration, 0);
-  const totalSamples = Math.floor(totalSec * SR);
-  if (totalSamples > 50 * 60 * SR) throw new Error('Duration > 50 min: too large');
-
-  $('musicProgressStatus').textContent = t('music_progress_init');
-  $('musicProgressBar').style.width = '5%';
-  await new Promise(r => setTimeout(r, 50));
-
-  const offCtx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(2, totalSamples, SR);
-  let cursor = 0;
-  for (let i = 0; i < segments.length; i++) {
-    buildSegment(offCtx, segments[i], cursor, cursor + segments[i].duration);
-    cursor += segments[i].duration;
-  }
-  if (musicState.style !== 'silent' && musicState.bgLevel > 0) buildBackground(offCtx, musicState.style, totalSec);
-
-  $('musicProgressStatus').textContent = t('music_progress_render').replace('{pct}', '0');
-  $('musicProgressBar').style.width = '15%';
-
-  const renderStart = Date.now();
-  const renderProm = offCtx.startRendering();
-  const monitor = setInterval(() => {
-    const elapsed = Date.now() - renderStart;
-    const guessedPct = Math.min(70, 15 + Math.floor(elapsed / 100));
-    $('musicProgressBar').style.width = guessedPct + '%';
-    $('musicProgressStatus').textContent = t('music_progress_render').replace('{pct}', guessedPct - 15);
-  }, 300);
-  const renderedBuffer = await renderProm;
-  clearInterval(monitor);
-
-  $('musicProgressStatus').textContent = t('music_progress_encode');
-  $('musicProgressBar').style.width = '75%';
-  await new Promise(r => setTimeout(r, 50));
-
-  let blob, ext;
-  if (musicState.format === 'mp3') {
-    if (typeof lamejs === 'undefined') {
-      // Load lamejs from CDN if not present
-      await loadScript('https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js');
+  if (source === 'manual') {
+    const freqA = Number($('musicFreqAInput').value);
+    const freqB = Number($('musicFreqBInput').value);
+    const duration = Number($('musicDurSlider').value);
+    const polarity = $('musicPolaritySelect').value;
+    const wave = $('musicWaveSelect').value;
+    if (!isValidFrequency(freqA) || !isValidFrequency(freqB)) {
+      throw new Error(LANG==='zh'?'CH A 與 CH B 頻率需為 0.1–999 Hz。':'CH A and CH B must be between 0.1 and 999 Hz.');
     }
-    blob = encodeMP3(renderedBuffer, 192);
-    ext = 'mp3';
+    if (!Number.isFinite(duration) || duration < 1 || duration > MUSIC_MAX_MINUTES) {
+      throw new Error(LANG==='zh'?'匯出長度需為 1–50 分鐘。':'Export duration must be 1–50 minutes.');
+    }
+    segments = [{ freqA, freqB, polarity, wave, duration: duration * 60 }];
+    labelName = `FSM_${freqA}_${freqB}_${duration}min`;
   } else {
-    blob = encodeWAV(renderedBuffer);
-    ext = 'wav';
+    const p = getProtocolFromAny($('musicProtocolSelect').value);
+    if (!p || !protocolHasVerifiedSettings(p)) {
+      throw new Error(LANG==='zh'?'請選擇設定完整的協定。':'Select a protocol with complete settings.');
+    }
+    segments = p.steps.map(rawStep => {
+      const s = normalizeStep(rawStep);
+      return { freqA: Number(s.freq_a), freqB: Number(s.freq_b), polarity: s.polarity, wave: s.wave, duration: Number(s.duration) * 60 };
+    });
+    const nm = (LANG==='zh' ? p.name_zh : p.name_en) || p.name || p.name_zh || p.name_en || p.condition || 'protocol';
+    labelName = `FSM_${String(nm).replace(/[^a-zA-Z0-9_\u4e00-\u9fa5]/g, '_')}`;
   }
-  $('musicProgressBar').style.width = '100%';
-  $('musicProgressStatus').textContent = t('music_progress_done');
+  if (segments.some(s => !isValidFrequency(s.freqA) || !isValidFrequency(s.freqB) ||
+      !isValidStepDuration(s.duration / 60) || !['Positive', 'Alternating'].includes(s.polarity) ||
+      !['Sharp', 'Medium', 'Gentle'].includes(s.wave))) throw invalidSettings();
+  const totalSec = segments.reduce((sum, s) => sum + s.duration, 0);
+  if (totalSec > MUSIC_MAX_MINUTES * 60) {
+    throw new Error(LANG==='zh'?'此協定超過 50 分鐘匯出上限，請先縮短協定。':'This protocol exceeds the 50-minute export limit. Shorten it first.');
+  }
+  return Object.freeze({ source, style, format, treatmentLevel, bgLevel, totalSec, labelName,
+    segments: Object.freeze(segments.map(s => Object.freeze(s))) });
+}
 
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `${labelName}.${ext}`;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
-  setTimeout(() => { $('musicProgress').style.display = 'none'; $('musicProgressBar').style.width = '0%'; $('musicProgressBar').style.background = 'var(--accent)'; }, 3000);
+function setMusicExportBusy(busy) {
+  $('view-music').querySelectorAll('input, select, button').forEach(control => { control.disabled = busy; });
+  $('generateMusicBtn').style.opacity = busy ? '0.5' : '';
+  if (busy) $('musicProgress').style.display = 'block';
+}
+
+async function ensureMusicEncoder() {
+  if (typeof lamejs !== 'undefined' && typeof lamejs.Mp3Encoder === 'function') return;
+  if (!musicEncoderPromise) {
+    musicEncoderPromise = loadScript(MUSIC_MP3_ENCODER_URL).then(() => {
+      if (typeof lamejs === 'undefined' || typeof lamejs.Mp3Encoder !== 'function') {
+        throw new Error(LANG==='zh'?'MP3 編碼器未就緒，請重試或改用 WAV。':'MP3 encoder unavailable. Retry or choose WAV.');
+      }
+    }).catch(err => { musicEncoderPromise = null; throw err; });
+  }
+  await musicEncoderPromise;
+}
+
+async function generateMusicFile() {
+  if (musicExportInProgress) return;
+  const exportSession = auth.user;
+  const pageGeneration = musicPageGeneration;
+  musicExportInProgress = true;
+  setMusicExportBusy(true);
+  $('musicProgressTitle').textContent = t('music_generating');
+  $('musicProgressBar').style.width = '0%';
+  $('musicProgressBar').style.background = 'var(--accent)';
+  try {
+    if (!exportSession?.email) throw new Error(LANG==='zh'?'請先登入，再匯出音樂。':'Sign in before exporting music.');
+    const settings = readMusicExportSettings();
+    const SR = 44100;
+    const totalSamples = Math.floor(settings.totalSec * SR);
+    const OfflineContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!OfflineContext) throw new Error(LANG==='zh'?'此瀏覽器不支援音訊匯出。':'This browser does not support audio export.');
+    $('musicProgressStatus').textContent = t('music_progress_init');
+    // Fail fast: load the same-origin encoder before allocating or rendering audio.
+    if (settings.format === 'mp3') await ensureMusicEncoder();
+    $('musicProgressBar').style.width = '5%';
+    await new Promise(r => setTimeout(r, 50));
+
+    const offCtx = new OfflineContext(2, totalSamples, SR);
+    let cursor = 0;
+    for (const segment of settings.segments) {
+      buildSegment(offCtx, segment, cursor, cursor + segment.duration, settings.treatmentLevel);
+      cursor += segment.duration;
+    }
+    if (settings.style !== 'silent' && settings.bgLevel > 0) {
+      buildBackground(offCtx, settings.style, settings.totalSec, settings.bgLevel);
+    }
+    $('musicProgressStatus').textContent = t('music_progress_render').replace('{pct}', '0');
+    $('musicProgressBar').style.width = '15%';
+    const renderStart = Date.now();
+    const monitor = setInterval(() => {
+      const guessedPct = Math.min(70, 15 + Math.floor((Date.now() - renderStart) / 100));
+      $('musicProgressBar').style.width = guessedPct + '%';
+      $('musicProgressStatus').textContent = t('music_progress_render').replace('{pct}', guessedPct - 15);
+    }, 300);
+    let renderedBuffer;
+    try { renderedBuffer = await offCtx.startRendering(); }
+    finally { clearInterval(monitor); }
+
+    $('musicProgressStatus').textContent = t('music_progress_encode');
+    $('musicProgressBar').style.width = '75%';
+    await new Promise(r => setTimeout(r, 50));
+    if (auth.user !== exportSession || musicPageGeneration !== pageGeneration) return;
+    const blob = settings.format === 'mp3' ? encodeMP3(renderedBuffer, 192) : encodeWAV(renderedBuffer);
+    const url = URL.createObjectURL(blob);
+    clearMusicDownload();
+    musicDownload = { url, filename: `${settings.labelName}.${settings.format}`, owner: exportSession?.email };
+    syncMusicDownload();
+    $('musicDownloadLink').click();
+    $('musicProgressBar').style.width = '100%';
+    $('musicProgressTitle').textContent = t('music_ready');
+    $('musicProgressStatus').textContent = t('music_progress_done');
+  } finally {
+    musicExportInProgress = false;
+    setMusicExportBusy(false);
+  }
 }
 
 function loadScript(src) {
   return new Promise((resolve, reject) => {
     const s = document.createElement('script');
-    s.src = src; s.onload = resolve; s.onerror = () => reject(new Error('Failed to load ' + src));
+    const timeout = setTimeout(() => failed(), 20000);
+    function failed() {
+      clearTimeout(timeout);
+      s.remove();
+      reject(new Error(LANG==='zh'?'MP3 編碼器載入失敗，請重試或改用 WAV。':'MP3 encoder could not load. Retry or choose WAV.'));
+    }
+    s.src = src;
+    s.onload = () => { clearTimeout(timeout); resolve(); };
+    s.onerror = failed;
     document.head.appendChild(s);
   });
 }
 
-function buildSegment(ctx, seg, startTime, endTime) {
-  const treatmentLevel = musicState.treatmentLevel;
+function buildSegment(ctx, seg, startTime, endTime, treatmentLevel) {
   const merger = ctx.createChannelMerger(2);
   const masterGain = ctx.createGain();
-  const fadeTime = 0.5;
+  const fadeTime = Math.min(0.5, (endTime - startTime) / 2);
   masterGain.gain.setValueAtTime(0, startTime);
   masterGain.gain.linearRampToValueAtTime(treatmentLevel * 0.6, startTime + fadeTime);
   masterGain.gain.setValueAtTime(treatmentLevel * 0.6, endTime - fadeTime);
@@ -4325,13 +4755,13 @@ function buildSegment(ctx, seg, startTime, endTime) {
   masterGain.connect(ctx.destination);
 }
 
-function buildBackground(ctx, style, totalSec) {
-  const bgLevel = musicState.bgLevel;
+function buildBackground(ctx, style, totalSec, bgLevel) {
   const bgGain = ctx.createGain();
   bgGain.gain.value = bgLevel * 0.4;
   bgGain.gain.setValueAtTime(0, 0);
-  bgGain.gain.linearRampToValueAtTime(bgLevel * 0.4, 3);
-  bgGain.gain.setValueAtTime(bgLevel * 0.4, totalSec - 3);
+  const fadeTime = Math.min(3, totalSec / 2);
+  bgGain.gain.linearRampToValueAtTime(bgLevel * 0.4, fadeTime);
+  bgGain.gain.setValueAtTime(bgLevel * 0.4, totalSec - fadeTime);
   bgGain.gain.linearRampToValueAtTime(0, totalSec);
   if (style === 'ambient') {
     const dr = ctx.createOscillator(); dr.type = 'sine'; dr.frequency.value = 110;
@@ -4417,7 +4847,7 @@ function encodeWAV(audioBuffer) {
 }
 
 function encodeMP3(audioBuffer, kbps) {
-  // Uses lamejs (loaded lazily from CDN)
+  // Uses the unmodified, locally hosted lamejs browser bundle.
   const numChannels = audioBuffer.numberOfChannels;
   const sampleRate = audioBuffer.sampleRate;
   const mp3encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, kbps);
@@ -4441,7 +4871,7 @@ function encodeMP3(audioBuffer, kbps) {
   }
   const end = mp3encoder.flush();
   if (end.length > 0) mp3Data.push(end);
-  return new Blob(mp3Data, { type: 'audio/mp3' });
+  return new Blob(mp3Data, { type: 'audio/mpeg' });
 }
 
 // ============================================================
@@ -4497,8 +4927,8 @@ ${s.notes ? `<h2>${L.notes}</h2><div>${escapeHtml(s.notes).replace(/\n/g,'<br>')
 <footer>${L.footer}</footer></body></html>`;
 }
 function generateProtocolHTML(p) {
-  const L = LANG === 'zh' ? { title: 'FSM 治療協定', name: '協定名稱', category: '類別', indication: '適應症', total: '總時長', steps: '治療步驟', step: '步驟', freq: '頻率 (A / B)', polarity: '極性', wave: '波形', duration: '時長', tissue: '組織', warnings: '注意事項', hardware: '硬體建議', hwb: '手機接 USB-C 轉 3.5mm，再接 FSM 專用電極墊或自製電極片。起始電流 100-200 μA，依組織反應調整。', footer: '由 FSM Studio 生成' }
-    : { title: 'FSM Treatment Protocol', name: 'Protocol', category: 'Category', indication: 'Indication', total: 'Total duration', steps: 'Treatment steps', step: 'Step', freq: 'Freq (A / B)', polarity: 'Polarity', wave: 'Wave', duration: 'Dur.', tissue: 'Tissues', warnings: 'Precautions', hardware: 'Hardware', hwb: 'Phone → USB-C to 3.5mm → FSM electrode pad or DIY electrode cable. Start 100-200 μA, adjust to response.', footer: 'Generated by FSM Studio' };
+  const L = LANG === 'zh' ? { title: 'FSM 治療協定', name: '協定名稱', category: '類別', indication: '適應症', total: '總時長', steps: '治療步驟', step: '步驟', freq: '頻率 (A / B)', polarity: '極性', wave: '波形', duration: '時長', tissue: '組織', warnings: '注意事項', hardware: '硬體建議', hwb: '本工具顯示音訊增益，控制數位音訊振幅；未量測或校準硬體實際電流，增益數值不可視為 μA。', footer: '由 FSM Studio 生成' }
+    : { title: 'FSM Treatment Protocol', name: 'Protocol', category: 'Category', indication: 'Indication', total: 'Total duration', steps: 'Treatment steps', step: 'Step', freq: 'Freq (A / B)', polarity: 'Polarity', wave: 'Wave', duration: 'Dur.', tissue: 'Tissues', warnings: 'Precautions', hardware: 'Hardware', hwb: 'Audio gain controls digital amplitude. Hardware current is not measured or calibrated; gain values do not represent μA.', footer: 'Generated by FSM Studio' };
   const nm = getProtocolName(p); const ind = getProtocolIndication(p);
   const cat = p.category || p.cat || ''; const tot = totalProtocolMinutes(p);
   const warnings = new Set();
@@ -4557,7 +4987,7 @@ updateFreqDisplay();
 updateTimerDisplay();
 applyRunScale();
 // If logged in, load protected data in background
-if (auth.isAuthed()) loadProtectedData();
+if (auth.isAuthed()) initializeAuthenticatedData();
 </script>
 </body>
 </html>

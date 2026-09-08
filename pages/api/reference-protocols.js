@@ -20,10 +20,12 @@ async function kvGet(key) {
   const res = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
-  if (!res.ok) return null;
-  const { result } = await res.json();
-  if (!result) return null;
-  try { const p = JSON.parse(result); return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; }
+  if (!res.ok) throw new Error('KV get failed: ' + res.status);
+  const response = await res.json();
+  if (response.error || !Object.prototype.hasOwnProperty.call(response, 'result')) throw new Error('Invalid KV response');
+  if (response.result === null) return null;
+  const parsed = JSON.parse(response.result);
+  return typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
 }
 
 async function kvSet(key, value) {
@@ -39,6 +41,8 @@ async function kvSet(key, value) {
     body: JSON.stringify(JSON.stringify(value))
   });
   if (!res.ok) throw new Error('KV set failed: ' + res.status);
+  const result = await res.json();
+  if (result.error || result.result !== 'OK') throw new Error('KV write was not acknowledged');
 }
 
 // ── Session token verification (same scheme as auth.js / protocols.js) ─────
@@ -100,6 +104,7 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const list = await kvGet(KV_KEY);
+      if (list !== null && !Array.isArray(list)) throw new Error('Invalid saved reference protocols');
       const protocols = toPublicReferenceProtocols(Array.isArray(list) ? list : MB_REFERENCE);
       return res.status(200).json({
         protocols,

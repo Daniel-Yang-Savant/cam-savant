@@ -1,0 +1,26 @@
+FSM Studio uses lamejs 1.2.1 by Alex Zhukov to encode MP3 files.
+lamejs is a JavaScript port of LAME via jump3r.
+LAME project: https://lame.sourceforge.io/
+lamejs project: https://github.com/zhuker/lamejs
+
+The original lamejs npm package declares LGPL-3.0. The upstream LICENSE
+notice (trailing spaces normalized) and complete license texts are distributed alongside the
+browser encoder. See individual source files for their original notices.
+This library is provided without warranty, including implied warranties
+of merchantability or fitness for a particular purpose.
+
+License texts:
+/fsm/studio/vendor/lamejs-1.2.1/LICENSE
+/fsm/studio/vendor/lamejs-1.2.1/LGPL-3.0.txt
+/fsm/studio/vendor/lamejs-1.2.1/GPL-3.0.txt
+
+Complete corresponding source (the unmodified official npm archive):
+/fsm/studio/vendor/lamejs-1.2.1/lamejs-1.2.1-source.tgz
+
+Download source: https://registry.npmjs.org/lamejs/-/lamejs-1.2.1.tgz
+Provenance and checksums: /fsm/studio/vendor/lamejs-1.2.1/provenance.json
+
+The library is loaded as a separate same-origin script:
+/fsm/studio/vendor/lamejs-1.2.1/lame.min.js
+There are no modifications to lamejs. To use a modified compatible build,
+replace this file in your local copy of FSM Studio and serve that copy.

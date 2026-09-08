@@ -12,14 +12,16 @@ void SEED_PROTOCOLS;
 async function kvGet(key) {
   const url = process.env.KV_REST_API_URL;
   const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return null;
+  if (!url || !token) throw new Error('KV not configured');
   const res = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
-  if (!res.ok) return null;
-  const { result } = await res.json();
-  if (!result) return null;
-  try { const parsed = JSON.parse(result); return typeof parsed === 'string' ? JSON.parse(parsed) : parsed; } catch { return null; }
+  if (!res.ok) throw new Error('KV get failed: ' + res.status);
+  const response = await res.json();
+  if (response.error || !Object.prototype.hasOwnProperty.call(response, 'result')) throw new Error('Invalid KV response');
+  if (response.result === null) return null;
+  const parsed = JSON.parse(response.result);
+  return typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
 }
 
 async function kvSet(key, value) {
@@ -35,6 +37,8 @@ async function kvSet(key, value) {
     body: JSON.stringify(JSON.stringify(value))
   });
   if (!res.ok) throw new Error('KV set failed: ' + res.status);
+  const result = await res.json();
+  if (result.error || result.result !== 'OK') throw new Error('KV write was not acknowledged');
 }
 
 // ── Session token verification (same as auth.js) ──────────────────────────
@@ -81,13 +85,15 @@ export default async function handler(req, res) {
     try {
       let protocols = await kvGet(kvKey);
       if (protocols === null) {
-        // One-time migration from the legacy custom-protocol key. An explicitly
-        // saved empty array remains empty and will not be repopulated.
+        // Read legacy data without writing during GET: a concurrent save must
+        // never be overwritten by a delayed migration. A saved [] remains empty.
         const legacyProtocols = await kvGet(`my_protocols:${email}`);
-        protocols = Array.isArray(legacyProtocols) ? legacyProtocols : [];
-        await kvSet(kvKey, protocols);
+        if (legacyProtocols !== null && !Array.isArray(legacyProtocols)) throw new Error('Invalid legacy protocols');
+        protocols = legacyProtocols || [];
       }
       const favoriteProtocolIds = await kvGet(favoritesKey);
+      if (!Array.isArray(protocols)) throw new Error('Invalid saved protocols');
+      if (favoriteProtocolIds !== null && !Array.isArray(favoriteProtocolIds)) throw new Error('Invalid saved favorites');
       return res.status(200).json({
         protocols: Array.isArray(protocols) ? protocols : [],
         favorite_protocol_ids: Array.isArray(favoriteProtocolIds) ? favoriteProtocolIds : []
