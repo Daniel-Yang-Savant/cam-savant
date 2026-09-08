@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { LINE_ADD_URL, CONSULT_FORM_URL, LINE_GREEN } from '@/lib/site'
 import { trackAnalyticsEvent } from '@/lib/analytics'
 
@@ -13,8 +14,11 @@ function LineGlyph({ className = 'w-5 h-5' }: { className?: string }) {
 }
 
 export default function FloatingChatButton({ locale = 'zh' }: { locale?: 'zh' | 'en' }) {
+  const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const isEnglish = locale === 'en'
+
+  if (pathname?.startsWith('/admin')) return null
 
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-3">

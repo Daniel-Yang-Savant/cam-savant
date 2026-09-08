@@ -20,7 +20,7 @@ export default function AdminLoginPage() {
         // Use a document navigation so RootLayout mounts again after the
         // HttpOnly admin cookie is stored. A client-side transition preserves
         // the QR button's pre-login (unauthenticated) state.
-        window.location.replace('/perioperative-rehab')
+        window.location.replace('/admin/opd')
       } else if (res.status === 429) {
         const retryAfter = Number(res.headers.get('Retry-After') ?? 0)
         const minutes = Math.max(1, Math.ceil(retryAfter / 60))

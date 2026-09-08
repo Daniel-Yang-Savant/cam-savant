@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useState, useCallback, useRef } from 'react'
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -156,9 +157,17 @@ export default function AdminEditorPage() {
       <aside className="w-72 flex-shrink-0 border-r border-neutral-200 dark:border-neutral-800 flex flex-col">
         {/* Header */}
         <div className="px-4 py-4 border-b border-neutral-200 dark:border-neutral-800">
-          <h1 className="text-sm font-bold text-neutral-900 dark:text-neutral-100 mb-3">
-            文章編輯器
-          </h1>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h1 className="text-sm font-bold text-neutral-900 dark:text-neutral-100">
+              文章編輯器
+            </h1>
+            <Link
+              href="/admin/opd"
+              className="rounded-md bg-neutral-900 px-2 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-neutral-700 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-300"
+            >
+              OPD SOAP
+            </Link>
+          </div>
           <input
             type="search"
             placeholder="搜尋標題、slug 或分類…"

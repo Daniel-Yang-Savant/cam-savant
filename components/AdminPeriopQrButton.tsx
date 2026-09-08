@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { QRCodeSVG } from 'qrcode.react'
 import { useAdminSession } from '@/components/AdminSessionProvider'
 
@@ -17,6 +18,7 @@ function secondsUntil(expiresAt: string): number {
 }
 
 export default function AdminPeriopQrButton({ locale = 'zh' }: { locale?: 'zh' | 'en' }) {
+  const pathname = usePathname()
   const { authenticated } = useAdminSession()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -93,7 +95,7 @@ export default function AdminPeriopQrButton({ locale = 'zh' }: { locale?: 'zh' |
     setCopied(true)
   }
 
-  if (!authenticated) return null
+  if (!authenticated || pathname?.startsWith('/admin')) return null
 
   const minutes = Math.floor(remainingSeconds / 60)
   const seconds = remainingSeconds % 60
