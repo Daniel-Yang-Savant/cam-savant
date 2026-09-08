@@ -28,11 +28,11 @@ interface PostopPrescription {
   title: string
   category: PostopPrescriptionCategory
   hint: string
+  subjective: string
+  objective: string
+  assessment: string
   plan: string
   safety: string
-  origin: '現有 Notion' | '循證補充'
-  reviewStatus: '待醫師確認'
-  sources: Array<{ label: string; url: string }>
 }
 
 type CopyState = 'idle' | 'copied' | 'error'
@@ -118,8 +118,9 @@ export default function OpdPage() {
   const [plan, setPlan] = useState(INITIAL_PLAN)
   const [copyState, setCopyState] = useState<CopyState>('idle')
   const [hasEdited, setHasEdited] = useState(false)
+  const [objectiveEdited, setObjectiveEdited] = useState(false)
   const objectiveRef = useRef<HTMLTextAreaElement>(null)
-  const planRef = useRef<HTMLTextAreaElement>(null)
+  const soapWorkspaceRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -138,7 +139,6 @@ export default function OpdPage() {
       .then(({ templates: nextTemplates, prescriptions: nextPrescriptions }) => {
         setTemplates(nextTemplates)
         setPrescriptions(nextPrescriptions)
-        setSelectedPrescriptionId(nextPrescriptions[0]?.id ?? '')
         const universal = nextTemplates.find((item) => item.id === 'universal-msk')
         if (universal) setObjective((current) => current || universal.objective)
       })
@@ -196,6 +196,9 @@ export default function OpdPage() {
         !normalizedQuery ||
         prescription.title.toLowerCase().includes(normalizedQuery) ||
         prescription.hint.toLowerCase().includes(normalizedQuery) ||
+        prescription.subjective.toLowerCase().includes(normalizedQuery) ||
+        prescription.objective.toLowerCase().includes(normalizedQuery) ||
+        prescription.assessment.toLowerCase().includes(normalizedQuery) ||
         prescription.plan.toLowerCase().includes(normalizedQuery)
       return inCategory && matchesQuery
     })
@@ -222,47 +225,45 @@ export default function OpdPage() {
     return () => window.removeEventListener('keydown', handleShortcut)
   }, [copySoap])
 
-  const applyExamTemplate = (mode: 'replace' | 'append') => {
-    if (!selectedTemplate) return
+  const selectExamTemplate = (template: OpdTemplate) => {
     if (
-      mode === 'replace' &&
-      objective.trim() &&
-      !window.confirm('這會取代目前的 O 內容，確定要繼續嗎？')
+      objectiveEdited &&
+      !window.confirm('切換檢查模板會取代目前手動編輯的 O 內容，確定要繼續嗎？')
     ) {
       return
     }
 
-    setObjective((current) =>
-      mode === 'append' && current.trim()
-        ? `${current.trim()}\n\n${selectedTemplate.objective}`
-        : selectedTemplate.objective
-    )
-    setHasEdited(true)
+    setSelectedId(template.id)
+    setObjective(template.objective)
+    setObjectiveEdited(false)
     window.requestAnimationFrame(() => {
-      objectiveRef.current?.focus()
-      objectiveRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      objectiveRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
     })
   }
 
-  const applyPostopPrescription = (mode: 'replace' | 'append') => {
-    if (!selectedPrescription) return
+  const selectPostopPrescription = (prescription: PostopPrescription) => {
     if (
-      mode === 'replace' &&
-      plan.trim() &&
-      !window.confirm('這會取代目前的 P 內容，確定要繼續嗎？')
+      hasEdited &&
+      !window.confirm('切換處方會取代目前的 S、O、A、P 內容，確定要繼續嗎？')
     ) {
       return
     }
 
-    setPlan((current) =>
-      mode === 'append' && current.trim()
-        ? `${current.trim()}\n\n${selectedPrescription.plan}`
-        : selectedPrescription.plan
-    )
-    setHasEdited(true)
+    setSelectedPrescriptionId(prescription.id)
+    setSubjective(prescription.subjective)
+    setObjective(prescription.objective)
+    setAssessment(prescription.assessment)
+    setPlan(prescription.plan)
+    setHasEdited(false)
+    setObjectiveEdited(false)
     window.requestAnimationFrame(() => {
-      planRef.current?.focus()
-      planRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      soapWorkspaceRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
     })
   }
 
@@ -272,7 +273,9 @@ export default function OpdPage() {
     setObjective('')
     setAssessment('')
     setPlan('')
+    setSelectedPrescriptionId('')
     setHasEdited(false)
+    setObjectiveEdited(false)
   }
 
   const restoreSkeleton = () => {
@@ -282,8 +285,10 @@ export default function OpdPage() {
     const universal = templates.find((item) => item.id === 'universal-msk')
     setObjective(universal?.objective ?? '')
     setSelectedId('universal-msk')
+    setSelectedPrescriptionId('')
     setLibraryMode('exam')
     setHasEdited(true)
+    setObjectiveEdited(false)
   }
 
   return (
@@ -303,7 +308,7 @@ export default function OpdPage() {
               OPD SOAP 工作區
             </h1>
             <p className="mt-1 text-sm text-stone-500 dark:text-neutral-400">
-              從 Notion OPD 整理的理學檢查與術後復健處方；完成病歷後一鍵複製。
+              門診理學檢查與術後復健 SOAP 模板；選取後直接載入，完成病歷再一鍵複製。
             </p>
           </div>
 
@@ -373,7 +378,7 @@ export default function OpdPage() {
                     : 'text-stone-500 hover:text-stone-900 dark:text-neutral-500 dark:hover:text-white'
                 }`}
               >
-                術後處方 P
+                術後 SOAP
               </button>
             </div>
             <div className="flex items-center justify-between gap-3">
@@ -387,13 +392,15 @@ export default function OpdPage() {
                       ? `${templates.length} 組 copy-ready O`
                       : '載入中…'
                     : prescriptions.length
-                      ? `${prescriptions.length} 組 copy-ready P`
+                      ? `${prescriptions.length} 組 copy-ready SOAP`
                       : '載入中…'}
                 </p>
               </div>
-              <span className="rounded-md bg-stone-100 px-2 py-1 text-[10px] text-stone-500 dark:bg-neutral-800 dark:text-neutral-400">
-                {libraryMode === 'exam' ? 'review 2026-09-01' : '待醫師確認'}
-              </span>
+              {libraryMode === 'exam' && (
+                <span className="rounded-md bg-stone-100 px-2 py-1 text-[10px] text-stone-500 dark:bg-neutral-800 dark:text-neutral-400">
+                  review 2026-09-01
+                </span>
+              )}
             </div>
             <input
               type="search"
@@ -449,7 +456,7 @@ export default function OpdPage() {
                 <button
                   key={template.id}
                   type="button"
-                  onClick={() => setSelectedId(template.id)}
+                  onClick={() => selectExamTemplate(template)}
                   className={`w-full border-b border-stone-100 px-4 py-3 text-left transition last:border-b-0 dark:border-neutral-800 ${
                     selectedId === template.id
                       ? 'bg-amber-50 dark:bg-amber-950/25'
@@ -474,7 +481,7 @@ export default function OpdPage() {
                 <button
                   key={prescription.id}
                   type="button"
-                  onClick={() => setSelectedPrescriptionId(prescription.id)}
+                  onClick={() => selectPostopPrescription(prescription)}
                   className={`w-full border-b border-stone-100 px-4 py-3 text-left transition last:border-b-0 dark:border-neutral-800 ${
                     selectedPrescriptionId === prescription.id
                       ? 'bg-emerald-50 dark:bg-emerald-950/25'
@@ -491,15 +498,6 @@ export default function OpdPage() {
                   </span>
                   <span className="mt-1.5 line-clamp-2 block text-xs leading-relaxed text-stone-500 dark:text-neutral-500">
                     {prescription.hint}
-                  </span>
-                  <span
-                    className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-[9px] font-semibold ${
-                      prescription.origin === '循證補充'
-                        ? 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300'
-                        : 'bg-stone-100 text-stone-600 dark:bg-neutral-800 dark:text-neutral-400'
-                    }`}
-                  >
-                    {prescription.origin}
                   </span>
                 </button>
               ))
@@ -520,7 +518,7 @@ export default function OpdPage() {
         <section className="min-w-0 space-y-5">
           {libraryMode === 'exam' && selectedTemplate && (
             <section className="overflow-hidden rounded-2xl border border-amber-200 bg-amber-50 shadow-sm dark:border-amber-900/60 dark:bg-amber-950/20">
-              <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start sm:justify-between sm:p-5">
+              <div className="p-4 sm:p-5">
                 <div className="min-w-0">
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-amber-700 dark:text-amber-400">
                     已選模板
@@ -536,41 +534,17 @@ export default function OpdPage() {
                     </p>
                   )}
                 </div>
-                <div className="flex shrink-0 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => applyExamTemplate('replace')}
-                    className="rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-semibold text-amber-900 transition hover:bg-amber-100 dark:border-amber-800 dark:bg-neutral-900 dark:text-amber-200 dark:hover:bg-amber-950"
-                  >
-                    取代 O
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => applyExamTemplate('append')}
-                    className="rounded-lg bg-amber-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-amber-800 dark:bg-amber-300 dark:text-amber-950 dark:hover:bg-amber-200"
-                  >
-                    附加至 O
-                  </button>
-                </div>
               </div>
             </section>
           )}
 
           {libraryMode === 'postop' && selectedPrescription && (
             <section className="overflow-hidden rounded-2xl border border-emerald-200 bg-emerald-50 shadow-sm dark:border-emerald-900/60 dark:bg-emerald-950/20">
-              <div className="flex flex-col gap-4 p-4 sm:p-5 xl:flex-row xl:items-start xl:justify-between">
+              <div className="p-4 sm:p-5">
                 <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-400">
-                      已選術後處方
-                    </p>
-                    <span className="rounded-full bg-white/80 px-2 py-0.5 text-[9px] font-semibold text-stone-600 dark:bg-neutral-950/50 dark:text-neutral-300">
-                      {selectedPrescription.origin}
-                    </span>
-                    <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[9px] font-semibold text-rose-800 dark:bg-rose-950 dark:text-rose-300">
-                      {selectedPrescription.reviewStatus}
-                    </span>
-                  </div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-400">
+                    已選術後 SOAP
+                  </p>
                   <h2 className="mt-1 text-base font-bold">
                     {selectedPrescription.title}
                   </h2>
@@ -581,42 +555,12 @@ export default function OpdPage() {
                     <span className="font-bold">安全提醒：</span>
                     {selectedPrescription.safety}
                   </p>
-                  <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-stone-500 dark:text-neutral-500">
-                    <span className="font-semibold">來源：</span>
-                    {selectedPrescription.sources.map((source) => (
-                      <a
-                        key={source.url}
-                        href={source.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="underline decoration-stone-300 underline-offset-2 hover:text-stone-900 dark:decoration-neutral-700 dark:hover:text-white"
-                      >
-                        {source.label}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex shrink-0 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => applyPostopPrescription('replace')}
-                    className="rounded-lg border border-emerald-300 bg-white px-3 py-2 text-xs font-semibold text-emerald-900 transition hover:bg-emerald-100 dark:border-emerald-800 dark:bg-neutral-900 dark:text-emerald-200 dark:hover:bg-emerald-950"
-                  >
-                    取代 P
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => applyPostopPrescription('append')}
-                    className="rounded-lg bg-emerald-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-800 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
-                  >
-                    附加至 P
-                  </button>
                 </div>
               </div>
             </section>
           )}
 
-          <div className="grid gap-5 xl:grid-cols-2">
+          <div ref={soapWorkspaceRef} className="grid scroll-mt-24 gap-5 xl:grid-cols-2">
             <SoapSection
               label="S"
               title="Subjective"
@@ -631,13 +575,14 @@ export default function OpdPage() {
             <SoapSection
               label="O"
               title="Objective"
-              helper="可從左側選擇多個檢查模板"
+              helper="點選左側檢查模板後直接載入"
               value={objective}
               rows={20}
               textareaRef={objectiveRef}
               onChange={(value) => {
                 setObjective(value)
                 setHasEdited(true)
+                setObjectiveEdited(true)
               }}
             />
             <SoapSection
@@ -654,10 +599,9 @@ export default function OpdPage() {
             <SoapSection
               label="P"
               title="Plan"
-              helper="可從左側術後處方庫快速加入"
+              helper="所選術後處方與階段性復健計畫"
               value={plan}
               rows={10}
-              textareaRef={planRef}
               onChange={(value) => {
                 setPlan(value)
                 setHasEdited(true)

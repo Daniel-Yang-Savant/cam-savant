@@ -15,6 +15,9 @@ export interface PostopPrescription {
   title: string
   category: PostopPrescriptionCategory
   hint: string
+  subjective: string
+  objective: string
+  assessment: string
   plan: string
   safety: string
   origin: '現有 Notion' | '循證補充'
@@ -22,13 +25,424 @@ export interface PostopPrescription {
   sources: PostopPrescriptionSource[]
 }
 
+type BasePostopPrescription = Omit<
+  PostopPrescription,
+  'subjective' | 'objective' | 'assessment'
+>
+
+type PostopSoapFields = Pick<
+  PostopPrescription,
+  'subjective' | 'objective' | 'assessment'
+>
+
 const NOTION_POSTOP_ROOT =
   'https://app.notion.com/p/2e3451a33b66809aa660f4b286c5bec7'
 
 const COMMON_POSTOP_SAFETY =
   '實際負重、護具、活動角度與進階時程以手術醫師、術式、固定方式及組織癒合狀況為準；若出現傷口感染徵象、無法控制的疼痛或腫脹、新發神經血管異常、呼吸困難或其他急性惡化，應停止並儘速評估。'
 
-const basePostopPrescriptions: PostopPrescription[] = [
+const POSTOP_SOAP_PARTS = {
+  'acl-reconstruction': {
+    subjective: `Procedure / side / date: ACL reconstruction, ＿＿ side, ＿＿
+Post-op week: ＿＿; graft / concomitant procedure: ＿＿
+Pain NRS: ＿＿/10; location / irritability: ＿＿
+Swelling / stiffness / giving way: ＿＿
+Weight-bearing / brace / crutch instruction and adherence: ＿＿
+Home exercise adherence and response: ＿＿
+Walking / stairs / sleep / ADL limitation: ＿＿
+Fever, wound drainage, calf pain or dyspnea: denied / ＿＿
+Patient goal: ＿＿`,
+    objective: `General condition / vitals when indicated: ＿＿
+Incision: clean-dry-intact / ＿＿
+Knee warmth / effusion / girth: ＿＿
+Patellar mobility: ＿＿
+AROM / PROM extension-flexion: ＿＿°–＿＿° / ＿＿°–＿＿°
+Quadriceps activation / extension lag: ＿＿
+SLR: independent without lag / ＿＿
+Strength tested within precautions: ＿＿
+Weight-bearing / brace setting: ＿＿
+Gait with ＿＿: ＿＿
+Distal neurovascular status: intact / ＿＿
+Calf swelling / tenderness or other VTE concern: absent / ＿＿
+Functional control performed when appropriate: ＿＿`,
+    assessment: `Status post ＿＿-side ACL reconstruction, post-op week ＿＿.
+Current rehabilitation phase: protection / ROM / strengthening / return-to-run / return-to-sport.
+Primary impairments: pain ＿＿; effusion ＿＿; ROM ＿＿; quadriceps control ＿＿; gait / function ＿＿.
+Progress relative to surgeon-specific protocol: on track / slower / faster; reason: ＿＿
+Precautions / concomitant-procedure restrictions reviewed: ＿＿
+Postoperative red flags: none identified today / ＿＿`,
+  },
+  'acl-meniscus-repair': {
+    subjective: `Procedure / side / date: ACL reconstruction + meniscal repair, ＿＿ side, ＿＿
+Repair site / type if known: ＿＿; post-op week: ＿＿
+Pain NRS: ＿＿/10; joint-line pain / locking: ＿＿
+Swelling / stiffness / giving way: ＿＿
+Weight-bearing, flexion and brace restrictions understood: yes / no / ＿＿
+Crutch / brace use and home exercise adherence: ＿＿
+Walking / stairs / ADL limitation: ＿＿
+Fever, wound drainage, calf pain or dyspnea: denied / ＿＿
+Patient goal: ＿＿`,
+    objective: `Incision: clean-dry-intact / ＿＿
+Knee warmth / effusion / girth: ＿＿
+Joint-line tenderness: not tested / absent / present ＿＿
+AROM / PROM extension-flexion within restriction: ＿＿°–＿＿° / ＿＿°–＿＿°
+Quadriceps activation / extension lag: ＿＿
+SLR within brace instruction: ＿＿
+Brace setting / weight-bearing observed: ＿＿
+Gait with ＿＿: ＿＿
+Hamstring activation: not tested / tested per clearance ＿＿
+Distal neurovascular status: intact / ＿＿
+Calf / VTE screen: no concern / ＿＿`,
+    assessment: `Status post ACL reconstruction with meniscal repair, post-op week ＿＿.
+Repair-specific protection phase and restrictions: ＿＿
+Primary impairments: pain / effusion ＿＿; ROM ＿＿; quadriceps control ＿＿; gait / function ＿＿.
+Mechanical symptoms or joint-line irritability: absent / ＿＿
+Progress relative to operative protocol: on track / requires review ＿＿
+Postoperative red flags: none identified today / ＿＿`,
+  },
+  'pcl-reconstruction': {
+    subjective: `Procedure / side / date: PCL reconstruction, ＿＿ side, ＿＿
+Concomitant ligament / meniscus procedure: ＿＿; post-op week: ＿＿
+Pain NRS: ＿＿/10; swelling / stiffness: ＿＿
+Sense of posterior instability: denied / ＿＿
+Brace / weight-bearing instruction and adherence: ＿＿
+Hamstring restriction understood: yes / no / ＿＿
+Walking / stairs / ADL limitation: ＿＿
+Fever, wound drainage, calf pain or dyspnea: denied / ＿＿
+Patient goal: ＿＿`,
+    objective: `Incision: clean-dry-intact / ＿＿
+Knee warmth / effusion / girth: ＿＿
+Resting tibial position / posterior sag observation: ＿＿
+ROM using tibial support / prone method: extension ＿＿°; flexion ＿＿°
+Quadriceps activation / extension lag: ＿＿
+SLR with tibial control: ＿＿
+Hamstring strength: not tested / cleared and tested ＿＿
+Posterior drawer / stress testing: not performed unless cleared / ＿＿
+Brace setting / weight-bearing / gait: ＿＿
+Distal neurovascular and calf screen: ＿＿`,
+    assessment: `Status post ＿＿-side PCL reconstruction, post-op week ＿＿.
+Current phase prioritizes protection from posterior tibial translation and quadriceps control.
+Primary impairments: pain / effusion ＿＿; ROM ＿＿; quadriceps activation ＿＿; gait / function ＿＿.
+Graft-protection and hamstring precautions reviewed: ＿＿
+Progress relative to surgeon-specific protocol: on track / requires review ＿＿
+Postoperative red flags: none identified today / ＿＿`,
+  },
+  'rotator-cuff-slap': {
+    subjective: `Procedure / side / date: rotator cuff repair + SLAP repair, ＿＿ side, ＿＿
+Tendon(s) / tear size / additional procedure: ＿＿; post-op week: ＿＿
+Pain NRS: rest ＿＿/10; movement / night ＿＿/10
+Sling use and sleep tolerance: ＿＿
+Hand swelling / numbness / distal symptoms: ＿＿
+PROM / biceps / lifting precautions understood: yes / no / ＿＿
+Home exercise adherence and response: ＿＿
+Wound drainage, fever or acute traumatic event: denied / ＿＿
+Patient goal: ＿＿`,
+    objective: `Incision: clean-dry-intact / ＿＿
+Sling fit / positioning: ＿＿
+Shoulder swelling / guarding / scapular posture: ＿＿
+PROM within repair limits: flexion ＿＿°; abduction ＿＿°; ER ＿＿°
+AAROM / AROM: not indicated / cleared ＿＿
+Scapular setting / control: ＿＿
+Elbow / wrist / hand AROM: ＿＿
+Biceps activation / resisted shoulder testing: not performed unless cleared / ＿＿
+Distal motor / sensation / perfusion: intact / ＿＿
+Functional use within precautions: ＿＿`,
+    assessment: `Status post ＿＿-side rotator cuff and SLAP repair, post-op week ＿＿.
+Current tissue-protection / mobility / strengthening phase: ＿＿
+Primary impairments: pain ＿＿; protected ROM ＿＿; scapular control ＿＿; sleep / ADL ＿＿.
+Cuff- and biceps-labral precautions reviewed: ＿＿
+Progress relative to tear size and surgeon protocol: on track / requires review ＿＿
+Postoperative red flags: none identified today / ＿＿`,
+  },
+  'total-knee-replacement': {
+    subjective: `Procedure / side / date: TKR, ＿＿ side, ＿＿; post-op week: ＿＿
+Pain NRS: ＿＿/10; stiffness / swelling: ＿＿
+Analgesic response / sleep: ＿＿
+Walking aid and distance: ＿＿
+Stairs / transfers / ADL limitation: ＿＿
+Exercise adherence and response: ＿＿
+Fever, wound drainage, increasing redness, calf pain or dyspnea: denied / ＿＿
+Patient goal: ＿＿`,
+    objective: `Vitals / general condition when indicated: ＿＿
+Incision / surrounding erythema or drainage: clean-dry-intact / ＿＿
+Knee warmth / effusion / girth: ＿＿
+AROM / PROM extension-flexion: ＿＿°–＿＿° / ＿＿°–＿＿°
+Patellar mobility: ＿＿
+Quadriceps activation / extension lag: ＿＿
+Strength within tolerance: ＿＿
+Transfer / sit-to-stand: ＿＿
+Gait with ＿＿: ＿＿
+Stair performance when appropriate: ＿＿
+Distal neurovascular and calf / VTE screen: ＿＿`,
+    assessment: `Status post ＿＿-side total knee replacement, post-op week ＿＿.
+Primary impairments: pain / edema ＿＿; extension ＿＿; flexion ＿＿; quadriceps control ＿＿; gait / stairs ＿＿.
+Functional mobility and fall risk: ＿＿
+Progress relative to individual baseline and surgical plan: on track / requires review ＿＿
+Postoperative infection / VTE / neurovascular concern: none identified / ＿＿`,
+  },
+  'total-hip-replacement': {
+    subjective: `Procedure / side / date: THR, ＿＿ side, ＿＿; approach: ＿＿; post-op week: ＿＿
+Pain NRS: ＿＿/10; groin / lateral thigh / other: ＿＿
+Weight-bearing and approach-specific precautions: ＿＿
+Walking aid and distance: ＿＿
+Transfers / bed mobility / stairs / dressing limitation: ＿＿
+Perceived instability, clicking or leg-length concern: ＿＿
+Fever, wound drainage, calf pain or dyspnea: denied / ＿＿
+Patient goal: ＿＿`,
+    objective: `Incision / erythema / drainage: clean-dry-intact / ＿＿
+Hip / thigh swelling or ecchymosis: ＿＿
+Leg position / apparent length difference: ＿＿
+ROM tested only within approach-specific precautions: ＿＿
+Hip abductor / extensor activation: ＿＿
+Transfer / sit-to-stand technique: ＿＿
+Gait with ＿＿: ＿＿
+Balance / stair performance when appropriate: ＿＿
+Distal neurovascular status: intact / ＿＿
+Calf / VTE screen: no concern / ＿＿
+Dislocation-provoking testing: not performed`,
+    assessment: `Status post ＿＿-side total hip replacement via ＿＿ approach, post-op week ＿＿.
+Primary impairments: pain / edema ＿＿; protected mobility ＿＿; hip muscle control ＿＿; gait / transfers ＿＿.
+Approach-specific precautions and weight-bearing status confirmed: ＿＿
+Progress relative to individual baseline and surgical plan: on track / requires review ＿＿
+Dislocation / infection / VTE / neurovascular concern: none identified / ＿＿`,
+  },
+  'oral-cancer-postop': {
+    subjective: `Cancer / procedure / date: oral cancer resection ＿＿; reconstruction ＿＿; ＿＿
+Post-op week: ＿＿; radiotherapy / chemotherapy status: ＿＿
+Pain / oral tightness / trismus: ＿＿
+Swallowing, coughing with intake or secretion difficulty: ＿＿
+Current diet / tube feeding and SLP instruction: ＿＿
+Speech / communication concern: ＿＿
+Neck / shoulder / donor-site symptoms: ＿＿
+Fever, bleeding, wound change, dyspnea or sudden flap concern: denied / ＿＿
+Patient goal: ＿＿`,
+    objective: `General condition / airway / tracheostomy status: ＿＿
+External wound / flap status per surgical-team documentation: ＿＿
+Oral hygiene / secretion management observed: ＿＿
+Jaw opening: ＿＿ mm / finger breadth; pain / deviation: ＿＿
+Tongue / lip ROM and control within clearance: ＿＿
+Voice / articulation / communication: ＿＿
+Swallow screen / instrumental result: not assessed here / ＿＿
+Cervical and shoulder AROM within precautions: ＿＿
+Head-neck swelling / fibrosis / scar: ＿＿
+Donor-site mobility / weight-bearing restriction: ＿＿`,
+    assessment: `Status post oral-cancer resection with ＿＿ reconstruction, post-op week ＿＿.
+Primary issues: airway / secretion ＿＿; swallowing / nutrition ＿＿; oral-jaw mobility ＿＿; speech ＿＿; neck-shoulder / donor site ＿＿.
+Aspiration / trismus / lymphedema / fibrosis risk requiring referral: ＿＿
+Surgical and SLP restrictions confirmed: ＿＿
+Urgent postoperative concern: none identified / ＿＿`,
+  },
+  'neck-cancer-postop': {
+    subjective: `Cancer / procedure / side / date: neck cancer surgery / neck dissection ＿＿; ＿＿
+Post-op week: ＿＿; radiotherapy / chemotherapy status: ＿＿
+Neck pain / tightness / numbness: ＿＿
+Shoulder pain, weakness, droop or overhead limitation: ＿＿
+Swelling / heaviness / skin tightness: ＿＿
+Swallowing / voice / breathing concern: ＿＿
+ADL / sleep / work limitation: ＿＿
+Fever, bleeding, rapid neck swelling or dyspnea: denied / ＿＿
+Patient goal: ＿＿`,
+    objective: `Incision / drainage / erythema: clean-dry-intact / ＿＿
+Neck posture / swelling / scar mobility when healed: ＿＿
+Cervical AROM: flex ＿＿; ext ＿＿; rotation R/L ＿＿/＿＿; side-bend R/L ＿＿/＿＿
+Shoulder AROM R/L: flex ＿＿/＿＿; abduction ＿＿/＿＿
+Scapular position / winging / shoulder droop: ＿＿
+Upper trapezius / scapular muscle activation within tolerance: ＿＿
+CN XI-related shoulder function: ＿＿
+Head-neck lymphedema / fibrosis observation: ＿＿
+Swallow / voice: not assessed here / ＿＿
+Neurologic and donor-site findings: ＿＿`,
+    assessment: `Status post ＿＿ neck-dissection / head-neck surgery, post-op week ＿＿.
+Primary impairments: cervical mobility ＿＿; shoulder / CN XI pattern ＿＿; scar / fibrosis ＿＿; lymphedema ＿＿; swallowing / voice ＿＿.
+Functional limitation: ＿＿
+Need for PT / OT / SLP / lymphedema referral: ＿＿
+Urgent postoperative concern: none identified / ＿＿`,
+  },
+  'breast-cancer-postop': {
+    subjective: `Procedure / side / date: breast surgery ＿＿; SLNB / ALND ＿＿; reconstruction ＿＿
+Post-op week: ＿＿; radiotherapy / chemotherapy status: ＿＿
+Pain / chest-wall or axillary tightness: ＿＿
+Shoulder limitation / heaviness / swelling: ＿＿
+Cording symptoms: ＿＿
+Drain / wound / reconstruction precautions: ＿＿
+ADL / sleep / work limitation: ＿＿
+Fever, wound change, sudden arm swelling, chest pain or dyspnea: denied / ＿＿
+Patient goal: ＿＿`,
+    objective: `Incision / drain / erythema / drainage: ＿＿
+Chest-wall / breast / arm swelling observation: ＿＿
+Arm circumference or other lymphedema measure when indicated: ＿＿
+Axillary web syndrome / scar mobility when healed: ＿＿
+Shoulder AROM R/L: flex ＿＿/＿＿; abduction ＿＿/＿＿; ER ＿＿/＿＿
+Scapular control / posture: ＿＿
+Strength tested within reconstruction precautions: ＿＿
+Sensation / pain distribution: ＿＿
+Functional reach / dressing / lifting: ＿＿`,
+    assessment: `Status post ＿＿-side breast-cancer surgery with ＿＿ nodal procedure / reconstruction, post-op week ＿＿.
+Primary impairments: pain / tightness ＿＿; shoulder ROM ＿＿; cording / scar ＿＿; edema / lymphedema concern ＿＿; strength / function ＿＿.
+Reconstruction- and drain-specific precautions confirmed: ＿＿
+Need for oncology rehab / lymphedema referral: ＿＿
+Urgent postoperative concern: none identified / ＿＿`,
+  },
+  'esophageal-cancer-postop': {
+    subjective: `Procedure / date: esophagectomy ＿＿; approach ＿＿; post-op day / week ＿＿
+Pain NRS: ＿＿/10; fatigue / sleep: ＿＿
+Dyspnea / cough / sputum: ＿＿
+Swallowing / regurgitation / aspiration symptoms: ＿＿
+Current diet / tube feeding / weight change: ＿＿
+Walking tolerance / ADL limitation: ＿＿
+Exercise / breathing practice adherence: ＿＿
+Fever, chest pain, palpitations, wound change or calf symptoms: denied / ＿＿
+Patient goal: ＿＿`,
+    objective: `Vitals / oxygen setting / SpO₂ response when indicated: ＿＿
+Breathing pattern / respiratory effort: ＿＿
+Cough / huff effectiveness and secretion: ＿＿
+Chest / abdominal incision and drain status: ＿＿
+Shoulder / cervical / thoracic mobility: ＿＿
+Bed mobility / transfer: ＿＿
+Walking distance / assistance / exertion response: ＿＿
+Sit-to-stand / lower-limb function: ＿＿
+Nutrition / weight trend per team record: ＿＿
+Fall / VTE / cardiopulmonary concern: ＿＿`,
+    assessment: `Status post esophagectomy, post-op day / week ＿＿.
+Primary impairments: pain ＿＿; respiratory / airway-clearance ＿＿; mobility / deconditioning ＿＿; swallowing / nutrition ＿＿; shoulder-posture ＿＿.
+Activity tolerance and oxygen response: ＿＿
+Need for inpatient / outpatient rehabilitation and nutrition / SLP coordination: ＿＿
+Urgent surgical or cardiopulmonary concern: none identified / ＿＿`,
+  },
+  'lung-cancer-postop': {
+    subjective: `Procedure / side / date: lung resection ＿＿; open / VATS / RATS ＿＿; post-op day / week ＿＿
+Pain NRS: rest ＿＿/10; cough / movement ＿＿/10
+Dyspnea / cough / sputum / hemoptysis: ＿＿
+Oxygen / chest-drain status if present: ＿＿
+Walking tolerance / ADL / sleep limitation: ＿＿
+Breathing and home exercise adherence: ＿＿
+Fever, increasing chest pain, palpitations, calf pain or sudden decline: denied / ＿＿
+Patient goal: ＿＿`,
+    objective: `Vitals / oxygen setting / resting SpO₂: ＿＿
+Breathing pattern / accessory-muscle use: ＿＿
+Cough / huff effectiveness and secretion: ＿＿
+Incision / chest-drain status: ＿＿
+Affected shoulder AROM and scapular movement: ＿＿
+Thoracic expansion / posture / trunk mobility: ＿＿
+Transfer / gait assistance: ＿＿
+Walking distance, exertional SpO₂ / HR / RPE: ＿＿
+Sit-to-stand / lower-limb function: ＿＿
+Cardiopulmonary / VTE concern: none / ＿＿`,
+    assessment: `Status post ＿＿ lung resection via ＿＿ approach, post-op day / week ＿＿.
+Primary impairments: postoperative pain ＿＿; ventilation / secretion ＿＿; shoulder-thoracic mobility ＿＿; deconditioning / gait ＿＿.
+Activity tolerance and oxygen response: ＿＿
+Need for individual physiotherapy / pulmonary rehabilitation: ＿＿
+Urgent pulmonary, cardiac, wound or VTE concern: none identified / ＿＿`,
+  },
+  'ami-rehabilitation': {
+    subjective: `Event / date / intervention: AMI ＿＿; PCI / CABG / medical treatment ＿＿; post-event week ＿＿
+Chest discomfort / dyspnea / palpitations / dizziness: ＿＿
+Fatigue / sleep / anxiety: ＿＿
+Walking and ADL tolerance: ＿＿
+Medication adherence / adverse effect concern: ＿＿
+Home BP / HR / glucose when relevant: ＿＿
+Exercise adherence and perceived exertion: ＿＿
+Smoking / nutrition / return-to-work concern: ＿＿
+Patient goal: ＿＿`,
+    objective: `Resting HR / BP / SpO₂ / rhythm information: ＿＿
+Symptoms at rest: absent / ＿＿
+Edema / signs of congestion: ＿＿
+Orthostatic response when indicated: ＿＿
+Walking / exercise duration and workload: ＿＿
+Exercise HR / BP / SpO₂ / RPE / symptom response: ＿＿
+Recovery response: ＿＿
+Functional test when cleared: ＿＿
+Musculoskeletal or balance limitation: ＿＿
+Cardiac rehabilitation risk information / restrictions: ＿＿`,
+    assessment: `Post-AMI status following ＿＿, post-event week ＿＿.
+Current cardiac-rehabilitation phase and risk category: ＿＿
+Exercise tolerance: ＿＿; hemodynamic / symptom response: ＿＿
+Primary barriers: deconditioning ＿＿; cardiopulmonary symptoms ＿＿; confidence / adherence ＿＿; other ＿＿.
+Need for monitored cardiac rehabilitation / medical reassessment: ＿＿
+Unstable cardiac red flags: none identified / ＿＿`,
+  },
+  'cabg-rehabilitation': {
+    subjective: `Procedure / date / graft donor site: CABG ＿＿; ＿＿; post-op week ＿＿
+Chest / sternal / donor-site pain: ＿＿
+Dyspnea / cough / sputum / palpitations / dizziness: ＿＿
+Sternal clicking or instability sensation: denied / ＿＿
+Walking / stairs / ADL / sleep tolerance: ＿＿
+Move-in-the-tube and wound-care adherence: ＿＿
+Medication / exercise adherence: ＿＿
+Fever, wound drainage, calf swelling or sudden decline: denied / ＿＿
+Patient goal: ＿＿`,
+    objective: `Resting HR / BP / SpO₂ / rhythm information: ＿＿
+Sternal and donor-site wound: clean-dry-intact / ＿＿
+Sternal stability / clicking with function: ＿＿
+Breathing pattern / cough effectiveness: ＿＿
+Shoulder / thoracic AROM within comfort: ＿＿
+Edema at graft donor limb / general congestion: ＿＿
+Transfer and gait without excessive arm loading: ＿＿
+Walking workload and HR / BP / SpO₂ / RPE response: ＿＿
+Recovery response: ＿＿
+Balance / fall / VTE concern: ＿＿`,
+    assessment: `Status post CABG, post-op week ＿＿.
+Primary impairments: pain / sternal function ＿＿; respiratory function ＿＿; shoulder-thoracic mobility ＿＿; walking tolerance ＿＿; donor-site edema ＿＿.
+Hemodynamic and symptom response to activity: ＿＿
+Sternal and move-in-the-tube precautions reviewed: ＿＿
+Need for monitored cardiac rehabilitation / medical reassessment: ＿＿
+Urgent cardiac, wound or VTE concern: none identified / ＿＿`,
+  },
+  'head-neck-cancer-integrated': {
+    subjective: `Cancer / procedure / date: head-neck cancer resection ＿＿; neck dissection ＿＿; free flap ＿＿
+Donor site / post-op week: ＿＿ / ＿＿
+Airway / tracheostomy / secretion concern: ＿＿
+Swallowing, coughing with intake, current diet / tube feeding: ＿＿
+Speech / voice / communication concern: ＿＿
+Oral-jaw tightness / trismus / pain: ＿＿
+Neck / shoulder weakness, swelling or donor-site limitation: ＿＿
+Fever, bleeding, rapid swelling, dyspnea or sudden flap change: denied / ＿＿
+Patient and caregiver goal: ＿＿`,
+    objective: `General condition / vitals / airway / tracheostomy status: ＿＿
+Flap and wound status per reconstructive-team documentation: ＿＿
+Secretion management / cough effectiveness: ＿＿
+Swallow / voice / speech result per SLP: not assessed here / ＿＿
+Jaw opening: ＿＿ mm; tongue / lip control: ＿＿
+Cervical AROM within pedicle / wound precautions: ＿＿
+Shoulder AROM, scapular position and CN XI-related function: ＿＿
+Head-neck lymphedema / fibrosis / scar: ＿＿
+Donor-site ROM, strength, weight-bearing and gait: ＿＿
+Current drains / lines and mobility assistance: ＿＿`,
+    assessment: `Status post major head-neck cancer surgery with ＿＿ reconstruction, post-op week ＿＿.
+Priority problems: airway / secretion ＿＿; swallowing / nutrition ＿＿; communication ＿＿; jaw / oral mobility ＿＿; neck-shoulder / CN XI ＿＿; lymphedema / fibrosis ＿＿; donor site ＿＿.
+Current surgical / flap / airway restrictions confirmed: ＿＿
+PT / OT / SLP / nutrition / dental / lymphedema needs: ＿＿
+Urgent flap, airway, bleeding, infection or aspiration concern: none identified / ＿＿`,
+  },
+  'vats-lung-resection-integrated': {
+    subjective: `Procedure / side / date: VATS ＿＿ectomy / wedge / segmentectomy, ＿＿ side, ＿＿
+Post-op day / week: ＿＿; chest drain / oxygen: ＿＿
+Pain NRS: rest ＿＿/10; deep breath / cough / movement ＿＿/10
+Dyspnea / cough / sputum / hemoptysis: ＿＿
+Walking distance / stairs / ADL / sleep: ＿＿
+Breathing / walking / shoulder exercise adherence: ＿＿
+Fever, increasing chest pain, palpitations, calf symptoms or sudden decline: denied / ＿＿
+Patient goal: ＿＿`,
+    objective: `Resting HR / BP / respiratory rate / oxygen setting / SpO₂: ＿＿
+Breathing pattern / thoracic expansion / respiratory effort: ＿＿
+Huff / supported cough and secretion: ＿＿
+Incision / chest-drain status: ＿＿
+Affected shoulder flexion / abduction and scapular movement: ＿＿
+Thoracic posture / extension / rotation / side-bending: ＿＿
+Transfer / gait assistance and chest-drain safety: ＿＿
+Walking distance; exercise HR / SpO₂ / RPE / symptoms: ＿＿
+Sit-to-stand / lower-limb function: ＿＿
+Pulmonary / cardiac / wound / VTE concern: none / ＿＿`,
+    assessment: `Status post ＿＿-side VATS lung resection, post-op day / week ＿＿.
+Primary impairments: postoperative pain ＿＿; ventilation / airway clearance ＿＿; affected shoulder / thoracic mobility ＿＿; deconditioning / mobility ＿＿.
+Activity tolerance and oxygen response: ＿＿
+Need for targeted physiotherapy / pulmonary rehabilitation: ＿＿
+Chest-drain and surgical restrictions confirmed: ＿＿
+Urgent pulmonary, cardiac, wound or VTE concern: none identified / ＿＿`,
+  },
+} satisfies Record<string, PostopSoapFields>
+
+const basePostopPrescriptions: BasePostopPrescription[] = [
   {
     id: 'acl-reconstruction',
     title: 'ACL 重建術後',
@@ -404,13 +818,25 @@ Follow-up：＿＿`,
 ]
 
 export const postopPrescriptions: PostopPrescription[] =
-  basePostopPrescriptions.map((prescription) => ({
-    ...prescription,
-    sources:
-      prescription.origin === '現有 Notion'
-        ? [
-            ...prescription.sources,
-            { label: 'Notion：術後索引', url: NOTION_POSTOP_ROOT },
-          ]
-        : prescription.sources,
-  }))
+  basePostopPrescriptions.map((prescription) => {
+    const soap =
+      POSTOP_SOAP_PARTS[
+        prescription.id as keyof typeof POSTOP_SOAP_PARTS
+      ]
+
+    if (!soap) {
+      throw new Error(`Missing postoperative SOAP template: ${prescription.id}`)
+    }
+
+    return {
+      ...prescription,
+      ...soap,
+      sources:
+        prescription.origin === '現有 Notion'
+          ? [
+              ...prescription.sources,
+              { label: 'Notion：術後索引', url: NOTION_POSTOP_ROOT },
+            ]
+          : prescription.sources,
+    }
+  })
