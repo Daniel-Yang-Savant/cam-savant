@@ -2,23 +2,24 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import type { Post } from '@/lib/posts'
+import type { ArticleSummary } from '@/lib/article-discovery'
 import { CATEGORY_LABELS } from '@/lib/category'
 import CoverImage from '@/components/CoverImage'
 import { getReadingTime } from '@/lib/reading-time'
 
 interface ArticleCardProps {
-  post: Post
+  post: Post | ArticleSummary
   /** 較大的卡片版型，用於首頁 featured 等場景 */
   large?: boolean
 }
 
 export default function ArticleCard({ post, large = false }: ArticleCardProps) {
-  const { slug, frontmatter, content } = post
+  const { slug, frontmatter } = post
   const categoryLabel = CATEGORY_LABELS[frontmatter.category] ?? frontmatter.category
   const formattedDate = format(new Date(frontmatter.date), 'yyyy.MM.dd', {
     locale: zhTW,
   })
-  const readingTime = getReadingTime(content)
+  const readingTime = 'readingTime' in post ? post.readingTime : getReadingTime(post.content)
 
   return (
     <article className="group flex flex-col">

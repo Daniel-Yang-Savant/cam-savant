@@ -1,19 +1,20 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useId } from 'react'
 import clsx from 'clsx'
 import ArticleCard from '@/components/ArticleCard'
-import type { Post } from '@/lib/posts'
+import type { ArticleSummary } from '@/lib/article-discovery'
 
 interface Props {
-  allPosts: Post[]
+  allPosts: ArticleSummary[]
   allTags: { tag: string; count: number }[]
 }
 
 const POSTS_PER_PAGE = 12
 
 const CATEGORY_TABS = [
-  { key: 'all',                     href: '/posts',                  label: '全部'   },
+  { key: 'all',                     href: '/posts',                  label: '全部文章' },
+  { key: 'weekly-picks',            href: '/weekly-picks',           label: '每週論文精選' },
   { key: 'sports-medicine',         href: '/sports-medicine',        label: '運動醫學' },
   { key: 'rehabilitation-medicine', href: '/rehabilitation-medicine', label: '復健醫學' },
   { key: 'functional-medicine',     href: '/functional-medicine',    label: '功能醫學' },
@@ -24,6 +25,7 @@ export default function PostsClient({ allPosts, allTags }: Props) {
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set())
   const [showFilter, setShowFilter] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const tagPanelId = useId()
 
   function toggleTag(tag: string) {
     setCurrentPage(1)
@@ -42,8 +44,8 @@ export default function PostsClient({ allPosts, allTags }: Props) {
 
   const filtered = useMemo(() => {
     if (selectedTags.size === 0) return allPosts
-    return allPosts.filter((p) =>
-      p.frontmatter.tags?.some((t) => selectedTags.has(t))
+    return allPosts.filter((post) =>
+      post.frontmatter.tags?.some((tag) => selectedTags.has(tag))
     )
   }, [allPosts, selectedTags])
 
@@ -79,11 +81,12 @@ export default function PostsClient({ allPosts, allTags }: Props) {
   return (
     <div>
       {/* ── Category tabs ── */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      <nav aria-label="文章分類專頁" className="flex flex-wrap gap-2 mb-6">
         {CATEGORY_TABS.map(({ key, href, label }) => (
           <a
             key={key}
             href={href}
+            aria-current={key === 'all' ? 'page' : undefined}
             className={clsx(
               'px-4 py-1.5 text-xs tracking-widest uppercase font-medium border transition-colors',
               key === 'all'
@@ -94,11 +97,14 @@ export default function PostsClient({ allPosts, allTags }: Props) {
             {label}
           </a>
         ))}
-      </div>
+      </nav>
 
       {/* ── Tag filter toggle ── */}
       <div className="mb-6 flex items-center gap-3 flex-wrap">
         <button
+          type="button"
+          aria-expanded={showFilter}
+          aria-controls={tagPanelId}
           onClick={() => setShowFilter((v) => !v)}
           className={clsx(
             'flex items-center gap-2 px-3 py-1.5 text-xs font-medium border rounded-lg transition-colors',
@@ -150,7 +156,7 @@ export default function PostsClient({ allPosts, allTags }: Props) {
 
       {/* ── Tag checkbox panel ── */}
       {showFilter && (
-        <div className="mb-8 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50">
+        <div id={tagPanelId} className="mb-8 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
               所有標籤（{allTags.length}）
@@ -164,6 +170,9 @@ export default function PostsClient({ allPosts, allTags }: Props) {
               </button>
             )}
           </div>
+          <p className="mb-3 text-xs text-neutral-500 dark:text-neutral-400">
+            多選時符合任一標籤即可；標籤旁數字為全站公開文章數。
+          </p>
           <div className="flex flex-wrap gap-2">
             {allTags.map(({ tag, count }) => {
               const active = selectedTags.has(tag)
@@ -171,7 +180,7 @@ export default function PostsClient({ allPosts, allTags }: Props) {
                 <label
                   key={tag}
                   className={clsx(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer transition-all select-none',
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer transition-all select-none focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent-500',
                     active
                       ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 border-neutral-900 dark:border-neutral-100'
                       : 'bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-neutral-700 hover:border-neutral-500 dark:hover:border-neutral-500'
@@ -198,11 +207,11 @@ export default function PostsClient({ allPosts, allTags }: Props) {
       )}
 
       {/* ── Results count ── */}
-      {selectedTags.size > 0 && (
-        <p className="mb-6 text-sm text-neutral-500 dark:text-neutral-400">
-          找到 <span className="font-semibold text-neutral-900 dark:text-neutral-100">{filtered.length}</span> 篇相關文章
-        </p>
-      )}
+      <p role="status" aria-live="polite" aria-atomic="true" className="mb-6 text-sm text-neutral-500 dark:text-neutral-400">
+        {selectedTags.size > 0 ? '符合所選任一標籤' : '全部文章'}：
+        <span className="font-semibold text-neutral-900 dark:text-neutral-100">{filtered.length}</span> 篇文章
+        {filtered.length > 0 ? `，第 ${safePage} / ${totalPages} 頁` : ''}
+      </p>
 
       {/* ── Grid ── */}
       {paginated.length > 0 ? (
@@ -214,8 +223,15 @@ export default function PostsClient({ allPosts, allTags }: Props) {
       ) : (
         <div className="py-24 text-center">
           <p className="text-neutral-400 dark:text-neutral-500 text-sm">
-            {selectedTags.size > 0 ? '此標籤組合沒有符合的文章。' : '此分類目前尚無文章。'}
+            {selectedTags.size > 0 ? '此標籤組合沒有符合的文章。' : '目前尚無文章。'}
           </p>
+          <button
+            type="button"
+            onClick={clearTags}
+            className="mt-4 min-h-11 rounded-lg border border-neutral-300 px-4 text-sm text-neutral-700 dark:border-neutral-700 dark:text-neutral-200"
+          >
+            清除所有篩選
+          </button>
         </div>
       )}
 
@@ -223,6 +239,8 @@ export default function PostsClient({ allPosts, allTags }: Props) {
       {totalPages > 1 && (
         <nav aria-label="文章分頁" className="flex items-center justify-center gap-1 mt-14 flex-wrap">
           <button
+            type="button"
+            aria-label="上一頁"
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={safePage <= 1}
             className={clsx(btnBase, safePage <= 1 ? btnDisabled : btnDefault)}
@@ -244,6 +262,8 @@ export default function PostsClient({ allPosts, allTags }: Props) {
           )}
 
           <button
+            type="button"
+            aria-label="下一頁"
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={safePage >= totalPages}
             className={clsx(btnBase, safePage >= totalPages ? btnDisabled : btnDefault)}

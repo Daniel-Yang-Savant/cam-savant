@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getPublicPosts, getIndexableTags } from '@/lib/posts'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import PostsClient from '@/components/PostsClient'
+import { createPublicArticleSummaries } from '@/lib/article-discovery'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/posts' },
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 }
 
 export default function PostsPage() {
-  const allPosts = getPublicPosts()
+  const allPosts = createPublicArticleSummaries(getPublicPosts())
   const allTags = getIndexableTags()
 
   return (

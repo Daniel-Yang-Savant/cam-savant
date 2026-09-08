@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test:sw": "node --test tests/service-worker.test.mjs",
+    "test:discovery": "node --import tsx --test scripts/article-discovery.test.ts",
     "test:seo": "tsx --test scripts/seo-contract.test.ts scripts/exercise-guide-related.test.ts scripts/content-review.test.ts scripts/doctor-clinics.test.ts",
     "optimize:covers": "tsx scripts/optimize-cover-images.ts",
     "publish-post": "tsx scripts/publish-from-pdf.ts",
@@ -18,7 +19,7 @@
     "rotate-token": "ts-node scripts/rotate-token.ts",
     "new": "ts-node scripts/new-article.ts",
     "validate:posts": "tsx scripts/validate-posts.ts",
-    "prebuild": "npm run validate:posts && npm run test:seo"
+    "prebuild": "npm run validate:posts && npm run test:seo && npm run test:discovery"
   },
   "ts-node": {
     "transpileOnly": true,
