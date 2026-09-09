@@ -1,4 +1,7 @@
 import 'server-only'
+import { orthopedicPlanPhases } from './opd-plan-phases-orthopedic'
+import { nonOrthopedicPlanPhases } from './opd-plan-phases-nonorthopedic'
+import type { PostopPlanPhase } from './opd-plan-phase-types'
 
 export type PostopPrescriptionCategory =
   | '骨科術後'
@@ -19,6 +22,7 @@ export interface PostopPrescription {
   objective: string
   assessment: string
   plan: string
+  phases: PostopPlanPhase[]
   safety: string
   origin: '現有 Notion' | '循證補充'
   reviewStatus: '待醫師確認'
@@ -27,7 +31,7 @@ export interface PostopPrescription {
 
 type BasePostopPrescription = Omit<
   PostopPrescription,
-  'subjective' | 'objective' | 'assessment'
+  'subjective' | 'objective' | 'assessment' | 'phases'
 >
 
 type PostopSoapFields = Pick<
@@ -817,6 +821,8 @@ Follow-up：＿＿`,
   },
 ]
 
+const planPhases = { ...orthopedicPlanPhases, ...nonOrthopedicPlanPhases }
+
 export const postopPrescriptions: PostopPrescription[] =
   basePostopPrescriptions.map((prescription) => {
     const soap =
@@ -828,9 +834,24 @@ export const postopPrescriptions: PostopPrescription[] =
       throw new Error(`Missing postoperative SOAP template: ${prescription.id}`)
     }
 
+    const phases = planPhases[prescription.id]
+    if (!phases?.length) {
+      throw new Error(`Missing postoperative Plan phases: ${prescription.id}`)
+    }
+
     return {
       ...prescription,
       ...soap,
+      phases: phases.map((phase) => ({
+        ...phase,
+        plan: [
+          `術式／處置：${prescription.title}`,
+          `階段：${phase.label}`,
+          phase.plan,
+          `共同注意事項：${prescription.safety}`,
+          'Follow-up：＿＿',
+        ].join('\n\n'),
+      })),
       sources:
         prescription.origin === '現有 Notion'
           ? [

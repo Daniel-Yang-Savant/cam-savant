@@ -6,7 +6,14 @@ export const dynamic = 'force-dynamic'
 
 export function GET() {
   return NextResponse.json(
-    { templates: opdTemplates, prescriptions: postopPrescriptions },
+    {
+      templates: opdTemplates,
+      prescriptions: postopPrescriptions.map(
+        ({ id, title, category, hint, phases, safety }) => ({
+          id, title, category, hint, phases, safety,
+        })
+      ),
+    },
     {
       headers: {
         'Cache-Control': 'private, no-store, max-age=0, must-revalidate',

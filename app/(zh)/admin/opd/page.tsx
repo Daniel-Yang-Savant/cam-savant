@@ -28,10 +28,7 @@ interface PostopPrescription {
   title: string
   category: PostopPrescriptionCategory
   hint: string
-  subjective: string
-  objective: string
-  assessment: string
-  plan: string
+  phases: Array<{ id: string; label: string; plan: string }>
   safety: string
 }
 
@@ -112,15 +109,18 @@ export default function OpdPage() {
     useState<(typeof POSTOP_CATEGORIES)[number]>('全部')
   const [selectedId, setSelectedId] = useState('universal-msk')
   const [selectedPrescriptionId, setSelectedPrescriptionId] = useState('')
+  const [selectedPhaseId, setSelectedPhaseId] = useState('')
   const [subjective, setSubjective] = useState(INITIAL_SUBJECTIVE)
   const [objective, setObjective] = useState('')
   const [assessment, setAssessment] = useState(INITIAL_ASSESSMENT)
   const [plan, setPlan] = useState(INITIAL_PLAN)
+  const [postopPlan, setPostopPlan] = useState('')
   const [copyState, setCopyState] = useState<CopyState>('idle')
   const [hasEdited, setHasEdited] = useState(false)
   const [objectiveEdited, setObjectiveEdited] = useState(false)
+  const [postopPlanEdited, setPostopPlanEdited] = useState(false)
   const objectiveRef = useRef<HTMLTextAreaElement>(null)
-  const soapWorkspaceRef = useRef<HTMLDivElement>(null)
+  const postopWorkspaceRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -154,13 +154,13 @@ export default function OpdPage() {
   }, [])
 
   useEffect(() => {
-    if (!hasEdited) return
+    if (!hasEdited && !postopPlanEdited) return
     const warnBeforeUnload = (event: BeforeUnloadEvent) => {
       event.preventDefault()
     }
     window.addEventListener('beforeunload', warnBeforeUnload)
     return () => window.removeEventListener('beforeunload', warnBeforeUnload)
-  }, [hasEdited])
+  }, [hasEdited, postopPlanEdited])
 
   const selectedTemplate = useMemo(
     () => templates.find((item) => item.id === selectedId) ?? null,
@@ -171,6 +171,16 @@ export default function OpdPage() {
     () =>
       prescriptions.find((item) => item.id === selectedPrescriptionId) ?? null,
     [prescriptions, selectedPrescriptionId]
+  )
+
+  const selectedPhase = useMemo(
+    () => selectedPrescription?.phases.find((phase) => phase.id === selectedPhaseId) ?? null,
+    [selectedPhaseId, selectedPrescription]
+  )
+
+  const phaseCount = useMemo(
+    () => prescriptions.reduce((count, prescription) => count + prescription.phases.length, 0),
+    [prescriptions]
   )
 
   const filteredTemplates = useMemo(() => {
@@ -196,34 +206,39 @@ export default function OpdPage() {
         !normalizedQuery ||
         prescription.title.toLowerCase().includes(normalizedQuery) ||
         prescription.hint.toLowerCase().includes(normalizedQuery) ||
-        prescription.subjective.toLowerCase().includes(normalizedQuery) ||
-        prescription.objective.toLowerCase().includes(normalizedQuery) ||
-        prescription.assessment.toLowerCase().includes(normalizedQuery) ||
-        prescription.plan.toLowerCase().includes(normalizedQuery)
+        prescription.phases.some((phase) =>
+          phase.label.toLowerCase().includes(normalizedQuery) ||
+          phase.plan.toLowerCase().includes(normalizedQuery)
+        )
       return inCategory && matchesQuery
     })
   }, [postopCategory, prescriptions, query])
 
-  const copySoap = useCallback(async () => {
+  const copyWorkspace = useCallback(async () => {
+    if (libraryMode === 'postop' && !selectedPhase) return
     try {
-      await writeClipboard(buildSoap(subjective, objective, assessment, plan))
+      await writeClipboard(
+        libraryMode === 'postop'
+          ? `P:\n${postopPlan.trim()}`
+          : buildSoap(subjective, objective, assessment, plan)
+      )
       setCopyState('copied')
     } catch {
       setCopyState('error')
     }
     window.setTimeout(() => setCopyState('idle'), 2200)
-  }, [assessment, objective, plan, subjective])
+  }, [assessment, libraryMode, objective, plan, postopPlan, selectedPhase, subjective])
 
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key.toLowerCase() === 'c') {
         event.preventDefault()
-        void copySoap()
+        void copyWorkspace()
       }
     }
     window.addEventListener('keydown', handleShortcut)
     return () => window.removeEventListener('keydown', handleShortcut)
-  }, [copySoap])
+  }, [copyWorkspace])
 
   const selectExamTemplate = (template: OpdTemplate) => {
     if (
@@ -245,48 +260,80 @@ export default function OpdPage() {
   }
 
   const selectPostopPrescription = (prescription: PostopPrescription) => {
+    if (prescription.id === selectedPrescriptionId) return
+    const firstPhase = prescription.phases[0]
+    if (!firstPhase) return
     if (
-      hasEdited &&
-      !window.confirm('切換處方會取代目前的 S、O、A、P 內容，確定要繼續嗎？')
+      postopPlanEdited &&
+      !window.confirm('切換處方會取代目前手動編輯的 P 內容，確定要繼續嗎？')
     ) {
       return
     }
 
     setSelectedPrescriptionId(prescription.id)
-    setSubjective(prescription.subjective)
-    setObjective(prescription.objective)
-    setAssessment(prescription.assessment)
-    setPlan(prescription.plan)
-    setHasEdited(false)
-    setObjectiveEdited(false)
+    setSelectedPhaseId(firstPhase.id)
+    setPostopPlan(firstPhase.plan)
+    setPostopPlanEdited(false)
+    setCopyState('idle')
     window.requestAnimationFrame(() => {
-      soapWorkspaceRef.current?.scrollIntoView({
+      postopWorkspaceRef.current?.scrollIntoView({
         behavior: 'smooth',
         block: 'start',
       })
     })
   }
 
+  const selectPostopPhase = (phase: PostopPrescription['phases'][number]) => {
+    if (phase.id === selectedPhaseId) return
+    if (
+      postopPlanEdited &&
+      !window.confirm('切換階段會取代目前手動編輯的 P 內容，確定要繼續嗎？')
+    ) {
+      return
+    }
+    setSelectedPhaseId(phase.id)
+    setPostopPlan(phase.plan)
+    setPostopPlanEdited(false)
+    setCopyState('idle')
+  }
+
   const clearWorkspace = () => {
+    if (libraryMode === 'postop') {
+      if (!window.confirm('清空目前階段的 P 內容？')) return
+      setPostopPlan('')
+      setPostopPlanEdited(true)
+      setCopyState('idle')
+      return
+    }
     if (!window.confirm('清空目前 S、O、A、P 的所有內容？')) return
     setSubjective('')
     setObjective('')
     setAssessment('')
     setPlan('')
-    setSelectedPrescriptionId('')
     setHasEdited(false)
     setObjectiveEdited(false)
   }
 
   const restoreSkeleton = () => {
+    if (libraryMode === 'postop') {
+      if (!selectedPhase) return
+      if (
+        postopPlanEdited &&
+        !window.confirm('重設會取代目前手動編輯的 P 內容，確定要繼續嗎？')
+      ) {
+        return
+      }
+      setPostopPlan(selectedPhase.plan)
+      setPostopPlanEdited(false)
+      setCopyState('idle')
+      return
+    }
     setSubjective(INITIAL_SUBJECTIVE)
     setAssessment(INITIAL_ASSESSMENT)
     setPlan(INITIAL_PLAN)
     const universal = templates.find((item) => item.id === 'universal-msk')
     setObjective(universal?.objective ?? '')
     setSelectedId('universal-msk')
-    setSelectedPrescriptionId('')
-    setLibraryMode('exam')
     setHasEdited(true)
     setObjectiveEdited(false)
   }
@@ -308,7 +355,7 @@ export default function OpdPage() {
               OPD SOAP 工作區
             </h1>
             <p className="mt-1 text-sm text-stone-500 dark:text-neutral-400">
-              門診理學檢查與術後復健 SOAP 模板；選取後直接載入，完成病歷再一鍵複製。
+              理學檢查直接載入 O；術後處方依恢復階段選取、編輯並複製 Plan。
             </p>
           </div>
 
@@ -322,27 +369,30 @@ export default function OpdPage() {
             <button
               type="button"
               onClick={restoreSkeleton}
-              className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs font-semibold text-stone-700 transition hover:border-stone-500 hover:text-stone-950 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-neutral-500 dark:hover:text-white"
+              disabled={libraryMode === 'postop' && !selectedPhase}
+              className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs font-semibold text-stone-700 transition hover:border-stone-500 hover:text-stone-950 disabled:cursor-not-allowed disabled:opacity-40 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-neutral-500 dark:hover:text-white"
             >
-              重設格式
+              {libraryMode === 'postop' ? '重設此階段' : '重設格式'}
             </button>
             <button
               type="button"
               onClick={clearWorkspace}
-              className="rounded-lg border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700 transition hover:border-rose-400 dark:border-rose-950 dark:bg-neutral-900 dark:text-rose-300"
+              disabled={libraryMode === 'postop' && !selectedPhase}
+              className="rounded-lg border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700 transition hover:border-rose-400 disabled:cursor-not-allowed disabled:opacity-40 dark:border-rose-950 dark:bg-neutral-900 dark:text-rose-300"
             >
               清空
             </button>
             <button
               type="button"
-              onClick={() => void copySoap()}
-              className="min-w-32 rounded-lg bg-neutral-950 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
+              onClick={() => void copyWorkspace()}
+              disabled={libraryMode === 'postop' && !selectedPhase}
+              className="min-w-32 rounded-lg bg-neutral-950 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
             >
               {copyState === 'copied'
-                ? '✓ 已複製 SOAP'
+                ? libraryMode === 'postop' ? '✓ 已複製 P' : '✓ 已複製 SOAP'
                 : copyState === 'error'
                   ? '複製失敗'
-                  : '複製 SOAP'}
+                  : libraryMode === 'postop' ? '複製此階段 P' : '複製 SOAP'}
             </button>
           </div>
         </div>
@@ -357,7 +407,9 @@ export default function OpdPage() {
                 onClick={() => {
                   setLibraryMode('exam')
                   setQuery('')
+                  setCopyState('idle')
                 }}
+                aria-pressed={libraryMode === 'exam'}
                 className={`rounded-lg px-2 py-2 text-xs font-bold transition ${
                   libraryMode === 'exam'
                     ? 'bg-white text-stone-950 shadow-sm dark:bg-neutral-800 dark:text-white'
@@ -371,14 +423,16 @@ export default function OpdPage() {
                 onClick={() => {
                   setLibraryMode('postop')
                   setQuery('')
+                  setCopyState('idle')
                 }}
+                aria-pressed={libraryMode === 'postop'}
                 className={`rounded-lg px-2 py-2 text-xs font-bold transition ${
                   libraryMode === 'postop'
                     ? 'bg-white text-stone-950 shadow-sm dark:bg-neutral-800 dark:text-white'
                     : 'text-stone-500 hover:text-stone-900 dark:text-neutral-500 dark:hover:text-white'
                 }`}
               >
-                術後 SOAP
+                術後 Plan
               </button>
             </div>
             <div className="flex items-center justify-between gap-3">
@@ -392,7 +446,7 @@ export default function OpdPage() {
                       ? `${templates.length} 組 copy-ready O`
                       : '載入中…'
                     : prescriptions.length
-                      ? `${prescriptions.length} 組 copy-ready SOAP`
+                      ? `${prescriptions.length} 種術式・${phaseCount} 組階段 Plan`
                       : '載入中…'}
                 </p>
               </div>
@@ -482,6 +536,7 @@ export default function OpdPage() {
                   key={prescription.id}
                   type="button"
                   onClick={() => selectPostopPrescription(prescription)}
+                  aria-pressed={selectedPrescriptionId === prescription.id}
                   className={`w-full border-b border-stone-100 px-4 py-3 text-left transition last:border-b-0 dark:border-neutral-800 ${
                     selectedPrescriptionId === prescription.id
                       ? 'bg-emerald-50 dark:bg-emerald-950/25'
@@ -498,6 +553,9 @@ export default function OpdPage() {
                   </span>
                   <span className="mt-1.5 line-clamp-2 block text-xs leading-relaxed text-stone-500 dark:text-neutral-500">
                     {prescription.hint}
+                  </span>
+                  <span className="mt-2 block text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
+                    {prescription.phases.length} 個恢復階段
                   </span>
                 </button>
               ))
@@ -543,11 +601,11 @@ export default function OpdPage() {
           )}
 
           {libraryMode === 'postop' && selectedPrescription && (
-            <section className="overflow-hidden rounded-2xl border border-emerald-200 bg-emerald-50 shadow-sm dark:border-emerald-900/60 dark:bg-emerald-950/20">
+            <section ref={postopWorkspaceRef} className="scroll-mt-24 overflow-hidden rounded-2xl border border-emerald-200 bg-emerald-50 shadow-sm dark:border-emerald-900/60 dark:bg-emerald-950/20">
               <div className="p-4 sm:p-5">
                 <div className="min-w-0">
                   <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-400">
-                    已選術後 SOAP
+                    已選術後 Plan
                   </p>
                   <h2 className="mt-1 text-base font-bold">
                     {selectedPrescription.title}
@@ -555,6 +613,29 @@ export default function OpdPage() {
                   <p className="mt-1 text-sm leading-relaxed text-stone-600 dark:text-neutral-400">
                     {selectedPrescription.hint}
                   </p>
+                  <div className="mt-4" role="group" aria-label="選擇術後恢復階段">
+                    <p className="mb-2 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                      選擇恢復階段
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedPrescription.phases.map((phase) => (
+                        <button
+                          key={phase.id}
+                          type="button"
+                          aria-pressed={selectedPhaseId === phase.id}
+                          aria-controls="postop-plan"
+                          onClick={() => selectPostopPhase(phase)}
+                          className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${
+                            selectedPhaseId === phase.id
+                              ? 'border-emerald-700 bg-emerald-700 text-white dark:border-emerald-300 dark:bg-emerald-300 dark:text-emerald-950'
+                              : 'border-emerald-200 bg-white text-emerald-800 hover:border-emerald-600 dark:border-emerald-900 dark:bg-neutral-900 dark:text-emerald-300 dark:hover:border-emerald-500'
+                          }`}
+                        >
+                          {phase.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <p className="mt-3 rounded-lg border border-rose-200 bg-white/70 px-3 py-2 text-xs leading-relaxed text-rose-800 dark:border-rose-900/70 dark:bg-neutral-950/40 dark:text-rose-300">
                     <span className="font-bold">安全提醒：</span>
                     {selectedPrescription.safety}
@@ -564,57 +645,83 @@ export default function OpdPage() {
             </section>
           )}
 
-          <div ref={soapWorkspaceRef} className="grid scroll-mt-24 gap-5 xl:grid-cols-2">
-            <SoapSection
-              label="S"
-              title="Subjective"
-              helper="主訴、病史、功能與病人目標"
-              value={subjective}
-              rows={12}
-              onChange={(value) => {
-                setSubjective(value)
-                setHasEdited(true)
-              }}
-            />
-            <SoapSection
-              label="O"
-              title="Objective"
-              helper={
-                libraryMode === 'exam'
-                  ? '點選模板即載入；請核對並修改預設正常角度'
-                  : '點選術後處方後直接載入'
-              }
-              value={objective}
-              rows={20}
-              textareaRef={objectiveRef}
-              onChange={(value) => {
-                setObjective(value)
-                setHasEdited(true)
-                setObjectiveEdited(true)
-              }}
-            />
-            <SoapSection
-              label="A"
-              title="Assessment"
-              helper="問題列表、臨床印象與鑑別方向"
-              value={assessment}
-              rows={8}
-              onChange={(value) => {
-                setAssessment(value)
-                setHasEdited(true)
-              }}
-            />
-            <SoapSection
-              label="P"
-              title="Plan"
-              helper="所選術後處方與階段性復健計畫"
-              value={plan}
-              rows={10}
-              onChange={(value) => {
-                setPlan(value)
-                setHasEdited(true)
-              }}
-            />
+          <div
+            className={`grid scroll-mt-24 gap-5 ${libraryMode === 'exam' ? 'xl:grid-cols-2' : ''}`}
+          >
+            {libraryMode === 'exam' ? (
+              <>
+                <SoapSection
+                  label="S"
+                  title="Subjective"
+                  helper="主訴、病史、功能與病人目標"
+                  value={subjective}
+                  rows={12}
+                  onChange={(value) => {
+                    setSubjective(value)
+                    setHasEdited(true)
+                  }}
+                />
+                <SoapSection
+                  label="O"
+                  title="Objective"
+                  helper="點選模板即載入；請核對並修改預設正常角度"
+                  value={objective}
+                  rows={20}
+                  textareaRef={objectiveRef}
+                  onChange={(value) => {
+                    setObjective(value)
+                    setHasEdited(true)
+                    setObjectiveEdited(true)
+                  }}
+                />
+                <SoapSection
+                  label="A"
+                  title="Assessment"
+                  helper="問題列表、臨床印象與鑑別方向"
+                  value={assessment}
+                  rows={8}
+                  onChange={(value) => {
+                    setAssessment(value)
+                    setHasEdited(true)
+                  }}
+                />
+                <SoapSection
+                  label="P"
+                  title="Plan"
+                  helper="衛教、治療與追蹤計畫"
+                  value={plan}
+                  rows={10}
+                  onChange={(value) => {
+                    setPlan(value)
+                    setHasEdited(true)
+                  }}
+                />
+              </>
+            ) : selectedPrescription && selectedPhase ? (
+              <SoapSection
+                key={`${selectedPrescription.id}-${selectedPhase.id}`}
+                label="P"
+                title={`Plan · ${selectedPhase.label}`}
+                helper={`${selectedPrescription.title}｜可直接編輯並複製此階段 P`}
+                textareaId="postop-plan"
+                value={postopPlan}
+                rows={24}
+                onChange={(value) => {
+                  setPostopPlan(value)
+                  setPostopPlanEdited(true)
+                  setCopyState('idle')
+                }}
+              />
+            ) : (
+              <div className="rounded-2xl border border-dashed border-emerald-300 bg-emerald-50/60 px-6 py-16 text-center dark:border-emerald-900 dark:bg-emerald-950/20">
+                <h2 className="text-base font-bold text-emerald-900 dark:text-emerald-200">
+                  選擇術式，再選恢復階段
+                </h2>
+                <p className="mt-2 text-sm text-stone-600 dark:text-neutral-400">
+                  從左側點選術後處方，即可查看並複製各階段的 Plan。
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 sm:flex-row sm:items-center sm:justify-between">
@@ -626,10 +733,15 @@ export default function OpdPage() {
             </div>
             <button
               type="button"
-              onClick={() => void copySoap()}
-              className="rounded-xl bg-neutral-950 px-6 py-3 text-sm font-bold text-white transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
+              onClick={() => void copyWorkspace()}
+              disabled={libraryMode === 'postop' && !selectedPhase}
+              className="rounded-xl bg-neutral-950 px-6 py-3 text-sm font-bold text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
             >
-              {copyState === 'copied' ? '✓ 已複製完整 SOAP' : '複製完整 SOAP'}
+              {copyState === 'copied'
+                ? libraryMode === 'postop' ? '✓ 已複製 P' : '✓ 已複製完整 SOAP'
+                : copyState === 'error'
+                  ? '複製失敗'
+                  : libraryMode === 'postop' ? '複製此階段 P' : '複製完整 SOAP'}
             </button>
           </div>
 
@@ -651,6 +763,7 @@ function SoapSection({
   rows,
   onChange,
   textareaRef,
+  textareaId,
 }: {
   label: 'S' | 'O' | 'A' | 'P'
   title: string
@@ -659,6 +772,7 @@ function SoapSection({
   rows: number
   onChange: (value: string) => void
   textareaRef?: React.RefObject<HTMLTextAreaElement | null>
+  textareaId?: string
 }) {
   const [sectionCopyState, setSectionCopyState] = useState<CopyState>('idle')
 
@@ -699,6 +813,7 @@ function SoapSection({
         </button>
       </div>
       <textarea
+        id={textareaId}
         ref={textareaRef}
         value={value}
         onChange={(event) => onChange(event.target.value)}

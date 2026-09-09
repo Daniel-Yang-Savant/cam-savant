@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "test:sw": "node --test tests/service-worker.test.mjs",
     "test:fsm": "node --test tests/fsm-*.test.mjs",
+    "test:opd": "TSX_TSCONFIG_PATH=scripts/tsconfig.opd-tests.json node --conditions=react-server --import tsx --test scripts/opd-plan-phases.test.ts",
     "test:discovery": "node --import tsx --test scripts/article-discovery.test.ts",
     "test:seo": "tsx --test scripts/seo-contract.test.ts scripts/exercise-guide-related.test.ts scripts/content-review.test.ts scripts/doctor-clinics.test.ts",
     "optimize:covers": "tsx scripts/optimize-cover-images.ts",
@@ -20,7 +21,7 @@
     "rotate-token": "ts-node scripts/rotate-token.ts",
     "new": "ts-node scripts/new-article.ts",
     "validate:posts": "tsx scripts/validate-posts.ts",
-    "prebuild": "npm run validate:posts && npm run test:seo && npm run test:discovery && npm run test:fsm"
+    "prebuild": "npm run validate:posts && npm run test:seo && npm run test:discovery && npm run test:fsm && npm run test:opd"
   },
   "ts-node": {
     "transpileOnly": true,
