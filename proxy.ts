@@ -78,7 +78,8 @@ export async function proxy(request: NextRequest) {
       {
         maxAge: PERIOP_COOKIE_MAX_AGE_SECONDS,
         httpOnly: true,
-        sameSite: 'strict',
+        // QR links can arrive through a cross-site top-level navigation.
+        sameSite: 'lax',
         secure: process.env.NODE_ENV === 'production',
         path: '/',
       }
@@ -93,7 +94,9 @@ export async function proxy(request: NextRequest) {
     : '/perioperative-rehab/locked'
   locked.search = ''
   const response = NextResponse.redirect(locked)
-  response.cookies.delete(PERIOP_COOKIE_NAME)
+  // A missing cookie may have been withheld by the browser on navigation.
+  // Only clear a cookie we actually received and found invalid.
+  if (cookie) response.cookies.delete(PERIOP_COOKIE_NAME)
   return withPrivateNoStore(response)
 }
 

@@ -57,6 +57,7 @@ test('all locales and organization members share canonical physician IDs and off
     assert.deepEqual(generateOrganizationSchema().member.find((member) => member['@id'] === zh['@id']), zh)
   }
   const mainDoctor = generatePhysicianSchema(AUTHORS['楊育愷醫師'])
+  assert.ok('affiliation' in mainDoctor)
   assert.equal(Array.isArray(mainDoctor.affiliation) && mainDoctor.affiliation.length, 3)
 })
 

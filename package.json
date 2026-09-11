@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test:sw": "node --test tests/service-worker.test.mjs",
+    "test:periop": "node --import tsx --test scripts/periop-auth.test.ts",
     "test:fsm": "node --test tests/fsm-*.test.mjs",
     "test:opd": "TSX_TSCONFIG_PATH=scripts/tsconfig.opd-tests.json node --conditions=react-server --import tsx --test scripts/opd-plan-phases.test.ts",
     "test:discovery": "node --import tsx --test scripts/article-discovery.test.ts",
@@ -21,7 +22,7 @@
     "rotate-token": "ts-node scripts/rotate-token.ts",
     "new": "ts-node scripts/new-article.ts",
     "validate:posts": "tsx scripts/validate-posts.ts",
-    "prebuild": "npm run validate:posts && npm run test:seo && npm run test:discovery && npm run test:fsm && npm run test:opd"
+    "prebuild": "npm run validate:posts && npm run test:seo && npm run test:discovery && npm run test:fsm && npm run test:opd && npm run test:periop"
   },
   "ts-node": {
     "transpileOnly": true,

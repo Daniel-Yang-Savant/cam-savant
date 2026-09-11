@@ -98,6 +98,7 @@ test('exercise guide schema links MedicalWebPage, reviewer, and ExercisePlan par
   assert.equal(webPage.dateModified, '2026-09-06')
   assert.equal(webPage.lastReviewed, '2026-09-05')
   assert.equal(webPage.reviewedBy.name, '楊育愷')
+  assert.ok('affiliation' in webPage.reviewedBy)
   assert.ok(Array.isArray(webPage.reviewedBy.affiliation))
   assert.ok(webPage.reviewedBy.affiliation.some((clinic) => clinic.name === '彰化基督教醫院'))
   assert.equal(webPage.mainEntity['@id'], exercisePlan['@id'])

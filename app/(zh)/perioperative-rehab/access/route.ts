@@ -29,7 +29,8 @@ export async function GET(request: NextRequest) {
     {
       maxAge: PERIOP_COOKIE_MAX_AGE_SECONDS,
       httpOnly: true,
-      sameSite: 'strict',
+      // Send the cookie on the redirect after opening a QR link from another app/site.
+      sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
       path: '/',
     }
