@@ -9,8 +9,8 @@ export function GET() {
     {
       templates: opdTemplates,
       prescriptions: postopPrescriptions.map(
-        ({ id, title, category, hint, phases, safety }) => ({
-          id, title, category, hint, phases, safety,
+        ({ id, title, category, hint, phases, safety, safetyZh }) => ({
+          id, title, category, hint, phases, safety, safetyZh,
         })
       ),
     },

@@ -25,6 +25,7 @@ export interface PostopPrescription {
   plan: string
   phases: PostopPlanPhase[]
   safety: string
+  safetyZh: string
   origin: '現有 Notion' | '循證補充'
   reviewStatus: '待醫師確認'
   sources: PostopPrescriptionSource[]
@@ -45,6 +46,10 @@ const NOTION_POSTOP_ROOT =
 
 const COMMON_POSTOP_SAFETY =
   'Follow surgeon-specific weight-bearing, bracing, ROM and progression orders based on the procedure, fixation and tissue healing. Stop treatment and arrange prompt assessment for signs of wound infection, uncontrolled pain or swelling, new neurovascular abnormalities, dyspnea or other acute deterioration.'
+
+// Chinese workspace guidance is separate from the English copy-ready Plan.
+const COMMON_POSTOP_SAFETY_ZH =
+  '實際負重、護具、活動角度與進階時程以手術醫師、術式、固定方式及組織癒合狀況為準；若出現傷口感染徵象、無法控制的疼痛或腫脹、新發神經血管異常、呼吸困難或其他急性惡化，應停止並儘速評估。'
 
 const POSTOP_SOAP_PARTS = {
   'acl-reconstruction': {
@@ -465,6 +470,8 @@ Follow-up：＿＿`,
     safety:
       'Do not apply the isolated ACL timeline unchanged after concomitant meniscal repair, cartilage procedures or other ligament reconstruction. ' +
       COMMON_POSTOP_SAFETY,
+    safetyZh: '若合併半月板修補、軟骨處置或其他韌帶重建，不可直接沿用單純 ACL 時程。' +
+      COMMON_POSTOP_SAFETY_ZH,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
     sources: [
@@ -490,6 +497,8 @@ Follow-up：＿＿`,
     safety:
       'Root or radial repairs and complex tears may require stricter restrictions; follow the operative report and individualized orders. ' +
       COMMON_POSTOP_SAFETY,
+    safetyZh: 'root／radial 修補或複雜撕裂的限制可能更嚴格，須以手術紀錄與個別醫囑為準。' +
+      COMMON_POSTOP_SAFETY_ZH,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
     sources: [
@@ -516,6 +525,8 @@ Follow-up：＿＿`,
     safety:
       'Protect the PCL graft from posterior shear; concomitant PLC or multiligament injury requires different restrictions. ' +
       COMMON_POSTOP_SAFETY,
+    safetyZh: 'PCL graft 對後向剪力敏感；合併 PLC／多韌帶損傷時限制不同。' +
+      COMMON_POSTOP_SAFETY_ZH,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
     sources: [
@@ -541,6 +552,8 @@ Follow-up：＿＿`,
     safety:
       'Large or massive tears, poor tissue quality or additional subscapularis repair generally require more conservative ROM and loading progression. ' +
       COMMON_POSTOP_SAFETY,
+    safetyZh: '大範圍／massive tear、組織品質差或額外 subscapularis 修補，ROM 與負荷時程通常需更保守。' +
+      COMMON_POSTOP_SAFETY_ZH,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
     sources: [
@@ -564,6 +577,7 @@ Month 3+：依功能需求增進社區步行與日常活動；ROM 可朝約 0–
 Long term：優先低衝擊活動，避免未經醫囑的高衝擊運動。
 Follow-up：＿＿`,
     safety: COMMON_POSTOP_SAFETY,
+    safetyZh: COMMON_POSTOP_SAFETY_ZH,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
     sources: [
@@ -590,6 +604,8 @@ Follow-up：＿＿`,
     safety:
       'Dislocation precautions vary by surgical approach; confirm the individual restrictions specified by the surgeon. ' +
       COMMON_POSTOP_SAFETY,
+    safetyZh: '脫臼預防並非所有入路都相同，須確認手術醫師的個別限制。' +
+      COMMON_POSTOP_SAFETY_ZH,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
     sources: [
@@ -615,6 +631,8 @@ Follow-up：＿＿`,
     safety:
       'Prioritize flap viability, airway safety, fistula, infection, bleeding and aspiration risks. Select swallowing maneuvers and diet texture from individual assessment findings; a generic template does not replace assessment. ' +
       COMMON_POSTOP_SAFETY,
+    safetyZh: '皮瓣、氣道、瘻管、感染、出血及吸入風險須優先；吞嚥手法與飲食質地需依個別檢查結果，不能以通用模板取代評估。' +
+      COMMON_POSTOP_SAFETY_ZH,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
     sources: [
@@ -640,6 +658,8 @@ Follow-up：＿＿`,
     safety:
       'Avoid excessive early tension on the incision or flap. Assess spinal accessory nerve function for marked shoulder weakness. Exclude infection, thrombosis and other contraindications before lymphedema treatment. ' +
       COMMON_POSTOP_SAFETY,
+    safetyZh: '早期不可過度牽拉切口或皮瓣；明顯肩無力需評估副神經功能，淋巴水腫治療前須排除感染、血栓及其他禁忌。' +
+      COMMON_POSTOP_SAFETY_ZH,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
     sources: [
@@ -664,6 +684,8 @@ Follow-up：＿＿`,
     safety:
       'Reconstruction type, tissue expanders and wound status modify shoulder ROM and lifting restrictions. Individualize risk assessment for ipsilateral blood pressure measurement or needle procedures rather than imposing a blanket prohibition. ' +
       COMMON_POSTOP_SAFETY,
+    safetyZh: '重建方式、組織擴張器與傷口狀況會改變肩 ROM／提重限制；不以「一律禁止患側量血壓或穿刺」取代個別風險評估。' +
+      COMMON_POSTOP_SAFETY_ZH,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
     sources: [
@@ -688,6 +710,8 @@ Follow-up／referral：＿＿`,
     safety:
       'Monitor for anastomotic, respiratory, infectious, swallowing / aspiration, nutritional and cardiac rhythm complications. Exercise must not delay surgical assessment. ' +
       COMMON_POSTOP_SAFETY,
+    safetyZh: '需留意吻合口、呼吸、感染、吞嚥／吸入、營養及心律等術後併發症；運動不能延誤外科評估。' +
+      COMMON_POSTOP_SAFETY_ZH,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
     sources: [
@@ -712,6 +736,8 @@ Follow-up／pulmonary rehab referral：＿＿`,
     safety:
       'Follow thoracic-team orders for oxygen therapy, chest drains, air leaks and activity limits. Individualize SpO2 targets; do not apply one fixed target to all patients. ' +
       COMMON_POSTOP_SAFETY,
+    safetyZh: '氧療、胸管、漏氣及活動界線依胸腔團隊；SpO₂ 目標應個別化，不固定套用單一數值。' +
+      COMMON_POSTOP_SAFETY_ZH,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
     sources: [
@@ -735,6 +761,7 @@ Education：藥物遵從、症狀辨識、戒菸、睡眠、營養與回歸工�
 Follow-up／cardiac rehab referral：＿＿`,
     safety:
       'Base exercise progression on ischemia, rhythm, heart failure, blood pressure response and post-intervention status. Stop immediately and arrange assessment and management for new chest pain, marked dyspnea, syncope or unstable vital signs.',
+    safetyZh: '運動進階須依缺血、心律、心衰竭、血壓反應與介入後狀況；新發胸痛、明顯呼吸困難、暈厥或不穩定生命徵象應立即停止並處理。',
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
     sources: [
@@ -758,6 +785,7 @@ Education：move-in-the-tube、傷口照護、藥物遵從、症狀辨識、戒�
 Follow-up／cardiac rehab referral：＿＿`,
     safety:
       'Individualize sternal precautions according to pain, sternal stability and surgical orders rather than a fixed weight or ROM limit. Stop and assess for sternal clicking, wound abnormalities, chest pain, dyspnea, syncope or unstable rhythm.',
+    safetyZh: '胸骨限制宜以疼痛、胸骨穩定與個別外科指示取代僵化的單一重量／角度；若有 clicking、傷口異常、胸痛、呼吸困難、暈厥或不穩定心律應停止並評估。',
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
     sources: [
@@ -784,6 +812,7 @@ Home program／referrals：PT ＿＿；OT ＿＿；SLP ＿＿；nutrition ＿＿
 Follow-up：＿＿`,
     safety:
       'This is a multidisciplinary prescription draft. Immediately notify the surgical team of airway obstruction, acute changes in flap color / temperature / capillary refill, active bleeding, rapidly increasing neck swelling, fever / infection, fistula, aspiration or neurological deterioration. Treatment must not compress the flap pedicle or delay flap monitoring.',
+    safetyZh: '此為跨專業處方草稿。氣道受阻、皮瓣顏色／溫度／毛細回填急變、活動性出血、頸部快速腫脹、發燒／感染、瘻管、吸入或神經功能惡化，需立即回報外科團隊；治療不得壓迫 pedicle 或延誤皮瓣監測。',
     origin: '循證補充',
     reviewStatus: '待醫師確認',
     sources: [
@@ -818,6 +847,7 @@ Week 6+：依呼吸症狀、體能與後續癌症治療進展 aerobic + resistan
 Follow-up：＿＿`,
     safety:
       'Stop activity and arrange urgent assessment for new or worsening dyspnea, persistent oxygen desaturation, chest pain, syncope, palpitations, fever, hemoptysis, wound / chest-drain abnormalities, unilateral calf swelling or pain, or acute functional decline.',
+    safetyZh: '新發或加劇的呼吸困難、無法恢復的血氧下降、胸痛、暈厥、心悸、發燒、咳血、傷口／胸管異常、單側小腿腫痛或急性功能下降，應停止活動並緊急評估。',
     origin: '循證補充',
     reviewStatus: '待醫師確認',
     sources: [

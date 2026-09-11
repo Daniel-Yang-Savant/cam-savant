@@ -43,6 +43,7 @@ export const nonOrthopedicPlanPhases: Record<string, PostopPlanPhase[]> = {
     {
       id: 'weeks-0-4',
       label: 'Post-op Weeks 0–4 | Flap Protection and Early Oral Mobility',
+      labelZh: '術後第 0–4 週｜皮瓣保護與口腔初期活動',
       plan: `Therapeutic Exercise: Appropriate positioning, sitting, standing, and walking after surgical team clearance. Begin gentle tongue / lip AROM when permitted.
 Swallowing / Communication: Refer to SLP for swallowing screening, communication assessment, and positioning education. Maintain NPO / prescribed diet texture per the surgical team and SLP.
 Precautions: Prioritize monitoring of the flap, wound, airway, and secretions. Avoid tension on the incision or reconstruction. Follow reconstruction team restrictions for donor-site mobility / weight bearing. No unsupervised oral trials before swallowing safety is confirmed.
@@ -51,6 +52,7 @@ Progression Criteria: Adjust to surgical-site healing, flap stability, and plann
     {
       id: 'weeks-4-8',
       label: 'Post-op Weeks 4–8 | Scar Mobility and Individualized Swallowing Therapy',
+      labelZh: '術後第 4–8 週｜疤痕活動與個別吞嚥訓練',
       plan: `Therapeutic Exercise: Scar / soft tissue mobility after wound stability and surgical clearance. Continue cleared tongue / lip AROM and daily activities.
 Swallowing / Communication: SLP to select swallowing maneuvers and diet texture progression based on individual assessment. Use maneuvers such as the Mendelsohn maneuver only after suitability assessment and instruction.
 Precautions: Avoid forceful stretching of unhealed wounds, the flap, or radiation-damaged tissue. Oral intake remains subject to swallowing safety assessment; do not discontinue NPO solely because this phase has been reached.
@@ -59,6 +61,7 @@ Progression Criteria: Stable wound and flap. Plan the next phase according to or
     {
       id: 'weeks-8-12-plus',
       label: 'Post-op Weeks 8–12 and Beyond | Jaw Opening, Articulation, and Swallowing',
+      labelZh: '術後第 8–12 週以上｜張口、構音與吞嚥功能',
       plan: `Therapeutic Exercise: Continue jaw ROM / trismus prevention, tongue mobility, articulation / speech resonance drills, and individualized swallowing therapy.
 Jaw Opening: Adjust stretching to the resection, reconstruction, and radiotherapy status. Use passive jaw-opening devices, such as TheraBite or tongue depressors, only after team assessment and instruction.
 Integrated Assessment: Monitor neck / shoulder mobility, head-and-neck lymphedema, and radiotherapy-related tightness. Refer to SLP, dental, nutrition, or lymphedema services as indicated.
@@ -69,6 +72,7 @@ Precautions: Do not gain ROM at the expense of progressively increasing pain or 
     {
       id: 'weeks-0-4',
       label: 'Post-op Weeks 0–4 | Neck / Shoulder Protection and Postural Mobility',
+      labelZh: '術後第 0–4 週｜頸肩保護與姿勢活動',
       plan: `Therapeutic Exercise: Gentle cervical AROM, scapular setting, posture, and positioning exercises according to wound, flap, and drain status.
 Edema Care: Appropriate positioning with coordinated team care. Monitor head-and-neck swelling, shoulder droop, scapular winging, and neurologic symptoms.
 Precautions: Avoid overstretching or tension on the incision / flap. Adjust cervical movement direction and ROM to reconstruction restrictions. Assess CN XI function if significant shoulder weakness is present.
@@ -77,6 +81,7 @@ Progression Criteria: Stable wound and drainage status with team approval before
     {
       id: 'weeks-4-8',
       label: 'Post-op Weeks 4–8 | Shoulder Mobility and Soft Tissue Recovery',
+      labelZh: '術後第 4–8 週｜肩部活動與軟組織恢復',
       plan: `Therapeutic Exercise: Progress shoulder AAROM / AROM after wound stability and team approval. Continue gentle cervical AROM, scapular setting, and postural training.
 Soft Tissue: Scar / soft tissue mobility over healed areas. Trained clinicians to assess the need for manual lymphatic drainage / lymphedema therapy.
 Precautions: Exclude infection, thrombosis, and other contraindications before lymphedema treatment. Avoid excessive tension on the incision / flap. Monitor shoulder droop, winging, and accessory nerve-related weakness.
@@ -85,6 +90,7 @@ Progression Criteria: Progress according to wound status, pain, neck / shoulder 
     {
       id: 'weeks-8-12-plus',
       label: 'Post-op Weeks 8–12 and Beyond | Scapular Strength and Daily Function',
+      labelZh: '術後第 8–12 週以上｜肩胛肌力與生活功能',
       plan: `Therapeutic Exercise: Progressive scapular stabilizer, upper trapezius, rotator cuff, and upper-quarter endurance training. Continue neck / shoulder mobility, posture, and breathing exercises.
 Functional Training: Adapt movement and loading to neck-dissection shoulder syndrome, post-radiotherapy neck tightness, and daily activity / work demands.
 Precautions: Progress stretching and resistance according to pain, skin, and tissue tolerance. Avoid forceful stretching of irradiated or surgical sites. Continue monitoring accessory nerve function and significant lymphedema.
@@ -95,6 +101,7 @@ Referrals: PT / OT according to functional deficits. Refer to SLP / a trained ly
     {
       id: 'weeks-0-2',
       label: 'Post-op Weeks 0–2 | Drain Protection and Early Shoulder / Arm Mobility',
+      labelZh: '術後第 0–2 週｜引流保護與初期肩臂活動',
       plan: `Therapeutic Exercise: Elbow / wrist / hand AROM, soft-ball squeezes, breathing exercises, walking, and gentle shoulder AAROM. Maintain a comfortable upright posture.
 ROM / Lifting: Follow surgical / plastic surgery orders for shoulder ROM, lifting, and repetitive overhead activity according to reconstruction and drain status. Do not substitute fixed angles or weights for individual restrictions.
 Precautions: Avoid traction on drains and wounds. Monitor swelling, heaviness, and tightness. Individualize blood pressure measurement, venipuncture, and injections according to institutional risk assessment and feasibility.
@@ -103,6 +110,7 @@ Progression Criteria: Advance shoulder ROM and function only when wound / drain 
     {
       id: 'weeks-2-6',
       label: 'Post-op Weeks 2–6 | Shoulder Mobility, Scar Care, and Functional Recovery',
+      labelZh: '術後第 2–6 週｜肩活動、疤痕與功能恢復',
       plan: `Therapeutic Exercise: Progress toward full shoulder AROM when wound and drain restrictions permit. Wall slides / wall climbing, pendulums, scapular retraction / stabilization, and light aerobic walking.
 Soft Tissue: Gentle scar mobility after wound healing. Assess axillary web syndrome (cording), pain, and swelling; provide individualized soft tissue treatment as indicated.
 Lymphedema Care: Educate on skin care and early swelling symptoms. Refer to trained clinicians for persistent swelling, heaviness, or tightness. Prescribe a compression sleeve only after assessment.
@@ -111,6 +119,7 @@ Precautions: Shoulder ROM and lifting must remain within reconstruction, tissue 
     {
       id: 'weeks-6-12-plus',
       label: 'Post-op Weeks 6–12 and Beyond | Progressive Strength and Conditioning',
+      labelZh: '術後第 6–12 週以上｜漸進肌力與體能',
       plan: `Therapeutic Exercise: Begin progressive resistance with low loads and high repetitions. Gradually advance shoulder girdle / core, daily function, and aerobic training. Progress overhead activity within reconstruction restrictions and tolerance.
 During Radiotherapy: Continue chest / shoulder stretching and postural mobility; adjust to skin, chest-wall, and axillary tightness responses.
 Monitoring: Track affected-limb swelling / circumference as indicated, pain, and shoulder function. Assess delayed-onset lymphedema or shoulder symptoms.
@@ -121,6 +130,7 @@ Precautions: Do not automatically increase resistance or lifting by postoperativ
     {
       id: 'prehabilitation',
       label: 'Pre-op | Cardiopulmonary Prehabilitation and Nutritional Preparation',
+      labelZh: '術前｜心肺預復健與營養準備',
       plan: `Therapeutic Exercise: If time and clinical status permit, aerobic exercise (walking / cycling) for approximately 30 minutes, 3–5 days/week, with low-to-moderate-intensity whole-body resistance training.
 Respiratory Care: Deep breathing and effective huff / cough practice. Assess high-risk patients for inspiratory muscle training; individualize resistance and dosage with the team.
 Integrated Care: Smoking cessation education and nutritional assessment. Adjust training for sarcopenia, weight loss, and the surgical schedule.
@@ -129,6 +139,7 @@ Precautions: Adapt to existing cardiopulmonary disease, fatigue, swallowing, and
     {
       id: 'days-0-7',
       label: 'Post-op Days 0–7 | Early Mobilization and Respiratory Care',
+      labelZh: '術後第 0–7 天｜早期離床與呼吸照護',
       plan: `Therapeutic Exercise: Begin sitting, standing, and walking within 24 hours with team approval after vital signs and pain control are stable. Monitor symptoms, HR, and SpO₂ / oxygen settings during activity.
 Respiratory Care: Deep breathing / thoracic expansion and supported huff / cough. Use incentive spirometry only per the institutional pathway or individual indications.
 ROM / Positioning: Shoulder / neck AAROM / ROM within incision and anastomotic restrictions. Follow surgical, swallowing, and nutrition team instructions for head-of-bed elevation and feeding posture.
@@ -137,6 +148,7 @@ Precautions: Confirm adequate analgesia and wound, drain, and oxygen therapy saf
     {
       id: 'weeks-2-6',
       label: 'Post-op Weeks 2–6 | Interval Walking and Home Activity',
+      labelZh: '術後第 2–6 週｜分段步行與返家活動',
       plan: `Therapeutic Exercise: Gradually increase walking duration in short bouts; use interval activity for significant fatigue. Include postural, shoulder girdle, and daily activity training.
 Activity Planning: Pacing / energy conservation with alternating activity and rest. Adjust to fatigue and respiratory response.
 Nutrition Coordination: Follow surgical and nutrition team instructions for diet, tube feeding, and post-meal positioning. Schedule activity around early satiety, post-meal discomfort, and the individual feeding plan.
@@ -145,6 +157,7 @@ Precautions: Monitor swallowing / aspiration concerns, weight and nutritional ch
     {
       id: 'months-2-6',
       label: 'Post-op Months 2–6 | Conditioning and Return to Daily / Work Activities',
+      labelZh: '術後第 2–6 個月｜體能與生活工作恢復',
       plan: `Therapeutic Exercise: Progressive aerobic, whole-body resistance, and flexibility training. Include trunk / shoulder girdle mobility and task training for daily / work demands.
 Soft Tissue: After wound healing and team approval, provide gentle mobility and stretching tailored to thoracoabdominal scars and trunk rotation restrictions.
 Monitoring: Track radiotherapy / chemotherapy adverse effects, nutrition, weight, and exercise tolerance. Report worsening swallowing or limited intake to the surgical and nutrition teams.
@@ -155,6 +168,7 @@ Precautions: Adjust loading to fitness and treatment status. Evaluate respirator
     {
       id: 'prehabilitation',
       label: 'Pre-op | Pulmonary Prehabilitation and Breathing Exercises',
+      labelZh: '術前｜肺部預復健與呼吸練習',
       plan: `Therapeutic Exercise: Aerobic exercise (walking / cycling) and resistance training according to clinical status. Assess high-risk patients for inspiratory muscle training; individualize equipment, resistance, and dosage.
 Respiratory Care: Diaphragmatic breathing / thoracic expansion, huff cough, and secretion clearance education.
 Integrated Care: Coordinate smoking cessation and nutritional assessment. Document exercise tolerance and respiratory symptoms.
@@ -163,6 +177,7 @@ Precautions: Adjust training to preoperative fitness, cardiopulmonary comorbidit
     {
       id: 'days-0-7',
       label: 'Post-op Days 0–7 | Early Mobilization and Airway Clearance',
+      labelZh: '術後第 0–7 天｜早期活動與呼吸排痰',
       plan: `Therapeutic Exercise: Mobilize out of bed within 24 hours after vital signs are stable and the team approves. Upright positioning, sitting, standing, and walking in short bouts.
 Respiratory Care: Deep breathing / thoracic expansion and supported huff / cough. Incentive spirometry is not mandatory routine care; use only per the institutional pathway or individual indications.
 ROM: Affected-side shoulder AAROM and trunk mobility without tension on the incision or chest tube.
@@ -171,6 +186,7 @@ Precautions: Confirm analgesia and chest tube, oxygen therapy, and air-leak rest
     {
       id: 'weeks-2-6',
       label: 'Post-op Weeks 2–6 | Walking Endurance and Chest / Shoulder Mobility',
+      labelZh: '術後第 2–6 週｜步行耐力與胸肩活動',
       plan: `Therapeutic Exercise: Begin with approximately 15–20 minutes of walking in short bouts. Progress distance and duration according to breathing, fatigue, and pain responses.
 Chest / Shoulder Mobility: Chest-wall expansion, side-bending, posture correction, and shoulder ROM to reduce protective kyphosis or shoulder elevation.
 Wound Care: Gentle scar mobility after complete wound healing and team approval.
@@ -179,6 +195,7 @@ Precautions: Continue thoracic team limits for oxygen therapy, chest tubes, and 
     {
       id: 'months-2-3-plus',
       label: 'Post-op Months 2–3 and Beyond | Whole-Body Strength and Endurance',
+      labelZh: '術後第 2–3 個月以上｜全身肌力與耐力',
       plan: `Therapeutic Exercise: Progressive aerobic interval and whole-body resistance training using light weights / resistance bands. Resume ADL, work, and light leisure activity as tolerated.
 Progression: Adjust intensity to respiratory symptoms, fatigue, and functional performance. Start with short bouts for exertional dyspnea.
 Monitoring: Track respiratory symptoms, exercise tolerance, subsequent radiotherapy / chemotherapy response, and daily function. Refer to pulmonary rehabilitation as needed.
@@ -189,6 +206,7 @@ Precautions: Do not attribute new respiratory symptoms or declining tolerance so
     {
       id: 'days-1-7',
       label: 'Post-event Days 1–7 | Early Inpatient Mobilization',
+      labelZh: '事件後第 1–7 天｜住院早期活動',
       plan: `Therapeutic Exercise: Sitting, standing, and bedside / short-distance walking after 24 hours of hemodynamic stability and medical team clearance. The cardiac team determines the actual start according to clinical status.
 Intensity: Common starting targets are RPE <11 or HR increase <20 bpm above resting HR; individualize to risk and medication response.
 Monitoring: Monitor symptoms and ECG / HR / BP / SpO₂ according to care setting and risk. Watch for ischemia, rhythm abnormalities, and heart failure signs.
@@ -197,6 +215,7 @@ Precautions: Protect the PCI access site and any concurrent surgical wounds. Edu
     {
       id: 'weeks-2-6',
       label: 'Post-event Weeks 2–6 | Outpatient Cardiac Rehabilitation',
+      labelZh: '事件後第 2–6 週｜門診心臟復健',
       plan: `Therapeutic Exercise: Walking / stationary cycling for 15–30 minutes, 3–5 days/week, within a formal cardiac rehabilitation program. Use interval training if tolerance is limited.
 Intensity: Commonly begin at 40–60% HRR or RPE 11–13; adjust to risk, medications, and exercise response.
 Strengthening: Low-load, rhythmic whole-body resistance training. Avoid heavy loads, breath-holding, and Valsalva.
@@ -205,6 +224,7 @@ Precautions: Arrange supervision and ECG monitoring according to risk. Assess ex
     {
       id: 'weeks-6-12-plus',
       label: 'Post-event Weeks 6–12 and Beyond | Endurance and Risk Factor Management',
+      labelZh: '事件後第 6–12 週以上｜耐力與危險因子管理',
       plan: `Therapeutic Exercise: Progress to 30–60 minutes of aerobic exercise according to exercise testing and risk stratification. Advance to 60–80% HRR when needed and appropriate.
 Strengthening / Recovery: Progressive whole-body resistance, flexibility, and cool-down, adjusted to cardiopulmonary and musculoskeletal tolerance.
 Education: Medication adherence, smoking cessation, sleep, stress, nutrition, BP, and lipid management. Return to work / sexual activity according to individual cardiac assessment.
@@ -215,6 +235,7 @@ Precautions: Base loading progression on exercise testing, ischemia, rhythm, hea
     {
       id: 'days-0-7',
       label: 'Post-op Days 0–7 | Respiratory Care and Sternal Protection',
+      labelZh: '術後第 0–7 天｜呼吸與胸骨保護活動',
       plan: `Therapeutic Exercise: Early sitting, standing, and supervised walking after medical stabilization. Gradually increase short-distance activity.
 Respiratory Care: Deep breathing and supported cough using a chest pillow or other appropriate support. Use incentive spirometry per the institutional pathway.
 Sternal Protection: Use move-in-the-tube principles, keeping upper arms close to the trunk during daily activities. Avoid painful forceful pushing / pulling. Base mobility and transfers on sternal stability and surgical instructions.
@@ -223,6 +244,7 @@ Precautions: Monitor AF / other rhythm abnormalities, sternal instability, and w
     {
       id: 'weeks-2-6',
       label: 'Post-op Weeks 2–6 | Outpatient Aerobic Training and Daily Function',
+      labelZh: '術後第 2–6 週｜門診有氧與日常功能',
       plan: `Therapeutic Exercise: Walking / stationary cycling for approximately 20–30 minutes. Commonly start at RPE 11–13 or HR increase <20 bpm above resting HR, individualized by the cardiac rehabilitation team.
 ROM / Function: Gentle shoulder / neck / thoracic AROM, gait, and ADL within acceptable pain limits. Continue move-in-the-tube principles for transfers and upper-limb activity.
 Precautions: Avoid excessive chest stretching and painful heavy pushing / pulling. Follow sternal stability and surgical orders for upper-limb loading, lifting, and transfer technique.
@@ -231,6 +253,7 @@ Monitoring: Assess the sternum, chest and graft donor-site wounds, graft-harvest
     {
       id: 'weeks-6-12',
       label: 'Post-op Weeks 6–12 | Strength Progression After Sternal Healing',
+      labelZh: '術後第 6–12 週｜胸骨癒合後肌力進階',
       plan: `Therapeutic Exercise: After sternal stability and surgical clearance, begin low-load upper-limb / whole-body resistance training and progressively increase resistance and lifting.
 Aerobic Training: Increase duration and intensity according to postoperative exercise testing and risk stratification, incorporating functional and work demands.
 Precautions: Avoid movements that provoke sternal clicking or pain. Do not substitute fixed weights, shoulder angles, or a single postoperative week for individual sternal restrictions.
@@ -239,6 +262,7 @@ Education: Continue move-in-the-tube principles, wound care, medication adherenc
     {
       id: 'months-3-plus',
       label: 'Post-op Month 3 and Beyond | Home and Community Maintenance',
+      labelZh: '術後第 3 個月以上｜居家與社區維持',
       plan: `Therapeutic Exercise: Transition to home / community aerobic and progressive resistance training after sternal stability and medical team clearance. Continue training according to individual fitness and function.
 Return to Activity: Progress leisure exercise, work, and lifting according to cardiac function, sternal stability, and medical orders. Continue tracking post-activity response.
 Long-Term Care: Medication adherence, diet, smoking cessation, stress, and cardiovascular risk factor management.
@@ -249,6 +273,7 @@ Precautions: Stop the related activity and assess sternal pain / clicking, wound
     {
       id: 'acute-protection',
       label: 'Acute Phase | Airway / Flap Protection and Early Mobilization',
+      labelZh: '急性期｜氣道、皮瓣與早期活動',
       plan: `Therapeutic Exercise: Early sitting, standing, and walking after vital signs, airway, wound, and flap are stable and the surgical team clears activity. Coordinate pain control and delirium, VTE, and pressure injury prevention.
 Swallowing / Communication: NPO / diet texture per the surgical team and SLP. Refer to SLP for swallowing, articulation, voice, and alternative communication assessment.
 Precautions: Follow reconstruction restrictions for all activity involving the flap pedicle, neck, donor site, and weight bearing. Do not compress the pedicle. No unsupervised oral trials before swallowing safety is confirmed.
@@ -257,6 +282,7 @@ Progression Criteria: Base progression on surgical assessment of airway, flap, a
     {
       id: 'wound-stable-mobility',
       label: 'Stable-Wound Phase | Neck / Shoulder and Oral / Jaw Mobility',
+      labelZh: '傷口穩定期｜頸肩與口顎活動',
       plan: `Therapeutic Exercise: When the wound permits, progress from gentle cervical ROM, scapular setting, and shoulder AAROM / AROM. Provide tongue / lip / jaw ROM according to the extent of resection and reconstruction.
 Jaw Opening: Establish regular jaw-opening exercises for patients at risk of trismus. The team assesses intensity and device selection.
 Functional Assessment: Document shoulder droop, scapular winging, pain, and CN XI-related weakness. Continue individualized swallowing and communication training.
@@ -265,6 +291,7 @@ Precautions: Neck / shoulder, oral / jaw, and donor-site activity must remain wi
     {
       id: 'functional-recovery',
       label: 'Functional Recovery | Scapular Endurance and Long-Term Integrated Care',
+      labelZh: '功能恢復期｜肩胛耐力與長期整合照護',
       plan: `Therapeutic Exercise: Gradually add scapular stabilizer and rotator cuff endurance training according to wound status, pain, and motor control. Continue cleared neck / shoulder and tongue / lip / jaw ROM and jaw-opening exercises.
 Swallowing / Communication: Continue swallowing, articulation, and communication training per SLP assessment. Diet texture and progression remain directed by the surgical team / SLP.
 Lymphedema / Scar Care: Assess head-and-neck lymphedema, fibrosis, and scars after wound stability. Refer to trained therapists when indicated.
@@ -275,6 +302,7 @@ Precautions: Adjust to the extent of reconstruction and subsequent treatment. Do
     {
       id: 'days-0-1',
       label: 'Post-op Days 0–1 | Initial Mobilization and Respiratory Care',
+      labelZh: '術後第 0–1 天｜首次離床與呼吸照護',
       plan: `Therapeutic Exercise: Begin sitting, standing, and short-distance walking within 24 hours after vital signs and pain control are stable and the thoracic team approves.
 Monitoring: Document symptoms, HR, BP, and SpO₂ / oxygen settings before and after each activity. Ensure chest tube safety and fall precautions.
 Respiratory Care: Upright positioning, deep breathing / thoracic expansion, and supported huff / cough. Individualized therapist management for secretions, reduced lung volumes, or high-risk status.
@@ -283,6 +311,7 @@ Precautions: Ensure adequate analgesia and follow chest tube, oxygen therapy, an
     {
       id: 'inpatient-recovery',
       label: 'Inpatient Recovery | Frequent Walking and Shoulder / Thoracic Mobility',
+      labelZh: '住院恢復期｜頻繁步行與肩胸廓活動',
       plan: `Therapeutic Exercise: Short, frequent walking bouts with gradual increases in distance and ADL. Ensure adequate analgesia, chest tube safety, and fall precautions.
 Shoulder / Trunk: Daily affected-side shoulder flexion / abduction AAROM-to-AROM, scapular movement, thoracic extension, and side-bending.
 Respiratory Care: Continue upright positioning, deep breathing / thoracic expansion, and supported huff / cough. Adjust to secretions, lung volumes, and risk.
@@ -291,6 +320,7 @@ Precautions: Avoid traction on the wound / chest tube and maintain acceptable pa
     {
       id: 'discharge-weeks-1-6',
       label: 'Approximately Weeks 1–6 After Discharge | Walking and Whole-Body Function',
+      labelZh: '出院後約第 1–6 週｜步行與全身功能',
       plan: `Therapeutic Exercise: Progress interval walking daily at moderate intensity using the talk test / RPE approximately 3–4/10. Add sit-to-stand, heel raises, and light whole-body resistance training after symptoms stabilize.
 Shoulder / Thoracic Mobility: Continue affected-side shoulder AAROM-to-AROM, scapular movement, thoracic extension, and side-bending without wound tension and within acceptable pain limits.
 Precautions: Follow surgical wound / chest tube instructions for lifting, driving, water immersion, work, and flying. Adjust loading to breathing, fatigue, pain, and post-activity recovery.
@@ -299,6 +329,7 @@ Progression Criteria: Increase aerobic and resistance training after symptoms st
     {
       id: 'weeks-6-plus',
       label: 'Post-op Week 6 and Beyond | Aerobic / Strength Training and Pulmonary Rehabilitation',
+      labelZh: '術後第 6 週以上｜有氧肌力與肺復健',
       plan: `Therapeutic Exercise: Progress aerobic and resistance training according to respiratory symptoms, fitness, and subsequent cancer treatment. Restore daily and work function.
 Referrals: Arrange pulmonary rehabilitation assessment for persistent functional limitations or high-risk status.
 Precautions: Continue adjusting to activity tolerance and recovery response. Reaching postoperative week 6 does not automatically remove wound, chest tube, or daily activity restrictions. Follow surgical instructions for lifting, driving, work, and flying.`,

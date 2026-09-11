@@ -28,8 +28,9 @@ interface PostopPrescription {
   title: string
   category: PostopPrescriptionCategory
   hint: string
-  phases: Array<{ id: string; label: string; plan: string }>
+  phases: Array<{ id: string; label: string; labelZh: string; plan: string }>
   safety: string
+  safetyZh: string
 }
 
 type CopyState = 'idle' | 'copied' | 'error'
@@ -44,17 +45,6 @@ Past history: ＿＿
 Occupation / functional limitation: ＿＿
 Exercise habit: ＿＿
 Patient goal: ＿＿`
-
-const INITIAL_ASSESSMENT = `Problem list / impression:
-1. ＿＿
-Differential / contributing factors: ＿＿`
-
-const INITIAL_PLAN = `Education and shared decision-making: ＿＿
-Medication / procedure: ＿＿
-Rehabilitation / home exercise: ＿＿
-Investigation / referral: ＿＿
-Precautions / red flags discussed: ＿＿
-Follow-up: ＿＿`
 
 const EXAM_CATEGORIES: Array<'全部' | TemplateCategory> = [
   '全部',
@@ -88,12 +78,10 @@ async function writeClipboard(value: string): Promise<void> {
   if (!succeeded) throw new Error('Copy failed')
 }
 
-function buildSoap(subjective: string, objective: string, assessment: string, plan: string) {
+function buildExamNote(subjective: string, objective: string) {
   return [
     `S:\n${subjective.trim()}`,
     `O:\n${objective.trim()}`,
-    `A:\n${assessment.trim()}`,
-    `P:\n${plan.trim()}`,
   ].join('\n\n')
 }
 
@@ -112,8 +100,6 @@ export default function OpdPage() {
   const [selectedPhaseId, setSelectedPhaseId] = useState('')
   const [subjective, setSubjective] = useState(INITIAL_SUBJECTIVE)
   const [objective, setObjective] = useState('')
-  const [assessment, setAssessment] = useState(INITIAL_ASSESSMENT)
-  const [plan, setPlan] = useState(INITIAL_PLAN)
   const [postopPlan, setPostopPlan] = useState('')
   const [copyState, setCopyState] = useState<CopyState>('idle')
   const [hasEdited, setHasEdited] = useState(false)
@@ -207,6 +193,7 @@ export default function OpdPage() {
         prescription.title.toLowerCase().includes(normalizedQuery) ||
         prescription.hint.toLowerCase().includes(normalizedQuery) ||
         prescription.phases.some((phase) =>
+          phase.labelZh.toLowerCase().includes(normalizedQuery) ||
           phase.label.toLowerCase().includes(normalizedQuery) ||
           phase.plan.toLowerCase().includes(normalizedQuery)
         )
@@ -220,14 +207,14 @@ export default function OpdPage() {
       await writeClipboard(
         libraryMode === 'postop'
           ? `P:\n${postopPlan.trim()}`
-          : buildSoap(subjective, objective, assessment, plan)
+          : buildExamNote(subjective, objective)
       )
       setCopyState('copied')
     } catch {
       setCopyState('error')
     }
     window.setTimeout(() => setCopyState('idle'), 2200)
-  }, [assessment, libraryMode, objective, plan, postopPlan, selectedPhase, subjective])
+  }, [libraryMode, objective, postopPlan, selectedPhase, subjective])
 
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
@@ -305,11 +292,9 @@ export default function OpdPage() {
       setCopyState('idle')
       return
     }
-    if (!window.confirm('清空目前 S、O、A、P 的所有內容？')) return
+    if (!window.confirm('清空目前 S、O 的所有內容？')) return
     setSubjective('')
     setObjective('')
-    setAssessment('')
-    setPlan('')
     setHasEdited(false)
     setObjectiveEdited(false)
   }
@@ -329,8 +314,6 @@ export default function OpdPage() {
       return
     }
     setSubjective(INITIAL_SUBJECTIVE)
-    setAssessment(INITIAL_ASSESSMENT)
-    setPlan(INITIAL_PLAN)
     const universal = templates.find((item) => item.id === 'universal-msk')
     setObjective(universal?.objective ?? '')
     setSelectedId('universal-msk')
@@ -389,10 +372,10 @@ export default function OpdPage() {
               className="min-w-32 rounded-lg bg-neutral-950 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
             >
               {copyState === 'copied'
-                ? libraryMode === 'postop' ? '✓ 已複製 P' : '✓ 已複製 SOAP'
+                ? libraryMode === 'postop' ? '✓ 已複製 P' : '✓ 已複製 S、O'
                 : copyState === 'error'
                   ? '複製失敗'
-                  : libraryMode === 'postop' ? '複製此階段 P' : '複製 SOAP'}
+                  : libraryMode === 'postop' ? '複製此階段 P' : '複製 S、O'}
             </button>
           </div>
         </div>
@@ -631,14 +614,14 @@ export default function OpdPage() {
                               : 'border-emerald-200 bg-white text-emerald-800 hover:border-emerald-600 dark:border-emerald-900 dark:bg-neutral-900 dark:text-emerald-300 dark:hover:border-emerald-500'
                           }`}
                         >
-                          {phase.label}
+                          {phase.labelZh}
                         </button>
                       ))}
                     </div>
                   </div>
                   <p className="mt-3 rounded-lg border border-rose-200 bg-white/70 px-3 py-2 text-xs leading-relaxed text-rose-800 dark:border-rose-900/70 dark:bg-neutral-950/40 dark:text-rose-300">
                     <span className="font-bold">安全提醒：</span>
-                    {selectedPrescription.safety}
+                    {selectedPrescription.safetyZh}
                   </p>
                 </div>
               </div>
@@ -674,34 +657,12 @@ export default function OpdPage() {
                     setObjectiveEdited(true)
                   }}
                 />
-                <SoapSection
-                  label="A"
-                  title="Assessment"
-                  helper="問題列表、臨床印象與鑑別方向"
-                  value={assessment}
-                  rows={8}
-                  onChange={(value) => {
-                    setAssessment(value)
-                    setHasEdited(true)
-                  }}
-                />
-                <SoapSection
-                  label="P"
-                  title="Plan"
-                  helper="衛教、治療與追蹤計畫"
-                  value={plan}
-                  rows={10}
-                  onChange={(value) => {
-                    setPlan(value)
-                    setHasEdited(true)
-                  }}
-                />
               </>
             ) : selectedPrescription && selectedPhase ? (
               <SoapSection
                 key={`${selectedPrescription.id}-${selectedPhase.id}`}
                 label="P"
-                title={`Plan · ${selectedPhase.label}`}
+                title={`Plan · ${selectedPhase.labelZh}`}
                 helper={`${selectedPrescription.title}｜全英文復健處方，可編輯後直接複製至病歷`}
                 textareaId="postop-plan"
                 value={postopPlan}
@@ -738,10 +699,10 @@ export default function OpdPage() {
               className="rounded-xl bg-neutral-950 px-6 py-3 text-sm font-bold text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
             >
               {copyState === 'copied'
-                ? libraryMode === 'postop' ? '✓ 已複製 P' : '✓ 已複製完整 SOAP'
+                ? libraryMode === 'postop' ? '✓ 已複製 P' : '✓ 已複製 S、O'
                 : copyState === 'error'
                   ? '複製失敗'
-                  : libraryMode === 'postop' ? '複製此階段 P' : '複製完整 SOAP'}
+                  : libraryMode === 'postop' ? '複製此階段 P' : '複製 S、O'}
             </button>
           </div>
 
@@ -765,7 +726,7 @@ function SoapSection({
   textareaRef,
   textareaId,
 }: {
-  label: 'S' | 'O' | 'A' | 'P'
+  label: 'S' | 'O' | 'P'
   title: string
   helper: string
   value: string

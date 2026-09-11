@@ -13,7 +13,8 @@ test('each procedure has a complete set of unique, independently copyable Plan p
   assert.equal(postopPrescriptions.reduce((total, { phases }) => total + phases.length, 0), 59)
 
   for (const prescription of postopPrescriptions) {
-    const { phases, title, planTitle, safety } = prescription
+    const { phases, title, planTitle, safety, safetyZh } = prescription
+    assert.match(safetyZh, /\p{Script=Han}/u, `${title}: workspace safety reminder stays Chinese`)
     assert.ok(phases.length >= 3, title)
     assert.equal(new Set(phases.map(({ id }) => id)).size, phases.length, title)
     assert.equal(new Set(phases.map(({ label }) => label)).size, phases.length, title)
@@ -26,6 +27,7 @@ test('each procedure has a complete set of unique, independently copyable Plan p
       assert.match(phase.plan, /^Precautions:/m)
       assert.doesNotMatch(phase.plan, /\p{Script=Han}|[：；，。／＿｜]/u, `${title} / ${phase.id}: copied Plan must be entirely English`)
       assert.doesNotMatch(phase.label, /\p{Script=Han}|[：；，。／＿｜]/u)
+      assert.match(phase.labelZh, /\p{Script=Han}/u, `${title} / ${phase.id}: workspace phase label stays Chinese`)
       assert.doesNotMatch(phase.plan, /undefined|\[object Object\]|待醫師確認|現有 Notion|(?:^|\n)[SOA]:/)
     }
   }
@@ -65,7 +67,8 @@ test('admin API returns only the phase-based prescription fields with no-store c
   assert.equal(data.templates.length, 39)
   assert.equal(data.prescriptions.length, 15)
   for (const prescription of data.prescriptions) {
-    assert.deepEqual(Object.keys(prescription).sort(), ['category', 'hint', 'id', 'phases', 'safety', 'title'])
+    assert.deepEqual(Object.keys(prescription).sort(), ['category', 'hint', 'id', 'phases', 'safety', 'safetyZh', 'title'])
+    assert.equal(prescription.safetyZh, postopPrescriptions.find(({ id }) => id === prescription.id)!.safetyZh)
     assert.deepEqual(prescription.phases, postopPrescriptions.find(({ id }) => id === prescription.id)!.phases)
   }
 })
