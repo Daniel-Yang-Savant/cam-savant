@@ -47,7 +47,7 @@ export const AUTHORS: Record<string, Author> = {
     slug: 'yu-kai-yang',
     name: '楊育愷',
     nameEn: 'Yu-Kai Yang, MD',
-    photo: '/images/team/yu-kai-yang-20260911.jpg',
+    photo: '/images/team/yu-kai-yang-20260911-v2.jpg',
     photoWidth: 1122,
     photoHeight: 1402,
     title: '復健科專科醫師／主治醫師',
