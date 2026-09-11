@@ -73,8 +73,8 @@ test('every exercise guide has a reassessment rule and indexable URL', () => {
 test('doctor clinic CTA uses the canonical locations path and photo dimensions', () => {
   const author = AUTHORS['楊育愷醫師']
   assert.equal(author.contactPath, '/doctors/yu-kai-yang#clinics')
-  assert.equal(author.photoWidth, 800)
-  assert.equal(author.photoHeight, 1032)
+  assert.equal(author.photoWidth, 1122)
+  assert.equal(author.photoHeight, 1402)
 })
 
 test('exercise guide schema links MedicalWebPage, reviewer, and ExercisePlan parts', () => {
