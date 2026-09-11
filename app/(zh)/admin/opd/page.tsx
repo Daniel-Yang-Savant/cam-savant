@@ -702,7 +702,7 @@ export default function OpdPage() {
                 key={`${selectedPrescription.id}-${selectedPhase.id}`}
                 label="P"
                 title={`Plan · ${selectedPhase.label}`}
-                helper={`${selectedPrescription.title}｜可直接編輯並複製此階段 P`}
+                helper={`${selectedPrescription.title}｜全英文復健處方，可編輯後直接複製至病歷`}
                 textareaId="postop-plan"
                 value={postopPlan}
                 rows={24}

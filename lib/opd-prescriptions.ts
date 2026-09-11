@@ -16,6 +16,7 @@ export interface PostopPrescriptionSource {
 export interface PostopPrescription {
   id: string
   title: string
+  planTitle: string
   category: PostopPrescriptionCategory
   hint: string
   subjective: string
@@ -43,7 +44,7 @@ const NOTION_POSTOP_ROOT =
   'https://app.notion.com/p/2e3451a33b66809aa660f4b286c5bec7'
 
 const COMMON_POSTOP_SAFETY =
-  '實際負重、護具、活動角度與進階時程以手術醫師、術式、固定方式及組織癒合狀況為準；若出現傷口感染徵象、無法控制的疼痛或腫脹、新發神經血管異常、呼吸困難或其他急性惡化，應停止並儘速評估。'
+  'Follow surgeon-specific weight-bearing, bracing, ROM and progression orders based on the procedure, fixation and tissue healing. Stop treatment and arrange prompt assessment for signs of wound infection, uncontrolled pain or swelling, new neurovascular abnormalities, dyspnea or other acute deterioration.'
 
 const POSTOP_SOAP_PARTS = {
   'acl-reconstruction': {
@@ -450,6 +451,7 @@ const basePostopPrescriptions: BasePostopPrescription[] = [
   {
     id: 'acl-reconstruction',
     title: 'ACL 重建術後',
+    planTitle: 'ACL Reconstruction',
     category: '骨科術後',
     hint: '依術後週數安排負重、護具、ROM、閉鎖鏈訓練與回場條件。',
     plan: `術式／移植物：ACL reconstruction，graft ＿＿；合併處置：＿＿
@@ -461,7 +463,7 @@ Week 4–12：逐步增加 CKC 0–60°、lunge、平衡與腳踏車；OKC knee 
 Return progression：無積水、完整 ROM、動作品質良好後再進階；跑步、跳躍、急停轉向及運動專項須依醫囑與功能測試，常以 limb symmetry ≥90% 作為其中一項條件。
 Follow-up：＿＿`,
     safety:
-      '若合併半月板修補、軟骨處置或其他韌帶重建，不可直接沿用單純 ACL 時程。' +
+      'Do not apply the isolated ACL timeline unchanged after concomitant meniscal repair, cartilage procedures or other ligament reconstruction. ' +
       COMMON_POSTOP_SAFETY,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
@@ -475,6 +477,7 @@ Follow-up：＿＿`,
   {
     id: 'acl-meniscus-repair',
     title: 'ACL 重建合併半月板修補',
+    planTitle: 'ACL Reconstruction with Meniscal Repair',
     category: '骨科術後',
     hint: '保留半月板修補所需的負重、屈曲與旋轉限制。',
     plan: `術式／修補位置：ACLR + meniscal repair；＿＿側；＿＿horn／root／其他：＿＿
@@ -485,7 +488,7 @@ Month 2–3：CKC 0–60°、proprioception、stationary bike；暫不做衝擊�
 Month 4–6+：依關節線壓痛、積水、肌力與控制進展動態訓練；直線慢跑與回場時程須由手術團隊確認，運動回場多落在術後 9–12 個月並需功能測試。
 Follow-up：＿＿`,
     safety:
-      'root／radial 修補或複雜撕裂的限制可能更嚴格，須以手術紀錄與個別醫囑為準。' +
+      'Root or radial repairs and complex tears may require stricter restrictions; follow the operative report and individualized orders. ' +
       COMMON_POSTOP_SAFETY,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
@@ -499,6 +502,7 @@ Follow-up：＿＿`,
   {
     id: 'pcl-reconstruction',
     title: 'PCL 重建術後',
+    planTitle: 'PCL Reconstruction',
     category: '骨科術後',
     hint: '以保護後向脛骨位移與股四頭肌主導訓練為核心。',
     plan: `術式／合併處置：PCL reconstruction；＿＿
@@ -510,7 +514,7 @@ Month 3–6：漸進 CKC、proprioception 與耐力；依穩定度、積水與�
 Month 6–12：跑跳、敏捷與回場須經功能測試；可參考 limb symmetry ≥90%、完整 ROM、無積水及病人回報量表。
 Follow-up：＿＿`,
     safety:
-      'PCL graft 對後向剪力敏感；合併 PLC／多韌帶損傷時限制不同。' +
+      'Protect the PCL graft from posterior shear; concomitant PLC or multiligament injury requires different restrictions. ' +
       COMMON_POSTOP_SAFETY,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
@@ -524,6 +528,7 @@ Follow-up：＿＿`,
   {
     id: 'rotator-cuff-slap',
     title: '旋轉肌袖修補合併 SLAP',
+    planTitle: 'Rotator Cuff Repair with SLAP Repair',
     category: '骨科術後',
     hint: '同時保護 cuff repair 與 biceps–labral complex。',
     plan: `術式／修補範圍：rotator cuff repair + SLAP repair；＿＿
@@ -534,7 +539,7 @@ Week 10–16：在動作品質與無代償前提下加入輕阻力 rotator cuff�
 Month 4–6+：進階肌力與耐力；達疼痛穩定、完整功能 ROM、肌力與控制門檻後再做輕量 plyometric／專項。重複高負荷 overhead 活動通常至少延至 6 個月並需醫療團隊放行。
 Follow-up：＿＿`,
     safety:
-      '大範圍／massive tear、組織品質差或額外 subscapularis 修補，ROM 與負荷時程通常需更保守。' +
+      'Large or massive tears, poor tissue quality or additional subscapularis repair generally require more conservative ROM and loading progression. ' +
       COMMON_POSTOP_SAFETY,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
@@ -548,6 +553,7 @@ Follow-up：＿＿`,
   {
     id: 'total-knee-replacement',
     title: '人工膝關節置換 TKR',
+    planTitle: 'Total Knee Replacement (TKR)',
     category: '骨科術後',
     hint: '疼痛腫脹控制、伸直、屈曲、步態與上下樓梯進階。',
     plan: `術式／側別：TKR，＿＿側；post-op week：＿＿
@@ -570,6 +576,7 @@ Follow-up：＿＿`,
   {
     id: 'total-hip-replacement',
     title: '人工髖關節置換 THR',
+    planTitle: 'Total Hip Replacement (THR)',
     category: '骨科術後',
     hint: '依前側／後側手術路徑套用不同脫臼預防與功能進展。',
     plan: `術式／側別／approach：THR，＿＿側，＿＿ approach；post-op week：＿＿
@@ -581,7 +588,7 @@ Month 3+：walking、cycling、CKC 與 core control；工作與提重依職務�
 Long term：以低衝擊活動為主；持續監測疼痛、跛行與不穩。
 Follow-up：＿＿`,
     safety:
-      '脫臼預防並非所有入路都相同，須確認手術醫師的個別限制。' +
+      'Dislocation precautions vary by surgical approach; confirm the individual restrictions specified by the surgeon. ' +
       COMMON_POSTOP_SAFETY,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
@@ -595,6 +602,7 @@ Follow-up：＿＿`,
   {
     id: 'oral-cancer-postop',
     title: '口腔癌術後復健',
+    planTitle: 'Oral Cancer Surgery',
     category: '癌症術後',
     hint: '傷口／皮瓣保護、口顎活動、吞嚥、構音與張口受限預防。',
     plan: `手術／重建／donor site：＿＿；post-op week：＿＿
@@ -605,7 +613,7 @@ Home program：＿＿
 SLP／dental／nutrition／lymphedema referral：＿＿
 Follow-up：＿＿`,
     safety:
-      '皮瓣、氣道、瘻管、感染、出血及吸入風險須優先；吞嚥手法與飲食質地需依個別檢查結果，不能以通用模板取代評估。' +
+      'Prioritize flap viability, airway safety, fistula, infection, bleeding and aspiration risks. Select swallowing maneuvers and diet texture from individual assessment findings; a generic template does not replace assessment. ' +
       COMMON_POSTOP_SAFETY,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
@@ -619,6 +627,7 @@ Follow-up：＿＿`,
   {
     id: 'neck-cancer-postop',
     title: '頸癌／頸部廓清術後復健',
+    planTitle: 'Neck Cancer Surgery / Neck Dissection',
     category: '癌症術後',
     hint: '聚焦副神經相關肩功能、頸肩 ROM、姿勢與淋巴水腫。',
     plan: `手術／側別／是否保留 CN XI：＿＿；post-op week：＿＿
@@ -629,7 +638,7 @@ Home program：頸肩活動 ＿＿；scapular control ＿＿；姿勢／呼吸 �
 PT／OT／SLP／lymphedema referral：＿＿
 Follow-up：＿＿`,
     safety:
-      '早期不可過度牽拉切口或皮瓣；明顯肩無力需評估副神經功能，淋巴水腫治療前須排除感染、血栓及其他禁忌。' +
+      'Avoid excessive early tension on the incision or flap. Assess spinal accessory nerve function for marked shoulder weakness. Exclude infection, thrombosis and other contraindications before lymphedema treatment. ' +
       COMMON_POSTOP_SAFETY,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
@@ -643,6 +652,7 @@ Follow-up：＿＿`,
   {
     id: 'breast-cancer-postop',
     title: '乳癌術後復健',
+    planTitle: 'Breast Cancer Surgery',
     category: '癌症術後',
     hint: '肩活動、腋網症候群、疤痕、漸進阻力與淋巴水腫風險管理。',
     plan: `手術／側別／ALND or SLNB／reconstruction：＿＿；post-op week：＿＿
@@ -652,7 +662,7 @@ Week 6–12+：由低負荷開始漸進 resistance（高次數、低重量起步
 Lymphedema：衛教皮膚照護與早期症狀；若有持續腫脹／沉重／緊繃，轉介合格淋巴水腫專業人員評估。血壓、抽血與注射依院內風險評估及可行性個別決定。
 Follow-up：＿＿`,
     safety:
-      '重建方式、組織擴張器與傷口狀況會改變肩 ROM／提重限制；不以「一律禁止患側量血壓或穿刺」取代個別風險評估。' +
+      'Reconstruction type, tissue expanders and wound status modify shoulder ROM and lifting restrictions. Individualize risk assessment for ipsilateral blood pressure measurement or needle procedures rather than imposing a blanket prohibition. ' +
       COMMON_POSTOP_SAFETY,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
@@ -666,6 +676,7 @@ Follow-up：＿＿`,
   {
     id: 'esophageal-cancer-postop',
     title: '食道癌手術前後復健',
+    planTitle: 'Esophageal Cancer Surgery',
     category: '癌症術後',
     hint: '術前預復健、術後早期活動、呼吸／排痰與營養配合。',
     plan: `術式／post-op day or week：＿＿
@@ -675,7 +686,7 @@ Week 2–6：分段步行並逐步增加時間，配合 posture、pacing 與 ADL
 Month 2–6：漸進 aerobic、resistance、flexibility 與回歸生活／工作；持續癌症治療相關副作用與營養監測。
 Follow-up／referral：＿＿`,
     safety:
-      '需留意吻合口、呼吸、感染、吞嚥／吸入、營養及心律等術後併發症；運動不能延誤外科評估。' +
+      'Monitor for anastomotic, respiratory, infectious, swallowing / aspiration, nutritional and cardiac rhythm complications. Exercise must not delay surgical assessment. ' +
       COMMON_POSTOP_SAFETY,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
@@ -689,6 +700,7 @@ Follow-up／referral：＿＿`,
   {
     id: 'lung-cancer-postop',
     title: '肺癌手術前後復健',
+    planTitle: 'Lung Cancer Surgery',
     category: '癌症術後',
     hint: '既有肺癌流程，涵蓋預復健、早期活動、呼吸與長期體能。',
     plan: `術式／approach／post-op day or week：＿＿
@@ -698,7 +710,7 @@ Week 2–6：由 15–20 分鐘分段步行起，依症狀漸進；加入 chest-
 Month 2–3+：漸進 aerobic interval、全身 resistance 與 ADL／工作活動；追蹤呼吸症狀、運動耐受與後續放化療影響。
 Follow-up／pulmonary rehab referral：＿＿`,
     safety:
-      '氧療、胸管、漏氣及活動界線依胸腔團隊；SpO₂ 目標應個別化，不固定套用單一數值。' +
+      'Follow thoracic-team orders for oxygen therapy, chest drains, air leaks and activity limits. Individualize SpO2 targets; do not apply one fixed target to all patients. ' +
       COMMON_POSTOP_SAFETY,
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
@@ -712,6 +724,7 @@ Follow-up／pulmonary rehab referral：＿＿`,
   {
     id: 'ami-rehabilitation',
     title: '急性心肌梗塞後心臟復健',
+    planTitle: 'Cardiac Rehabilitation after Acute Myocardial Infarction (AMI)',
     category: '心肺術後',
     hint: '既有 AMI 流程；依醫療穩定度、運動測試與心臟復健團隊進階。',
     plan: `Diagnosis／intervention／risk：AMI；PCI／＿＿；post-event day or week：＿＿
@@ -721,7 +734,7 @@ Week 6–12+：依運動測試與風險分層漸進 30–60 min aerobic；需要
 Education：藥物遵從、症狀辨識、戒菸、睡眠、營養與回歸工作／性生活。
 Follow-up／cardiac rehab referral：＿＿`,
     safety:
-      '運動進階須依缺血、心律、心衰竭、血壓反應與介入後狀況；新發胸痛、明顯呼吸困難、暈厥或不穩定生命徵象應立即停止並處理。',
+      'Base exercise progression on ischemia, rhythm, heart failure, blood pressure response and post-intervention status. Stop immediately and arrange assessment and management for new chest pain, marked dyspnea, syncope or unstable vital signs.',
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
     sources: [
@@ -734,6 +747,7 @@ Follow-up／cardiac rehab referral：＿＿`,
   {
     id: 'cabg-rehabilitation',
     title: 'CABG 術後心臟復健',
+    planTitle: 'Coronary Artery Bypass Grafting (CABG)',
     category: '心肺術後',
     hint: '早期活動、胸骨保護、呼吸排痰與門診心臟復健。',
     plan: `術式／取 graft 部位／post-op day or week：CABG；＿＿
@@ -743,7 +757,7 @@ Week 6–12+：胸骨穩定且外科放行後漸進上肢 resistance 與提重�
 Education：move-in-the-tube、傷口照護、藥物遵從、症狀辨識、戒菸與生活型態。
 Follow-up／cardiac rehab referral：＿＿`,
     safety:
-      '胸骨限制宜以疼痛、胸骨穩定與個別外科指示取代僵化的單一重量／角度；若有 clicking、傷口異常、胸痛、呼吸困難、暈厥或不穩定心律應停止並評估。',
+      'Individualize sternal precautions according to pain, sternal stability and surgical orders rather than a fixed weight or ROM limit. Stop and assess for sternal clicking, wound abnormalities, chest pain, dyspnea, syncope or unstable rhythm.',
     origin: '現有 Notion',
     reviewStatus: '待醫師確認',
     sources: [
@@ -756,6 +770,7 @@ Follow-up／cardiac rehab referral：＿＿`,
   {
     id: 'head-neck-cancer-integrated',
     title: '頭頸癌術後整合處方（補充）',
+    planTitle: 'Head and Neck Cancer Surgery - Integrated Rehabilitation',
     category: '癌症術後',
     hint: '整合自由皮瓣、氣道／吞嚥、頸肩功能、張口受限與淋巴水腫。',
     plan: `Diagnosis／procedure：頭頸癌術後；resection ＿＿；neck dissection ＿＿；free flap／donor site ＿＿
@@ -768,7 +783,7 @@ Lymphedema／scar：傷口穩定後評估 head-and-neck lymphedema、fibrosis �
 Home program／referrals：PT ＿＿；OT ＿＿；SLP ＿＿；nutrition ＿＿；dental ＿＿
 Follow-up：＿＿`,
     safety:
-      '此為跨專業處方草稿。氣道受阻、皮瓣顏色／溫度／毛細回填急變、活動性出血、頸部快速腫脹、發燒／感染、瘻管、吸入或神經功能惡化，需立即回報外科團隊；治療不得壓迫 pedicle 或延誤皮瓣監測。',
+      'This is a multidisciplinary prescription draft. Immediately notify the surgical team of airway obstruction, acute changes in flap color / temperature / capillary refill, active bleeding, rapidly increasing neck swelling, fever / infection, fistula, aspiration or neurological deterioration. Treatment must not compress the flap pedicle or delay flap monitoring.',
     origin: '循證補充',
     reviewStatus: '待醫師確認',
     sources: [
@@ -789,6 +804,7 @@ Follow-up：＿＿`,
   {
     id: 'vats-lung-resection-integrated',
     title: '胸腔鏡肺切除術後 VATS（補充）',
+    planTitle: 'Video-Assisted Thoracoscopic (VATS) Lung Resection',
     category: '心肺術後',
     hint: '以 24 小時內早期活動、呼吸／排痰、患側肩胸廓活動與返家進階為主。',
     plan: `Diagnosis／procedure：VATS ＿＿ectomy／wedge／segmentectomy；＿＿側；post-op day or week ＿＿
@@ -801,7 +817,7 @@ After discharge（約 Week 1–6）：分段步行逐日漸進；以 talk test�
 Week 6+：依呼吸症狀、體能與後續癌症治療進展 aerobic + resistance；功能未恢復或高風險者轉介 pulmonary rehabilitation。
 Follow-up：＿＿`,
     safety:
-      '新發或加劇的呼吸困難、無法恢復的血氧下降、胸痛、暈厥、心悸、發燒、咳血、傷口／胸管異常、單側小腿腫痛或急性功能下降，應停止活動並緊急評估。',
+      'Stop activity and arrange urgent assessment for new or worsening dyspnea, persistent oxygen desaturation, chest pain, syncope, palpitations, fever, hemoptysis, wound / chest-drain abnormalities, unilateral calf swelling or pain, or acute functional decline.',
     origin: '循證補充',
     reviewStatus: '待醫師確認',
     sources: [
@@ -845,11 +861,11 @@ export const postopPrescriptions: PostopPrescription[] =
       phases: phases.map((phase) => ({
         ...phase,
         plan: [
-          `術式／處置：${prescription.title}`,
-          `階段：${phase.label}`,
+          `Procedure: ${prescription.planTitle}`,
+          `Phase: ${phase.label}`,
           phase.plan,
-          `共同注意事項：${prescription.safety}`,
-          'Follow-up：＿＿',
+          `General Precautions: ${prescription.safety}`,
+          'Follow-up: ____',
         ].join('\n\n'),
       })),
       sources:
