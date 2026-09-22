@@ -10,7 +10,7 @@
     "test:sw": "node --test tests/service-worker.test.mjs",
     "test:periop": "node --import tsx --test scripts/periop-auth.test.ts",
     "test:fsm": "node --test tests/fsm-*.test.mjs",
-    "test:opd": "TSX_TSCONFIG_PATH=scripts/tsconfig.opd-tests.json node --conditions=react-server --import tsx --test scripts/opd-plan-phases.test.ts",
+    "test:opd": "TSX_TSCONFIG_PATH=scripts/tsconfig.opd-tests.json node --conditions=react-server --import tsx --test scripts/opd-plan-phases.test.ts scripts/opd-hemophilia.test.ts",
     "test:discovery": "node --import tsx --test scripts/article-discovery.test.ts",
     "test:seo": "tsx --test scripts/seo-contract.test.ts scripts/exercise-guide-related.test.ts scripts/content-review.test.ts scripts/doctor-clinics.test.ts",
     "optimize:covers": "tsx scripts/optimize-cover-images.ts",

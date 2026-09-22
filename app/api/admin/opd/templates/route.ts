@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { postopPrescriptions } from '@/lib/opd-prescriptions'
 import { opdTemplates } from '@/lib/opd-templates'
+import { hemophiliaTemplates } from '@/lib/opd-hemophilia'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,6 +9,7 @@ export function GET() {
   return NextResponse.json(
     {
       templates: opdTemplates,
+      hemophiliaTemplates,
       prescriptions: postopPrescriptions.map(
         ({ id, title, category, hint, phases, safety, safetyZh }) => ({
           id, title, category, hint, phases, safety, safetyZh,

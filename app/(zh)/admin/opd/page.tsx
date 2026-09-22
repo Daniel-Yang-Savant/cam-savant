@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import type { HemophiliaTemplate } from '@/lib/opd-hemophilia'
 import {
   useCallback,
   useEffect,
@@ -11,7 +12,7 @@ import {
 
 type TemplateCategory = '快速開始' | '部位檢查' | '常見病況' | '安全與功能'
 type PostopPrescriptionCategory = '骨科術後' | '癌症術後' | '心肺術後'
-type LibraryMode = 'exam' | 'postop'
+type LibraryMode = 'exam' | 'postop' | 'hemophilia'
 
 interface OpdTemplate {
   id: string
@@ -88,6 +89,7 @@ function buildExamNote(subjective: string, objective: string) {
 export default function OpdPage() {
   const [templates, setTemplates] = useState<OpdTemplate[]>([])
   const [prescriptions, setPrescriptions] = useState<PostopPrescription[]>([])
+  const [hemophiliaTemplates, setHemophiliaTemplates] = useState<HemophiliaTemplate[]>([])
   const [templateError, setTemplateError] = useState('')
   const [libraryMode, setLibraryMode] = useState<LibraryMode>('exam')
   const [query, setQuery] = useState('')
@@ -101,12 +103,17 @@ export default function OpdPage() {
   const [subjective, setSubjective] = useState(INITIAL_SUBJECTIVE)
   const [objective, setObjective] = useState('')
   const [postopPlan, setPostopPlan] = useState('')
+  const [selectedHemophiliaId, setSelectedHemophiliaId] = useState('')
+  const [hemophiliaObjective, setHemophiliaObjective] = useState('')
+  const [hemophiliaPlan, setHemophiliaPlan] = useState('')
+  const [hemophiliaEdited, setHemophiliaEdited] = useState(false)
   const [copyState, setCopyState] = useState<CopyState>('idle')
   const [hasEdited, setHasEdited] = useState(false)
   const [objectiveEdited, setObjectiveEdited] = useState(false)
   const [postopPlanEdited, setPostopPlanEdited] = useState(false)
   const objectiveRef = useRef<HTMLTextAreaElement>(null)
   const postopWorkspaceRef = useRef<HTMLElement>(null)
+  const hemophiliaWorkspaceRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -120,11 +127,17 @@ export default function OpdPage() {
         return response.json() as Promise<{
           templates: OpdTemplate[]
           prescriptions: PostopPrescription[]
+          hemophiliaTemplates: HemophiliaTemplate[]
         }>
       })
-      .then(({ templates: nextTemplates, prescriptions: nextPrescriptions }) => {
+      .then(({
+        templates: nextTemplates,
+        prescriptions: nextPrescriptions,
+        hemophiliaTemplates: nextHemophiliaTemplates,
+      }) => {
         setTemplates(nextTemplates)
         setPrescriptions(nextPrescriptions)
+        setHemophiliaTemplates(nextHemophiliaTemplates)
         const universal = nextTemplates.find((item) => item.id === 'universal-msk')
         if (universal) setObjective((current) => current || universal.objective)
       })
@@ -140,13 +153,13 @@ export default function OpdPage() {
   }, [])
 
   useEffect(() => {
-    if (!hasEdited && !postopPlanEdited) return
+    if (!hasEdited && !postopPlanEdited && !hemophiliaEdited) return
     const warnBeforeUnload = (event: BeforeUnloadEvent) => {
       event.preventDefault()
     }
     window.addEventListener('beforeunload', warnBeforeUnload)
     return () => window.removeEventListener('beforeunload', warnBeforeUnload)
-  }, [hasEdited, postopPlanEdited])
+  }, [hasEdited, postopPlanEdited, hemophiliaEdited])
 
   const selectedTemplate = useMemo(
     () => templates.find((item) => item.id === selectedId) ?? null,
@@ -163,6 +176,18 @@ export default function OpdPage() {
     () => selectedPrescription?.phases.find((phase) => phase.id === selectedPhaseId) ?? null,
     [selectedPhaseId, selectedPrescription]
   )
+
+  const selectedHemophiliaTemplate = useMemo(
+    () => hemophiliaTemplates.find((item) => item.id === selectedHemophiliaId) ?? null,
+    [hemophiliaTemplates, selectedHemophiliaId]
+  )
+
+  const workspaceUnavailable =
+    (libraryMode === 'postop' && !selectedPhase) ||
+    (libraryMode === 'hemophilia' && !selectedHemophiliaTemplate)
+  const copyLabel = libraryMode === 'hemophilia'
+    ? 'O、P'
+    : libraryMode === 'postop' ? 'P' : 'S、O'
 
   const phaseCount = useMemo(
     () => prescriptions.reduce((count, prescription) => count + prescription.phases.length, 0),
@@ -201,20 +226,30 @@ export default function OpdPage() {
     })
   }, [postopCategory, prescriptions, query])
 
+  const filteredHemophiliaTemplates = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase()
+    return hemophiliaTemplates.filter((template) =>
+      [template.title, template.hint, template.objective, template.plan]
+        .some((value) => value.toLowerCase().includes(normalizedQuery))
+    )
+  }, [hemophiliaTemplates, query])
+
   const copyWorkspace = useCallback(async () => {
-    if (libraryMode === 'postop' && !selectedPhase) return
+    if (workspaceUnavailable) return
     try {
       await writeClipboard(
-        libraryMode === 'postop'
-          ? `P:\n${postopPlan.trim()}`
-          : buildExamNote(subjective, objective)
+        libraryMode === 'hemophilia'
+          ? `O:\n${hemophiliaObjective.trim()}\n\nP:\n${hemophiliaPlan.trim()}`
+          : libraryMode === 'postop'
+            ? `P:\n${postopPlan.trim()}`
+            : buildExamNote(subjective, objective)
       )
       setCopyState('copied')
     } catch {
       setCopyState('error')
     }
     window.setTimeout(() => setCopyState('idle'), 2200)
-  }, [libraryMode, objective, postopPlan, selectedPhase, subjective])
+  }, [libraryMode, objective, postopPlan, subjective, workspaceUnavailable, hemophiliaObjective, hemophiliaPlan])
 
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
@@ -284,7 +319,34 @@ export default function OpdPage() {
     setCopyState('idle')
   }
 
+  const selectHemophiliaTemplate = (template: HemophiliaTemplate) => {
+    if (template.id === selectedHemophiliaId) return
+    if (
+      hemophiliaEdited &&
+      !window.confirm('切換情境會取代目前手動編輯的血友病 O、P 內容，確定要繼續嗎？')
+    ) {
+      return
+    }
+    setSelectedHemophiliaId(template.id)
+    setHemophiliaObjective(template.objective)
+    setHemophiliaPlan(template.plan)
+    setHemophiliaEdited(false)
+    setCopyState('idle')
+    window.requestAnimationFrame(() => {
+      hemophiliaWorkspaceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
+
   const clearWorkspace = () => {
+    if (workspaceUnavailable) return
+    if (libraryMode === 'hemophilia') {
+      if (!window.confirm('清空目前血友病 O、P 的所有內容？')) return
+      setHemophiliaObjective('')
+      setHemophiliaPlan('')
+      setHemophiliaEdited(true)
+      setCopyState('idle')
+      return
+    }
     if (libraryMode === 'postop') {
       if (!window.confirm('清空目前階段的 P 內容？')) return
       setPostopPlan('')
@@ -300,6 +362,20 @@ export default function OpdPage() {
   }
 
   const restoreSkeleton = () => {
+    if (libraryMode === 'hemophilia') {
+      if (!selectedHemophiliaTemplate) return
+      if (
+        hemophiliaEdited &&
+        !window.confirm('重設會取代目前手動編輯的血友病 O、P 內容，確定要繼續嗎？')
+      ) {
+        return
+      }
+      setHemophiliaObjective(selectedHemophiliaTemplate.objective)
+      setHemophiliaPlan(selectedHemophiliaTemplate.plan)
+      setHemophiliaEdited(false)
+      setCopyState('idle')
+      return
+    }
     if (libraryMode === 'postop') {
       if (!selectedPhase) return
       if (
@@ -338,7 +414,7 @@ export default function OpdPage() {
               OPD SOAP 工作區
             </h1>
             <p className="mt-1 text-sm text-stone-500 dark:text-neutral-400">
-              理學檢查直接載入 O；術後處方依恢復階段選取、編輯並複製 Plan。
+              理學檢查載入 O、術後處方選取階段 Plan；血友病依臨床情境編輯並複製 O、P。
             </p>
           </div>
 
@@ -352,15 +428,15 @@ export default function OpdPage() {
             <button
               type="button"
               onClick={restoreSkeleton}
-              disabled={libraryMode === 'postop' && !selectedPhase}
+              disabled={workspaceUnavailable}
               className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs font-semibold text-stone-700 transition hover:border-stone-500 hover:text-stone-950 disabled:cursor-not-allowed disabled:opacity-40 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-neutral-500 dark:hover:text-white"
             >
-              {libraryMode === 'postop' ? '重設此階段' : '重設格式'}
+              {libraryMode === 'hemophilia' ? '重設此情境' : libraryMode === 'postop' ? '重設此階段' : '重設格式'}
             </button>
             <button
               type="button"
               onClick={clearWorkspace}
-              disabled={libraryMode === 'postop' && !selectedPhase}
+              disabled={workspaceUnavailable}
               className="rounded-lg border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700 transition hover:border-rose-400 disabled:cursor-not-allowed disabled:opacity-40 dark:border-rose-950 dark:bg-neutral-900 dark:text-rose-300"
             >
               清空
@@ -368,14 +444,14 @@ export default function OpdPage() {
             <button
               type="button"
               onClick={() => void copyWorkspace()}
-              disabled={libraryMode === 'postop' && !selectedPhase}
+              disabled={workspaceUnavailable}
               className="min-w-32 rounded-lg bg-neutral-950 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
             >
               {copyState === 'copied'
-                ? libraryMode === 'postop' ? '✓ 已複製 P' : '✓ 已複製 S、O'
+                ? `✓ 已複製 ${copyLabel}`
                 : copyState === 'error'
                   ? '複製失敗'
-                  : libraryMode === 'postop' ? '複製此階段 P' : '複製 S、O'}
+                  : libraryMode === 'postop' ? '複製此階段 P' : `複製 ${copyLabel}`}
             </button>
           </div>
         </div>
@@ -384,7 +460,7 @@ export default function OpdPage() {
       <div className="mx-auto grid max-w-[1600px] gap-5 p-4 sm:p-6 lg:grid-cols-[330px_minmax(0,1fr)]">
         <aside className="self-start overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900 lg:sticky lg:top-4 lg:max-h-[calc(100vh-96px)]">
           <div className="border-b border-stone-200 p-4 dark:border-neutral-800">
-            <div className="mb-4 grid grid-cols-2 rounded-xl bg-stone-100 p-1 dark:bg-neutral-950">
+            <div className="mb-4 grid grid-cols-3 rounded-xl bg-stone-100 p-1 dark:bg-neutral-950">
               <button
                 type="button"
                 onClick={() => {
@@ -417,14 +493,34 @@ export default function OpdPage() {
               >
                 術後 Plan
               </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLibraryMode('hemophilia')
+                  setQuery('')
+                  setCopyState('idle')
+                }}
+                aria-pressed={libraryMode === 'hemophilia'}
+                className={`rounded-lg px-2 py-2 text-xs font-bold transition ${
+                  libraryMode === 'hemophilia'
+                    ? 'bg-white text-stone-950 shadow-sm dark:bg-neutral-800 dark:text-white'
+                    : 'text-stone-500 hover:text-stone-900 dark:text-neutral-500 dark:hover:text-white'
+                }`}
+              >
+                血友病 O／P
+              </button>
             </div>
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-sm font-bold">
-                  {libraryMode === 'exam' ? '理學檢查模板' : '術後復健處方'}
+                  {libraryMode === 'hemophilia' ? '血友病評估與復健計畫' : libraryMode === 'exam' ? '理學檢查模板' : '術後復健處方'}
                 </h2>
                 <p className="mt-0.5 text-xs text-stone-500 dark:text-neutral-500">
-                  {libraryMode === 'exam'
+                  {libraryMode === 'hemophilia'
+                    ? hemophiliaTemplates.length
+                      ? `${hemophiliaTemplates.length} 種臨床情境・O、P 可分別複製`
+                      : '載入中…'
+                    : libraryMode === 'exam'
                     ? templates.length
                       ? `${templates.length} 組 copy-ready O`
                       : '載入中…'
@@ -444,13 +540,15 @@ export default function OpdPage() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={
-                libraryMode === 'exam'
-                  ? '搜尋部位、病況或檢查…'
-                  : '搜尋術式、癌症或復健內容…'
+                libraryMode === 'hemophilia'
+                  ? '搜尋出血、關節或復健內容…'
+                  : libraryMode === 'exam'
+                    ? '搜尋部位、病況或檢查…'
+                    : '搜尋術式、癌症或復健內容…'
               }
               className="mt-3 w-full rounded-lg border border-stone-300 bg-stone-50 px-3 py-2 text-sm placeholder:text-stone-400 focus:border-stone-500 focus:bg-white dark:border-neutral-700 dark:bg-neutral-950 dark:placeholder:text-neutral-600 dark:focus:border-neutral-500"
             />
-            <div className="mt-3 flex flex-wrap gap-1.5">
+            {libraryMode !== 'hemophilia' && <div className="mt-3 flex flex-wrap gap-1.5">
               {libraryMode === 'exam'
                 ? EXAM_CATEGORIES.map((item) => (
                     <button
@@ -480,7 +578,7 @@ export default function OpdPage() {
                       {item}
                     </button>
                   ))}
-            </div>
+            </div>}
           </div>
 
           <div className="max-h-[420px] overflow-y-auto lg:max-h-[calc(100vh-292px)]">
@@ -542,7 +640,26 @@ export default function OpdPage() {
                   </span>
                 </button>
               ))
-            ) : (libraryMode === 'exam' ? templates.length : prescriptions.length) ? (
+            ) : libraryMode === 'hemophilia' && filteredHemophiliaTemplates.length ? (
+              filteredHemophiliaTemplates.map((template) => (
+                <button
+                  key={template.id}
+                  type="button"
+                  onClick={() => selectHemophiliaTemplate(template)}
+                  aria-pressed={selectedHemophiliaId === template.id}
+                  className={`w-full border-b border-stone-100 px-4 py-3 text-left transition last:border-b-0 dark:border-neutral-800 ${
+                    selectedHemophiliaId === template.id
+                      ? 'bg-sky-50 dark:bg-sky-950/25'
+                      : 'hover:bg-stone-50 dark:hover:bg-neutral-800/70'
+                  }`}
+                >
+                  <span className="block text-sm font-semibold leading-snug">{template.title}</span>
+                  <span className="mt-1.5 line-clamp-2 block text-xs leading-relaxed text-stone-500 dark:text-neutral-500">
+                    {template.hint}
+                  </span>
+                </button>
+              ))
+            ) : (libraryMode === 'hemophilia' ? hemophiliaTemplates.length : libraryMode === 'exam' ? templates.length : prescriptions.length) ? (
               <p className="p-8 text-center text-xs text-stone-400 dark:text-neutral-600">
                 找不到符合的模板
               </p>
@@ -628,8 +745,39 @@ export default function OpdPage() {
             </section>
           )}
 
+          {libraryMode === 'hemophilia' && selectedHemophiliaTemplate && (
+            <section ref={hemophiliaWorkspaceRef} className="scroll-mt-24 overflow-hidden rounded-2xl border border-sky-200 bg-sky-50 p-4 shadow-sm dark:border-sky-900/60 dark:bg-sky-950/20 sm:p-5">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-sky-700 dark:text-sky-400">
+                已選血友病情境
+              </p>
+              <h2 className="mt-1 text-base font-bold">{selectedHemophiliaTemplate.title}</h2>
+              <p className="mt-1 text-sm leading-relaxed text-stone-600 dark:text-neutral-400">
+                {selectedHemophiliaTemplate.hint}
+              </p>
+              <p className="mt-3 text-xs leading-relaxed text-sky-900 dark:text-sky-200">
+                O 請填實測結果，未執行項目記錄 not assessed；P 為待醫師核定的計畫草稿，請依出血狀態與血友病照護團隊指示調整。
+              </p>
+              <p className="mt-3 rounded-lg border border-rose-200 bg-white/70 px-3 py-2 text-xs leading-relaxed text-rose-800 dark:border-rose-900/70 dark:bg-neutral-950/40 dark:text-rose-300">
+                <span className="font-bold">安全提醒：</span>
+                {selectedHemophiliaTemplate.safetyZh}
+              </p>
+              <details className="mt-3 text-xs text-stone-600 dark:text-neutral-400">
+                <summary className="cursor-pointer">參考指引・來源核對 {selectedHemophiliaTemplate.reviewedAt}</summary>
+                <ul className="mt-2 space-y-1">
+                  {selectedHemophiliaTemplate.sources.map((source) => (
+                    <li key={source.url}>
+                      <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-sky-700 dark:hover:text-sky-300">
+                        {source.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </section>
+          )}
+
           <div
-            className={`grid scroll-mt-24 gap-5 ${libraryMode === 'exam' ? 'xl:grid-cols-2' : ''}`}
+            className={`grid scroll-mt-24 gap-5 ${libraryMode !== 'postop' ? 'xl:grid-cols-2' : ''}`}
           >
             {libraryMode === 'exam' ? (
               <>
@@ -658,6 +806,46 @@ export default function OpdPage() {
                   }}
                 />
               </>
+            ) : libraryMode === 'hemophilia' ? (
+              selectedHemophiliaTemplate ? (
+                <>
+                  <SoapSection
+                    key={`hemophilia-o-${selectedHemophiliaId}`}
+                    label="O"
+                    title="Objective · 血友病"
+                    helper="依當次出血風險填寫實測結果；未檢查請記錄 not assessed"
+                    textareaId="hemophilia-objective"
+                    value={hemophiliaObjective}
+                    rows={24}
+                    onChange={(value) => {
+                      setHemophiliaObjective(value)
+                      setHemophiliaEdited(true)
+                      setCopyState('idle')
+                    }}
+                  />
+                  <SoapSection
+                    key={`hemophilia-p-${selectedHemophiliaId}`}
+                    label="P"
+                    title="Plan · 血友病"
+                    helper="全英文計畫草稿；依止血狀態與團隊指示調整後複製"
+                    textareaId="hemophilia-plan"
+                    value={hemophiliaPlan}
+                    rows={24}
+                    onChange={(value) => {
+                      setHemophiliaPlan(value)
+                      setHemophiliaEdited(true)
+                      setCopyState('idle')
+                    }}
+                  />
+                </>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-sky-300 bg-sky-50/60 px-6 py-16 text-center dark:border-sky-900 dark:bg-sky-950/20 xl:col-span-2">
+                  <h2 className="text-base font-bold text-sky-900 dark:text-sky-200">選擇血友病臨床情境</h2>
+                  <p className="mt-2 text-sm text-stone-600 dark:text-neutral-400">
+                    從左側選擇疑似出血、出血控制後復健或穩定期評估，即可編輯並複製 O、P。
+                  </p>
+                </div>
+              )
             ) : selectedPrescription && selectedPhase ? (
               <SoapSection
                 key={`${selectedPrescription.id}-${selectedPhase.id}`}
@@ -695,14 +883,14 @@ export default function OpdPage() {
             <button
               type="button"
               onClick={() => void copyWorkspace()}
-              disabled={libraryMode === 'postop' && !selectedPhase}
+              disabled={workspaceUnavailable}
               className="rounded-xl bg-neutral-950 px-6 py-3 text-sm font-bold text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
             >
               {copyState === 'copied'
-                ? libraryMode === 'postop' ? '✓ 已複製 P' : '✓ 已複製 S、O'
+                ? `✓ 已複製 ${copyLabel}`
                 : copyState === 'error'
                   ? '複製失敗'
-                  : libraryMode === 'postop' ? '複製此階段 P' : '複製 S、O'}
+                  : libraryMode === 'postop' ? '複製此階段 P' : `複製 ${copyLabel}`}
             </button>
           </div>
 
