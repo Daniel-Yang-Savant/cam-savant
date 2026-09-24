@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import type {
   ExerciseGuideBodyRegion,
+  ExerciseGuideEvidenceKind,
   ExerciseGuideKind,
   ExerciseGuideSupervision,
 } from '@/lib/exercise-guides'
@@ -14,6 +15,8 @@ import type {
 export interface ExerciseGuideDirectoryItem {
   id: string
   kind: ExerciseGuideKind
+  evidenceKind?: ExerciseGuideEvidenceKind
+  reviewStatus?: 'pending' | 'approved'
   selectionLabel: string
   title: string
   summary: string
@@ -237,8 +240,8 @@ const DIRECTORY_COPY: Record<
   },
   condition: {
     tab: '依症狀或診斷查找',
-    kicker: '隨機對照試驗中的運動方案',
-    heading: '搜尋相關的研究運動方案',
+    kicker: '指引與研究中的運動方向',
+    heading: '搜尋相關的運動方案',
     description: '可輸入症狀、常用說法或已確認的診斷，再搭配身體部位縮小範圍。搜尋結果不代表診斷，也不表示方案一定適合你。',
   },
 }
@@ -255,7 +258,10 @@ function ConditionGuideCard({ item }: { item: ExerciseGuideDirectoryItem }) {
       className="group flex h-full flex-col rounded-2xl border border-neutral-200 bg-white p-5 transition-all hover:-translate-y-0.5 hover:border-teal-500 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-teal-600"
     >
       <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
-        <span className="text-teal-700 dark:text-teal-300">研究主題</span>
+        <span className="text-teal-700 dark:text-teal-300">{item.evidenceKind === 'education' ? '運動衛教' : '研究主題'}</span>
+        {item.reviewStatus === 'pending' && (
+          <span className="rounded-full bg-amber-100 px-2.5 py-1 text-amber-900 dark:bg-amber-950 dark:text-amber-200">待醫療審閱</span>
+        )}
         {item.bodyRegion && (
           <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
             {item.bodyRegion}
@@ -281,7 +287,7 @@ function ConditionGuideCard({ item }: { item: ExerciseGuideDirectoryItem }) {
         {item.summary}
       </p>
       <span className="mt-auto pt-5 text-sm font-bold text-neutral-950 transition-transform group-hover:translate-x-1 dark:text-neutral-100">
-        查看圖解、研究劑量與提醒 →
+        {item.evidenceKind === 'education' ? '查看圖解、起步方式與提醒 →' : '查看圖解、研究劑量與提醒 →'}
       </span>
     </Link>
   )
@@ -569,7 +575,7 @@ export default function ExerciseGuideDirectory({ items }: ExerciseGuideDirectory
             role="note"
           >
             <strong className="text-neutral-950 dark:text-neutral-100">開始前請先確認：</strong>
-            這裡整理的是研究中使用的運動，不是個人處方。術後、近期受傷、曾跌倒、平衡不穩，或有神經、心肺、癌症等病況者，請先和醫師、物理治療師或原醫療團隊確認動作與劑量。
+            這裡依指引、衛教來源與研究整理運動方向，不是個人處方。術後、近期受傷、曾跌倒、平衡不穩，或有神經、心肺、癌症等病況者，請先和醫師、物理治療師或原醫療團隊確認動作與劑量。
           </div>
 
           <div className="mt-7">
@@ -732,7 +738,7 @@ export default function ExerciseGuideDirectory({ items }: ExerciseGuideDirectory
                       <summary className="flex min-h-20 cursor-pointer list-none items-center justify-between gap-4 rounded-3xl px-5 py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-500 [&::-webkit-details-marker]:hidden sm:px-6">
                         <span>
                           <span className="block text-lg font-bold text-neutral-950 dark:text-neutral-100">{group.region}</span>
-                          <span className="mt-1 block text-sm text-neutral-500 dark:text-neutral-400">{group.items.length} 組研究運動內容</span>
+                          <span className="mt-1 block text-sm text-neutral-500 dark:text-neutral-400">{group.items.length} 組運動方案</span>
                         </span>
                         <span aria-hidden="true" className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xl text-neutral-700 transition-transform group-open:rotate-45 dark:bg-neutral-800 dark:text-neutral-200">
                           ＋
@@ -782,7 +788,7 @@ export default function ExerciseGuideDirectory({ items }: ExerciseGuideDirectory
                 </div>
               ) : (
                 <div className="mt-4 rounded-3xl border border-dashed border-neutral-300 bg-neutral-50 p-7 text-center dark:border-neutral-700 dark:bg-neutral-900">
-                  <h3 className="text-lg font-bold text-neutral-950 dark:text-neutral-100">目前找不到相關的研究運動內容</h3>
+                  <h3 className="text-lg font-bold text-neutral-950 dark:text-neutral-100">目前找不到相關的運動方案</h3>
                   <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-neutral-600 dark:text-neutral-300">
                     可改用較短的症狀詞、清除部位條件再試一次。找不到不代表沒有問題，也不代表不需要評估。
                   </p>

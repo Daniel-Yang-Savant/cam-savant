@@ -7,6 +7,7 @@ import { getClinicLocation } from './locations'
 import { EXERCISE_GUIDE_REVIEW } from './exercise-guide-review'
 import {
   getExerciseGuideFollowUp,
+  getExerciseGuideDates,
   type ExerciseGuideModule,
 } from './exercise-guides'
 
@@ -159,6 +160,7 @@ function parseStepDuration(step: string): string | undefined {
 
 export function generateExerciseGuideSchema(guide: ExerciseGuideModule) {
   const pageUrl = `${BASE_URL}/exercise-guides/${guide.id}`
+  const dates = getExerciseGuideDates(guide)
   const reviewer = generatePhysicianSchema(getAuthor(EXERCISE_GUIDE_REVIEW.reviewerKey))
   const stepDurations = guide.images.map((image) => parseStepDuration(image.step))
   const totalSeconds = stepDurations.every(Boolean)
@@ -179,11 +181,13 @@ export function generateExerciseGuideSchema(guide: ExerciseGuideModule) {
         description: guide.summary,
         url: pageUrl,
         inLanguage: 'zh-TW',
-        datePublished: EXERCISE_GUIDE_REVIEW.publishedDate,
-        dateModified: EXERCISE_GUIDE_REVIEW.modifiedDate,
-        lastReviewed: EXERCISE_GUIDE_REVIEW.date,
-        reviewedBy: reviewer,
-        author: reviewer,
+        datePublished: dates.publishedDate,
+        dateModified: dates.modifiedDate,
+        ...(guide.reviewStatus === undefined ? {
+          lastReviewed: EXERCISE_GUIDE_REVIEW.date,
+          reviewedBy: reviewer,
+          author: reviewer,
+        } : {}),
         publisher: {
           '@type': 'MedicalOrganization',
           '@id': `${BASE_URL}/#organization`,
@@ -243,7 +247,7 @@ export function generateExerciseGuideSchema(guide: ExerciseGuideModule) {
           },
         })),
       },
-    ],
+    ] as const,
   }
 }
 

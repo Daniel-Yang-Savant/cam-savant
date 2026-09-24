@@ -1,8 +1,11 @@
 import { EXPANDED_RCT_GUIDES } from './exercise-guides-rct-expansion'
 import { RECENT_RCT_GUIDES } from './exercise-guides-rct-2016-2026'
+import { SACROILIITIS_EXERCISE_GUIDE } from './exercise-guides-sacroiliitis'
+import { EXERCISE_GUIDE_REVIEW } from './exercise-guide-review'
 
 export type ExerciseGuideTheme = 'orange' | 'teal' | 'violet' | 'blue' | 'green'
 export type ExerciseGuideKind = 'relaxation' | 'condition'
+export type ExerciseGuideEvidenceKind = 'rct' | 'education'
 export type ExerciseGuideSupervision =
   | 'self-guided'
   | 'professional-guidance'
@@ -32,6 +35,11 @@ export interface ExerciseGuideSource {
 export interface ExerciseGuideModule {
   id: string
   kind: ExerciseGuideKind
+  evidenceKind?: ExerciseGuideEvidenceKind
+  reviewStatus?: 'pending' | 'approved'
+  approvalDate?: string
+  publishedDate?: string
+  modifiedDate?: string
   selectionLabel: string
   bodyRegion?: ExerciseGuideBodyRegion
   searchAliases?: string[]
@@ -40,6 +48,7 @@ export interface ExerciseGuideModule {
   title: string
   summary: string
   images: ExerciseGuideImage[]
+  steps?: { title: string; instruction: string; dosage: string }[]
   suitableFor: string
   dosage: string
   cue: string
@@ -945,10 +954,32 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
   },
   ...EXPANDED_RCT_GUIDES,
   ...RECENT_RCT_GUIDES,
+  SACROILIITIS_EXERCISE_GUIDE,
 ]
 
 export function getExerciseGuideById(id: string): ExerciseGuideModule | undefined {
   return EXERCISE_GUIDE_MODULES.find((guide) => guide.id === id)
+}
+
+export function getExerciseGuideDates(guide: ExerciseGuideModule) {
+  return {
+    publishedDate: guide.publishedDate ?? EXERCISE_GUIDE_REVIEW.publishedDate,
+    modifiedDate: guide.modifiedDate ?? guide.publishedDate ?? EXERCISE_GUIDE_REVIEW.modifiedDate,
+  }
+}
+
+export function getExerciseGuideCollectionModifiedDate(guides: ExerciseGuideModule[]) {
+  return guides.reduce(
+    (latest, guide) => {
+      const { modifiedDate } = getExerciseGuideDates(guide)
+      return modifiedDate > latest ? modifiedDate : latest
+    },
+    EXERCISE_GUIDE_REVIEW.modifiedDate as string
+  )
+}
+
+export function isExerciseGuideIndexable(guide: ExerciseGuideModule) {
+  return guide.reviewStatus !== 'pending'
 }
 
 const MEDICAL_TEAM_GUIDE_IDS = new Set([

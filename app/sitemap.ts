@@ -5,8 +5,12 @@ import {
   getPostsByCategory,
 } from '@/lib/posts'
 import { TEAM } from '@/lib/authors'
-import { EXERCISE_GUIDE_MODULES } from '@/lib/exercise-guides'
-import { EXERCISE_GUIDE_REVIEW } from '@/lib/exercise-guide-review'
+import {
+  EXERCISE_GUIDE_MODULES,
+  getExerciseGuideCollectionModifiedDate,
+  getExerciseGuideDates,
+  isExerciseGuideIndexable,
+} from '@/lib/exercise-guides'
 import { CLINIC_LOCATIONS } from '@/lib/locations'
 import { MetadataRoute } from 'next'
 
@@ -17,7 +21,6 @@ const STATIC_PAGE_DATE = new Date('2026-07-18')
 // Physician profiles and doctor-specific clinic information updated together.
 const TEAM_PAGE_DATE = new Date('2026-09-07')
 const ENGLISH_SITE_DATE = new Date('2026-08-01')
-const EXERCISE_GUIDES_DATE = new Date(EXERCISE_GUIDE_REVIEW.modifiedDate)
 
 function languageAlternates(zhPath: string, enPath = `/en${zhPath === '/' ? '' : zhPath}`) {
   return {
@@ -51,9 +54,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }))
 
-  const exerciseGuideEntries: MetadataRoute.Sitemap = EXERCISE_GUIDE_MODULES.map((guide) => ({
+  const exerciseGuideEntries: MetadataRoute.Sitemap = EXERCISE_GUIDE_MODULES.filter(isExerciseGuideIndexable).map((guide) => ({
     url: `${BASE_URL}/exercise-guides/${guide.id}`,
-    lastModified: EXERCISE_GUIDES_DATE,
+    lastModified: new Date(getExerciseGuideDates(guide).modifiedDate),
     changeFrequency: 'monthly' as const,
     priority: 0.7,
   }))
@@ -159,7 +162,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${BASE_URL}/exercise-guides`,
-      lastModified: EXERCISE_GUIDES_DATE,
+      lastModified: new Date(getExerciseGuideCollectionModifiedDate(EXERCISE_GUIDE_MODULES)),
       changeFrequency: 'monthly' as const,
       priority: 0.9,
     },

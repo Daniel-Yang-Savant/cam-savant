@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import ExerciseGuideAnalytics from '@/components/ExerciseGuideAnalytics'
 import ExerciseGuideModuleCard from '@/components/ExerciseGuideModuleCard'
-import { EXERCISE_GUIDE_MODULES, getExerciseGuideById } from '@/lib/exercise-guides'
+import { EXERCISE_GUIDE_MODULES, getExerciseGuideById, isExerciseGuideIndexable } from '@/lib/exercise-guides'
 import { getRelatedExerciseGuides } from '@/lib/exercise-guide-related'
 import { generateBreadcrumbSchema, generateExerciseGuideSchema } from '@/lib/schema'
 
@@ -29,6 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: guide.title,
     description: guide.summary,
     alternates: { canonical: url },
+    ...(!isExerciseGuideIndexable(guide) ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       title: `${guide.title}｜CAM Savant 圖解運動`,
       description: guide.summary,
@@ -48,7 +49,7 @@ export default async function ExerciseGuideDetailPage({ params }: Props) {
   const guide = getExerciseGuideById(id)
   if (!guide) notFound()
 
-  const category = guide.kind === 'relaxation' ? '放鬆運動' : '研究運動'
+  const category = guide.kind === 'relaxation' ? '放鬆運動' : guide.evidenceKind === 'education' ? '運動衛教' : '研究運動'
   const pageUrl = `${BASE_URL}/exercise-guides/${guide.id}`
   const relatedGuides = getRelatedExerciseGuides(
     guide,
@@ -89,7 +90,7 @@ export default async function ExerciseGuideDetailPage({ params }: Props) {
           />
           <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-neutral-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-neutral-300">
             <strong className="text-neutral-950 dark:text-neutral-100">一般民眾衛教：</strong>
-            本頁協助理解安全自我照護與研究中的運動方向，不取代個別診斷、現場動作評估或治療處方；請先閱讀每頁的紅黃綠燈與不適用情況。
+            本頁協助理解安全自我照護與運動方向，不取代個別診斷、現場動作評估或治療處方；請先閱讀每頁的紅黃綠燈與不適用情況。
           </div>
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <span className="rounded-full bg-teal-100 px-3 py-1.5 text-xs font-bold text-teal-800 dark:bg-teal-950 dark:text-teal-200">

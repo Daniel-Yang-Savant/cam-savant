@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useAdminSession } from '@/components/AdminSessionProvider'
 import {
   getExerciseGuideFollowUp,
+  getExerciseGuideDates,
   getExerciseGuideSupervision,
   type ExerciseGuideModule,
   type ExerciseGuideTheme,
@@ -54,7 +55,7 @@ interface ExerciseGuideModuleCardProps {
 }
 
 function getResearchTermNotes(guide: ExerciseGuideModule): string[] {
-  if (guide.kind !== 'condition') return []
+  if (guide.kind !== 'condition' || guide.evidenceKind === 'education') return []
 
   const text = [guide.title, guide.summary, guide.dosage, guide.evidence].join(' ')
   const notes = [
@@ -83,6 +84,8 @@ export default function ExerciseGuideModuleCard({ guide, asPage = false }: Exerc
   const hasMultipleSteps = guide.images.length > 1
   const supervision = getExerciseGuideSupervision(guide)
   const researchTermNotes = getResearchTermNotes(guide)
+  const dates = getExerciseGuideDates(guide)
+  const pendingReview = guide.reviewStatus === 'pending'
   const { authenticated: isAdmin } = useAdminSession()
   const [showAllSteps, setShowAllSteps] = useState(false)
   const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(null)
@@ -121,10 +124,17 @@ export default function ExerciseGuideModuleCard({ guide, asPage = false }: Exerc
           <p className="mt-4 text-base leading-7 text-neutral-600 dark:text-neutral-300 md:text-lg">
             {guide.summary}
           </p>
+          {pendingReview && (
+            <p className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
+              <strong>待醫療審閱：</strong>本頁為衛教草稿，尚未完成醫療內容確認，請先與醫師或物理治療師討論後再採用。
+            </p>
+          )}
           {guide.kind === 'condition' && (
             <aside className="mt-5 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-950 dark:border-sky-900 dark:bg-sky-950/30 dark:text-sky-100">
               <strong>{supervision === 'medical-team' ? '需由原醫療團隊確認：' : '請先由專業人員確認：'}</strong>
-              {supervision === 'medical-team'
+              {guide.evidenceKind === 'education'
+                ? '本頁依指引與衛教來源整理一般運動選項；請先確認診斷、目前症狀與適合的動作及劑量，再依個別評估調整。'
+                : supervision === 'medical-team'
                 ? '本頁是研究方案摘要，不是可自行套用的處方；開始、加量與回診時程應依診斷、術式或目前治療狀態個別決定。'
                 : '研究中的納入條件與劑量不一定適合每一位讀者；若尚未確認診斷或目前可承受的負荷，請先接受醫療或復健專業評估。'}
             </aside>
@@ -278,6 +288,24 @@ export default function ExerciseGuideModuleCard({ guide, asPage = false }: Exerc
           示範圖為合成教學影像，已用於輔助理解而非取代現場動作評估；實際姿勢、幅度與支撐方式請依個別能力調整。
         </p>
 
+        {guide.steps && guide.steps.length > 0 && (
+          <section className="mt-8" aria-labelledby={`${guide.id}-instructions`}>
+            <h2 id={`${guide.id}-instructions`} className="text-xl font-bold text-neutral-950 dark:text-neutral-100">動作怎麼做</h2>
+            <ol className="mt-4 grid gap-4 md:grid-cols-2">
+              {guide.steps.map((step, index) => (
+                <li key={step.title} className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+                  <h3 className="flex items-center gap-3 text-base font-bold text-neutral-950 dark:text-neutral-100">
+                    <span className={`inline-flex size-7 shrink-0 items-center justify-center rounded-full text-sm ${theme.badge}`}>{index + 1}</span>
+                    {step.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-6 text-neutral-600 dark:text-neutral-300">{step.instruction}</p>
+                  <p className="mt-3 text-sm leading-6 text-neutral-700 dark:text-neutral-200"><strong>起步量：</strong>{step.dosage}</p>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+
         <div className="mt-10 grid gap-4 md:grid-cols-2">
           <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
             <h3 className="text-sm font-bold text-neutral-950 dark:text-neutral-100">適合什麼情況</h3>
@@ -359,12 +387,21 @@ export default function ExerciseGuideModuleCard({ guide, asPage = false }: Exerc
         </details>
 
         <div className="mt-6 border-t border-neutral-200 pt-5 text-xs leading-5 text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
-          發布日期：<time dateTime={EXERCISE_GUIDE_REVIEW.publishedDate}>{EXERCISE_GUIDE_REVIEW.publishedDate}</time>
-          {' · '}內容更新：<time dateTime={EXERCISE_GUIDE_REVIEW.modifiedDate}>{EXERCISE_GUIDE_REVIEW.modifiedDate}</time>
-          <p className="mt-1">
-            醫療審閱：<Link href={`/doctors/${EXERCISE_GUIDE_REVIEW.reviewerSlug}`} className="underline underline-offset-4">{EXERCISE_GUIDE_REVIEW.reviewerName}</Link>
-            {' · '}<time dateTime={EXERCISE_GUIDE_REVIEW.date}>{EXERCISE_GUIDE_REVIEW.date}</time>
-          </p>
+          發布日期：<time dateTime={dates.publishedDate}>{dates.publishedDate}</time>
+          {' · '}內容更新：<time dateTime={dates.modifiedDate}>{dates.modifiedDate}</time>
+          {pendingReview ? (
+            <p className="mt-1">醫療審閱：待醫療審閱</p>
+          ) : guide.reviewStatus === 'approved' ? (
+            <p className="mt-1">
+              內容確認：網站內容負責人
+              {guide.approvalDate && <>{' · '}<time dateTime={guide.approvalDate}>{guide.approvalDate}</time></>}
+            </p>
+          ) : (
+            <p className="mt-1">
+              醫療審閱：<Link href={`/doctors/${EXERCISE_GUIDE_REVIEW.reviewerSlug}`} className="underline underline-offset-4">{EXERCISE_GUIDE_REVIEW.reviewerName}</Link>
+              {' · '}<time dateTime={EXERCISE_GUIDE_REVIEW.date}>{EXERCISE_GUIDE_REVIEW.date}</time>
+            </p>
+          )}
         </div>
       </div>
     </section>

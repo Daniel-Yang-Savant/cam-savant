@@ -6,6 +6,7 @@ import ExerciseGuideAnalytics from '@/components/ExerciseGuideAnalytics'
 import ExerciseGuideDirectory from '@/components/ExerciseGuideDirectory'
 import {
   EXERCISE_GUIDE_MODULES,
+  getExerciseGuideCollectionModifiedDate,
   getExerciseGuideSupervision,
 } from '@/lib/exercise-guides'
 import { EXERCISE_GUIDE_REVIEW } from '@/lib/exercise-guide-review'
@@ -13,7 +14,7 @@ import { getAuthor } from '@/lib/authors'
 import { generateBreadcrumbSchema, generateCollectionPageSchema, generatePhysicianSchema } from '@/lib/schema'
 
 const BASE_URL = 'https://camsavant.com'
-const DESCRIPTION = '先選擇想放鬆的身體部位，或依症狀與已確認的診斷查找隨機對照試驗中的運動方案，再查看連續圖解、研究劑量、簡化方式與停止警訊。'
+const DESCRIPTION = '先選擇想放鬆的身體部位，或依症狀與已確認的診斷查找指引與研究中的運動方案，再查看連續圖解、起步方式、簡化方式與停止警訊。'
 
 export const metadata: Metadata = {
   title: '圖解運動專區｜安全自我照護與漸進運動',
@@ -33,6 +34,8 @@ export const metadata: Metadata = {
 }
 
 export default function ExerciseGuidesPage() {
+  const modifiedDate = getExerciseGuideCollectionModifiedDate(EXERCISE_GUIDE_MODULES)
+  const hasIndividualReviewStatus = EXERCISE_GUIDE_MODULES.some((guide) => guide.reviewStatus !== undefined)
   const collectionSchema = {
     ...generateCollectionPageSchema({
       name: '圖解運動專區',
@@ -41,9 +44,11 @@ export default function ExerciseGuidesPage() {
       specialty: 'PhysicalMedicineAndRehabilitation',
     }),
     datePublished: EXERCISE_GUIDE_REVIEW.publishedDate,
-    dateModified: EXERCISE_GUIDE_REVIEW.modifiedDate,
-    lastReviewed: EXERCISE_GUIDE_REVIEW.date,
-    reviewedBy: generatePhysicianSchema(getAuthor(EXERCISE_GUIDE_REVIEW.reviewerKey)),
+    dateModified: modifiedDate,
+    ...(!hasIndividualReviewStatus ? {
+      lastReviewed: EXERCISE_GUIDE_REVIEW.date,
+      reviewedBy: generatePhysicianSchema(getAuthor(EXERCISE_GUIDE_REVIEW.reviewerKey)),
+    } : {}),
   }
 
   return (
@@ -119,9 +124,15 @@ export default function ExerciseGuidesPage() {
           </p>
           <p className="mt-2 text-xs leading-5 text-neutral-500 dark:text-neutral-400">
             發布日期：<time dateTime={EXERCISE_GUIDE_REVIEW.publishedDate}>{EXERCISE_GUIDE_REVIEW.publishedDate}</time>
-            {' · '}內容更新：<time dateTime={EXERCISE_GUIDE_REVIEW.modifiedDate}>{EXERCISE_GUIDE_REVIEW.modifiedDate}</time>
+            {' · '}內容更新：<time dateTime={modifiedDate}>{modifiedDate}</time>
           </p>
-          <ArticleReview metadata={{ reviewedBy: EXERCISE_GUIDE_REVIEW.reviewerKey, lastReviewed: EXERCISE_GUIDE_REVIEW.date }} />
+          {hasIndividualReviewStatus ? (
+            <p className="mt-2 text-xs leading-5 text-neutral-500 dark:text-neutral-400">
+              內容確認與醫療審閱資訊請以各運動頁面標示為準。
+            </p>
+          ) : (
+            <ArticleReview metadata={{ reviewedBy: EXERCISE_GUIDE_REVIEW.reviewerKey, lastReviewed: EXERCISE_GUIDE_REVIEW.date }} />
+          )}
         </div>
       </header>
 
@@ -130,6 +141,8 @@ export default function ExerciseGuidesPage() {
           items={EXERCISE_GUIDE_MODULES.map((guide) => ({
             id: guide.id,
             kind: guide.kind,
+            evidenceKind: guide.evidenceKind,
+            reviewStatus: guide.reviewStatus,
             selectionLabel: guide.selectionLabel,
             title: guide.title,
             summary: guide.summary,
