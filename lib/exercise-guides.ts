@@ -2,6 +2,9 @@ import { EXPANDED_RCT_GUIDES } from './exercise-guides-rct-expansion'
 import { RECENT_RCT_GUIDES } from './exercise-guides-rct-2016-2026'
 import { SACROILIITIS_EXERCISE_GUIDE } from './exercise-guides-sacroiliitis'
 import { EXERCISE_GUIDE_REVIEW } from './exercise-guide-review'
+import { CURATED_MSK_GUIDES } from './exercise-guides-curated-msk'
+import { CURATED_NEURO_GUIDES } from './exercise-guides-curated-neuro'
+import { CURATED_CARDIO_GUIDES } from './exercise-guides-curated-cardio'
 
 export type ExerciseGuideTheme = 'orange' | 'teal' | 'violet' | 'blue' | 'green'
 export type ExerciseGuideKind = 'relaxation' | 'condition'
@@ -42,6 +45,7 @@ export interface ExerciseGuideModule {
   modifiedDate?: string
   selectionLabel: string
   bodyRegion?: ExerciseGuideBodyRegion
+  supervision?: ExerciseGuideSupervision
   searchAliases?: string[]
   theme: ExerciseGuideTheme
   eyebrow: string
@@ -955,6 +959,9 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
   ...EXPANDED_RCT_GUIDES,
   ...RECENT_RCT_GUIDES,
   SACROILIITIS_EXERCISE_GUIDE,
+  ...CURATED_MSK_GUIDES,
+  ...CURATED_NEURO_GUIDES,
+  ...CURATED_CARDIO_GUIDES,
 ]
 
 export function getExerciseGuideById(id: string): ExerciseGuideModule | undefined {
@@ -1007,6 +1014,7 @@ const MEDICAL_TEAM_GUIDE_IDS = new Set([
 export function getExerciseGuideSupervision(
   guide: ExerciseGuideModule
 ): ExerciseGuideSupervision {
+  if (guide.supervision) return guide.supervision
   if (guide.kind === 'relaxation') return 'self-guided'
   return MEDICAL_TEAM_GUIDE_IDS.has(guide.id)
     ? 'medical-team'

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+    <title id="title">結腸癌輔助化療後：CHALLENGE 的長期運動支持：研究方案圖解</title>
+    <desc id="desc">結腸癌治療後的團隊評估、選擇可行活動、持續支持與追蹤傷害四格研究方案圖</desc>
+    <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="#a34b18"/></marker></defs>
+    <rect width="1200" height="900" fill="#eef3f5"/>
+    <g font-family="PingFang TC, Noto Sans CJK TC, Microsoft JhengHei, sans-serif">
+      <rect width="1200" height="140" fill="#193244"/>
+      <text x="38" y="38" fill="#a9cbd4" font-size="18" letter-spacing="3">CAM SAVANT / RESEARCH GUIDE</text>
+      <text x="36" y="93" fill="#ffffff" font-size="34" font-weight="700"><tspan x="36" dy="0">結腸癌治療後運動</tspan></text>
+      <text x="1164" y="125" text-anchor="end" fill="#c1d7dd" font-size="17">方案概念・完整說明請見內文</text>
+      <g transform="translate(36 165)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#a34b18"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">1</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">治療後先評估</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><circle cx="139" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M52 52 V93 L69 115 V150 M52 64 L84 82 M138 52 V93 L121 115 V150 M138 64 L111 82" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M78 94 H118 M97 94 V150 M22 83 V108 H52 M143 108 H172 V83" fill="none" stroke="#98adb9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M135 68 H143 M139 64 V72" stroke="#a34b18" stroke-width="3"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">和腫瘤及復健團隊確認治療階段</tspan><tspan x="236" dy="28.4">、體力與影響活動的症狀，再決</tspan><tspan x="236" dy="28.4">定是否適合進入運動方案。</tspan></text>
+    </g><g transform="translate(612 165)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#a34b18"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">2</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">選擇可行活動</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="87" cy="30" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M84 49 L90 93 M85 58 L65 82 L41 77 M87 59 L113 75 L134 56 M90 93 L62 119 L42 150 M90 93 L116 119 L145 141" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M38 164 H147" fill="none" stroke="#a34b18" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow)"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">以能長期融入生活的身體活動作</tspan><tspan x="236" dy="28.4">為討論起點，考量場地、喜好與</tspan><tspan x="236" dy="28.4">需要的協助。</tspan></text>
+    </g><g transform="translate(36 491)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#a34b18"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">3</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">持續支持習慣</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="44" y="22" width="108" height="139" rx="10" fill="white" stroke="#253d50" stroke-width="5"/><rect x="73" y="15" width="48" height="18" rx="5" fill="#a34b18"/><path d="M62 60 L67 65 L78 52 M90 59 H131 M62 95 L67 100 L78 87 M90 94 H131 M62 130 L67 135 L78 122 M90 129 H131" fill="none" stroke="#a34b18" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">讓有資格的運動與醫療人員追蹤</tspan><tspan x="236" dy="28.4">執行情形，將難以持續的原因納</tspan><tspan x="236" dy="28.4">入調整，不以意志力硬撐。</tspan></text>
+    </g><g transform="translate(612 491)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#a34b18"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">4</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">追蹤功能與傷害</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="22" y="26" width="150" height="100" rx="12" fill="white" stroke="#253d50" stroke-width="5"/><path d="M37 82 H63 L76 55 L91 101 L108 66 L120 82 H155" fill="none" stroke="#a34b18" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M97 128 V151 M71 152 H125" fill="none" stroke="#98adb9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">保留癌症追蹤，同時記錄肌肉骨</tspan><tspan x="236" dy="28.4">骼不適、活動能力及中斷原因，</tspan><tspan x="236" dy="28.4">讓團隊調整進度。</tspan></text>
+    </g>
+      <text x="600" y="861" text-anchor="middle" fill="#486071" font-size="20">原創研究方案示意・非論文原圖・非個人運動處方</text>
+    </g>
+  </svg>

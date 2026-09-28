@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+    <title id="title">前十字韌帶斷裂：復健優先與重建的共同決策：研究方案圖解</title>
+    <desc id="desc">前十字韌帶受傷後的共同決策與分階段復健的原創代表性研究流程示意圖，並非完整或個人化運動處方</desc>
+    <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="#a34b18"/></marker></defs>
+    <rect width="1200" height="900" fill="#eef3f5"/>
+    <g font-family="PingFang TC, Noto Sans CJK TC, Microsoft JhengHei, sans-serif">
+      <rect width="1200" height="140" fill="#193244"/>
+      <text x="38" y="38" fill="#a9cbd4" font-size="18" letter-spacing="3">CAM SAVANT / RESEARCH GUIDE</text>
+      <text x="36" y="93" fill="#ffffff" font-size="34" font-weight="700"><tspan x="36" dy="0">ACL 受傷後治療選擇</tspan></text>
+      <text x="1164" y="125" text-anchor="end" fill="#c1d7dd" font-size="17">方案概念・完整說明請見內文</text>
+      <g transform="translate(36 165)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#a34b18"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">1</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">確認合併損傷與運動需求</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><circle cx="139" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M52 52 V93 L69 115 V150 M52 64 L84 82 M138 52 V93 L121 115 V150 M138 64 L111 82" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M78 94 H118 M97 94 V150 M22 83 V108 H52 M143 108 H172 V83" fill="none" stroke="#98adb9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M135 68 H143 M139 64 V72" stroke="#a34b18" stroke-width="3"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">醫療團隊評估韌帶、半月板與軟</tspan><tspan x="236" dy="28.4">骨狀況，了解工作及轉向運動需</tspan><tspan x="236" dy="28.4">求。</tspan></text>
+    </g><g transform="translate(612 165)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#a34b18"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">2</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">恢復可控制的膝活動</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 78 V116 H92 M35 116 V152 M86 116 V152" fill="none" stroke="#98adb9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="64" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M62 51 L65 103 H112 L151 91 L165 96 M65 103 L102 110 L111 146 M62 65 L82 94" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M149 141 Q175 120 172 103" fill="none" stroke="#a34b18" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow)"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">在醫囑允許的範圍內練習膝伸屈</tspan><tspan x="236" dy="28.4">與大腿出力。</tspan></text>
+    </g><g transform="translate(36 491)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#a34b18"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">3</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">漸進肌力與站立控制</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="94" cy="35" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M88 55 L66 91 L106 119 L85 150 H111 M85 62 H126 L148 50 M67 91 L48 119 L25 148 H47" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M165 138 V87" fill="none" stroke="#a34b18" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow)"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">治療師依腫脹、力量與動作品質</tspan><tspan x="236" dy="28.4">調整訓練。</tspan></text>
+    </g><g transform="translate(612 491)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#a34b18"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">4</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">依不穩定與目標重新決策</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><circle cx="139" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M52 52 V93 L69 115 V150 M52 64 L84 82 M138 52 V93 L121 115 V150 M138 64 L111 82" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M78 94 H118 M97 94 V150 M22 83 V108 H52 M143 108 H172 V83" fill="none" stroke="#98adb9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M135 68 H143 M139 64 V72" stroke="#a34b18" stroke-width="3"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">追蹤是否反覆軟腳、能否完成日</tspan><tspan x="236" dy="28.4">常及運動任務；若仍不穩或無法</tspan><tspan x="236" dy="28.4">達到需求，重新討論重建。</tspan></text>
+    </g>
+      <text x="600" y="861" text-anchor="middle" fill="#486071" font-size="20">原創研究方案示意・非論文原圖・非個人運動處方</text>
+    </g>
+  </svg>

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+    <title id="title">學生膝前痛：把肌力練習與疼痛教育放進日常：研究方案圖解</title>
+    <desc id="desc">青少年髕股疼痛的衛教、膝肌力、髖外展與坐站的原創代表性研究流程示意圖，並非完整或個人化運動處方</desc>
+    <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="#7056a6"/></marker></defs>
+    <rect width="1200" height="900" fill="#eef3f5"/>
+    <g font-family="PingFang TC, Noto Sans CJK TC, Microsoft JhengHei, sans-serif">
+      <rect width="1200" height="140" fill="#193244"/>
+      <text x="38" y="38" fill="#a9cbd4" font-size="18" letter-spacing="3">CAM SAVANT / RESEARCH GUIDE</text>
+      <text x="36" y="93" fill="#ffffff" font-size="34" font-weight="700"><tspan x="36" dy="0">青少年膝前痛</tspan></text>
+      <text x="1164" y="125" text-anchor="end" fill="#c1d7dd" font-size="17">方案概念・完整說明請見內文</text>
+      <g transform="translate(36 165)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#7056a6"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">1</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">安排能持續的學校與居家計畫</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="44" y="22" width="108" height="139" rx="10" fill="white" stroke="#253d50" stroke-width="5"/><rect x="73" y="15" width="48" height="18" rx="5" fill="#7056a6"/><path d="M62 60 L67 65 L78 52 M90 59 H131 M62 95 L67 100 L78 87 M90 94 H131 M62 130 L67 135 L78 122 M90 129 H131" fill="none" stroke="#7056a6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">學生、家長與治療師一起了解疼</tspan><tspan x="236" dy="28.4">痛、調整運動負荷並設定目標。</tspan></text>
+    </g><g transform="translate(612 165)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#7056a6"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">2</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">個別化膝伸肌訓練</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 78 V116 H92 M35 116 V152 M86 116 V152" fill="none" stroke="#98adb9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="64" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M62 51 L65 103 H112 L151 91 L165 96 M65 103 L102 110 L111 146 M62 65 L82 94" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M149 141 Q175 120 172 103" fill="none" stroke="#7056a6" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow)"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">由治療師依疼痛與能力選擇坐姿</tspan><tspan x="236" dy="28.4">伸膝或負重練習。</tspan></text>
+    </g><g transform="translate(36 491)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#7056a6"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">3</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">加上髖部肌力</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="31" cy="108" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M49 120 H103 L163 142 M103 120 L158 76 M61 120 L70 143 H98" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 150 H176" fill="none" stroke="#7056a6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M174 131 Q184 103 172 80" fill="none" stroke="#7056a6" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow)"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">研究手冊包含側躺抬腿等髖外展</tspan><tspan x="236" dy="28.4">動作。</tspan></text>
+    </g><g transform="translate(612 491)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#7056a6"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">4</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">把力量用在坐站與階梯</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 78 V116 H92 M35 116 V152 M86 116 V152" fill="none" stroke="#98adb9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="64" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M62 51 L65 103 H118 L124 146 H145 M62 65 L96 82 L118 80" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M153 132 V52" fill="none" stroke="#7056a6" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow)"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">依能力選擇坐站、單階上踏或樓</tspan><tspan x="236" dy="28.4">梯活動；先有穩定支撐與較低難</tspan><tspan x="236" dy="28.4">度。</tspan></text>
+    </g>
+      <text x="600" y="861" text-anchor="middle" fill="#486071" font-size="20">原創研究方案示意・非論文原圖・非個人運動處方</text>
+    </g>
+  </svg>

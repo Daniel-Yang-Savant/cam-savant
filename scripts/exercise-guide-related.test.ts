@@ -46,3 +46,12 @@ test('related guide ordering stays stable when relevance is tied', () => {
     ['first', 'second']
   )
 })
+
+test('new colon cancer guide links first to other cancer exercise research', () => {
+  const guide = EXERCISE_GUIDE_MODULES.find((item) => item.id === 'colon-cancer-challenge-exercise-rct')
+  assert.ok(guide)
+  assert.deepEqual(
+    new Set(getRelatedExerciseGuides(guide, EXERCISE_GUIDE_MODULES, 2).map((item) => item.id)),
+    new Set(['lung-cancer-exercise-rct', 'cardio-oncology-core-rct'])
+  )
+})

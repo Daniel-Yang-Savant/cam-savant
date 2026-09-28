@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+    <title id="title">第二型糖尿病：DARE 的有氧與阻力組合：研究方案圖解</title>
+    <desc id="desc">糖尿病運動的用藥及風險評估、有氧、阻力與血糖功能追蹤四格示意</desc>
+    <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="#3464a0"/></marker></defs>
+    <rect width="1200" height="900" fill="#eef3f5"/>
+    <g font-family="PingFang TC, Noto Sans CJK TC, Microsoft JhengHei, sans-serif">
+      <rect width="1200" height="140" fill="#193244"/>
+      <text x="38" y="38" fill="#a9cbd4" font-size="18" letter-spacing="3">CAM SAVANT / RESEARCH GUIDE</text>
+      <text x="36" y="93" fill="#ffffff" font-size="34" font-weight="700"><tspan x="36" dy="0">第二型糖尿病運動</tspan></text>
+      <text x="1164" y="125" text-anchor="end" fill="#c1d7dd" font-size="17">方案概念・完整說明請見內文</text>
+      <g transform="translate(36 165)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#3464a0"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">1</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">先談用藥與安全</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><circle cx="139" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M52 52 V93 L69 115 V150 M52 64 L84 82 M138 52 V93 L121 115 V150 M138 64 L111 82" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M78 94 H118 M97 94 V150 M22 83 V108 H52 M143 108 H172 V83" fill="none" stroke="#98adb9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M135 68 H143 M139 64 V72" stroke="#3464a0" stroke-width="3"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">與照護團隊確認運動評估、低血</tspan><tspan x="236" dy="28.4">糖處理及足部等限制，先知道出</tspan><tspan x="236" dy="28.4">現不適要如何回應。</tspan></text>
+    </g><g transform="translate(612 165)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#3464a0"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">2</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">安排有氧活動</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="87" cy="30" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M84 49 L90 93 M85 58 L65 82 L41 77 M87 59 L113 75 L134 56 M90 93 L62 119 L42 150 M90 93 L116 119 L145 141" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M38 164 H147" fill="none" stroke="#3464a0" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow)"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">依能力選擇可重複執行的活動模</tspan><tspan x="236" dy="28.4">式，記下時間與感受，逐步建立</tspan><tspan x="236" dy="28.4">可維持的節奏。</tspan></text>
+    </g><g transform="translate(36 491)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#3464a0"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">3</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">加入阻力練習</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="95" cy="25" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M95 45 V94 M95 59 L65 77 L45 59 M95 59 L125 77 L145 59 M95 94 L75 148 M95 94 L116 148" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M31 56 H59 M31 46 V66 M59 46 V66 M132 56 H160 M132 46 V66 M160 46 V66" fill="none" stroke="#3464a0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">由專業人員教導大肌群出力及呼</tspan><tspan x="236" dy="28.4">吸，確保動作品質後，再和有氧</tspan><tspan x="236" dy="28.4">安排在整體課程裡。</tspan></text>
+    </g><g transform="translate(612 491)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#3464a0"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">4</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">追蹤整體反應</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="22" y="26" width="150" height="100" rx="12" fill="white" stroke="#253d50" stroke-width="5"/><path d="M37 82 H63 L76 55 L91 101 L108 66 L120 82 H155" fill="none" stroke="#3464a0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M97 128 V151 M71 152 H125" fill="none" stroke="#98adb9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">回診檢視血糖、症狀、活動能力</tspan><tspan x="236" dy="28.4">及完成情形，藥物是否調整由醫</tspan><tspan x="236" dy="28.4">療人員決定。</tspan></text>
+    </g>
+      <text x="600" y="861" text-anchor="middle" fill="#486071" font-size="20">原創研究方案示意・非論文原圖・非個人運動處方</text>
+    </g>
+  </svg>

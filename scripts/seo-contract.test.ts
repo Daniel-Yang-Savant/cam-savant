@@ -31,7 +31,7 @@ function pendingEducationGuide(): ExerciseGuideModule {
     evidenceKind: 'education',
     reviewStatus: 'pending',
     publishedDate: '2026-09-24',
-    modifiedDate: '2026-09-25',
+    modifiedDate: '2026-09-29',
     title: '待審運動衛教',
     summary: '測試一般運動方向',
     evidence: '一般衛教來源',
@@ -174,7 +174,7 @@ test('every exercise guide has a reassessment rule and stable URL', () => {
   )
   assert.equal(
     EXERCISE_GUIDE_MODULES.filter((guide) => guide.kind === 'condition' && guide.evidenceKind !== 'education').length,
-    66
+    94
   )
 
   for (const guide of EXERCISE_GUIDE_MODULES) {

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+    <title id="title">衰弱合併肌少症：運動與營養支持如何保留行動能力：研究方案圖解</title>
+    <desc id="desc">SPRINTT 的功能評估、有氧與肌力活動、居家練習及營養活動回饋四格示意</desc>
+    <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="#116d69"/></marker></defs>
+    <rect width="1200" height="900" fill="#eef3f5"/>
+    <g font-family="PingFang TC, Noto Sans CJK TC, Microsoft JhengHei, sans-serif">
+      <rect width="1200" height="140" fill="#193244"/>
+      <text x="38" y="38" fill="#a9cbd4" font-size="18" letter-spacing="3">CAM SAVANT / RESEARCH GUIDE</text>
+      <text x="36" y="93" fill="#ffffff" font-size="34" font-weight="700"><tspan x="36" dy="0">衰弱與肌少症</tspan></text>
+      <text x="1164" y="125" text-anchor="end" fill="#c1d7dd" font-size="17">方案概念・完整說明請見內文</text>
+      <g transform="translate(36 165)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#116d69"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">1</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">確認衰弱與肌肉狀態</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><circle cx="139" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M52 52 V93 L69 115 V150 M52 64 L84 82 M138 52 V93 L121 115 V150 M138 64 L111 82" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M78 94 H118 M97 94 V150 M22 83 V108 H52 M143 108 H172 V83" fill="none" stroke="#98adb9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M135 68 H143 M139 64 V72" stroke="#116d69" stroke-width="3"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">團隊同時檢查下肢功能、肌肉量</tspan><tspan x="236" dy="28.4">及步行能力，而非僅憑年齡或體</tspan><tspan x="236" dy="28.4">重判斷肌少症。</tspan></text>
+    </g><g transform="translate(612 165)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#116d69"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">2</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">中心建立動作與負荷</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 78 V116 H92 M35 116 V152 M86 116 V152" fill="none" stroke="#98adb9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="64" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M62 51 L65 103 H112 L151 91 L165 96 M65 103 L102 110 L111 146 M62 65 L82 94" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M149 141 Q175 120 172 103" fill="none" stroke="#116d69" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow)"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">課程包含有氧、肌力、平衡與柔</tspan><tspan x="236" dy="28.4">軟度；在指導下建立可持續的走</tspan><tspan x="236" dy="28.4">路與下肢出力方式，再練習較有</tspan><tspan x="236" dy="28.4">挑戰的內容。</tspan></text>
+    </g><g transform="translate(36 491)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#116d69"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">3</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">循序加入居家活動</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="87" cy="30" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M84 49 L90 93 M85 58 L65 82 L41 77 M87 59 L113 75 L134 56 M90 93 L62 119 L42 150 M90 93 L116 119 L145 141" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M38 164 H147" fill="none" stroke="#116d69" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow)"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">先把學會的項目帶回家，記錄實</tspan><tspan x="236" dy="28.4">際完成情況，再逐漸增加練習日</tspan><tspan x="236" dy="28.4">。</tspan></text>
+    </g><g transform="translate(612 491)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#116d69"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">4</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">回顧活動與飲食</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="44" y="22" width="108" height="139" rx="10" fill="white" stroke="#253d50" stroke-width="5"/><rect x="73" y="15" width="48" height="18" rx="5" fill="#116d69"/><path d="M62 60 L67 65 L78 52 M90 59 H131 M62 95 L67 100 L78 87 M90 94 H131 M62 130 L67 135 L78 122 M90 129 H131" fill="none" stroke="#116d69" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">研究結合活動監測回饋與個別營</tspan><tspan x="236" dy="28.4">養諮詢，檢視難以遵從的原因。</tspan></text>
+    </g>
+      <text x="600" y="861" text-anchor="middle" fill="#486071" font-size="20">原創研究方案示意・非論文原圖・非個人運動處方</text>
+    </g>
+  </svg>

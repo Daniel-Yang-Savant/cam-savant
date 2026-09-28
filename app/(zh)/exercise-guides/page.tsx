@@ -34,6 +34,7 @@ export const metadata: Metadata = {
 }
 
 export default function ExerciseGuidesPage() {
+  const pendingCount = EXERCISE_GUIDE_MODULES.filter((guide) => guide.reviewStatus === 'pending').length
   const modifiedDate = getExerciseGuideCollectionModifiedDate(EXERCISE_GUIDE_MODULES)
   const hasIndividualReviewStatus = EXERCISE_GUIDE_MODULES.some((guide) => guide.reviewStatus !== undefined)
   const collectionSchema = {
@@ -97,6 +98,19 @@ export default function ExerciseGuidesPage() {
             <h1 className="mt-4 text-4xl font-bold leading-tight text-neutral-950 dark:text-neutral-100 md:text-6xl">
               圖解運動專區
             </h1>
+            <p className="mt-5 text-base leading-7 text-neutral-600 dark:text-neutral-300">
+              共 {EXERCISE_GUIDE_MODULES.length} 篇圖解與研究方案
+              {pendingCount > 0 && <>，含 {pendingCount} 篇待醫療審閱內容</>}。
+              從放鬆、肌骨復健到神經、心肺與高齡運動，依自己的需求查找。
+            </p>
+            <details className="mt-5 rounded-2xl border border-teal-200 bg-white/80 p-4 text-sm leading-6 dark:border-teal-900 dark:bg-neutral-900">
+              <summary className="cursor-pointer font-bold text-teal-800 dark:text-teal-200">研究怎麼選？</summary>
+              <p className="mt-3 text-neutral-600 dark:text-neutral-300">
+                本次新增研究優先考慮大型或多中心隨機試驗、實際功能與生活品質結果，以及能核對的介入方案。
+                同時收錄無額外效益或出現安全疑慮的結果；各頁說明研究對象、比較方式與限制。
+                隨機試驗不等於每項結論都有高度確定性，研究劑量也不等於個人處方。
+              </p>
+            </details>
           </div>
 
           <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-neutral-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-neutral-300">
@@ -120,7 +134,7 @@ export default function ExerciseGuidesPage() {
           </div>
 
           <p className="mt-5 text-xs leading-5 text-neutral-500 dark:text-neutral-400">
-            示範圖為合成教學影像；實際動作請依個別能力與當下反應調整。
+            圖片為合成教學影像或原創方案示意；實際動作請依個別能力與當下反應調整。
           </p>
           <p className="mt-2 text-xs leading-5 text-neutral-500 dark:text-neutral-400">
             發布日期：<time dateTime={EXERCISE_GUIDE_REVIEW.publishedDate}>{EXERCISE_GUIDE_REVIEW.publishedDate}</time>

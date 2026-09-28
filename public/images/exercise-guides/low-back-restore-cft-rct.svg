@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+    <title id="title">慢性下背痛不敢動：RESTORE 的認知功能治療：研究方案圖解</title>
+    <desc id="desc">慢性下背痛的理解疼痛、動作練習與生活活動的原創代表性研究流程示意圖，並非完整或個人化運動處方</desc>
+    <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="#116d69"/></marker></defs>
+    <rect width="1200" height="900" fill="#eef3f5"/>
+    <g font-family="PingFang TC, Noto Sans CJK TC, Microsoft JhengHei, sans-serif">
+      <rect width="1200" height="140" fill="#193244"/>
+      <text x="38" y="38" fill="#a9cbd4" font-size="18" letter-spacing="3">CAM SAVANT / RESEARCH GUIDE</text>
+      <text x="36" y="93" fill="#ffffff" font-size="34" font-weight="700"><tspan x="36" dy="0">慢性下背痛與動作信心</tspan></text>
+      <text x="1164" y="125" text-anchor="end" fill="#c1d7dd" font-size="17">方案概念・完整說明請見內文</text>
+      <g transform="translate(36 165)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#116d69"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">1</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">理解自己的疼痛經驗</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="53" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><circle cx="139" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M52 52 V93 L69 115 V150 M52 64 L84 82 M138 52 V93 L121 115 V150 M138 64 L111 82" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M78 94 H118 M97 94 V150 M22 83 V108 H52 M143 108 H172 V83" fill="none" stroke="#98adb9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M135 68 H143 M139 64 V72" stroke="#116d69" stroke-width="3"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">治療師聆聽症狀、檢查動作，討</tspan><tspan x="236" dy="28.4">論對受傷的擔心與想恢復的生活</tspan><tspan x="236" dy="28.4">目標。</tspan></text>
+    </g><g transform="translate(612 165)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#116d69"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">2</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">在指導下練習擔心的動作</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 78 V116 H92 M35 116 V152 M86 116 V152" fill="none" stroke="#98adb9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="64" cy="32" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M62 51 L65 103 H118 L124 146 H145 M62 65 L96 82 L118 80" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M153 132 V52" fill="none" stroke="#116d69" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow)"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">從自己會害怕或迴避的任務中選</tspan><tspan x="236" dy="28.4">一項，例如坐站或彎腰取物；在</tspan><tspan x="236" dy="28.4">治療師協助下調整呼吸、緊繃與</tspan><tspan x="236" dy="28.4">動作方式，逐步增加信心。</tspan></text>
+    </g><g transform="translate(36 491)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#116d69"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">3</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">把活動放回生活</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="87" cy="30" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M84 49 L90 93 M85 58 L65 82 L41 77 M87 59 L113 75 L134 56 M90 93 L62 119 L42 150 M90 93 L116 119 L145 141" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M38 164 H147" fill="none" stroke="#116d69" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow)"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">依喜好與可負荷程度安排走路或</tspan><tspan x="236" dy="28.4">其他身體活動，同時處理睡眠、</tspan><tspan x="236" dy="28.4">壓力與生活參與的障礙。</tspan></text>
+    </g><g transform="translate(612 491)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#116d69"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">4</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">建立復發時的應對計畫</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="44" y="22" width="108" height="139" rx="10" fill="white" stroke="#253d50" stroke-width="5"/><rect x="73" y="15" width="48" height="18" rx="5" fill="#116d69"/><path d="M62 60 L67 65 L78 52 M90 59 H131 M62 95 L67 100 L78 87 M90 94 H131 M62 130 L67 135 L78 122 M90 129 H131" fill="none" stroke="#116d69" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">回顧哪種活動有幫助、症狀波動</tspan><tspan x="236" dy="28.4">時如何調整，以及哪些新症狀要</tspan><tspan x="236" dy="28.4">重新就醫。</tspan></text>
+    </g>
+      <text x="600" y="861" text-anchor="middle" fill="#486071" font-size="20">原創研究方案示意・非論文原圖・非個人運動處方</text>
+    </g>
+  </svg>

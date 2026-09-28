@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+    <title id="title">青少年女子足球：把肌力與落地控制放進暖身：研究方案圖解</title>
+    <desc id="desc">青少年足球的低速跑、肌力平衡、落地與變向暖身的原創代表性研究流程示意圖，並非完整或個人化運動處方</desc>
+    <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="#a34b18"/></marker></defs>
+    <rect width="1200" height="900" fill="#eef3f5"/>
+    <g font-family="PingFang TC, Noto Sans CJK TC, Microsoft JhengHei, sans-serif">
+      <rect width="1200" height="140" fill="#193244"/>
+      <text x="38" y="38" fill="#a9cbd4" font-size="18" letter-spacing="3">CAM SAVANT / RESEARCH GUIDE</text>
+      <text x="36" y="93" fill="#ffffff" font-size="34" font-weight="700"><tspan x="36" dy="0">青少年足球暖身</tspan></text>
+      <text x="1164" y="125" text-anchor="end" fill="#c1d7dd" font-size="17">方案概念・完整說明請見內文</text>
+      <g transform="translate(36 165)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#a34b18"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">1</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">先用低速跑與動態動作暖身</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="107" cy="27" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M101 46 L85 87 M99 54 L126 63 L142 44 M98 55 L74 67 L57 58 M85 87 L60 102 L27 88 M85 87 L116 110 L99 146" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M29 164 H151" fill="none" stroke="#a34b18" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow)"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">在教練設置的路線中，以低速跑</tspan><tspan x="236" dy="28.4">搭配髖部活動及可控制的動態動</tspan><tspan x="236" dy="28.4">作，和隊友保持安全距離。</tspan></text>
+    </g><g transform="translate(612 165)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#a34b18"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">2</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">加入肌力與單腳平衡</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="91" cy="25" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M91 45 V91 M91 61 L66 80 H32 M91 61 L122 78 H150 M91 91 V145 M91 91 L120 108 L137 128" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="152" cy="69" r="14" fill="#a34b18"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">研究中段包含軀幹支撐、腿後肌</tspan><tspan x="236" dy="28.4">、單腳平衡及蹲等訓練，各有進</tspan><tspan x="236" dy="28.4">階層級。</tspan></text>
+    </g><g transform="translate(36 491)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#a34b18"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">3</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">練習可控制的起跳與落地</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="94" cy="35" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M88 55 L66 91 L106 119 L85 150 H111 M85 62 H126 L148 50 M67 91 L48 119 L25 148 H47" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M165 138 V87" fill="none" stroke="#a34b18" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow)"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">依程度選擇跳躍練習，注意落地</tspan><tspan x="236" dy="28.4">能穩定承接、膝與足的方向可控</tspan><tspan x="236" dy="28.4">制。</tspan></text>
+    </g><g transform="translate(612 491)"><rect width="552" height="304" rx="22" fill="white" stroke="#dce5e9"/>
+      <rect x="24" y="23" width="40" height="40" rx="13" fill="#a34b18"/>
+      <text x="44" y="51" text-anchor="middle" fill="white" font-size="25" font-weight="700">4</text>
+      <text x="80" y="52" fill="#1e3445" font-size="25" font-weight="700"><tspan x="80" dy="0">最後才提高速度與變向</tspan></text>
+      <svg x="28" y="102" width="184" height="171" viewBox="0 0 190 180"><path d="M15 155 H175" fill="none" stroke="#ccd9df" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="107" cy="27" r="11" fill="#f1d6bc" stroke="#253d50" stroke-width="3"/><path d="M101 46 L85 87 M99 54 L126 63 L142 44 M98 55 L74 67 L57 58 M85 87 L60 102 L27 88 M85 87 L116 110 L99 146" fill="none" stroke="#253d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M29 164 H151" fill="none" stroke="#a34b18" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow)"/></svg>
+      <text x="236" y="128" fill="#486071" font-size="20" font-weight="400"><tspan x="236" dy="0">以較快跑步接回足球需要的動作</tspan><tspan x="236" dy="28.4">，逐步練習加速與方向變化。</tspan></text>
+    </g>
+      <text x="600" y="861" text-anchor="middle" fill="#486071" font-size="20">原創研究方案示意・非論文原圖・非個人運動處方</text>
+    </g>
+  </svg>

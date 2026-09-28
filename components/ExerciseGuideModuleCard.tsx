@@ -188,7 +188,7 @@ export default function ExerciseGuideModuleCard({ guide, asPage = false }: Exerc
                   }
                   className="h-auto w-full transition-transform duration-300 group-hover/image:scale-[1.015]"
                 />
-                {!hasMultipleSteps && (
+                {!hasMultipleSteps && !image.src.endsWith('.svg') && (
                   <span aria-hidden="true" className="pointer-events-none absolute inset-0">
                     <span className="absolute left-3 top-3 inline-flex size-7 items-center justify-center rounded-full bg-black/75 text-xs font-bold text-white shadow-sm">1</span>
                     <span className="absolute right-3 top-3 inline-flex size-7 items-center justify-center rounded-full bg-black/75 text-xs font-bold text-white shadow-sm">2</span>
@@ -285,12 +285,12 @@ export default function ExerciseGuideModuleCard({ guide, asPage = false }: Exerc
           )}
         </dialog>
         <p className="ExerciseGuideDisclosure mt-4 rounded-xl bg-neutral-100 px-4 py-3 text-xs leading-5 text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
-          示範圖為合成教學影像，已用於輔助理解而非取代現場動作評估；實際姿勢、幅度與支撐方式請依個別能力調整。
+          圖片為合成教學影像或原創方案示意，並非論文原圖；用於輔助理解，實際姿勢、幅度與支撐方式請依專業評估調整。
         </p>
 
         {guide.steps && guide.steps.length > 0 && (
           <section className="mt-8" aria-labelledby={`${guide.id}-instructions`}>
-            <h2 id={`${guide.id}-instructions`} className="text-xl font-bold text-neutral-950 dark:text-neutral-100">動作怎麼做</h2>
+            <h2 id={`${guide.id}-instructions`} className="text-xl font-bold text-neutral-950 dark:text-neutral-100">{guide.evidenceKind === 'rct' ? '研究方案如何進行' : '動作怎麼做'}</h2>
             <ol className="mt-4 grid gap-4 md:grid-cols-2">
               {guide.steps.map((step, index) => (
                 <li key={step.title} className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
@@ -299,7 +299,7 @@ export default function ExerciseGuideModuleCard({ guide, asPage = false }: Exerc
                     {step.title}
                   </h3>
                   <p className="mt-3 text-sm leading-6 text-neutral-600 dark:text-neutral-300">{step.instruction}</p>
-                  <p className="mt-3 text-sm leading-6 text-neutral-700 dark:text-neutral-200"><strong>起步量：</strong>{step.dosage}</p>
+                  <p className="mt-3 text-sm leading-6 text-neutral-700 dark:text-neutral-200"><strong>{guide.evidenceKind === 'rct' ? '研究安排／調整：' : '起步量：'}</strong>{step.dosage}</p>
                 </li>
               ))}
             </ol>
