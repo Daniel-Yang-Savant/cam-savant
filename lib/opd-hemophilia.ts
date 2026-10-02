@@ -13,7 +13,7 @@ export interface HemophiliaTemplate {
 
 // Source verification date; this does not represent patient-specific review or
 // approval by a hematologist. Complete only findings actually assessed.
-const REVIEWED_AT = '2026-09-22'
+const REVIEWED_AT = '2026-10-02'
 
 const wfhAcute = {
   label: 'WFH 血友病指引第 3 版（2020）：第 7 章，特定部位出血',
@@ -30,6 +30,10 @@ const wfhOutcomes = {
 const wfhComprehensive = {
   label: 'WFH 血友病指引第 3 版（2020）：第 2 章，整合照護與疼痛處理',
   url: 'https://www1.wfh.org/publications/files/pdf-1866.pdf',
+}
+const wfhExercise = {
+  label: 'WFH：Exercises for People with Hemophilia（關節活動、肌力與平衡練習）',
+  url: 'https://www1.wfh.org/publications/files/pdf-1302.pdf',
 }
 const masacEmergency = {
   label: 'NBDF MASAC 257（2019）：疑似出血與急診處置',
@@ -63,6 +67,11 @@ const masacMuscle = {
 //   synthesis with MASAC 257, not a claim that ultrasound cannot detect a bleed.
 // - WFH 7.2 and MASAC 257: invasive procedures require a hemostatic plan; applying
 //   this to needling/injections is a precaution, not an endorsement of efficacy.
+// - Plan activity examples rechecked 2026-10-02: MASAC 275 appendix E supports
+//   opposite-limb ROM for acute lower-limb muscle bleeds excluding iliopsoas;
+//   D/E support graded ROM,
+//   strengthening and functional recovery. WFH 2.3 supports walking, cycling
+//   and swimming. Keep five actionable lines; detailed cautions stay in safetyZh.
 export const hemophiliaTemplates: HemophiliaTemplate[] = [
   {
     id: 'hemophilia-acute-bleed',
@@ -80,18 +89,13 @@ Distal sensation ____; observed motor function ____; pulses ____; capillary refi
 Observed limb use/transfers ____; weight-bearing assessment performed or deferred/reason ____
 Relevant laboratory records, dates, and assay methods if available: ____
 Imaging already available: modality/site/date ____; findings ____; limitations ____`,
-    plan: `If bleeding is suspected, contact hematology/hemophilia treatment center (HTC) urgently and activate the existing emergency hemostatic plan without waiting for consultation, laboratory tests, or imaging.
-Confirm hemostatic treatment with the emergency/hematology team according to hemophilia type, inhibitors, current therapy, and prior response; emicizumab prophylaxis does not treat an acute bleed.
-Arrange emergency assessment for escalating severe pain, tense swelling, sensory/motor loss, impaired perfusion, head/neck symptoms, or suspected iliopsoas bleeding with groin/back pain or femoral nerve signs.
-If fever, a hot joint, major trauma, or poor treatment response is present, urgently evaluate infection, fracture, persistent bleeding, and inhibitors.
-Protect/rest the affected region and suspend rehabilitation/loading; for suspected iliopsoas bleeding avoid walking or crutch training pending specialist assessment.
-Consider protected cold packs and comfortable elevation for symptom relief; avoid compression when neurovascular compromise is suspected. These measures do not replace hemostatic treatment.
-Defer forceful ROM, resisted strength tests, stretching, deep massage, and heat over the suspected bleed.
-If imaging is indicated, use it as an adjunct; a negative ultrasound alone or an initially unremarkable examination must not exclude a clinically suspected bleed.
-Defer needling, injections, aspiration, or other invasive procedures unless specifically indicated with an agreed hemostatic plan; coordinate analgesia and avoid aspirin/non-selective NSAIDs.
-Arrange urgent serial reassessment with HTC: pain/swelling, neurovascular findings, and response to hemostasis; timing/contact ____; begin rehabilitation only after bleeding control and appropriate clinical reassessment.`,
+    plan: `1. Hemostasis: Activate the existing emergency hemostatic plan and contact HTC urgently without waiting for imaging; suspend loading of the affected region.
+2. Daily Activity: Assist self-care and transfers within HTC restrictions; protect the affected limb. For suspected iliopsoas bleeding, avoid walking/crutch training pending specialist assessment.
+3. Exercise: For an isolated lower-limb muscle bleed (not iliopsoas), HTC may allow pain-free opposite-limb ROM without moving/loading the bleeding region.
+4. Restart Criteria: Only after bleeding control, pain relief, and HTC clearance, begin gentle affected-limb AROM/AAROM; defer resistance and forced stretching.
+5. Review: Stop activity for increasing pain/swelling; seek emergency care for severe worsening pain, tense swelling, weakness/numbness, or impaired circulation. Urgent HTC reassessment/contact: ____.`,
     safetyZh:
-      '疑似出血應立即依既有急救止血計畫處理並聯絡血液科／血友病中心，不能等影像或會診。陰性超音波不能單獨排除出血。劇痛惡化、緊繃腫脹、麻木無力、末梢循環異常，或鼠蹊／腰背痛合併股神經症狀須緊急評估；疑似髂腰肌出血不套用一般拐杖步行訓練。未檢查項目填 not assessed。',
+      '疑似出血應立即依既有急救止血計畫處理並聯絡血液科／血友病中心，不能等影像或會診；emicizumab 預防治療不能取代急性止血。陰性超音波不能單獨排除出血。劇痛惡化、緊繃腫脹、麻木無力、末梢循環異常、頭頸部症狀或發燒合併熱腫關節須緊急評估。疑似髂腰肌出血不做一般拐杖步行；未出血肢體活動也不得牽動患部。急性期避免強拉、深層按摩及熱療；避免 aspirin／非選擇性 NSAIDs，針刺／注射／抽吸須先有止血計畫。未檢查項目填 not assessed。',
     sources: [wfhAcute, wfhMsk, masacEmergency, masacEvaluation, masacUltrasound, masacMuscle],
     reviewedAt: REVIEWED_AT,
   },
@@ -111,19 +115,14 @@ Submaximal strength assessment if safe: method/muscle ____; result ____; symptom
 Distal sensation ____; motor function ____; perfusion ____
 Observed transfers/gait with prescribed aid and loading limits ____; selected functional task/result ____
 Relevant imaging/laboratory review ____; optional HJHS by trained assessor when appropriate, score/date ____ or not assessed`,
-    plan: `Confirm bleeding control and rehabilitation readiness with hematology/HTC; agree appropriate hemostatic coverage, session timing, and restrictions before exercising the affected region.
-If bleeding remains suspected or new pain, warmth, swelling, or loss of function develops, stop exercise and seek urgent HTC reassessment; do not wait for imaging to activate the emergency plan.
-When cleared and acute pain has subsided, introduce gentle pain-free AROM; use assisted movement only within the individually permitted range.
-For a recovering muscle bleed, progress muscle length gently and add submaximal isometrics as tolerated; avoid forced stretching, ballistic loading, and painful resistance.
-Progress loading and gait with suitable aids only as symptoms and control permit; iliopsoas rehabilitation requires a separate specialist plan.
-Add graded strengthening, balance/proprioception, and functional tasks after earlier activities are tolerated without recurrent bleeding signs.
-Set a home program with individualized exercise, repetitions, frequency, and stop rules: ____; aim for the patient's pre-bleed function and reassess before return to sport/work demands.
-Defer needling, injections, aspiration, or other invasive procedures without a specific indication and agreed hemostatic plan; review analgesia with the treating team and avoid aspirin/non-selective NSAIDs.
-Arrange emergency assessment for severe progressive pain, tense swelling, new sensory/motor loss, impaired perfusion, head/neck symptoms, or fever with an acutely hot joint.
-Review on ____ with HTC/rehabilitation; reassess swelling, safe ROM/strength, gait, and function; consider imaging for persistent or recurrent symptoms, without using negative ultrasound alone to exclude bleeding.`,
+    plan: `1. ROM: Confirm bleeding control and HTC clearance/hemostatic coverage; once acute pain subsides, begin gentle pain-free AROM/AAROM of affected joints.
+2. Strengthening: Start submaximal isometric contractions; progress to light resistance-band exercises only as tolerated without recurrent pain/swelling.
+3. Walking: Progress weight bearing and gait with prescribed aids toward pre-bleed function; wean aids as control improves. Iliopsoas bleeding requires a separate specialist plan.
+4. Balance / Function: Once pain-free weight bearing is cleared, practice supported standing balance, weight shifts, and daily tasks without recurrent pain/swelling.
+5. Home / Review: Individualize exercise repetitions and frequency; stop for new pain, warmth, swelling, or loss of function and contact HTC urgently. Follow-up: ____.`,
     safetyZh:
       '開始與進階復健前先確認出血已控制，並與血液科／血友病中心約定止血保護與活動限制；不以固定天數自動放行。新發腫熱、疼痛或功能退步應停止運動並重新評估出血。髂腰肌出血另需專屬計畫；侵入性處置必須先有止血計畫。',
-    sources: [wfhAcute, wfhMsk, wfhOutcomes, masacJoint, masacMuscle, masacEmergency, masacUltrasound],
+    sources: [wfhAcute, wfhMsk, wfhOutcomes, wfhExercise, masacJoint, masacMuscle, masacEmergency, masacUltrasound],
     reviewedAt: REVIEWED_AT,
   },
   {
@@ -142,19 +141,14 @@ Balance/proprioception test if safe: method ____; result ____
 Distal sensation ____; motor function ____; perfusion ____
 Optional HJHS by trained assessor: joints assessed ____; score/date ____ or not assessed
 Relevant radiograph/ultrasound/MRI findings and dates ____; change from prior objective assessment ____`,
-    plan: `Confirm a stable clinical state; if new pain, warmth, swelling, or functional loss suggests bleeding, stop loading and contact hematology/HTC urgently using the emergency plan without waiting for imaging.
-Coordinate prophylaxis/hemostatic coverage and activity risk with hematology/HTC; individualize intensity for inhibitor status, current therapy, joint damage, and response.
-Prescribe graded low-impact aerobic activity and strengthening within tolerated limits; exercise, intensity, frequency, and goals: ____.
-Use gentle mobility and muscle-length work within available motion; avoid forcing a fixed contracture or provoking pain/swelling.
-Include balance/proprioception, gait, and task-specific training; adapt footwear, orthoses, or walking aids when assessment identifies a need.
-Provide an individualized home program, pacing and joint-protection advice, and monitoring for bleeding; modify activities that repeatedly trigger symptoms.
-Coordinate pain management with the treating team; consider acetaminophen if appropriate, avoid aspirin/non-selective NSAIDs, and reserve other analgesic choices for individualized review.
-Defer needling, injections, aspiration, or other invasive procedures without specialist assessment and an agreed hemostatic plan; consider HTC musculoskeletal/orthopedic referral for persistent synovitis, recurrent bleeds, or disabling symptoms.
-Arrange emergency assessment for severe progressive pain, tense swelling, new sensory/motor loss, impaired perfusion, head/neck symptoms, or fever with an acutely hot joint.
-Follow up on ____; track joint status, function, and bleeding pattern, with HJHS when appropriate; use imaging if indicated, without using negative ultrasound alone to exclude suspected bleeding.`,
+    plan: `1. Aerobic Activity: Confirm no suspected bleeding and HTC hemostatic coverage; choose low-impact walking, stationary cycling, or swimming and gradually increase duration as tolerated.
+2. Strengthening: Use light resistance bands for affected limb muscles; progress resistance gradually without provoking joint pain/swelling.
+3. ROM: Practice gentle active joint flexion/extension and comfortable muscle stretching; avoid forcing a fixed contracture.
+4. Balance / Function: Practice supported standing balance, weight shifts, and gait; adapt footwear, orthoses, or walking aids to joint function.
+5. Home / Review: Individualize exercise duration, repetitions, and frequency; for new pain, warmth, swelling, or loss of function, stop loading and contact HTC urgently. Follow-up: ____.`,
     safetyZh:
       '穩定期也可能發生新的出血，不能將突然腫熱、劇痛或功能下降一律視為慢性退化。運動強度需配合個別止血保護，不強行拉開固定攣縮；HJHS 為可選的標準化評估，不預填正常值。針刺、注射與抽吸等處置須先有專科評估及止血計畫。',
-    sources: [wfhMsk, wfhOutcomes, wfhComprehensive, masacEvaluation, masacEmergency, masacUltrasound],
+    sources: [wfhMsk, wfhOutcomes, wfhComprehensive, wfhExercise, masacEvaluation, masacJoint, masacEmergency, masacUltrasound],
     reviewedAt: REVIEWED_AT,
   },
 ]

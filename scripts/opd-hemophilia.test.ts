@@ -16,6 +16,13 @@ test('hemophilia templates provide distinct, independently copyable English O an
     assert.ok(title.trim(), id)
     assert.ok(hint.trim(), id)
     assert.match(safetyZh, /\p{Script=Han}/u, `${id}: the workspace safety reminder stays Chinese`)
+    const planLines = plan.trim().split('\n')
+    assert.ok(planLines.length >= 4 && planLines.length <= 5, `${id}: Plan stays within four to five actionable items`)
+    for (const [index, line] of planLines.entries()) {
+      assert.ok(line.startsWith(`${index + 1}. `), `${id}: each Plan item is visibly numbered`)
+      assert.match(line, /^\d+\. [A-Za-z /]+: .+/, `${id}: each item has a clear activity label`)
+      assert.ok(line.split(/\s+/).length <= 40, `${id}: each item stays concise instead of becoming a paragraph`)
+    }
     for (const [section, text] of [['O', objective], ['P', plan]]) {
       assert.ok(text.trim(), `${id}: ${section} is not empty`)
       assert.match(text, /_{4}/, `${id}: ${section} has fields for individual findings or orders`)
@@ -31,15 +38,14 @@ test('hemophilia templates provide distinct, independently copyable English O an
   }
 })
 
-test('each copied hemophilia Plan retains bleeding and procedure precautions', () => {
-  for (const { id, plan } of hemophiliaTemplates) {
+test('each copied hemophilia Plan retains bleeding stop rules, with procedure cautions in the workspace', () => {
+  for (const { id, plan, safetyZh } of hemophiliaTemplates) {
     assert.match(plan, /hematolog|hemophilia treatment cent(?:er|re)|\bHTC\b/i, `${id}: coordination with the treating team survives copying`)
     assert.match(plan, /stop|suspend|withhold/i, `${id}: the plan includes a reason to stop treatment`)
     assert.match(plan, /bleed/i, `${id}: reassessment for bleeding survives copying`)
     assert.match(plan, /emergency|urgent/i, `${id}: escalation advice survives copying`)
-    assert.match(plan, /invasive|injection|needling|aspiration/i, `${id}: procedural precautions survive copying`)
+    assert.match(safetyZh, /侵入性|針刺|注射|抽吸/, `${id}: procedural precautions remain visible in the workspace`)
     assert.match(plan, /hemosta|haemosta/i, `${id}: bleeding protection survives copying`)
-    assert.match(plan, /negative ultrasound alone[^.]*exclude[^.]*bleed/i, `${id}: a negative scan cannot independently clear suspected bleeding`)
   }
 })
 
@@ -54,16 +60,24 @@ test('acute, recovery, and stable plans retain different clinical entry and prog
   assert.match(acute.objective, /no forced ROM or resisted testing/i)
   assert.match(acute.plan, /without waiting for[^.]*imaging/i, 'suspected bleeding treatment cannot wait for imaging')
   assert.match(acute.plan, /suspend rehabilitation|suspend loading/i)
-  assert.match(acute.plan, /emicizumab[^.]*does not treat[^.]*acute bleed/i)
+  assert.match(acute.safetyZh, /emicizumab.*不能取代急性止血/)
   assert.match(acute.plan, /iliopsoas[^.]*avoid walking/i)
+  assert.match(acute.safetyZh, /陰性超音波不能單獨排除出血/)
+  assert.match(acute.plan, /lower-limb muscle bleed \(not iliopsoas\)[^.]*pain-free opposite-limb ROM without moving\/loading the bleeding region/i)
+  assert.match(acute.plan, /only after bleeding control[^.]*HTC clearance[^.]*AROM\/AAROM/i)
 
   assert.match(recovery.plan, /confirm bleeding control/i)
   assert.match(recovery.plan, /hemostatic coverage/i)
-  assert.match(recovery.plan, /when cleared and acute pain has subsided/i)
+  assert.match(recovery.plan, /once acute pain subsides[^.]*pain-free AROM\/AAROM/i)
   assert.match(recovery.plan, /pre-bleed function/i, 'recovery goals use the individual baseline')
+  assert.match(recovery.plan, /isometric contractions/i)
+  assert.match(recovery.plan, /resistance-band exercises/i)
+  assert.match(recovery.plan, /supported standing balance/i)
 
   assert.match(stable.plan, /new pain, warmth, swelling[^.]*stop loading/i)
   assert.match(stable.plan, /low-impact/i)
+  assert.match(stable.plan, /walking, stationary cycling, or swimming/i)
+  assert.match(stable.plan, /light resistance bands/i)
   assert.match(stable.plan, /avoid forcing a fixed contracture/i)
 })
 
