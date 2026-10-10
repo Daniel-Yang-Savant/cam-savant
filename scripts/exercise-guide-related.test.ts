@@ -47,6 +47,21 @@ test('related guide ordering stays stable when relevance is tied', () => {
   )
 })
 
+test('general relaxation and clinical low-back strengthening remain separate in related guides', () => {
+  const mobility = EXERCISE_GUIDE_MODULES.find((guide) => guide.id === 'low-back-mobility')
+  const strengthening = EXERCISE_GUIDE_MODULES.find((guide) => guide.id === 'low-back-strength')
+  assert.ok(mobility)
+  assert.ok(strengthening)
+  assert.equal(mobility.kind, 'relaxation')
+  assert.equal(strengthening.kind, 'condition')
+  const relaxationRelated = getRelatedExerciseGuides(mobility, EXERCISE_GUIDE_MODULES, 8)
+  assert.equal(relaxationRelated.length, 7)
+  assert.ok(relaxationRelated.every((guide) => guide.kind === 'relaxation' && guide.id !== strengthening.id))
+  const clinicalRelated = getRelatedExerciseGuides(strengthening, EXERCISE_GUIDE_MODULES, 8)
+  assert.equal(clinicalRelated.length, 8)
+  assert.ok(clinicalRelated.every((guide) => guide.kind === 'condition' && guide.id !== mobility.id))
+})
+
 test('new colon cancer guide links first to other cancer exercise research', () => {
   const guide = EXERCISE_GUIDE_MODULES.find((item) => item.id === 'colon-cancer-challenge-exercise-rct')
   assert.ok(guide)

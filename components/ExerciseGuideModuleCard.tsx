@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { useAdminSession } from '@/components/AdminSessionProvider'
+import RelaxationGuideContent from '@/components/RelaxationGuideContent'
 import {
   getExerciseGuideFollowUp,
   getExerciseGuideDates,
@@ -78,7 +79,13 @@ function getResearchTermNotes(guide: ExerciseGuideModule): string[] {
   return notes
 }
 
-export default function ExerciseGuideModuleCard({ guide, asPage = false }: ExerciseGuideModuleCardProps) {
+export default function ExerciseGuideModuleCard(props: ExerciseGuideModuleCardProps) {
+  return props.guide.kind === 'relaxation'
+    ? <RelaxationGuideContent {...props} />
+    : <ConditionGuideContent {...props} />
+}
+
+function ConditionGuideContent({ guide, asPage = false }: ExerciseGuideModuleCardProps) {
   const theme = THEME_STYLES[guide.theme]
   const Heading = asPage ? 'h1' : 'h2'
   const hasMultipleSteps = guide.images.length > 1

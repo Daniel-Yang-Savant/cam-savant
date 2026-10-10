@@ -31,7 +31,7 @@ function pendingEducationGuide(): ExerciseGuideModule {
     evidenceKind: 'education',
     reviewStatus: 'pending',
     publishedDate: '2026-09-24',
-    modifiedDate: '2026-09-29',
+    modifiedDate: '2026-10-12',
     title: '待審運動衛教',
     summary: '測試一般運動方向',
     evidence: '一般衛教來源',
@@ -50,11 +50,13 @@ test('pending exercise education keeps its own dates without inheriting a physic
   assert.equal('reviewedBy' in webPage, false)
   assert.equal('author' in webPage, false)
   assert.equal(isExerciseGuideIndexable(guide), false)
-  assert.deepEqual(getExerciseGuideDates(EXERCISE_GUIDE_MODULES[0]), {
+  const legacyGuide = EXERCISE_GUIDE_MODULES.find((item) => item.id === 'deep-cervical-flexor-rct')
+  assert.ok(legacyGuide)
+  assert.deepEqual(getExerciseGuideDates(legacyGuide), {
     publishedDate: EXERCISE_GUIDE_REVIEW.publishedDate,
     modifiedDate: EXERCISE_GUIDE_REVIEW.modifiedDate,
   })
-  assert.equal(getExerciseGuideCollectionModifiedDate([EXERCISE_GUIDE_MODULES[0], guide]), guide.modifiedDate)
+  assert.equal(getExerciseGuideCollectionModifiedDate([legacyGuide, guide]), guide.modifiedDate)
 })
 
 test('pending exercise education is noindex and absent from the sitemap', async () => {
@@ -65,7 +67,8 @@ test('pending exercise education is noindex and absent from the sitemap', async 
     assert.deepEqual(metadata.robots, { index: false, follow: true })
     const entries = sitemap()
     assert.equal(entries.some((entry) => entry.url.endsWith(`/exercise-guides/${guide.id}`)), false)
-    const existingGuide = EXERCISE_GUIDE_MODULES[0]
+    const existingGuide = EXERCISE_GUIDE_MODULES.find((item) => item.id === 'deep-cervical-flexor-rct')
+    assert.ok(existingGuide)
     const existingEntry = entries.find((entry) => entry.url.endsWith(`/exercise-guides/${existingGuide.id}`))
     assert.equal((existingEntry?.lastModified as Date).toISOString().slice(0, 10), EXERCISE_GUIDE_REVIEW.modifiedDate)
     const collectionEntry = entries.find((entry) => entry.url === 'https://camsavant.com/exercise-guides')
@@ -99,6 +102,27 @@ test('education cards show pending review and instructions without labeling them
   assert.match(directory, /待醫療審閱/)
   assert.match(directory, /查看圖解、起步方式與提醒/)
   assert.doesNotMatch(directory, /研究主題|研究劑量|隨機對照試驗/)
+})
+
+test('relaxation directory keeps breathing outside the seven body-region cards and uses dedicated covers', () => {
+  const html = renderToStaticMarkup(createElement(ExerciseGuidesPage))
+  const panel = html.split('id="exercise-directory-panel-relaxation"')[1]?.split('id="exercise-directory-panel-condition"')[0]
+  assert.ok(panel)
+  assert.equal([...panel.matchAll(/<p\b[^>]*>部位<\/p>/g)].length, 7)
+  const breathingLink = panel.indexOf('href="/exercise-guides/three-minute-downshift"')
+  assert.ok(breathingLink > -1)
+  for (const guide of EXERCISE_GUIDE_MODULES.filter((item) => item.kind === 'relaxation')) {
+    const link = panel.indexOf(`href="/exercise-guides/${guide.id}"`)
+    assert.ok(link > -1, guide.id)
+    assert.ok(guide.cover, guide.id)
+    assert.ok(panel.includes(guide.cover.src) || panel.includes(encodeURIComponent(guide.cover.src)), `${guide.id} cover`)
+    if (guide.relaxationArea === 'region') {
+      assert.ok(link < breathingLink, `${guide.id} before separate breathing option`)
+      assert.match(panel, new RegExp(`<h3\\b[^>]*>${guide.selectionLabel}<\\/h3>`), guide.id)
+    } else {
+      assert.doesNotMatch(panel, new RegExp(`<h3\\b[^>]*>${guide.selectionLabel}<\\/h3>`), guide.id)
+    }
+  }
 })
 
 test('approved exercise education is indexable without implying a named physician review', async () => {
@@ -140,7 +164,6 @@ test('approved exercise education is indexable without implying a named physicia
     const collectionSchema = JSON.parse(collectionJson)
     assert.equal('lastReviewed' in collectionSchema, false)
     assert.equal('reviewedBy' in collectionSchema, false)
-    assert.match(collectionHtml, /內容確認與醫療審閱資訊請以各運動頁面標示為準/)
   } finally {
     EXERCISE_GUIDE_MODULES.pop()
   }
@@ -170,7 +193,7 @@ test('article schema keeps medical semantics and Google Article fields', () => {
 test('every exercise guide has a reassessment rule and stable URL', () => {
   assert.equal(
     EXERCISE_GUIDE_MODULES.filter((guide) => guide.kind === 'relaxation').length,
-    5
+    8
   )
   assert.equal(
     EXERCISE_GUIDE_MODULES.filter((guide) => guide.kind === 'condition' && guide.evidenceKind !== 'education').length,
@@ -187,22 +210,12 @@ test('every exercise guide has a reassessment rule and stable URL', () => {
     }
   }
 
-  const handGuide = EXERCISE_GUIDE_MODULES.find((guide) => guide.id === 'hand-forearm-reset')
-  assert.ok(handGuide)
-  assert.equal(handGuide.followUpLabel, '何時需要重新分類評估')
-  assert.match(getExerciseGuideFollowUp(handGuide), /重新確認是否屬於/)
-  assert.doesNotMatch(getExerciseGuideFollowUp(handGuide), /2–4 週/)
-
-  const lowerLimbGuide = EXERCISE_GUIDE_MODULES.find((guide) => guide.id === 'lower-limb-reset')
-  assert.ok(lowerLimbGuide)
-  assert.equal(lowerLimbGuide.followUpLabel, '什麼情況要停止並評估')
-  assert.match(getExerciseGuideFollowUp(lowerLimbGuide), /不需設定「連續做幾週」/)
-  assert.doesNotMatch(getExerciseGuideFollowUp(lowerLimbGuide), /2–4 週/)
-
-  const relaxationGuide = EXERCISE_GUIDE_MODULES.find((guide) => guide.id === 'three-minute-downshift')
-  assert.ok(relaxationGuide)
-  assert.match(relaxationGuide.evidence, /30 名長期焦慮成人/)
-  assert.doesNotMatch(JSON.stringify(relaxationGuide), /17\s*%|17％/)
+  const strengtheningGuide = EXERCISE_GUIDE_MODULES.find((guide) => guide.id === 'low-back-strength')
+  assert.ok(strengtheningGuide)
+  assert.equal(strengtheningGuide.kind, 'condition')
+  assert.equal(strengtheningGuide.evidenceKind, 'education')
+  assert.equal(getExerciseGuideSupervision(strengtheningGuide), 'professional-guidance')
+  assert.equal(getExerciseGuideDates(strengtheningGuide).publishedDate, '2026-08-31')
 })
 
 test('doctor clinic CTA uses the canonical locations path and photo dimensions', () => {
@@ -214,7 +227,7 @@ test('doctor clinic CTA uses the canonical locations path and photo dimensions',
 
 test('exercise guide schema links MedicalWebPage, reviewer, and ExercisePlan parts', () => {
   const guide = EXERCISE_GUIDE_MODULES.find(
-    (item) => item.id === 'neck-shoulder-reset'
+    (item) => item.id === 'deep-cervical-flexor-rct'
   )
   assert.ok(guide)
 
@@ -239,10 +252,10 @@ test('exercise guide schema links MedicalWebPage, reviewer, and ExercisePlan par
   assert.ok(webPage.reviewedBy.affiliation.some((clinic) => clinic.name === '彰化基督教醫院'))
   assert.equal(webPage.mainEntity['@id'], exercisePlan['@id'])
   assert.equal(exercisePlan['@type'], 'ExercisePlan')
-  assert.equal(exercisePlan.activityDuration, 'PT60S')
+  assert.equal(exercisePlan.activityDuration, undefined)
   assert.equal(exercisePlan.activityFrequency, guide.dosage)
   assert.equal(exercisePlan.hasPart.length, guide.images.length)
-  assert.equal(exercisePlan.hasPart[0].url, 'https://camsavant.com/exercise-guides/neck-shoulder-reset#step-1')
+  assert.equal(exercisePlan.hasPart[0].url, 'https://camsavant.com/exercise-guides/deep-cervical-flexor-rct#step-1')
 })
 
 test('condition guide schema never infers a programme duration from prose', () => {
@@ -290,9 +303,6 @@ test('verified exercise-guide corrections remain attached to their sources', () 
 
   const plantar = byId('plantar-fascia-high-load-rct')
   assert.match(plantar.eyebrow, /^2015 /)
-
-  const neckSupport = byId('neck-shoulder-reset')
-  assert.match(neckSupport.images[0].alt, /雙手輕放於穩定桌面/)
 
   const deepNeck = byId('deep-cervical-flexor-rct')
   assert.match(deepNeck.sources[0].label, /^Suvarnnato/)

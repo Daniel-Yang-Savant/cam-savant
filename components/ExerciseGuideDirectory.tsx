@@ -17,6 +17,7 @@ export interface ExerciseGuideDirectoryItem {
   kind: ExerciseGuideKind
   evidenceKind?: ExerciseGuideEvidenceKind
   reviewStatus?: 'pending' | 'approved'
+  relaxationArea?: 'region' | 'whole-body'
   selectionLabel: string
   title: string
   summary: string
@@ -249,9 +250,9 @@ const DIRECTORY_COPY: Record<
 > = {
   relaxation: {
     tab: '放鬆運動',
-    kicker: '一般健康教育',
+    kicker: '日常舒展',
     heading: '選擇想放鬆的部位',
-    description: '適合工作後的一般疲勞或緊繃感；先選部位，再查看該組的連續動作。',
+    description: '先選一個部位，跟著圖解輕輕活動。在家或健身房，都能從舒服的幅度開始。',
   },
   condition: {
     tab: '依症狀或診斷查找',
@@ -338,6 +339,8 @@ export default function ExerciseGuideDirectory({ items }: ExerciseGuideDirectory
     () => items.filter((item) => item.kind === 'relaxation'),
     [items]
   )
+  const regionRelaxationItems = relaxationItems.filter((item) => item.relaxationArea !== 'whole-body')
+  const wholeBodyRelaxationItems = relaxationItems.filter((item) => item.relaxationArea === 'whole-body')
   const conditionItems = useMemo(
     () => items.filter((item) => item.kind === 'condition'),
     [items]
@@ -531,7 +534,7 @@ export default function ExerciseGuideDirectory({ items }: ExerciseGuideDirectory
           </p>
 
           <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {relaxationItems.map((item, index) => (
+            {regionRelaxationItems.map((item, index) => (
               <Link
                 key={item.id}
                 href={`/exercise-guides/${item.id}`}
@@ -545,7 +548,7 @@ export default function ExerciseGuideDirectory({ items }: ExerciseGuideDirectory
                     priority={index === 0}
                     loading={index === 0 ? 'eager' : undefined}
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.025]"
+                    className="object-contain"
                   />
                 </div>
                 <div className="p-5">
@@ -553,19 +556,38 @@ export default function ExerciseGuideDirectory({ items }: ExerciseGuideDirectory
                   <h3 className="mt-1 text-xl font-bold text-neutral-950 dark:text-neutral-100">
                     {item.selectionLabel}
                   </h3>
-                  <p className="mt-2 text-sm font-medium leading-6 text-neutral-700 dark:text-neutral-300">
-                    {item.title}
-                  </p>
                   <p className="mt-2 line-clamp-2 text-sm leading-6 text-neutral-500 dark:text-neutral-400">
                     {item.summary}
                   </p>
                   <span className="mt-5 inline-flex text-sm font-bold text-neutral-950 transition-transform group-hover:translate-x-1 dark:text-neutral-100">
-                    查看圖解與劑量 →
+                    開始舒展 →
                   </span>
                 </div>
               </Link>
             ))}
           </div>
+
+          {wholeBodyRelaxationItems.length > 0 && (
+            <div className="mt-8 border-t border-neutral-200 pt-7 dark:border-neutral-800">
+              <h3 className="text-base font-bold text-neutral-950 dark:text-neutral-100">也可以，先讓自己慢下來</h3>
+              {wholeBodyRelaxationItems.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/exercise-guides/${item.id}`}
+                  className="group mt-4 flex max-w-2xl items-center gap-4 overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-50 pr-5 transition-colors hover:border-teal-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:border-neutral-800 dark:bg-neutral-900 sm:gap-6"
+                >
+                  <div className="relative aspect-[4/3] w-28 shrink-0 self-stretch bg-neutral-100 dark:bg-neutral-800 sm:w-44">
+                    <Image src={item.image.src} alt={item.image.alt} fill sizes="(max-width: 640px) 112px, 176px" className="object-contain" />
+                  </div>
+                  <div className="py-5">
+                    <p className="text-lg font-bold text-neutral-950 dark:text-neutral-100">{item.selectionLabel}</p>
+                    <p className="mt-1 text-sm leading-6 text-neutral-500 dark:text-neutral-400">{item.summary}</p>
+                    <span className="mt-2 inline-block text-sm font-bold text-teal-700 dark:text-teal-300">查看圖解 →</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
 
         <div

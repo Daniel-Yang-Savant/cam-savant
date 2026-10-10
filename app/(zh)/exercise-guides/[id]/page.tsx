@@ -88,17 +88,21 @@ export default async function ExerciseGuideDetailPage({ params }: Props) {
               { label: guide.selectionLabel },
             ]}
           />
-          <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-neutral-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-neutral-300">
-            <strong className="text-neutral-950 dark:text-neutral-100">一般民眾衛教：</strong>
-            本頁協助理解安全自我照護與運動方向，不取代個別診斷、現場動作評估或治療處方；請先閱讀每頁的紅黃綠燈與不適用情況。
-          </div>
+          {guide.kind === 'condition' ? (
+            <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-neutral-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-neutral-300">
+              <strong className="text-neutral-950 dark:text-neutral-100">一般民眾衛教：</strong>
+              本頁協助理解安全自我照護與運動方向，不取代個別診斷、現場動作評估或治療處方；請先閱讀每頁的紅黃綠燈與不適用情況。
+            </div>
+          ) : (
+            <p className="mt-4 text-xs leading-5 text-neutral-500 dark:text-neutral-400">一般日常舒展；近期受傷或手術後，請先與醫療人員確認。</p>
+          )}
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <span className="rounded-full bg-teal-100 px-3 py-1.5 text-xs font-bold text-teal-800 dark:bg-teal-950 dark:text-teal-200">
               {category}
             </span>
             <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
               {guide.kind === 'relaxation'
-                ? `部位：${guide.selectionLabel}`
+                ? guide.relaxationArea === 'whole-body' ? guide.selectionLabel : `部位：${guide.selectionLabel}`
                 : `適合情況：${guide.selectionLabel}`}
             </span>
           </div>

@@ -14,7 +14,7 @@ import { getAuthor } from '@/lib/authors'
 import { generateBreadcrumbSchema, generateCollectionPageSchema, generatePhysicianSchema } from '@/lib/schema'
 
 const BASE_URL = 'https://camsavant.com'
-const DESCRIPTION = '先選擇想放鬆的身體部位，或依症狀與已確認的診斷查找指引與研究中的運動方案，再查看連續圖解、起步方式、簡化方式與停止警訊。'
+const DESCRIPTION = '依部位選擇日常放鬆運動，跟著居家與健身房情境的圖解輕輕活動；也可依症狀或已確認的診斷查找指引與研究中的運動方向。'
 
 export const metadata: Metadata = {
   title: '圖解運動專區｜安全自我照護與漸進運動',
@@ -85,68 +85,30 @@ export default function ExerciseGuidesPage() {
       <ExerciseGuideAnalytics />
 
       <header className="border-b border-neutral-200 bg-gradient-to-b from-teal-50 to-white dark:border-neutral-800 dark:from-teal-950/30 dark:to-neutral-950">
-        <div className="max-w-7xl mx-auto px-4 py-14 sm:px-6 md:py-20 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 py-10 sm:px-6 md:py-14 lg:px-8">
           <Breadcrumbs
             items={[{ label: '首頁', href: '/' }, { label: '圖解運動專區' }]}
-            className="mb-8"
+            className="mb-7"
           />
-
-          <div className="max-w-4xl">
-            <p className="text-xs font-bold tracking-[0.18em] uppercase text-teal-700 dark:text-teal-300">
-              CAM Savant Visual Exercise Guides
-            </p>
-            <h1 className="mt-4 text-4xl font-bold leading-tight text-neutral-950 dark:text-neutral-100 md:text-6xl">
-              圖解運動專區
-            </h1>
-            <p className="mt-5 text-base leading-7 text-neutral-600 dark:text-neutral-300">
-              共 {EXERCISE_GUIDE_MODULES.length} 篇圖解與研究方案
-              {pendingCount > 0 && <>，含 {pendingCount} 篇待醫療審閱內容</>}。
-              從放鬆、肌骨復健到神經、心肺與高齡運動，依自己的需求查找。
-            </p>
-            <details className="mt-5 rounded-2xl border border-teal-200 bg-white/80 p-4 text-sm leading-6 dark:border-teal-900 dark:bg-neutral-900">
-              <summary className="cursor-pointer font-bold text-teal-800 dark:text-teal-200">研究怎麼選？</summary>
-              <p className="mt-3 text-neutral-600 dark:text-neutral-300">
-                本次新增研究優先考慮大型或多中心隨機試驗、實際功能與生活品質結果，以及能核對的介入方案。
-                同時收錄無額外效益或出現安全疑慮的結果；各頁說明研究對象、比較方式與限制。
-                隨機試驗不等於每項結論都有高度確定性，研究劑量也不等於個人處方。
-              </p>
+          <div className="max-w-3xl">
+            <p className="text-xs font-bold tracking-[0.18em] uppercase text-teal-700 dark:text-teal-300">CAM Savant Visual Exercise Guides</p>
+            <h1 className="mt-4 text-4xl font-bold leading-tight text-neutral-950 dark:text-neutral-100 md:text-5xl">圖解運動專區</h1>
+            <p className="mt-5 text-base leading-7 text-neutral-600 dark:text-neutral-300 md:text-lg">從想放鬆的部位開始，讓日常多一點活動。<br className="hidden sm:block" />也能依症狀或已確認的診斷，了解相關的運動方向。</p>
+            <details className="group mt-5 text-sm leading-6 text-neutral-500 dark:text-neutral-400">
+              <summary className="inline-flex min-h-11 cursor-pointer items-center gap-2 font-medium text-neutral-600 dark:text-neutral-300">內容與使用提醒</summary>
+              <div className="mt-2 space-y-3 rounded-2xl border border-neutral-200 bg-white/80 p-5 dark:border-neutral-800 dark:bg-neutral-900">
+                <p>內容是一般健康教育，不取代個別診斷或治療。近期受傷、手術後，或有持續加重的症狀，請先接受專業評估。</p>
+                <p>放鬆運動依一般衛教來源整理；研究方案另說明研究對象與限制。研究劑量不等於個人處方，圖片為合成教學影像或原創示意。</p>
+                <p>共 {EXERCISE_GUIDE_MODULES.length} 篇圖解與研究方案{pendingCount > 0 && <>，含 {pendingCount} 篇待醫療審閱內容</>}，各頁標示內容確認狀態。</p>
+                <p className="text-xs">內容更新：<time dateTime={modifiedDate}>{modifiedDate}</time></p>
+                {!hasIndividualReviewStatus && <ArticleReview metadata={{ reviewedBy: EXERCISE_GUIDE_REVIEW.reviewerKey, lastReviewed: EXERCISE_GUIDE_REVIEW.date }} />}
+                <div className="flex flex-wrap gap-x-5 gap-y-2">
+                  <Link href="/locations" className="font-semibold text-teal-700 underline underline-offset-4 dark:text-teal-300">查看看診資訊</Link>
+                  <Link href="/about" className="font-semibold text-teal-700 underline underline-offset-4 dark:text-teal-300">查看醫師團隊</Link>
+                </div>
+              </div>
             </details>
           </div>
-
-          <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-neutral-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-neutral-300">
-            <strong className="text-neutral-950 dark:text-neutral-100">先確認安全：</strong>
-            這些內容是一般健康教育，不取代個別診斷或治療。近期外傷、症狀快速惡化，或出現麻木、無力、明顯腫脹、胸痛、呼吸困難時，請先停止並依警示程度就醫。
-          </div>
-
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Link
-              href="/locations"
-              className="inline-flex min-h-11 items-center rounded-full bg-neutral-950 px-5 text-sm font-bold text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
-            >
-              查看看診資訊
-            </Link>
-            <Link
-              href="/about"
-              className="inline-flex min-h-11 items-center rounded-full border border-neutral-300 bg-white px-5 text-sm font-bold text-neutral-800 transition-colors hover:border-neutral-500 hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:border-neutral-500 dark:hover:bg-neutral-800"
-            >
-              查看醫師團隊
-            </Link>
-          </div>
-
-          <p className="mt-5 text-xs leading-5 text-neutral-500 dark:text-neutral-400">
-            圖片為合成教學影像或原創方案示意；實際動作請依個別能力與當下反應調整。
-          </p>
-          <p className="mt-2 text-xs leading-5 text-neutral-500 dark:text-neutral-400">
-            發布日期：<time dateTime={EXERCISE_GUIDE_REVIEW.publishedDate}>{EXERCISE_GUIDE_REVIEW.publishedDate}</time>
-            {' · '}內容更新：<time dateTime={modifiedDate}>{modifiedDate}</time>
-          </p>
-          {hasIndividualReviewStatus ? (
-            <p className="mt-2 text-xs leading-5 text-neutral-500 dark:text-neutral-400">
-              內容確認與醫療審閱資訊請以各運動頁面標示為準。
-            </p>
-          ) : (
-            <ArticleReview metadata={{ reviewedBy: EXERCISE_GUIDE_REVIEW.reviewerKey, lastReviewed: EXERCISE_GUIDE_REVIEW.date }} />
-          )}
         </div>
       </header>
 
@@ -157,6 +119,7 @@ export default function ExerciseGuidesPage() {
             kind: guide.kind,
             evidenceKind: guide.evidenceKind,
             reviewStatus: guide.reviewStatus,
+            relaxationArea: guide.relaxationArea,
             selectionLabel: guide.selectionLabel,
             title: guide.title,
             summary: guide.summary,
@@ -164,8 +127,8 @@ export default function ExerciseGuidesPage() {
             searchAliases: guide.searchAliases,
             supervision: getExerciseGuideSupervision(guide),
             image: {
-              src: guide.images[0].src,
-              alt: guide.images[0].alt,
+              src: guide.cover?.src ?? guide.images[0].src,
+              alt: guide.cover?.alt ?? guide.images[0].alt,
             },
           }))}
         />

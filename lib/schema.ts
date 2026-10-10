@@ -204,7 +204,7 @@ export function generateExerciseGuideSchema(guide: ExerciseGuideModule) {
           '@type': 'MedicalAudience',
           audienceType: 'Patient',
         },
-        primaryImageOfPage: `${BASE_URL}${guide.images[0].src}`,
+        primaryImageOfPage: `${BASE_URL}${guide.cover?.src ?? guide.images[0].src}`,
         citation: guide.sources.map((source) => source.href),
         mainEntity: { '@id': `${pageUrl}#exercise-plan` },
       },

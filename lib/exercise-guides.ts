@@ -5,6 +5,7 @@ import { EXERCISE_GUIDE_REVIEW } from './exercise-guide-review'
 import { CURATED_MSK_GUIDES } from './exercise-guides-curated-msk'
 import { CURATED_NEURO_GUIDES } from './exercise-guides-curated-neuro'
 import { CURATED_CARDIO_GUIDES } from './exercise-guides-curated-cardio'
+import { RELAXATION_GUIDES } from './exercise-guides-relaxation'
 
 export type ExerciseGuideTheme = 'orange' | 'teal' | 'violet' | 'blue' | 'green'
 export type ExerciseGuideKind = 'relaxation' | 'condition'
@@ -28,6 +29,7 @@ export interface ExerciseGuideImage {
   caption: string
   width?: number
   height?: number
+  paired?: boolean
 }
 
 export interface ExerciseGuideSource {
@@ -51,6 +53,8 @@ export interface ExerciseGuideModule {
   eyebrow: string
   title: string
   summary: string
+  cover?: { src: string; alt: string }
+  relaxationArea?: 'region' | 'whole-body'
   images: ExerciseGuideImage[]
   steps?: { title: string; instruction: string; dosage: string }[]
   suitableFor: string
@@ -72,174 +76,13 @@ export interface ExerciseGuideModule {
 const IMAGE_ROOT = '/images/exercise-guides'
 
 export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
-  {
-    id: 'neck-shoulder-reset',
-    kind: 'relaxation',
-    selectionLabel: '頸肩',
-    theme: 'orange',
-    eyebrow: '工作中的短舒緩',
-    title: '頸肩 60 秒：先卸載，再小幅活動',
-    summary: '先讓手臂與肩膀有支撐，再用舒服的小幅動作改變固定姿勢。目標不是把頸部拉到最緊。',
-    images: [
-      {
-        src: `${IMAGE_ROOT}/neck-1-support.webp`,
-        alt: '站姿雙手輕放於穩定桌面，閉眼放鬆肩膀',
-        step: '15 秒',
-        caption: '雙手輕放桌面，肩膀放下',
-      },
-      {
-        src: `${IMAGE_ROOT}/neck-2-nod.webp`,
-        alt: '站姿做小幅點頭動作',
-        step: '15 秒',
-        caption: '小幅點頭，不硬縮下巴',
-      },
-      {
-        src: `${IMAGE_ROOT}/neck-3-scapula.webp`,
-        alt: '站姿輕收肩胛且不聳肩',
-        step: '15 秒',
-        caption: '肩胛輕收，不聳肩',
-      },
-      {
-        src: `${IMAGE_ROOT}/neck-4-turn.webp`,
-        alt: '站姿將頭轉向舒服的角度',
-        step: '15 秒',
-        caption: '左右轉到舒服範圍',
-      },
-    ],
-    suitableFor: '久坐、久站、精細工作或使用螢幕後，出現一般頸肩緊繃或疲勞感，且沒有近期外傷、暈眩或手臂神經症狀。已知頸椎不穩定、類風濕性關節炎、唐氏症、近期鞭甩傷或頸椎術後者不適用。',
-    dosage: '四個動作各 15 秒，完成一輪即可；先以站姿將雙手輕放在穩定桌面，放下肩膀，接著站姿完成後三個動作。可在工作任務切換後使用。',
-    cue: '幅度小、呼吸自然，做完應感覺比較容易活動，而不是更痛。',
-    regression: '站姿不穩時，可改成坐姿前臂支撐，只保留舒服範圍內的小幅點頭或左右轉頭。',
-    followUp: '規律做 2–4 週若活動或工作功能沒有改善，症狀反覆惡化，或需要持續增加止痛藥物，請安排評估。',
-    signals: {
-      green: '一般吃力或輕微緊繃，動作後維持穩定或較舒服。',
-      yellow: '運動中疼痛或不適增加但不超過 5/10，且 24 小時內回到原本程度：縮小幅度、減少動作並觀察；若超過門檻就停止。',
-      red: '尖銳痛、明顯暈眩、手臂麻木或無力、症狀向手臂擴散：立即停止並安排評估。',
-    },
-    evidence: '頸痛臨床指引支持依個別表現使用活動度、頸肩帶肌力與耐力訓練。本組 60 秒流程是低門檻衛教組合，不是經單獨臨床試驗驗證的治療處方；頁面的 5/10 與 24 小時規則借用肌腱復健的 pain-monitoring model，並未在這套頸肩流程中單獨驗證。',
-    audience: '適用於一般成人的非急性頸肩疲勞；有外傷、神經症狀、已知上頸椎不穩定風險、頸椎術後或持續惡化者不適用。',
-    sources: [
-      {
-        label: 'Blanpied et al. Neck Pain: Revision 2017. J Orthop Sports Phys Ther.',
-        href: 'https://pubmed.ncbi.nlm.nih.gov/28666405/',
-      },
-      {
-        label: 'Silbernagel et al. Pain-monitoring model during Achilles tendinopathy rehabilitation: RCT. Am J Sports Med. 2007.',
-        href: 'https://pubmed.ncbi.nlm.nih.gov/17307888/',
-      },
-    ],
-  },
-  {
-    id: 'hand-forearm-reset',
-    kind: 'relaxation',
-    selectionLabel: '手與前臂',
-    theme: 'teal',
-    eyebrow: '手部負荷重置',
-    title: '手與前臂 60 秒：放開、甩鬆、支撐、小幅活動',
-    summary: '這組只處理工作後的一般肌肉疲勞。若有夜間麻醒、持續麻刺或握力下降，不要靠加大伸展處理。',
-    images: [
-      {
-        src: `${IMAGE_ROOT}/forearm-1-open.webp`,
-        alt: '雙手自然打開並放鬆抓握',
-        step: '15 秒',
-        caption: '完全放開抓握',
-      },
-      {
-        src: `${IMAGE_ROOT}/forearm-2-shake.webp`,
-        alt: '雙手自然下垂並小幅甩鬆',
-        step: '15 秒',
-        caption: '小幅甩鬆，不用力',
-      },
-      {
-        src: `${IMAGE_ROOT}/forearm-3-support.webp`,
-        alt: '前臂放在柔軟穩定的支撐面',
-        step: '15 秒',
-        caption: '前臂放在軟邊支撐',
-      },
-      {
-        src: `${IMAGE_ROOT}/forearm-4-move.webp`,
-        alt: '前臂有支撐時做小幅手腕屈伸',
-        step: '15 秒',
-        caption: '手腕小幅屈伸',
-      },
-    ],
-    suitableFor: '重複抓握或精細工作後的前臂痠疲感，症狀不包含麻木、夜間痛醒、明顯腫脹或握力下降。',
-    dosage: '四個動作各 15 秒，完成一輪；過程不需要拉到極限。',
-    cue: '先放開抓握、再支撐前臂，最後才做不痛的小幅手腕活動。',
-    regression: '只做放開手指與前臂支撐；若活動會痛，可先略過手腕屈伸。',
-    followUpLabel: '何時需要重新分類評估',
-    followUp: '這組只適用於工作後的一般肌肉疲勞。若休息並停止重複抓握後仍反覆出現，或任何時點出現夜間麻醒、持續麻刺、握力下降、明顯腫脹，請不要增加伸展幅度或次數；應停止這組流程並安排評估，重新確認是否屬於神經壓迫、肌腱、關節或其他問題。',
-    signals: {
-      green: '一般疲勞感沒有增加，手指與手腕活動維持順暢。',
-      yellow: '局部不適稍升：減少幅度，停止重複抓握並觀察。',
-      red: '夜間麻醒、持續麻木、握力下降、明顯腫脹或外傷後疼痛：停止自我處理並安排評估。',
-    },
-    evidence: 'AAOS 2024 腕隧道症候群指引指出，運動與神經／肌腱滑動的研究結果不一致，且未顯示長期病人回報結果改善。因此本組是一般工作疲勞的短暫卸載，不是腕隧道症候群治療。',
-    audience: '適用於沒有神經症狀的一般成人前臂疲勞；已知腕隧道症候群或持續麻木者應依專業評估處理。',
-    sources: [
-      {
-        label: 'AAOS. Management of Carpal Tunnel Syndrome Evidence-Based Clinical Practice Guideline, 2024.',
-        href: 'https://www.aaos.org/globalassets/quality-and-practice-resources/carpal-tunnel/carpal-tunnel-2024/cts-cpg.pdf',
-      },
-    ],
-  },
-  {
-    id: 'lower-limb-reset',
-    kind: 'relaxation',
-    selectionLabel: '下肢',
-    theme: 'violet',
-    eyebrow: '久站久坐換負荷',
-    title: '下肢 80 秒：踝泵、提踵、踏步、坐站',
-    summary: '用四個簡單動作讓久站或久坐變成動態。這不是平衡測驗，站立動作都先找到穩固支撐。',
-    images: [
-      {
-        src: `${IMAGE_ROOT}/legs-1-ankle-pump.webp`,
-        alt: '坐姿進行腳踝上下活動',
-        step: '20 秒',
-        caption: '坐姿踝泵',
-      },
-      {
-        src: `${IMAGE_ROOT}/legs-2-heel-raise.webp`,
-        alt: '手扶穩定桌面進行站姿提踵',
-        step: '20 秒',
-        caption: '扶穩提踵',
-      },
-      {
-        src: `${IMAGE_ROOT}/legs-3-march.webp`,
-        alt: '手扶穩定桌面做小幅原地踏步',
-        step: '20 秒',
-        caption: '小幅原地踏步',
-      },
-      {
-        src: `${IMAGE_ROOT}/legs-4-sit-to-stand.webp`,
-        alt: '從穩定椅子平順起身',
-        step: '20 秒',
-        caption: '椅子坐站',
-      },
-    ],
-    suitableFor: '久站或久坐後的一般下肢疲勞，能安全站立且沒有單側突然腫痛、暈眩或急性受傷。',
-    dosage: '四個動作各 20 秒，完成一輪；站立動作全程可扶穩。',
-    cue: '先有支撐、再活動，不追求速度或單腳平衡。',
-    regression: '只做坐姿踝泵；坐站可提高椅面或先用雙手協助。',
-    followUpLabel: '什麼情況要停止並評估',
-    followUp: '這組只是中斷久坐或久站，不需設定「連續做幾週」的療程門檻。若每次站起或走動都反覆不穩、疼痛已影響承重、出現單側腫脹或發熱，或近期曾跌倒，請停止這組流程並安排評估；單側突然腫痛合併胸痛或明顯呼吸困難時，依紅燈警訊儘速就醫。',
-    signals: {
-      green: '一般腿部出力感，能保持呼吸與控制，結束後走路正常。',
-      yellow: '症狀略升或平衡不穩：改坐姿、扶穩並減少次數。',
-      red: '單側突然腫痛、無法承重、暈眩、胸痛或明顯呼吸困難：立即停止並依症狀就醫。',
-    },
-    evidence: 'WHO 身體活動與久坐行為指引支持成人規律活動與肌力訓練。這組 80 秒流程的定位是中斷固定負荷，不是針對特定疾病的治療處方。',
-    audience: '適用於能安全坐站的一般成人；近期跌倒、急性下肢傷害或平衡明顯不穩者需先評估。',
-    sources: [
-      {
-        label: 'World Health Organization. Guidelines on physical activity and sedentary behaviour, 2020.',
-        href: 'https://www.who.int/publications/i/item/9789240015128',
-      },
-    ],
-  },
+  ...RELAXATION_GUIDES,
   {
     id: 'low-back-strength',
-    kind: 'relaxation',
+    kind: 'condition',
+    evidenceKind: 'education',
+    bodyRegion: '脊椎與軀幹',
+    supervision: 'professional-guidance',
     selectionLabel: '下背與核心',
     theme: 'blue',
     eyebrow: '漸進軀幹訓練',
@@ -292,75 +135,6 @@ export const EXERCISE_GUIDE_MODULES: ExerciseGuideModule[] = [
       {
         label: 'Silbernagel et al. Pain-monitoring model during Achilles tendinopathy rehabilitation: RCT. Am J Sports Med. 2007.',
         href: 'https://pubmed.ncbi.nlm.nih.gov/17307888/',
-      },
-    ],
-  },
-  {
-    id: 'three-minute-downshift',
-    kind: 'relaxation',
-    selectionLabel: '全身與呼吸',
-    theme: 'green',
-    eyebrow: '壓力與疲勞降速',
-    title: '3 分鐘降速：慢吐氣＋漸進式放鬆',
-    summary: '用輕微收縮與較慢吐氣降低當下的生理喚起。這是短暫調節工具，不等於治療倦怠或焦慮症。',
-    images: [
-      {
-        src: `${IMAGE_ROOT}/relax-1-settle.webp`,
-        alt: '坐姿穩定並放鬆下顎',
-        step: '30 秒',
-        caption: '穩定姿勢，鬆下顎',
-        height: 720,
-      },
-      {
-        src: `${IMAGE_ROOT}/relax-2-hands.webp`,
-        alt: '坐姿輕握手後完全放鬆',
-        step: '60 秒',
-        caption: '手輕握 3 秒、放鬆 6 秒',
-        height: 720,
-      },
-      {
-        src: `${IMAGE_ROOT}/relax-3-shoulders.webp`,
-        alt: '坐姿輕聳肩後完全放鬆',
-        step: '60 秒',
-        caption: '肩輕聳 3 秒、放鬆 6 秒',
-        height: 720,
-      },
-      {
-        src: `${IMAGE_ROOT}/relax-4-breathe.webp`,
-        alt: '坐姿自然吸氣並放慢吐氣',
-        step: '30 秒',
-        caption: '自然吸、較慢吐',
-        height: 720,
-      },
-    ],
-    suitableFor: '工作後仍處於緊繃、呼吸偏快或難以轉換注意力，但沒有胸痛、明顯呼吸困難或急性身心危機。請在安全、穩定的環境練習，不要在開車、操作機械或高處作業時進行；少數人放鬆或專注呼吸時反而更不安，這不代表做錯，可直接停止並回到自然呼吸。',
-    dosage: '依序完成 30、60、60、30 秒；肌肉只用輕到中等力量，不憋氣。',
-    cue: '精準秒數不是重點，慢、舒服、規律即可。',
-    regression: '完全不做收縮，只維持穩定坐姿與自然呼吸；也可以旁觀。',
-    followUp: '若緊繃、呼吸急促、失眠或不安反覆 2–4 週仍影響工作、睡眠或日常功能，請安排專業評估；急性危機不等待此期限。',
-    signals: {
-      green: '呼吸與身體逐漸放慢，過程舒服且能保持清醒。',
-      yellow: '輕微頭暈或不安增加：立即停止計時並回到自然呼吸；若停止後 10 分鐘仍未回到原本程度，當次不再嘗試。',
-      red: '胸痛、明顯呼吸困難、快要暈倒或危機感持續升高：立即停止並依急症或心理支持流程求助。',
-    },
-    evidence: '呼吸練習的 RCT 統合分析納入 12 項壓力研究、785 人，平均呈現小到中等效果，但整體偏誤風險為中等，方案與時間也不同；Balban 研究則是單一 RCT。Braith 1988 對放鬆時焦慮增加的觀察來自 30 名長期焦慮成人，不能換算成一般族群的發生率。研究支持慢呼吸與放鬆這個方向，但沒有直接驗證本站這套 3 分鐘組合，也不能推論為立即治療效果。',
-    audience: '適用於一般成人的短暫降速與恢復；持續失眠、耗竭、情緒或工作功能受影響者應尋求專業支持。',
-    sources: [
-      {
-        label: 'Balban et al. Brief structured respiration practices enhance mood and reduce physiological arousal. Cell Rep Med. 2023.',
-        href: 'https://pubmed.ncbi.nlm.nih.gov/36630953/',
-      },
-      {
-        label: 'Fincham et al. Effect of breathwork on stress and mental health: a meta-analysis of RCTs. Sci Rep. 2023.',
-        href: 'https://pubmed.ncbi.nlm.nih.gov/36624160/',
-      },
-      {
-        label: 'Cochrane Review. Individual-level interventions for reducing occupational stress in healthcare workers, 2023.',
-        href: 'https://pubmed.ncbi.nlm.nih.gov/37169364/',
-      },
-      {
-        label: 'Braith et al. Relaxation-induced anxiety in chronically anxious adults. J Behav Ther Exp Psychiatry. 1988.',
-        href: 'https://pubmed.ncbi.nlm.nih.gov/3069875/',
       },
     ],
   },
