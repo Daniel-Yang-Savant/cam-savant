@@ -3,9 +3,11 @@
 // The session token (from auth.js) is required.
 
 import MB_REFERENCE from '../../data/fsm/mb-reference.json';
+import STUDIO_GUIDE from '../../data/fsm/studio-guide.json';
 import { toPublicReferenceProtocols } from '../../lib/fsm/reference-library';
 
 export default async function handler(req, res) {
+  res.setHeader('Cache-Control', 'private, no-store');
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -59,6 +61,10 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: 'Email no longer authorized' });
   }
 
+  if (req.body?.resource === 'guide') {
+    return res.status(200).json({ email: verified.email, guide: STUDIO_GUIDE });
+  }
+
   // The effective reference library has exactly one layer. A validated admin
   // replacement in KV wins; otherwise the audited repository seed is used.
   let referenceProtocols = MB_REFERENCE;
@@ -95,10 +101,12 @@ async function kvGetJSON(key) {
 
 async function verifySessionToken(token) {
   try {
-    const [payloadB64, sigB64] = token.split('.');
-    if (!payloadB64 || !sigB64) return null;
+    const parts = token.split('.');
+    if (parts.length !== 2 || parts.some(part => !/^[A-Za-z0-9_-]+$/.test(part))) return null;
+    const [payloadB64, sigB64] = parts;
 
-    const secret = process.env.SESSION_SECRET || 'CHANGE_ME_IN_PRODUCTION';
+    const secret = process.env.SESSION_SECRET;
+    if (typeof secret !== 'string' || !secret.trim()) return null;
     const enc = new TextEncoder();
     const key = await crypto.subtle.importKey(
       'raw',
@@ -112,7 +120,9 @@ async function verifySessionToken(token) {
     if (!ok) return null;
 
     const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString());
-    if (payload.exp < Date.now()) return null;
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return null;
+    if (typeof payload.email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) return null;
+    if (!Number.isFinite(payload.exp) || payload.exp <= Date.now()) return null;
     return payload;
   } catch {
     return null;

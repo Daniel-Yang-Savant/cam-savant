@@ -1,0 +1,54 @@
+{
+  "zh": {
+    "title": "使用說明",
+    "intro": "開始前，先確認播放模式、設定與連接設備。",
+    "sections": [
+      {
+        "title": "開始使用",
+        "body": "選擇聆聽或外接 Pad 模式，確認設定與時間後再開始。聆聽時請從低音量調整。"
+      },
+      {
+        "title": "外接 Pad",
+        "body": "目前為 iCare Pad 設備測試版，相容性尚未驗證。連接前請先停止播放，依設備原廠說明操作；勿將手機輸出直接接到人體電極。"
+      },
+      {
+        "title": "播放與中斷",
+        "body": "使用 Pad 時請保持頁面在前景。離開頁面或音訊中斷後，確認設備狀態，再手動繼續播放。"
+      },
+      {
+        "title": "紀錄與備份",
+        "body": "使用紀錄保存在目前裝置的瀏覽器，清除瀏覽資料可能使紀錄遺失。請定期匯出加密備份並妥善保管密碼；密碼遺失後無法復原備份。"
+      },
+      {
+        "title": "使用範圍",
+        "body": "畫面上的音量不代表治療劑量。本工具不能代替醫療評估；如需治療，請與醫療專業人員討論。"
+      }
+    ]
+  },
+  "en": {
+    "title": "User guide",
+    "intro": "Before starting, check the playback mode, settings, and connected equipment.",
+    "sections": [
+      {
+        "title": "Getting started",
+        "body": "Choose listening or external Pad mode, then check the settings and duration before starting. Begin listening at a low volume."
+      },
+      {
+        "title": "External Pad",
+        "body": "The iCare Pad mode is an equipment test version; compatibility has not been verified. Stop playback before connecting and follow the manufacturer's instructions. Never connect phone output directly to electrodes on the body."
+      },
+      {
+        "title": "Playback and interruptions",
+        "body": "Keep this page in the foreground when using the Pad. After leaving the page or an audio interruption, check the equipment before manually resuming playback."
+      },
+      {
+        "title": "Records and backups",
+        "body": "Usage records stay in the browser on this device and may be lost if browsing data is cleared. Export encrypted backups regularly and keep the password safe. A backup cannot be recovered if its password is lost."
+      },
+      {
+        "title": "Scope of use",
+        "body": "The displayed volume is not a treatment dose. This tool does not replace medical assessment. Discuss treatment needs with a healthcare professional."
+      }
+    ]
+  }
+}

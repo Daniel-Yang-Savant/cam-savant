@@ -6,21 +6,22 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0d1117">
-<title>FSM Studio</title>
+<meta name="theme-color" content="#0c1518">
+<meta name="description" content="FSM Studio：雙聲道音訊、頻率設定與音樂創作工作室。手機音訊不等同微電流或 PEMF 治療輸出。">
+<title>FSM Studio · CAM Savant</title>
 <link rel="manifest" href='data:application/manifest+json,{"name":"FSM Studio","short_name":"FSM","start_url":".","display":"standalone","background_color":"%230d1117","theme_color":"%230d1117"}'>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root {
-  --bg: #0d1117; --bg-elev: #161b22; --bg-elev-2: #1c232e;
-  --border: #2d3441; --border-strong: #3d4452;
-  --text: #e6edf3; --text-dim: #a5afbb; --text-very-dim: #929eac;
-  --accent: #00d9a3; --accent-dim: #00a37c;
-  --accent-glow: rgba(0, 217, 163, 0.15);
+  --bg: #0c1518; --bg-elev: #132126; --bg-elev-2: #1a2b31; --bg-elev2: var(--bg-elev-2);
+  --border: #2b3c41; --border-strong: #43585e;
+  --text: #edf5f3; --text-dim: #b0c2c3; --text-very-dim: #97afb2;
+  --accent: #72e1cc; --accent-dim: #36bca5;
+  --accent-glow: rgba(114, 225, 204, 0.11);
   --warning: #ffa657; --danger: #f85149; --info: #58a6ff;
   --polA: #ffa657; --polB: #58a6ff;
   --shadow-sm: 0 1px 0 rgba(255,255,255,0.04) inset, 0 1px 2px rgba(0,0,0,0.4);
-  --radius: 6px; --radius-lg: 10px;
+  --radius: 10px; --radius-lg: 16px;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
 }
@@ -604,12 +605,127 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
   .protocol-card-actions { flex-wrap: wrap; }
 }
 
+/* Studio workspace: calm hierarchy, readable numbers, and touch-first controls. */
+body { background-image: radial-gradient(ellipse at 80% 0, rgba(114,225,204,.07), transparent 55%); }
+header { padding-right: max(20px, calc((100vw - 1120px) / 2)); padding-left: max(20px, calc((100vw - 1120px) / 2)); background: rgba(12,21,24,.94); }
+.brand { color: var(--text); font-family: var(--sans); font-size: 17px; letter-spacing: -.03em; white-space: nowrap; }
+.brand::before { width: 9px; height: 20px; border-radius: 5px; box-shadow: 0 0 0 5px var(--accent-glow); animation: none; }
+.lang-toggle, .admin-badge-btn, .user-chip .logout { min-height: 44px; min-width: 44px; }
+.tabs { width: 100%; padding: 0 max(12px, calc((100vw - 1120px) / 2)); background: rgba(19,33,38,.85); }
+.tab { font-family: var(--sans); min-height: 52px; font-weight: 600; border-bottom-width: 3px; }
+.tab.active { background: linear-gradient(0deg, var(--accent-glow), transparent); }
+.view { width: 100%; max-width: 1120px; margin: 0 auto; padding: 30px 20px 40px; }
+main { min-height: 0; }
+.studio-intro { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 24px; }
+.studio-kicker { color: var(--accent); font-family: var(--mono); font-size: 11px; letter-spacing: .15em; margin-bottom: 7px; }
+.studio-intro h1 { font-size: clamp(25px, 4vw, 34px); line-height: 1.3; font-weight: 650; letter-spacing: -.03em; }
+.studio-intro p { color: var(--text-dim); font-size: 14px; margin-top: 8px; }
+.studio-links { display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
+.studio-links a { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 13px; min-height: 44px; border: 1px solid var(--border); border-radius: 30px; color: var(--text-dim); font-size: 13px; text-decoration: none; }
+.studio-links a:hover { border-color: var(--accent); color: var(--accent); }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.output-scope { display: flex; gap: 12px; align-items: flex-start; padding: 15px 18px; margin-bottom: 24px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: rgba(114,225,204,.035); }
+.output-scope svg { flex-shrink: 0; color: var(--accent); margin-top: 2px; }
+.output-scope strong { font-size: 13px; color: var(--text); font-weight: 600; }
+.output-scope p { margin-top: 3px; font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+.output-device-note { display: inline-block; margin-top: 9px; padding: 3px 8px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 11px; color: var(--text-dim); }
+.output-modes { width: 100%; max-width: 1120px; margin: 0 auto; padding: 20px 20px 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.output-mode { text-align: left; padding: 13px 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg-elev); color: var(--text-dim); font-family: var(--sans); cursor: pointer; }
+.output-mode strong { display: block; font-size: 14px; font-weight: 600; color: var(--text); }
+.output-mode span { display: block; margin-top: 4px; font-size: 12px; line-height: 1.5; }
+.output-mode[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-glow); }
+.output-mode[aria-pressed="true"] strong { color: var(--accent); }
+.output-mode:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.run-output-note { margin: 0 0 12px; color: var(--accent); font-size: 12px; line-height: 1.7; }
+.manual-workspace { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, 1fr); gap: 24px; align-items: start; }
+.signal-controls, .session-panel { min-width: 0; }
+.workspace-heading { font-size: 12px; font-weight: 600; color: var(--text-dim); letter-spacing: .08em; margin-bottom: 12px; }
+.freq-display { gap: 14px; margin-bottom: 16px; grid-template-columns: repeat(2, minmax(0,1fr)); }
+.freq-card { padding: 20px; background: linear-gradient(145deg, var(--bg-elev-2), var(--bg-elev)); }
+.freq-card::before { left: 20px; right: auto; width: 28px; top: 0; }
+.freq-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; font-size: 11px; letter-spacing: .06em; }
+.channel-unit { color: var(--text-dim); font-weight: 400; }
+.freq-value { font-size: clamp(32px, 5vw, 46px); font-weight: 500; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+.freq-name { margin-top: 9px; font-size: 12px; }
+.freq-card input.freq-input { margin-top: 12px; background: rgba(12,21,24,.75); min-height: 48px; padding: 10px 12px; }
+.controls { gap: 12px; margin-bottom: 0; }
+.control-group { padding: 16px; min-width: 0; }
+.control-label { font-family: var(--sans); font-size: 13px; color: var(--text-dim); letter-spacing: 0; margin-bottom: 12px; }
+.btn-group { gap: 6px; }
+.btn-seg { min-height: 46px; font-size: 14px; font-family: var(--sans); }
+.slider-row { min-height: 36px; }
+.slider { min-width: 0; height: 8px; }
+.slider::-webkit-slider-thumb { width: 24px; height: 24px; box-shadow: 0 0 0 5px var(--accent-glow); }
+.slider::-moz-range-thumb { width: 24px; height: 24px; box-shadow: 0 0 0 5px var(--accent-glow); }
+.session-panel { position: sticky; top: 24px; }
+.audio-status { font-family: var(--sans); padding: 13px 15px; min-height: 50px; font-size: 13px; }
+.status-dot { flex-shrink: 0; }
+.timer-section { padding: 24px; background: linear-gradient(150deg, #19332f, var(--bg-elev) 65%); }
+.timer-display { font-size: 52px; letter-spacing: -.04em; font-variant-numeric: tabular-nums; padding-top: 10px; }
+.timer-elapsed { margin-top: 5px; margin-bottom: 24px; }
+.timer-progress-track { height: 5px; margin-bottom: 20px; }
+.btn-run { min-height: 54px; font-family: var(--sans); letter-spacing: .03em; font-size: 15px; }
+.btn-run.start:hover, .btn-primary:hover { background: #a1f0df; }
+.listening-tip { margin-top: 15px; font-size: 12px; color: var(--text-dim); line-height: 1.7; text-align: center; }
+#guestNotice { margin-top: 20px !important; border-style: solid !important; background: transparent !important; }
+#guestNotice p { font-size: 13px !important; line-height: 1.8; }
+.modal, .run-current-panel, .run-queue-panel { box-shadow: 0 16px 64px rgba(0,0,0,.18); }
+.run-workspace > *, .run-queue-item > *, .protocol-group-header > * { min-width: 0; }
+.run-queue-freq, .protocol-name, .protocol-group-title { overflow-wrap: anywhere; }
+.run-tool-btn, .run-font-btn, .run-add-btn, .session-actions button, .rating-row button, .suggest-item { min-height: 44px; }
+@media (max-width: 760px) {
+  .manual-workspace { grid-template-columns: minmax(0,1fr); gap: 20px; }
+  .session-panel { position: static; }
+  #view-manual { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
+  #view-manual .timer-controls { position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; padding: 12px 16px max(12px, env(safe-area-inset-bottom)); border-top: 1px solid var(--border); background: rgba(12,21,24,.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .studio-intro { align-items: flex-start; flex-direction: column; gap: 14px; margin-bottom: 18px; }
+  .studio-links { gap: 6px; }
+  .output-scope { margin-bottom: 20px; }
+  .timer-section { padding: 20px; }
+  .timer-display { font-size: 46px; padding-top: 0; }
+}
+@media (max-width: 600px) {
+  header { padding-left: 16px; padding-right: 16px; gap: 8px; }
+  .brand { font-size: 15px; gap: 10px; }
+  .header-right { gap: 5px; }
+  .user-chip { max-width: 140px; padding-right: 3px; }
+  #userEmail { max-width: 66px; }
+  .user-chip img { display: none; }
+  .tabs { padding: 0 8px; }
+  .tab { font-size: 13px; min-height: 45px; }
+  .view { padding: 22px 16px 32px; }
+  .output-modes { padding: 16px 16px 0; gap: 8px; }
+  .output-mode { padding: 12px; }
+  .output-mode strong { font-size: 13px; }
+  .output-mode span { font-size: 11px; }
+  .studio-intro p { font-size: 13px; }
+  .studio-links a { font-size: 12px; padding: 8px 11px; }
+  .output-scope { padding: 13px; gap: 9px; }
+  .output-scope p { font-size: 12px; }
+  .freq-display { gap: 10px; }
+  .freq-card { padding: 15px; }
+  .freq-card::before { left: 15px; }
+  .freq-value { font-size: 36px; }
+  .freq-label { margin-bottom: 12px; }
+  .controls { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+  .control-group { padding: 13px; }
+  .control-group.full { grid-column: 1 / -1; }
+  .btn-seg { padding: 8px 3px; font-size: 13px; }
+  .control-note { font-size: 12px; }
+  .user-chip:has(#userEmail:not(:empty)) + .admin-badge-btn + .lang-toggle { padding-left: 7px; padding-right: 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+</style>
+<style>
+.info-block a, .card a { color: var(--accent); text-underline-offset: 3px; }
 </style>
 </head>
 <body>
 <div id="app">
   <header>
-    <div class="brand" id="brand">FSM STUDIO</div>
+    <div class="brand" id="brand">FSM Studio</div>
     <div class="header-right">
       <div class="user-chip" id="userChip" style="display:none">
         <img id="userPic" alt="">
@@ -623,33 +739,60 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
     </div>
   </header>
 
-  <div class="tabs">
+  <nav class="tabs" aria-label="工作室功能">
     <button class="tab active" data-view="manual" data-i18n="tab_manual">手動</button>
     <button class="tab locked" data-view="protocols" data-i18n="tab_protocols" data-requires-auth="true">協定</button>
     <button class="tab locked" data-view="library" data-i18n="tab_library" data-requires-auth="true">頻率庫</button>
     <button class="tab locked" data-view="music" data-i18n="tab_music" data-requires-auth="true">音樂</button>
     <button class="tab locked" data-view="records" data-i18n="tab_records" data-requires-auth="true">紀錄</button>
     <button class="tab locked" data-view="info" data-i18n="tab_info" data-requires-auth="true">說明</button>
+  </nav>
+
+  <div class="output-modes" role="group" aria-label="輸出模式 / Output mode">
+    <button type="button" class="output-mode" data-output-mode="listening" aria-pressed="true">
+      <strong data-i18n="mode_listening">聲音聆聽</strong>
+      <span data-i18n="mode_listening_desc">喇叭、耳機 · 音樂與音色</span>
+    </button>
+    <button type="button" class="output-mode" data-output-mode="icare" aria-pressed="false">
+      <strong data-i18n="mode_icare">iCare 雙線圈 Pad</strong>
+      <span data-i18n="mode_icare_desc">有線雙聲道 · 訊號測試版</span>
+    </button>
   </div>
 
   <main>
     <!-- PUBLIC: MANUAL VIEW -->
     <section class="view active" id="view-manual">
-      <div class="audio-status" id="audioStatus">
-        <span class="status-dot" id="statusDot"></span>
-        <span id="statusText" data-i18n="status_idle">待機 — 點 START 開始輸出</span>
+      <div class="studio-intro">
+        <div>
+          <div class="studio-kicker" data-i18n="studio_kicker">CAM SAVANT · AUDIO WORKSPACE</div>
+          <h1 data-i18n="studio_title">為聲音，留一點空間。</h1>
+          <p data-i18n="studio_intro">設定雙聲道頻率、調整音色，從低音量開始聆聽。</p>
+        </div>
+        <div class="studio-links">
+          <a href="/fsm"><span aria-hidden="true">←</span><span data-i18n="studio_back">回 FSM 專欄</span></a>
+          <a href="https://www.youtube.com/@CAMsavant" target="_blank" rel="noopener noreferrer"><span data-i18n="studio_listen">聆聽創作</span><span aria-hidden="true">↗</span></a>
+        </div>
       </div>
+      <aside class="output-scope" aria-label="音訊輸出說明">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7v.5"/></svg>
+        <div><strong id="outputScopeTitle">目前輸出：聲音聆聽</strong><p id="outputScopeBody">先降低裝置音量，再依需要調整播放設定。</p><span class="output-device-note" data-i18n="pemf_unverified">Pad 輸出：待實機量測</span>
+          <button type="button" class="btn-secondary" id="openInfoGuide" style="margin-top:12px" data-i18n="member_guide_link">會員使用說明 →</button>
+        </div>
+      </aside>
       <div id="warningArea"></div>
+      <div class="manual-workspace">
+      <div class="signal-controls">
+      <h2 class="workspace-heading" data-i18n="setup_title">01 / 聲音設定</h2>
       <div class="freq-display">
         <div class="freq-card chA">
-          <div class="freq-label">CH A</div>
+          <div class="freq-label">CHANNEL A <span class="channel-unit">Hz</span></div>
           <div class="freq-value" id="freqAVal">40</div>
           <div class="freq-name" id="freqAName">—</div>
           <input type="number" class="freq-input" id="freqAInput" value="40" min="0.1" max="999" step="any" inputmode="decimal" aria-label="CH A 頻率 (Hz)">
           <div class="suggest" id="suggestA"></div>
         </div>
         <div class="freq-card chB">
-          <div class="freq-label">CH B</div>
+          <div class="freq-label">CHANNEL B <span class="channel-unit">Hz</span></div>
           <div class="freq-value" id="freqBVal">116</div>
           <div class="freq-name" id="freqBName">—</div>
           <input type="number" class="freq-input" id="freqBInput" value="116" min="0.1" max="999" step="any" inputmode="decimal" aria-label="CH B 頻率 (Hz)">
@@ -674,13 +817,13 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
         </div>
         <div class="control-group full">
           <div class="control-label">
-            <label for="currentSlider" data-i18n="ctrl_current">音訊增益</label> · <span id="currentValLabel">×1.20</span>
+            <label for="currentSlider" id="outputLevelLabel">音訊增益</label> · <span id="currentValLabel">×0.12</span>
           </div>
           <div class="slider-row">
-            <input type="range" class="slider" id="currentSlider" min="20" max="500" step="20" value="200" aria-describedby="outputLevelNote" aria-valuetext="×1.20">
-            <div class="slider-value" id="currentVal">×1.20</div>
+            <input type="range" class="slider" id="currentSlider" min="0" max="100" step="5" value="20" aria-describedby="outputLevelNote" aria-valuetext="×0.12">
+            <div class="slider-value" id="currentVal">×0.12</div>
           </div>
-          <p class="control-note" id="outputLevelNote" data-i18n="output_level_note">控制數位音訊振幅；此數值不是實測電流（μA）。</p>
+          <p class="control-note" id="outputLevelNote">控制數位音訊振幅；此數值不是實測電流（μA）。</p>
         </div>
         <div class="control-group full">
           <label for="durSlider" class="control-label" data-i18n="ctrl_duration">時長 (分鐘)</label>
@@ -690,6 +833,13 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
           </div>
         </div>
       </div>
+      </div>
+      <div class="session-panel">
+      <h2 class="workspace-heading" data-i18n="session_title">02 / 播放控制</h2>
+      <div class="audio-status" id="audioStatus" role="status" aria-live="polite">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText" data-i18n="status_idle">待機 — 點 START 開始輸出</span>
+      </div>
       <div class="timer-section">
         <div class="timer-display" id="timerDisplay">04:00</div>
         <div class="timer-elapsed" id="timerElapsed" data-i18n="timer_remaining">剩餘時間</div>
@@ -697,11 +847,14 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
         <div class="timer-controls">
           <button class="btn-run start" id="runBtn" data-i18n="btn_start">▶ START</button>
         </div>
+        <p class="listening-tip" id="listeningTip">先調低裝置音量；若聲音不舒服，請停止播放。</p>
       </div>
       <div id="guestNotice" class="info-block" style="margin-top: 16px; padding: 14px; background: var(--bg-elev); border-radius: var(--radius-lg); border: 1px dashed var(--border-strong);">
         <p style="color: var(--text-dim); font-size: 12px;" data-i18n="guest_notice">
           ℹ 訪客模式：可使用手動雙頻產生器。登入後可使用協定庫、Mode Bank、音樂輸出、患者紀錄等進階功能。
         </p>
+      </div>
+      </div>
       </div>
     </section>
 
@@ -728,6 +881,7 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
     <div class="run-overlay-content">
       <div class="run-workspace" id="runWorkspace">
         <section class="run-current-panel">
+          <p class="run-output-note" id="runOutputNote"></p>
           <div class="run-overlay-step-info" id="ovStepInfo"></div>
           <div class="run-overlay-big-freq">
             <div>
@@ -1108,7 +1262,7 @@ let FREQ_B_MAP = PUBLIC_FREQ_MAP_B;
 const I18N = {
   zh: {
     tab_manual: '手動', tab_protocols: '協定', tab_library: '頻率庫', tab_music: '音樂', tab_records: '紀錄', tab_info: '說明',
-    ctrl_polarity: '極性', ctrl_wave: '波形', ctrl_current: '音訊增益', ctrl_duration: '時長 (分鐘)',
+    ctrl_polarity: '協定極性（僅記錄）', ctrl_wave: '波形', ctrl_current: '音訊增益', ctrl_duration: '時長 (分鐘)',
     output_level_note: '控制數位音訊振幅；此數值不是實測電流（μA）。',
     wave_sharp: '銳', wave_med: '中', wave_gentle: '緩',
     btn_start: '▶ START', btn_stop: '■ STOP',
@@ -1120,7 +1274,7 @@ const I18N = {
     protocol_all: '全部',
     timer_remaining: '剩餘時間',
     status_idle: '待機 — 點 START 開始輸出',
-    status_running: '輸出中 — 訊號透過耳機孔送出',
+    status_running: '音訊輸出中 · 硬體輸出未量測',
     search_protocols: '搜尋協定...',
     search_library: '搜尋頻率 (數字或關鍵字)...',
     search_records: '搜尋患者或備註...',
@@ -1128,7 +1282,7 @@ const I18N = {
     modal_load_body: '將會載入 {n} 個步驟，總時長 {t}。確認開始治療？',
     warn_13_scar: '⚠ 頻率 13 (Scar tissue) — 確認損傷已超過 6 週',
     warn_79_dvt: '⚠ 頻率 79 (Veins) — 下肢使用前須排除 DVT',
-    warn_pol_stenosis: 'ℹ 極化正電流 — 椎管狹窄患者若疼痛加重請立即切回 AC',
+    warn_pol_stenosis: 'ℹ 此為原協定的正極性記錄；切換此欄位不會改變 Studio 的實際輸出極性，也不會產生單向微電流。',
     step_label: '步驟',
     subtab_favorites: '我的收藏', subtab_custom: '自訂／微調', subtab_modebank: '參考協定',
     btn_new_session: '+ 新增治療紀錄',
@@ -1148,43 +1302,31 @@ const I18N = {
     encrypt_success: '已加密匯出 {n} 筆紀錄',
     decrypt_failed: '解密失敗 — 密碼錯誤或檔案損壞',
     decrypt_merged: '已合併 {n} 筆紀錄（重複的依較新者保留）',
-    music_intro: '將 FSM 雙頻訊號嵌入背景音樂，匯出 WAV 或 MP3。患者可用任何播放器搭配 FSM 專用電極墊或電極片在家使用。',
+    music_intro: '混合背景音樂與可調整的雙頻音訊，先試聽再匯出 WAV 或 MP3。聆聽效果不等同 FSM 微電流或 PEMF 治療。',
     music_source: '音源', music_src_manual: '手動雙頻', music_src_protocol: '完整協定',
     music_duration: '時長 (分鐘)', music_select_protocol: '選擇協定',
     music_style: '背景音樂風格',
-    music_style_ambient: '空靈環境', music_style_binaural: '雙耳節拍', music_style_nature: '自然聲', music_style_silent: '純治療頻率',
-    music_style_desc_ambient: '空靈環境：低頻 drone + 緩慢音符，最適合放鬆/睡眠',
-    music_style_desc_binaural: '雙耳節拍：左右耳輕微頻率差，輔助腦波同步',
-    music_style_desc_nature: '自然聲：雨聲、海浪等粉紅噪音模擬，遮蔽治療頻率的金屬感',
-    music_style_desc_silent: '純治療頻率：無背景音樂，僅 FSM 雙頻 — 接電極片用',
+    music_style_ambient: '柔和和弦', music_style_binaural: '雙耳節拍', music_style_nature: '自然聲', music_style_silent: '僅雙頻音訊',
+    music_style_desc_ambient: '緩慢和弦與柔和音符，適合喜歡旋律的聆聽者。',
+    music_style_desc_binaural: '左右聲道採用不同音高；需立體聲耳機才能呈現設計，不保證腦波或治療效果。',
+    music_style_desc_nature: '以噪音合成柔和雨聲與海浪質感。',
+    music_style_desc_silent: '無背景音樂，僅雙頻音訊。此檔案不是電極或 PEMF 的治療處方。',
     music_mix: '混音比例',
-    music_treatment_level: '治療訊號音量', music_bg_level: '背景音樂音量',
+    music_treatment_level: '頻率層音量', music_bg_level: '背景音樂音量',
     music_format: '輸出格式',
-    music_format_wav_desc: 'WAV：無損音質、精確頻率（檔案較大）',
-    music_format_mp3_desc: 'MP3 192k：壓縮 10 倍、適合 LINE 傳送（音質夠用）',
+    music_format_wav_desc: 'WAV：未壓縮音訊，適合保存與後續混音；不代表硬體輸出已校準。',
+    music_format_mp3_desc: 'MP3 192k：檔案較小，適合一般聆聽；有損壓縮不適合作為精密訊號檔。',
     music_size_estimate: '預計檔案大小', music_generate: '▼ 生成並下載',
     music_generating: '生成中...', music_progress_init: '初始化音訊...',
     music_progress_render: '渲染中 {pct}%', music_progress_encode: '編碼中...',
     music_progress_done: '檔案已備妥，可點選下方檔名下載。', music_ready: '檔案已備妥', music_generate_failed: '生成失敗',
-    info_hardware_title: '硬體設定',
-    info_hardware_body: '手機 → USB-C 轉 3.5mm 音源轉接頭 → FSM 專用電極墊或自製電極片導線。Channel A 走左聲道，Channel B 走右聲道，共用 Sleeve 接地。',
-    info_polarity_title: '極性說明',
-    info_polarity_body: '<strong>+/- 交流</strong>：肌肉、內臟、所有 Alternating 協定使用。<br><strong>+→ 極化正</strong>：神經、脊髓、淋巴系統使用。',
-    info_warnings_title: '禁忌症警示',
-    info_warnings_body: '· 頻率 13 (Scar tissue) — 損傷後 6 週內慎用<br>· 頻率 79 (Veins) — DVT 未排除前避免下肢使用<br>· 極化正電流 — 椎管狹窄患者疼痛加重時立即切回 AC<br>· 孕婦、癌症腫瘤部位 — 絕對禁忌',
-    info_audio_title: '關於音頻 FSM',
-    info_audio_body: '透過手機耳機輸出產生 FSM 雙頻訊號。<br>· 低頻 (&lt;20 Hz) 採用 AM 振幅調變<br>· 波形 slope 透過 envelope 包絡實現<br>· 音訊增益控制數位振幅，未量測或校準實際電流',
-    info_data_title: '資料儲存與備份',
-    info_data_body: '治療紀錄僅儲存於本機瀏覽器 (localStorage)。<br>· 從不上傳至伺服器<br>· 用「加密匯出」定期備份到雲端或隨身碟<br>· 加密採 AES-GCM 256-bit，密碼遺失無法復原',
-    info_disclaimer_title: '免責聲明',
-    info_disclaimer_body: '本工具為 FSM 治療師專業使用設計，供受訓治療師輔助臨床參考使用。使用前須完成 FSM Core 訓練。任何治療決策由治療師依臨床判斷負責。',
     guest_notice: 'ℹ 訪客模式：可使用手動雙頻產生器。登入後可使用協定庫、Mode Bank、音樂輸出、患者紀錄等進階功能。',
     gate_title: '進階功能需要登入',
     gate_subtitle: '此功能僅開放給已授權的 FSM 治療師使用。請以 Google 帳號登入。',
     gate_features_title: '登入後可使用',
     gate_feat_1: '我的協定庫（10 個常用模板）',
     gate_feat_2: '參考協定庫完整查詢（含頻率庫 373 個頻率）',
-    gate_feat_3: '音樂治療版輸出（WAV / MP3）',
+    gate_feat_3: '音樂混音與匯出（WAV / MP3）',
     gate_feat_4: '患者治療紀錄 + 加密備份',
     gate_feat_5: '協定與紀錄 PDF 匯出',
     gate_pending: '您的帳號 ({email}) 尚未授權。請聯絡管理員加入白名單。',
@@ -1193,7 +1335,7 @@ const I18N = {
   },
   en: {
     tab_manual: 'Manual', tab_protocols: 'Protocols', tab_library: 'Library', tab_music: 'Music', tab_records: 'Records', tab_info: 'Info',
-    ctrl_polarity: 'Polarity', ctrl_wave: 'Waveshape', ctrl_current: 'Audio gain', ctrl_duration: 'Duration (min)',
+    ctrl_polarity: 'Protocol polarity (reference)', ctrl_wave: 'Waveshape', ctrl_current: 'Audio gain', ctrl_duration: 'Duration (min)',
     output_level_note: 'Controls digital audio amplitude; this is not measured current (μA).',
     wave_sharp: 'Sharp', wave_med: 'Medium', wave_gentle: 'Gentle',
     btn_start: '▶ START', btn_stop: '■ STOP',
@@ -1213,7 +1355,7 @@ const I18N = {
     modal_load_body: 'Will load {n} steps, total duration {t}. Begin treatment?',
     warn_13_scar: '⚠ Frequency 13 (Scar tissue) — confirm injury is >6 weeks old',
     warn_79_dvt: '⚠ Frequency 79 (Veins) — rule out DVT first',
-    warn_pol_stenosis: 'ℹ Polarized + — switch to AC if stenosis patient reports increased pain',
+    warn_pol_stenosis: 'ℹ Positive polarity is a source-protocol note. This control does not change Studio output polarity or generate unidirectional microcurrent.',
     step_label: 'Step',
     subtab_favorites: 'Favorites', subtab_custom: 'Custom / Adapted', subtab_modebank: 'Reference Protocols',
     btn_new_session: '+ New session',
@@ -1233,36 +1375,24 @@ const I18N = {
     encrypt_success: 'Encrypted {n} records',
     decrypt_failed: 'Decryption failed — wrong password or corrupted file',
     decrypt_merged: 'Merged {n} records (kept newer versions for duplicates)',
-    music_intro: 'Embed FSM dual-frequency signals into background music; export as WAV or MP3.',
+    music_intro: 'Mix background music with adjustable dual-frequency audio. Preview, then export WAV or MP3. Listening is not equivalent to FSM microcurrent or PEMF treatment.',
     music_source: 'Source', music_src_manual: 'Manual dual-freq', music_src_protocol: 'Full protocol',
     music_duration: 'Duration (min)', music_select_protocol: 'Select protocol',
     music_style: 'Background style',
-    music_style_ambient: 'Ambient', music_style_binaural: 'Binaural', music_style_nature: 'Nature', music_style_silent: 'Pure treatment',
-    music_style_desc_ambient: 'Ambient: low drone + slow notes, ideal for relaxation/sleep',
-    music_style_desc_binaural: 'Binaural: slight L/R offset for brainwave entrainment',
+    music_style_ambient: 'Soft chords', music_style_binaural: 'Binaural', music_style_nature: 'Nature', music_style_silent: 'Tones only',
+    music_style_desc_ambient: 'Slow chords and gentle notes for listeners who prefer melody.',
+    music_style_desc_binaural: 'Different pitches in each channel, designed for stereo headphones. No brainwave or treatment effect is guaranteed.',
     music_style_desc_nature: 'Nature: pink-noise rain/ocean texture, masks pure-tone harshness',
-    music_style_desc_silent: 'Pure treatment: no music, only FSM dual frequencies',
+    music_style_desc_silent: 'Dual-frequency audio without music. This is not an electrode or PEMF treatment prescription.',
     music_mix: 'Mix levels',
-    music_treatment_level: 'Treatment signal level', music_bg_level: 'Background music level',
+    music_treatment_level: 'Frequency layer level', music_bg_level: 'Background music level',
     music_format: 'Output format',
-    music_format_wav_desc: 'WAV: lossless, exact frequency (larger files)',
-    music_format_mp3_desc: 'MP3 192k: 10× smaller, fine for messaging apps',
+    music_format_wav_desc: 'WAV: uncompressed audio for archiving and mixing; hardware output is not calibrated.',
+    music_format_mp3_desc: 'MP3 192k: smaller listening files; lossy compression is not suitable for precision signals.',
     music_size_estimate: 'Estimated size', music_generate: '▼ Generate & download',
     music_generating: 'Generating...', music_progress_init: 'Initializing...',
     music_progress_render: 'Rendering {pct}%', music_progress_encode: 'Encoding...',
     music_progress_done: 'Your file is ready. Select the filename below to download.', music_ready: 'File ready', music_generate_failed: 'Generation failed',
-    info_hardware_title: 'Hardware setup',
-    info_hardware_body: 'Phone → USB-C to 3.5mm adapter → FSM electrode pad or DIY electrode cable.',
-    info_polarity_title: 'Polarity',
-    info_polarity_body: '<strong>+/- AC</strong>: muscles, viscera, Alternating protocols.<br><strong>+→ Polarized+</strong>: nerves, spinal cord, lymphatics.',
-    info_warnings_title: 'Contraindication warnings',
-    info_warnings_body: '· Frequency 13 — caution within 6 weeks post-injury<br>· Frequency 79 — rule out DVT first<br>· Polarized+ — switch to AC if stenosis patient pain increases<br>· Pregnancy, cancer tumor sites — absolute contraindication',
-    info_audio_title: 'About audio-FSM',
-    info_audio_body: 'Phone audio output generates FSM dual frequencies.<br>· Low freq (&lt;20 Hz) via AM modulation<br>· Waveshape via envelope<br>· Audio gain controls digital amplitude; actual current is not measured or calibrated',
-    info_data_title: 'Data storage & backup',
-    info_data_body: 'Session records stored only in your local browser (localStorage).<br>· Never uploaded to server<br>· Use Encrypted Export to back up<br>· AES-GCM 256-bit encryption — lost password cannot be recovered',
-    info_disclaimer_title: 'Disclaimer',
-    info_disclaimer_body: 'For use by trained FSM practitioners only. FSM Core training required before use. All clinical decisions remain the sole responsibility of the treating practitioner.',
     guest_notice: 'ℹ Guest mode: manual dual-frequency generator available. Sign in for protocols, Mode Bank, music export, session records.',
     gate_title: 'Sign in required',
     gate_subtitle: 'This feature is for authorized FSM practitioners. Please sign in with Google.',
@@ -1278,6 +1408,44 @@ const I18N = {
   }
 };
 let LANG = localStorage.getItem('fsm_lang') || 'zh';
+Object.assign(I18N.zh, {
+  studio_kicker: 'CAM SAVANT · AUDIO WORKSPACE', studio_title: '為聲音，留一點空間。',
+  studio_intro: '設定雙聲道頻率、調整音色，從低音量開始聆聽。',
+  studio_back: '回 FSM 專欄', studio_listen: '聆聽創作',
+  output_scope_title: '目前輸出：聲音聆聽',
+  output_scope_body: '先降低裝置音量，再依需要調整播放設定。外接 Pad 請選擇對應模式。',
+  member_guide_link: '會員使用說明 →',
+  mode_listening: '聲音聆聽', mode_listening_desc: '喇叭、耳機 · 音樂與音色',
+  mode_icare: 'iCare 雙線圈 Pad', mode_icare_desc: '有線雙聲道 · 訊號測試版',
+  pad_scope_title: '目前輸出：雙線圈訊號測試',
+  pad_scope_body: '目前為設備測試版，相容性尚未驗證。請先確認設備與配件，測試時將 Pad 移離人體。',
+  pad_gain_label: 'Pad 獨立數位增益',
+  pad_gain_note: '預設為零；協定不會改變此輸出量。數值不是磁場強度或治療劑量，手機音量亦會影響實際輸出。',
+  pad_tip: '保持此頁在前景。切換 App 或音訊中斷會暫停，需手動繼續；網頁無法阻止來電及其他 App 發聲。',
+  pad_run_note: 'Pad 訊號測試 · 輸出量 ',
+  setup_title: '01 / 聲音設定', session_title: '02 / 播放控制',
+  listening_tip: '先調低裝置音量；若聲音不舒服，請停止播放。',
+  pemf_unverified: 'Pad 輸出：待實機量測',
+});
+Object.assign(I18N.en, {
+  studio_kicker: 'CAM SAVANT · AUDIO WORKSPACE', studio_title: 'Make room for sound.',
+  studio_intro: 'Shape two audio channels and explore textures. Start with a low device volume.',
+  studio_back: 'FSM articles', studio_listen: 'Listen to our music',
+  output_scope_title: 'Current output: listening',
+  output_scope_body: 'Lower device volume first, then adjust playback settings. Select the corresponding mode when using a pad.',
+  member_guide_link: 'Member user guide →',
+  mode_listening: 'Listen', mode_listening_desc: 'Speakers, headphones · Music & textures',
+  mode_icare: 'iCare dual-coil pad', mode_icare_desc: 'Wired stereo · Signal test',
+  pad_scope_title: 'Current output: dual-coil signal test',
+  pad_scope_body: 'Equipment test version; compatibility has not been verified. Check your device and accessories first. Keep the pad away from the body while testing.',
+  pad_gain_label: 'Independent pad digital gain',
+  pad_gain_note: 'Starts at zero; protocol gains cannot change this level. It is not field strength or a treatment dose. Phone volume also affects physical output.',
+  pad_tip: 'Keep this page in the foreground. Switching apps or an audio interruption pauses output; resume manually. This page cannot prevent calls or other apps from playing audio.',
+  pad_run_note: 'Pad signal test · Output level ',
+  setup_title: '01 / SOUND SETTINGS', session_title: '02 / PLAYBACK',
+  listening_tip: 'Lower device volume first. Stop playback if uncomfortable.',
+  pemf_unverified: 'Pad output: hardware measurement pending',
+});
 function t(k) { return I18N[LANG][k] || k; }
 function applyI18n() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -1308,6 +1476,8 @@ const auth = {
   },
   async logout() {
     if (!confirm(t('logout_confirm'))) return;
+    stopRun();
+    if (typeof stopMusicPreview === 'function') stopMusicPreview();
     this.user = null;
     this.save();
     resetPersonalProtocolState();
@@ -1650,6 +1820,8 @@ function _protoSignature(p) {
 
 function updateAuthUI() {
   syncMusicDownload();
+  if (typeof syncMusicPreviewOwner === 'function') syncMusicPreviewOwner();
+  if (!auth.user || infoSession !== auth.user) clearInfoView();
   const chip = document.getElementById('userChip');
   const adminBtn = document.getElementById('adminBadgeBtn');
   if (auth.isAuthed()) {
@@ -2224,25 +2396,33 @@ document.addEventListener('touchend',   _unlockiOSAudio, { once: true, passive: 
 // ============================================================
 class FSMAudio {
   constructor() { this.ctx = null; this.running = false; }
-  start(freqA, freqB, polarity, waveshape, currentPct) {
+  start(freqA, freqB, polarity, waveshape, currentPct, outputMode = 'listening') {
     if (this.running) this.stop();
+    if (![freqA, freqB].every(isValidFrequency) || !Number.isFinite(Number(currentPct))) throw new Error('Invalid audio settings');
     _unlockiOSAudio(); // ensure unlocked even if touchstart missed
     this.ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 48000 });
     // iOS Safari starts AudioContext in "suspended" state — must resume explicitly
-    if (this.ctx.state === 'suspended') this.ctx.resume();
+    if (this.ctx.state === 'suspended') {
+      const startingContext = this.ctx;
+      startingContext.resume().catch(() => {
+        if (this.ctx === startingContext && state.running && !state.paused) toggleRunPause();
+      });
+    }
     const now = this.ctx.currentTime;
     let attack = 0.15;
     if (waveshape === 'Sharp') attack = 0.02;
     else if (waveshape === 'Gentle') attack = 0.4;
     this.master = this.ctx.createGain();
     this.master.gain.setValueAtTime(0, now);
-    this.master.gain.linearRampToValueAtTime(currentPct / 100 * 0.6, now + attack);
+    this.master.gain.linearRampToValueAtTime(Math.max(0, Math.min(100, Number(currentPct))) / 100 * 0.6, now + attack);
     this.merger = this.ctx.createChannelMerger(2);
     const buildChannel = (freq, idx) => {
       const chGain = this.ctx.createGain();
       chGain.gain.value = 1.0;
       let stops = [];
-      if (freq < 20) {
+      // Pad mode preserves the selected digital frequency; physical output is not calibrated here.
+      if (outputMode !== 'icare' && freq < 20) {
+        chGain.gain.value = 0; // AudioParam sums its intrinsic value and connected modulation.
         const carrier = this.ctx.createOscillator();
         carrier.type = (waveshape === 'Sharp') ? 'square' : 'sine';
         carrier.frequency.value = 200;
@@ -2267,15 +2447,7 @@ class FSMAudio {
         osc.start();
         stops.push(() => { try { osc.stop(); } catch(e){} });
       }
-      if (polarity === 'Positive') {
-        const dc = this.ctx.createConstantSource();
-        dc.offset.value = 0.3;
-        const dcG = this.ctx.createGain();
-        dcG.gain.value = 0.5;
-        dc.connect(dcG); dcG.connect(chGain);
-        dc.start();
-        stops.push(() => { try { dc.stop(); } catch(e){} });
-      }
+      // Polarity remains protocol metadata. Audio output does not provide calibrated DC.
       chGain.connect(this.merger, 0, idx);
       return { stop: () => stops.forEach(s => s()) };
     };
@@ -2284,6 +2456,19 @@ class FSMAudio {
     this.merger.connect(this.master);
     this.master.connect(this.ctx.destination);
     this.running = true;
+    const activeContext = this.ctx;
+    activeContext.addEventListener('statechange', () => {
+      if (this.ctx !== activeContext || !this.running || !state.running || state.paused) return;
+      if (activeContext.state === 'running' && state.timerInterval === null) {
+        startTimerLoop();
+        requestRunWakeLock();
+        $('statusText').textContent = t('status_running');
+      }
+      if (activeContext.state === 'suspended' || activeContext.state === 'interrupted' || activeContext.state === 'closed') {
+        toggleRunPause();
+        $('statusText').textContent = LANG === 'zh' ? '音訊已中斷，請手動繼續' : 'Audio interrupted; resume manually';
+      }
+    });
   }
   stop() {
     if (!this.running || !this.ctx) return;
@@ -2306,7 +2491,8 @@ const audio = new FSMAudio();
 const state = {
   freqA: 40, freqB: 116,
   polarity: 'Alternating', waveshape: 'Medium',
-  current: 200, duration: 4,
+  current: 20, duration: 4,
+  outputMode: 'listening', padGain: 0,
   running: false, paused: false, timerInterval: null, remainingSec: 0, stepTotalSec: 0,
   timerDeadlineMs: null, transitionTimeout: null, runGeneration: 0,
   loadedProtocol: null, currentStepIndex: 0, wakeLock: null,
@@ -2322,6 +2508,41 @@ function isValidStepDuration(value) { return typeof value === 'number' && Number
 // Retain legacy protocol intensity values; show their actual digital gain, not μA.
 function formatAudioGain(value) { return '×' + (Number(value) / 100 * 0.6).toFixed(2); }
 function fmtTime(sec) { sec = Math.max(0, Math.floor(sec)); const m = Math.floor(sec / 60); const s = sec % 60; return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0'); }
+function getOutputGain() {
+  return state.outputMode === 'icare' ? state.padGain : state.current;
+}
+
+function updateOutputModeUI() {
+  const pad = state.outputMode === 'icare';
+  document.querySelectorAll('[data-output-mode]').forEach(button => {
+    button.setAttribute('aria-pressed', String(button.getAttribute('data-output-mode') === state.outputMode));
+  });
+  $('outputScopeTitle').textContent = t(pad ? 'pad_scope_title' : 'output_scope_title');
+  $('outputScopeBody').textContent = t(pad ? 'pad_scope_body' : 'output_scope_body');
+  $('outputLevelLabel').textContent = t(pad ? 'pad_gain_label' : 'ctrl_current');
+  $('outputLevelNote').textContent = t(pad ? 'pad_gain_note' : 'output_level_note');
+  $('listeningTip').textContent = t(pad ? 'pad_tip' : 'listening_tip');
+  $('runOutputNote').textContent = pad
+    ? t('pad_run_note') + formatAudioGain(getOutputGain()) + (state.padGain === 0 ? (LANG === 'zh' ? '（靜音）' : ' (muted)') : '')
+    : t('mode_listening');
+  reflectControlState();
+  if (typeof syncMusicPreviewUI === 'function') syncMusicPreviewUI();
+}
+
+function setOutputMode(mode) {
+  if (!['listening', 'icare'].includes(mode) || state.outputMode === mode) return;
+  stopRun();
+  if (typeof stopMusicPreview === 'function') stopMusicPreview();
+  stopEndChime();
+  state.outputMode = mode;
+  // Do not reuse listening or protocol gain when entering the unmeasured pad path.
+  if (mode === 'icare') state.padGain = 0;
+  updateOutputModeUI();
+}
+document.querySelectorAll('[data-output-mode]').forEach(button => {
+  button.addEventListener('click', () => setOutputMode(button.getAttribute('data-output-mode')));
+});
+
 function updateFreqDisplay() {
   $('freqAVal').textContent = state.freqA;
   $('freqBVal').textContent = state.freqB;
@@ -2422,10 +2643,10 @@ document.querySelectorAll('#waveGroup .btn-seg').forEach(btn => {
   });
 });
 $('currentSlider').addEventListener('input', e => {
-  state.current = parseInt(e.target.value);
-  $('currentVal').textContent = formatAudioGain(state.current);
-  $('currentValLabel').textContent = formatAudioGain(state.current);
-  $('currentSlider').setAttribute('aria-valuetext', formatAudioGain(state.current));
+  const value = Math.max(0, Math.min(100, Number(e.target.value) || 0));
+  if (state.outputMode === 'icare') state.padGain = value;
+  else state.current = value;
+  updateOutputModeUI();
 });
 $('durSlider').addEventListener('input', e => {
   state.duration = parseInt(e.target.value);
@@ -2499,6 +2720,12 @@ function requestRunWakeLock() {
 
 function startTimerLoop() {
   if (state.timerInterval !== null) clearInterval(state.timerInterval);
+  state.timerInterval = null;
+  if (audio.ctx && audio.ctx.state !== 'running') {
+    state.timerDeadlineMs = null;
+    $('statusText').textContent = LANG === 'zh' ? '正在準備音訊，計時尚未開始' : 'Preparing audio; timer has not started';
+    return;
+  }
   state.timerDeadlineMs = performance.now() + state.remainingSec * 1000;
   const generation = state.runGeneration;
   state.timerInterval = setInterval(() => {
@@ -2511,6 +2738,10 @@ function startTimerLoop() {
 
 function toggleRunPause() {
   if (!state.running) return;
+  if (state.paused && state.outputMode === 'icare' && musicExportInProgress) {
+    alert(LANG === 'zh' ? '音樂仍在匯出，完成後再繼續 Pad 輸出。' : 'Wait for music export to finish before resuming pad output.');
+    return;
+  }
   syncRunRemaining();
   clearRunScheduling();
   state.paused = !state.paused;
@@ -2522,12 +2753,14 @@ function toggleRunPause() {
     $('statusText').textContent = t('run_paused');
     $('ovPause').textContent = t('run_resume');
   } else {
+    if (typeof stopMusicPreview === 'function') stopMusicPreview();
     $('brand').classList.add('running');
     $('statusDot').classList.add('live');
     $('statusText').textContent = t('status_running');
     $('ovPause').textContent = t('run_pause');
     if (state.remainingSec <= 0) { onStepEnd(); return; }
-    audio.start(state.freqA, state.freqB, state.polarity, state.waveshape, state.current);
+    try { audio.start(state.freqA, state.freqB, state.polarity, state.waveshape, getOutputGain(), state.outputMode); }
+    catch (err) { stopRun(); alert(LANG === 'zh' ? '無法啟動音訊，請確認瀏覽器支援並重試。' : 'Audio could not start. Check browser support and retry.'); return; }
     startTimerLoop();
     requestRunWakeLock();
   }
@@ -2626,6 +2859,13 @@ function startManualRun() {
 }
 
 function startStep(step, isProtocol) {
+  if (state.outputMode === 'icare' && musicExportInProgress) {
+    stopRun();
+    alert(LANG === 'zh' ? '音樂仍在匯出，完成後再開始 Pad 輸出。' : 'Wait for music export to finish before starting pad output.');
+    return;
+  }
+  if (typeof stopMusicPreview === 'function') stopMusicPreview();
+  stopEndChime();
   clearRunScheduling();
   if (!step || !step.polarity || !step.wave || !isValidFrequency(Number(step.freq_a)) || !isValidFrequency(Number(step.freq_b)) || !isValidStepDuration(Number(step.duration))) {
     stopRun();
@@ -2637,12 +2877,17 @@ function startStep(step, isProtocol) {
   state.freqB = step.freq_b;
   state.polarity = step.polarity;
   state.waveshape = step.wave;
-  state.current = step.current || state.current;
+  if (state.outputMode !== 'icare') {
+    const requestedGain = Number(step.current ?? state.current);
+    state.current = Number.isFinite(requestedGain) ? Math.max(0, Math.min(100, requestedGain)) : 20;
+  }
   state.stepTotalSec = step.duration * 60;
   state.remainingSec = step.duration * 60;
   updateFreqDisplay();
   reflectControlState();
-  audio.start(step.freq_a, step.freq_b, step.polarity, step.wave, state.current);
+  updateOutputModeUI();
+  try { audio.start(step.freq_a, step.freq_b, step.polarity, step.wave, getOutputGain(), state.outputMode); }
+  catch (err) { stopRun(); alert(LANG === 'zh' ? '無法啟動音訊，請確認瀏覽器支援並重試。' : 'Audio could not start. Check browser support and retry.'); return; }
   state.running = true;
   state.paused = false;
   $('brand').classList.add('running');
@@ -2681,10 +2926,11 @@ function reflectControlState() {
   document.querySelectorAll('#waveGroup .btn-seg').forEach(b => {
     b.classList.toggle('active', b.getAttribute('data-wave') === state.waveshape);
   });
-  $('currentSlider').value = state.current;
-  $('currentVal').textContent = formatAudioGain(state.current);
-  $('currentValLabel').textContent = formatAudioGain(state.current);
-  $('currentSlider').setAttribute('aria-valuetext', formatAudioGain(state.current));
+  const outputGain = getOutputGain();
+  $('currentSlider').value = outputGain;
+  $('currentVal').textContent = formatAudioGain(outputGain);
+  $('currentValLabel').textContent = formatAudioGain(outputGain);
+  $('currentSlider').setAttribute('aria-valuetext', formatAudioGain(outputGain));
 }
 
 function onStepEnd() {
@@ -2711,9 +2957,19 @@ function onStepEnd() {
   }
 }
 
+let endChimeContext = null;
+function stopEndChime() {
+  const context = endChimeContext;
+  endChimeContext = null;
+  if (context && context.state !== 'closed') context.close().catch(() => {});
+}
+
 function playEndChime() {
+  if (state.outputMode === 'icare' || state.current === 0) return;
+  stopEndChime();
   try {
     const c = new (window.AudioContext || window.webkitAudioContext)();
+    endChimeContext = c;
     if (c.state === 'suspended') c.resume();
     const o = c.createOscillator();
     const g = c.createGain();
@@ -2722,7 +2978,9 @@ function playEndChime() {
     g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.6);
     o.connect(g); g.connect(c.destination);
     o.start(); o.stop(c.currentTime + 0.6);
-    setTimeout(()=>c.close(), 1000);
+    setTimeout(() => {
+      if (endChimeContext === c) stopEndChime();
+    }, 1000);
   } catch(e) {}
 }
 
@@ -2747,6 +3005,9 @@ function stopRun() {
 
 window.addEventListener('pagehide', stopRun);
 document.addEventListener('visibilitychange', () => {
+  if (document.hidden && state.outputMode === 'icare' && state.running && !state.paused) {
+    toggleRunPause();
+  }
   if (!document.hidden) requestRunWakeLock();
 });
 
@@ -3091,6 +3352,8 @@ document.querySelectorAll('.tab[data-view]').forEach(tab => {
 });
 
 function switchToView(view) {
+  if (typeof stopMusicPreview === 'function') stopMusicPreview();
+  if (view !== 'info') clearInfoView();
   document.querySelectorAll('.tab[data-view]').forEach(t => t.classList.remove('active'));
   document.querySelector(`.tab[data-view="${view}"]`).classList.add('active');
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -3099,12 +3362,12 @@ function switchToView(view) {
   if (view === 'manual') {
     return; // public, no work needed
   }
-
   // For all protected views: render either gate or content
   if (!auth.isAuthed()) {
     renderGate('view-' + view);
     return;
   }
+  if (view === 'info') { renderInfoView(); return; }
 
   // Need protected data?
   if ((!CHANNEL_A || !PROTOCOLS_CURATED) && view !== 'manual') {
@@ -3124,7 +3387,6 @@ function switchToView(view) {
   else if (view === 'library') renderLibraryView();
   else if (view === 'music') renderMusicView();
   else if (view === 'records') renderRecordsView();
-  else if (view === 'info') renderInfoView();
 }
 
 // ============================================================
@@ -4323,11 +4585,122 @@ async function importEncryptedRecords(evt) {
 // ============================================================
 const MUSIC_MAX_MINUTES = 50;
 const MUSIC_MP3_ENCODER_URL = '/fsm/studio/vendor/lamejs-1.2.1/lame.min.js';
-const musicState = { initialized: false, source: 'manual', freqA: 40, freqB: 116, polarity: 'Alternating', wave: 'Medium', duration: 20, protocolId: null, style: 'ambient', treatmentLevel: 0.7, bgLevel: 0.3, format: 'wav' };
+const musicState = { initialized: false, source: 'manual', freqA: 40, freqB: 116, polarity: 'Alternating', wave: 'Medium', duration: 10, protocolId: null, style: 'ambient', treatmentLevel: 0.2, bgLevel: 0.6, format: 'wav' };
 let musicExportInProgress = false;
 let musicEncoderPromise = null;
 let musicDownload = null;
 let musicPageGeneration = 0;
+let musicPreview = null;
+const MUSIC_PREVIEW_SECONDS = 20;
+
+function syncMusicPreviewUI(message = '') {
+  const button = $('previewMusicBtn');
+  const pad = state.outputMode === 'icare';
+  if (button) {
+    button.disabled = pad || musicExportInProgress;
+    button.textContent = pad ? (LANG==='zh'?'Pad 模式不提供音樂試聽':'Music preview unavailable in pad mode') : musicPreview
+      ? (LANG==='zh'?'■ 停止試聽':'■ Stop preview')
+      : (LANG==='zh'?'▶ 試聽前 20 秒':'▶ Preview first 20 seconds');
+    button.setAttribute('aria-pressed', musicPreview ? 'true' : 'false');
+  }
+  const status = $('musicPreviewStatus');
+  if (status) status.textContent = pad ? (LANG==='zh'
+    ? '音樂匯出供聆聽使用。若要試聽，先拔除 Pad，再切換上方「聲音聆聽」。'
+    : 'Music exports are for listening. Disconnect the pad and select Listen above to preview.') : message || (LANG==='zh'
+    ? '先調低裝置音量。更改設定會停止試聽；匯出時使用相同混音。'
+    : 'Start with low device volume. Changing settings stops the preview; export uses the same mix.');
+}
+
+function stopMusicPreview(message = '') {
+  const preview = musicPreview;
+  musicPreview = null; // Invalidates pending resume/render promises before they can play.
+  if (preview) {
+    if (preview.source) {
+      preview.source.onended = null;
+      try { preview.source.stop(); } catch (_) {}
+      preview.source.disconnect();
+    }
+    if (preview.context.state !== 'closed') preview.context.close().catch(() => {});
+  }
+  syncMusicPreviewUI(message);
+}
+
+function syncMusicPreviewOwner() {
+  if (musicPreview && musicPreview.owner !== auth.user) stopMusicPreview();
+}
+
+function scheduleMusicMix(ctx, settings, totalSec) {
+  let cursor = 0;
+  for (const segment of settings.segments) {
+    if (cursor >= totalSec) break;
+    const end = Math.min(totalSec, cursor + segment.duration);
+    buildSegment(ctx, segment, cursor, end, settings.treatmentLevel);
+    cursor = end;
+  }
+  if (settings.style !== 'silent' && settings.bgLevel > 0) {
+    buildBackground(ctx, settings.style, totalSec, settings.bgLevel);
+  }
+}
+
+function protectMusicPeak(buffer) {
+  // Only attenuate excessive peaks; never turn a quiet mix or silence up.
+  const channels = Array.from({ length: buffer.numberOfChannels }, (_, ch) => buffer.getChannelData(ch));
+  let peak = 0;
+  for (const data of channels) for (let i = 0; i < data.length; i++) peak = Math.max(peak, Math.abs(data[i]));
+  const gain = peak > 0.9 ? 0.9 / peak : 1;
+  if (gain < 1) for (const data of channels) for (let i = 0; i < data.length; i++) data[i] *= gain;
+  return buffer;
+}
+
+async function previewMusicMix() {
+  if (musicPreview) { stopMusicPreview(); return; }
+  if (state.outputMode === 'icare') { syncMusicPreviewUI(); return; }
+  if (musicExportInProgress) return;
+  if (!auth.user?.email) throw new Error(LANG==='zh'?'請先登入，再試聽。':'Sign in before previewing.');
+  if (document.hidden) return;
+  const settings = readMusicExportSettings();
+  const LiveContext = window.AudioContext || window.webkitAudioContext;
+  const OfflineContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  if (!LiveContext || !OfflineContext) throw new Error(LANG==='zh'?'此瀏覽器不支援試聽。':'This browser does not support preview.');
+  if (typeof stopRun === 'function') stopRun();
+  if (typeof stopEndChime === 'function') stopEndChime();
+  // Create/resume inside the user click, before asynchronous offline rendering (iOS).
+  const context = new LiveContext();
+  const preview = { context, source: null, owner: auth.user };
+  musicPreview = preview;
+  context.addEventListener('statechange', () => {
+    if (musicPreview !== preview) return;
+    if (['suspended', 'interrupted', 'closed'].includes(context.state)) {
+      stopMusicPreview(LANG==='zh'?'試聽已中斷，請重新按試聽。':'Preview interrupted. Press preview to listen again.');
+    }
+  });
+  syncMusicPreviewUI(LANG==='zh'?'正在準備短版混音，可隨時停止。':'Preparing the short mix. You can stop at any time.');
+  try {
+    await context.resume();
+    if (musicPreview !== preview) return;
+    const totalSec = Math.min(MUSIC_PREVIEW_SECONDS, settings.totalSec);
+    const offline = new OfflineContext(2, Math.ceil(totalSec * 44100), 44100);
+    scheduleMusicMix(offline, settings, totalSec);
+    const buffer = await offline.startRendering();
+    if (musicPreview !== preview || auth.user !== preview.owner || document.hidden) {
+      if (musicPreview === preview) stopMusicPreview();
+      return;
+    }
+    const source = context.createBufferSource();
+    preview.source = source;
+    source.buffer = protectMusicPeak(buffer);
+    source.connect(context.destination);
+    source.onended = () => {
+      if (musicPreview === preview) stopMusicPreview(LANG==='zh'?'試聽結束。可以調整混音，再匯出完整音檔。':'Preview complete. Adjust the mix or export the full track.');
+    };
+    source.start();
+    syncMusicPreviewUI(LANG==='zh'?'試聽中 · 前 20 秒，結尾會淡出。':'Playing the first 20 seconds with an ending fade.');
+  } catch (err) {
+    if (musicPreview !== preview) return;
+    stopMusicPreview();
+    throw err;
+  }
+}
 
 function clearMusicDownload() {
   if (musicDownload) URL.revokeObjectURL(musicDownload.url);
@@ -4353,10 +4726,15 @@ function syncMusicDownload() {
 
 window.addEventListener('pagehide', () => {
   musicPageGeneration += 1;
+  stopMusicPreview();
   clearMusicDownload();
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopMusicPreview();
 });
 
 function renderMusicView() {
+  stopMusicPreview();
   if (!musicState.initialized) {
     musicState.freqA = state.freqA;
     musicState.freqB = state.freqB;
@@ -4379,7 +4757,7 @@ function renderMusicView() {
           <div class="freq-card chA"><div class="freq-label">CH A</div><div class="freq-value" id="musicFreqAVal">${musicState.freqA}</div><div class="freq-name" id="musicFreqAName">—</div><input aria-label="CH A (Hz)" type="number" class="freq-input" id="musicFreqAInput" value="${musicState.freqA}" min="0.1" max="999" step="0.1" inputmode="decimal"></div>
           <div class="freq-card chB"><div class="freq-label">CH B</div><div class="freq-value" id="musicFreqBVal">${musicState.freqB}</div><div class="freq-name" id="musicFreqBName">—</div><input aria-label="CH B (Hz)" type="number" class="freq-input" id="musicFreqBInput" value="${musicState.freqB}" min="0.1" max="999" step="0.1" inputmode="decimal"></div>
         </div>
-        <div class="form-group"><label class="form-label" for="musicPolaritySelect">${LANG==='zh'?'極性':'Polarity'}</label><select class="form-select" id="musicPolaritySelect"><option value="Alternating" ${musicState.polarity==='Alternating'?'selected':''}>+/−</option><option value="Positive" ${musicState.polarity==='Positive'?'selected':''}>+→</option></select></div>
+        <div class="form-group"><label class="form-label" for="musicPolaritySelect">${LANG==='zh'?'協定極性（僅記錄）':'Protocol polarity (reference only)'}</label><select class="form-select" id="musicPolaritySelect"><option value="Alternating" ${musicState.polarity==='Alternating'?'selected':''}>+/−</option><option value="Positive" ${musicState.polarity==='Positive'?'selected':''}>+→</option></select></div>
         <div class="form-group"><label class="form-label" for="musicWaveSelect">${LANG==='zh'?'波形':'Waveform'}</label><select class="form-select" id="musicWaveSelect">${['Sharp','Medium','Gentle'].map(w => `<option value="${w}" ${musicState.wave===w?'selected':''}>${w}</option>`).join('')}</select></div>
         <div class="form-group"><label class="form-label" for="musicDurSlider">${t('music_duration')} · ${LANG==='zh'?'上限':'Maximum'} ${MUSIC_MAX_MINUTES} min</label><div class="slider-row"><input type="range" class="slider" id="musicDurSlider" min="1" max="${MUSIC_MAX_MINUTES}" step="1" value="${musicState.duration}"><div class="slider-value" id="musicDurVal">${musicState.duration} min</div></div></div>
       </div>
@@ -4400,8 +4778,14 @@ function renderMusicView() {
     </div>
     <div class="card">
       <div class="card-title">${t('music_mix')}</div>
-      <div class="form-group"><label class="form-label">${t('music_treatment_level')} · <span id="musicTreatmentVal">${Math.round(musicState.treatmentLevel*100)}%</span></label><div class="slider-row"><input type="range" class="slider" id="musicTreatmentSlider" min="30" max="100" step="5" value="${Math.round(musicState.treatmentLevel*100)}"><div class="slider-value" id="musicTreatmentValTxt">${Math.round(musicState.treatmentLevel*100)}%</div></div></div>
-      <div class="form-group" style="margin-bottom: 0;"><label class="form-label">${t('music_bg_level')} · <span id="musicBgVal">${Math.round(musicState.bgLevel*100)}%</span></label><div class="slider-row"><input type="range" class="slider" id="musicBgSlider" min="0" max="60" step="5" value="${Math.round(musicState.bgLevel*100)}"><div class="slider-value" id="musicBgValTxt">${Math.round(musicState.bgLevel*100)}%</div></div></div>
+      <div class="form-group"><label class="form-label" for="musicTreatmentSlider">${t('music_treatment_level')} · <span id="musicTreatmentVal">${Math.round(musicState.treatmentLevel*100)}%</span></label><div class="slider-row"><input type="range" class="slider" id="musicTreatmentSlider" min="0" max="100" step="5" value="${Math.round(musicState.treatmentLevel*100)}"><div class="slider-value" id="musicTreatmentValTxt">${Math.round(musicState.treatmentLevel*100)}%</div></div></div>
+      <div class="form-group" style="margin-bottom: 0;"><label class="form-label" for="musicBgSlider">${t('music_bg_level')} · <span id="musicBgVal">${Math.round(musicState.bgLevel*100)}%</span></label><div class="slider-row"><input type="range" class="slider" id="musicBgSlider" min="0" max="60" step="5" value="${Math.round(musicState.bgLevel*100)}"><div class="slider-value" id="musicBgValTxt">${Math.round(musicState.bgLevel*100)}%</div></div></div>
+    </div>
+    <div class="card music-preview-card">
+      <div class="card-title">${LANG==='zh'?'先聽聽看':'Listen before exporting'}</div>
+      <button class="btn-secondary" id="previewMusicBtn" aria-pressed="false">${LANG==='zh'?'▶ 試聽前 20 秒':'▶ Preview first 20 seconds'}</button>
+      <p id="musicPreviewStatus" role="status" style="font-size:12px;line-height:1.7;color:var(--text-dim);margin-top:12px;"></p>
+      <p style="font-size:12px;line-height:1.7;color:var(--text-dim);margin-top:8px;">${LANG==='zh'?'訊號可調至 0%，只保留背景聲。音檔為聆聽用混音；協定極性不會產生直流輸出，音量百分比也不代表微電流或磁場強度。':'Set the signal to 0% for background audio only. This is a listening mix: protocol polarity does not create DC output, and level percentages do not measure electrical current or magnetic field strength.'}</p>
     </div>
     <div class="card">
       <div class="card-title">${t('music_format')}</div>
@@ -4413,6 +4797,7 @@ function renderMusicView() {
       <div style="margin-top:8px;"><a href="/fsm/studio/vendor/lamejs-1.2.1/NOTICE.txt" target="_blank" rel="noopener">MP3: lamejs / LAME · ${LANG==='zh'?'授權與原始碼':'License and source'}</a></div>
     </div>
     <div class="warning-banner info" id="musicSizeEstimate">${t('music_size_estimate')}: <span id="musicSizeVal">~ — MB</span></div>
+    <p id="musicWorkingMemory" style="font-size:12px;line-height:1.7;color:var(--text-dim);margin:0 0 16px;"></p>
     <button class="btn-primary" id="generateMusicBtn">${t('music_generate')}</button>
     <div id="musicProgress" style="display: none;">
       <div class="card"><div class="card-title" id="musicProgressTitle">${t('music_generating')}</div><div style="background: var(--bg); border-radius: var(--radius); height: 8px; overflow: hidden; margin: 12px 0;"><div id="musicProgressBar" style="background: var(--accent); height: 100%; width: 0%; transition: width 0.3s;"></div></div><div style="font-size: 11px; color: var(--text-dim); font-family: var(--mono);" id="musicProgressStatus">—</div></div>
@@ -4425,6 +4810,7 @@ function renderMusicView() {
   initMusicViewBindings();
   setMusicExportBusy(musicExportInProgress);
   syncMusicDownload();
+  syncMusicPreviewUI();
 }
 
 function initMusicViewBindings() {
@@ -4463,12 +4849,13 @@ function initMusicViewBindings() {
   sel.value = selectedProtocol?.id || '';
   updateMusicProtocolInfo();
 
-  sel.addEventListener('change', updateMusicProtocolInfo);
+  sel.addEventListener('change', () => { stopMusicPreview(); updateMusicProtocolInfo(); });
 
   $('musicFreqAName').textContent = FREQ_A_MAP[musicState.freqA] || '—';
   $('musicFreqBName').textContent = FREQ_B_MAP[musicState.freqB] || '—';
 
   $('musicFreqAInput').addEventListener('input', e => {
+    stopMusicPreview();
     const v = Number(e.target.value);
     const valid = isValidFrequency(v);
     $('musicFreqAVal').textContent = valid ? v : '—';
@@ -4476,31 +4863,36 @@ function initMusicViewBindings() {
     if (valid) musicState.freqA = v;
   });
   $('musicFreqBInput').addEventListener('input', e => {
+    stopMusicPreview();
     const v = Number(e.target.value);
     const valid = isValidFrequency(v);
     $('musicFreqBVal').textContent = valid ? v : '—';
     $('musicFreqBName').textContent = valid ? FREQ_B_MAP[v] || '—' : '—';
     if (valid) musicState.freqB = v;
   });
-  $('musicPolaritySelect').addEventListener('change', e => { musicState.polarity = e.target.value; });
-  $('musicWaveSelect').addEventListener('change', e => { musicState.wave = e.target.value; });
+  $('musicPolaritySelect').addEventListener('change', e => { stopMusicPreview(); musicState.polarity = e.target.value; });
+  $('musicWaveSelect').addEventListener('change', e => { stopMusicPreview(); musicState.wave = e.target.value; });
   $('musicDurSlider').addEventListener('input', e => {
+    stopMusicPreview();
     musicState.duration = parseInt(e.target.value);
     $('musicDurVal').textContent = musicState.duration + ' min';
     updateMusicSizeEstimate();
   });
   $('musicTreatmentSlider').addEventListener('input', e => {
+    stopMusicPreview();
     musicState.treatmentLevel = parseInt(e.target.value) / 100;
     $('musicTreatmentVal').textContent = e.target.value + '%';
     $('musicTreatmentValTxt').textContent = e.target.value + '%';
   });
   $('musicBgSlider').addEventListener('input', e => {
+    stopMusicPreview();
     musicState.bgLevel = parseInt(e.target.value) / 100;
     $('musicBgVal').textContent = e.target.value + '%';
     $('musicBgValTxt').textContent = e.target.value + '%';
   });
   document.querySelectorAll('.subtab[data-msrc]').forEach(tab => {
     tab.addEventListener('click', () => {
+      stopMusicPreview();
       document.querySelectorAll('.subtab[data-msrc]').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       musicState.source = tab.getAttribute('data-msrc');
@@ -4511,24 +4903,28 @@ function initMusicViewBindings() {
   });
   document.querySelectorAll('#musicStyleGroup .btn-seg').forEach(btn => {
     btn.addEventListener('click', () => {
+      stopMusicPreview();
       document.querySelectorAll('#musicStyleGroup .btn-seg').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       musicState.style = btn.getAttribute('data-style');
       $('musicStyleDesc').textContent = t('music_style_desc_' + musicState.style);
-      if (musicState.style === 'silent') {
-        $('musicBgSlider').value = 0; musicState.bgLevel = 0;
-        $('musicBgVal').textContent = '0%'; $('musicBgValTxt').textContent = '0%';
-      }
+      // Keep the preferred background level when temporarily selecting signal-only.
+      $('musicBgSlider').disabled = musicState.style === 'silent';
     });
   });
   document.querySelectorAll('#musicFormatGroup .btn-seg').forEach(btn => {
     btn.addEventListener('click', () => {
+      stopMusicPreview();
       document.querySelectorAll('#musicFormatGroup .btn-seg').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       musicState.format = btn.getAttribute('data-fmt');
       $('musicFormatDesc').textContent = musicState.format==='wav' ? t('music_format_wav_desc') : t('music_format_mp3_desc');
       updateMusicSizeEstimate();
     });
+  });
+  $('previewMusicBtn').addEventListener('click', async () => {
+    try { await previewMusicMix(); }
+    catch (err) { syncMusicPreviewUI(String(err.message || err)); }
   });
   $('generateMusicBtn').addEventListener('click', async () => {
     try { await generateMusicFile(); }
@@ -4565,6 +4961,10 @@ function updateMusicSizeEstimate() {
   if (musicState.format === 'wav') sizeMB = (durMin * 60 * 176 / 1024).toFixed(1); // 44.1kHz 16-bit stereo
   else sizeMB = (durMin * 60 * 192 / 8 / 1024).toFixed(1); // 192 kbps MP3
   $('musicSizeVal').textContent = `~ ${sizeMB} MB`;
+  const memoryMB = Math.ceil(durMin * 60 * 44100 * 2 * 4 / 1000000);
+  $('musicWorkingMemory').textContent = LANG==='zh'
+    ? `音訊緩衝本身約需 ${memoryMB} MB 記憶體，編碼會另需空間。手機建議先匯出短版；MP3 檔案較小，但不會減少這段音訊緩衝。`
+    : `The audio buffer alone needs about ${memoryMB} MB of memory, with more needed for encoding. Start with a short export on a phone; choosing MP3 does not reduce this audio buffer.`;
 }
 
 function readMusicExportSettings() {
@@ -4576,7 +4976,7 @@ function readMusicExportSettings() {
   const bgLevel = Number($('musicBgSlider').value) / 100;
   const invalidSettings = () => new Error(LANG==='zh'?'請確認目前顯示的音樂匯出設定。':'Check the displayed music export settings.');
   if (!['manual', 'protocol'].includes(source) || !['ambient', 'binaural', 'nature', 'silent'].includes(style) ||
-      !['wav', 'mp3'].includes(format) || !Number.isFinite(treatmentLevel) || treatmentLevel < 0.3 || treatmentLevel > 1 ||
+      !['wav', 'mp3'].includes(format) || !Number.isFinite(treatmentLevel) || treatmentLevel < 0 || treatmentLevel > 1 ||
       !Number.isFinite(bgLevel) || bgLevel < 0 || bgLevel > 0.6) throw invalidSettings();
 
   let segments, labelName;
@@ -4619,6 +5019,8 @@ function readMusicExportSettings() {
 
 function setMusicExportBusy(busy) {
   $('view-music').querySelectorAll('input, select, button').forEach(control => { control.disabled = busy; });
+  $('musicBgSlider').disabled = busy || musicState.style === 'silent';
+  $('previewMusicBtn').disabled = busy || state.outputMode === 'icare';
   $('generateMusicBtn').style.opacity = busy ? '0.5' : '';
   if (busy) $('musicProgress').style.display = 'block';
 }
@@ -4637,6 +5039,10 @@ async function ensureMusicEncoder() {
 
 async function generateMusicFile() {
   if (musicExportInProgress) return;
+  if (state.outputMode === 'icare' && state.running) {
+    throw new Error(LANG === 'zh' ? '請先停止 Pad 輸出，再匯出音樂。' : 'Stop the pad session before exporting music.');
+  }
+  stopMusicPreview();
   const exportSession = auth.user;
   const pageGeneration = musicPageGeneration;
   musicExportInProgress = true;
@@ -4658,14 +5064,7 @@ async function generateMusicFile() {
     await new Promise(r => setTimeout(r, 50));
 
     const offCtx = new OfflineContext(2, totalSamples, SR);
-    let cursor = 0;
-    for (const segment of settings.segments) {
-      buildSegment(offCtx, segment, cursor, cursor + segment.duration, settings.treatmentLevel);
-      cursor += segment.duration;
-    }
-    if (settings.style !== 'silent' && settings.bgLevel > 0) {
-      buildBackground(offCtx, settings.style, settings.totalSec, settings.bgLevel);
-    }
+    scheduleMusicMix(offCtx, settings, settings.totalSec);
     $('musicProgressStatus').textContent = t('music_progress_render').replace('{pct}', '0');
     $('musicProgressBar').style.width = '15%';
     const renderStart = Date.now();
@@ -4675,7 +5074,7 @@ async function generateMusicFile() {
       $('musicProgressStatus').textContent = t('music_progress_render').replace('{pct}', guessedPct - 15);
     }, 300);
     let renderedBuffer;
-    try { renderedBuffer = await offCtx.startRendering(); }
+    try { renderedBuffer = protectMusicPeak(await offCtx.startRendering()); }
     finally { clearInterval(monitor); }
 
     $('musicProgressStatus').textContent = t('music_progress_encode');
@@ -4716,7 +5115,7 @@ function loadScript(src) {
 function buildSegment(ctx, seg, startTime, endTime, treatmentLevel) {
   const merger = ctx.createChannelMerger(2);
   const masterGain = ctx.createGain();
-  const fadeTime = Math.min(0.5, (endTime - startTime) / 2);
+  const fadeTime = Math.min(1.2, (endTime - startTime) / 2);
   masterGain.gain.setValueAtTime(0, startTime);
   masterGain.gain.linearRampToValueAtTime(treatmentLevel * 0.6, startTime + fadeTime);
   masterGain.gain.setValueAtTime(treatmentLevel * 0.6, endTime - fadeTime);
@@ -4724,6 +5123,7 @@ function buildSegment(ctx, seg, startTime, endTime, treatmentLevel) {
   const buildCh = (freq, idx) => {
     const chGain = ctx.createGain(); chGain.gain.value = 1.0;
     if (freq < 20) {
+      chGain.gain.value = 0; // AudioParam inputs add to this intrinsic value.
       const carrier = ctx.createOscillator();
       carrier.type = (seg.wave === 'Sharp') ? 'square' : 'sine';
       carrier.frequency.value = 200;
@@ -4742,12 +5142,7 @@ function buildSegment(ctx, seg, startTime, endTime, treatmentLevel) {
       osc.connect(chGain);
       osc.start(startTime); osc.stop(endTime);
     }
-    if (seg.polarity === 'Positive') {
-      const dc = ctx.createConstantSource(); dc.offset.value = 0.3;
-      const dcG = ctx.createGain(); dcG.gain.value = 0.5;
-      dc.connect(dcG); dcG.connect(chGain);
-      dc.start(startTime); dc.stop(endTime);
-    }
+    // Polarity remains protocol metadata; a listening file must not add a DC offset.
     chGain.connect(merger, 0, idx);
   };
   buildCh(seg.freqA, 0); buildCh(seg.freqB, 1);
@@ -4764,21 +5159,34 @@ function buildBackground(ctx, style, totalSec, bgLevel) {
   bgGain.gain.setValueAtTime(bgLevel * 0.4, totalSec - fadeTime);
   bgGain.gain.linearRampToValueAtTime(0, totalSec);
   if (style === 'ambient') {
-    const dr = ctx.createOscillator(); dr.type = 'sine'; dr.frequency.value = 110;
-    const df = ctx.createOscillator(); df.type = 'sine'; df.frequency.value = 164.81;
-    const dg = ctx.createGain(); dg.gain.value = 0.4;
-    dr.connect(dg); df.connect(dg); dg.connect(bgGain);
-    dr.start(0); dr.stop(totalSec); df.start(0); df.stop(totalSec);
-    const notes = [220, 261.63, 293.66, 329.63, 392, 440, 523.25];
-    for (let tm = 4; tm < totalSec - 4; tm += 6 + Math.random() * 4) {
-      const f = notes[Math.floor(Math.random() * notes.length)];
-      const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = f;
+    // Slow Cmaj7–Am7–Fmaj7–Gsus2 voicings and a repeating pentatonic motif.
+    // Deterministic notes keep the opening consistent between preview and export.
+    const chords = [[130.81,164.81,196,246.94], [110,164.81,196,261.63],
+      [130.81,174.61,220,261.63], [146.83,196,220,293.66]];
+    for (let bar = 0, tm = 0; tm < totalSec; bar++, tm += 16) {
+      const end = Math.min(tm + 19, totalSec);
+      const fade = Math.min(3, (end - tm) / 2);
+      for (const frequency of chords[bar % chords.length]) {
+        const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = frequency;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0, tm);
+        g.gain.linearRampToValueAtTime(0.18, tm + fade);
+        g.gain.setValueAtTime(0.18, end - fade);
+        g.gain.linearRampToValueAtTime(0, end);
+        osc.connect(g); g.connect(bgGain);
+        osc.start(tm); osc.stop(end);
+      }
+    }
+    const melody = [329.63,392,440,392,293.66,261.63,293.66,329.63];
+    for (let note = 0, tm = 5; tm < totalSec - 1; note++, tm += 8) {
+      const end = Math.min(tm + 5, totalSec);
+      const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = melody[note % melody.length];
       const g = ctx.createGain();
       g.gain.setValueAtTime(0, tm);
-      g.gain.linearRampToValueAtTime(0.15, tm + 0.5);
-      g.gain.exponentialRampToValueAtTime(0.001, tm + 4);
+      g.gain.linearRampToValueAtTime(0.2, tm + Math.min(0.8, (end - tm) / 2));
+      g.gain.exponentialRampToValueAtTime(0.001, end);
       osc.connect(g); g.connect(bgGain);
-      osc.start(tm); osc.stop(tm + 4.5);
+      osc.start(tm); osc.stop(end);
     }
   } else if (style === 'binaural') {
     const lo = ctx.createOscillator(); lo.type = 'sine'; lo.frequency.value = 200;
@@ -4793,11 +5201,13 @@ function buildBackground(ctx, style, totalSec, bgLevel) {
   } else if (style === 'nature') {
     const bufferSize = ctx.sampleRate * 2;
     const noiseBuffer = ctx.createBuffer(2, bufferSize, ctx.sampleRate);
+    let seed = 73121;
+    const nextNoise = () => { seed = (1664525 * seed + 1013904223) >>> 0; return seed / 4294967296 * 2 - 1; };
     for (let ch = 0; ch < 2; ch++) {
       const data = noiseBuffer.getChannelData(ch);
       let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
       for (let i = 0; i < bufferSize; i++) {
-        const w = Math.random() * 2 - 1;
+        const w = nextNoise();
         b0 = 0.99886 * b0 + w * 0.0555179;
         b1 = 0.99332 * b1 + w * 0.0750759;
         b2 = 0.96900 * b2 + w * 0.1538520;
@@ -4877,19 +5287,53 @@ function encodeMP3(audioBuffer, kbps) {
 // ============================================================
 // PROTECTED: INFO VIEW
 // ============================================================
-function renderInfoView() {
-  $('view-info').innerHTML = `
-    <div class="info-block">
-      <h3>${t('info_hardware_title')}</h3><p>${t('info_hardware_body')}</p>
-      <h3>${t('info_polarity_title')}</h3><p>${t('info_polarity_body')}</p>
-      <h3>${t('info_warnings_title')}</h3><p>${t('info_warnings_body')}</p>
-      <h3>${t('info_audio_title')}</h3><p>${t('info_audio_body')}</p>
-      <h3>${t('info_data_title')}</h3><p>${t('info_data_body')}</p>
-      <h3>${t('info_disclaimer_title')}</h3><p>${t('info_disclaimer_body')}</p>
-      <h3>Version</h3><p>FSM Studio · Stage 4 · ${auth.user ? auth.user.email : 'guest'}</p>
-    </div>
-  `;
+let infoRequestGeneration = 0;
+let infoSession = null;
+
+function clearInfoView() {
+  infoRequestGeneration += 1;
+  infoSession = null;
+  $('view-info').innerHTML = '';
 }
+
+async function renderInfoView() {
+  clearInfoView();
+  const session = auth.user;
+  if (!session?.token) { renderGate('view-info'); return; }
+  infoSession = session;
+  const generation = infoRequestGeneration;
+  const currentRequest = () => generation === infoRequestGeneration && auth.user === session && $('view-info').classList.contains('active');
+  $('view-info').innerHTML = '<div class="empty-state"><p>' + (LANG === 'zh' ? '正在確認會員資格…' : 'Checking membership…') + '</p></div>';
+  try {
+    const response = await fetch(API_BASE + '/protected-data', {
+      method: 'POST', cache: 'no-store',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.token },
+      body: JSON.stringify({ resource: 'guide' })
+    });
+    if (!currentRequest()) return;
+    if (response.status === 401 || response.status === 403) {
+      auth.user = null;
+      auth.save();
+      resetPersonalProtocolState();
+      updateAuthUI();
+      renderGate('view-info');
+      return;
+    }
+    if (!response.ok) throw new Error('Guide unavailable');
+    const data = await response.json();
+    if (!currentRequest()) return;
+    const guide = data.guide?.[LANG] || data.guide?.zh;
+    if (!guide || typeof guide.title !== 'string' || typeof guide.intro !== 'string' || !Array.isArray(guide.sections) || !guide.sections.length || !guide.sections.every(section => typeof section.title === 'string' && typeof section.body === 'string')) throw new Error('Invalid guide');
+    $('view-info').innerHTML = '<div class="info-block"><h2 style="font-size:22px;margin-bottom:12px">' + escapeHtml(guide.title) + '</h2><p>' + escapeHtml(guide.intro) + '</p>' +
+      guide.sections.map(section => '<h3>' + escapeHtml(section.title) + '</h3><p>' + escapeHtml(section.body) + '</p>').join('') + '</div>';
+  } catch (_) {
+    if (!currentRequest()) return;
+    $('view-info').innerHTML = '<div class="empty-state"><p>' + (LANG === 'zh' ? '暫時無法載入說明，請稍後重試。' : 'The guide is unavailable. Please retry.') + '</p><button type="button" class="btn-secondary" id="retryInfoGuide">' + (LANG === 'zh' ? '重試' : 'Retry') + '</button></div>';
+    $('retryInfoGuide').addEventListener('click', renderInfoView);
+  }
+}
+
+$('openInfoGuide').addEventListener('click', () => switchToView('info'));
 
 // ============================================================
 // PDF EXPORT
@@ -4971,6 +5415,7 @@ $('langToggle').addEventListener('click', () => {
   LANG = LANG === 'zh' ? 'en' : 'zh';
   localStorage.setItem('fsm_lang', LANG);
   applyI18n();
+  updateOutputModeUI();
   updateFreqDisplay();
   if (state.running) renderRunQueue();
   // Re-render active view
@@ -4982,6 +5427,7 @@ $('langToggle').addEventListener('click', () => {
 // INIT
 // ============================================================
 applyI18n();
+updateOutputModeUI();
 updateAuthUI();
 updateFreqDisplay();
 updateTimerDisplay();
