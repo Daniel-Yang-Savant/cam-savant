@@ -9,7 +9,7 @@
       },
       {
         "title": "外接 Pad",
-        "body": "目前為 iCare Pad 設備測試版，相容性尚未驗證。連接前請先停止播放，依設備原廠說明操作；勿將手機輸出直接接到人體電極。"
+        "body": "雙線圈模式目前為設備測試版，相容性尚未驗證。連接前請先停止播放，依設備原廠說明操作；勿將手機輸出直接接到人體電極。"
       },
       {
         "title": "播放與中斷",
@@ -35,7 +35,7 @@
       },
       {
         "title": "External Pad",
-        "body": "The iCare Pad mode is an equipment test version; compatibility has not been verified. Stop playback before connecting and follow the manufacturer's instructions. Never connect phone output directly to electrodes on the body."
+        "body": "Dual-coil mode is an equipment test version; compatibility has not been verified. Stop playback before connecting and follow the manufacturer's instructions. Never connect phone output directly to electrodes on the body."
       },
       {
         "title": "Playback and interruptions",
