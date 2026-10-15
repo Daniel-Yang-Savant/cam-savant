@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useBookmarks } from '@/lib/useBookmarks'
-import type { SearchItem } from '@/lib/search'
+import type { SearchItem } from '@/lib/search-types'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import BookmarkButton from '@/components/BookmarkButton'
 
@@ -30,7 +30,7 @@ export default function BookmarksPage() {
     )
   }
 
-  const bookmarked = index.filter((item) => slugs.includes(item.slug))
+  const bookmarked = index.filter((item) => item.type === 'article' && slugs.includes(item.slug))
   // Preserve order (newest bookmarked first = slug order in `slugs`)
   const sorted = slugs
     .map((s) => bookmarked.find((b) => b.slug === s))

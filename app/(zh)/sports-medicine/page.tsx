@@ -1,35 +1,41 @@
 import type { Metadata } from 'next'
 import { getPostsByCategory, CATEGORY_DESCRIPTIONS } from '@/lib/posts'
 import { generateCollectionPageSchema } from '@/lib/schema'
+import { getPagination, type PageParameter } from '@/lib/pagination'
 import PostList from '@/components/PostList'
 import Pagination from '@/components/Pagination'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 const BASE_URL = 'https://camsavant.com'
-const POSTS_PER_PAGE = 12
-
-export const metadata: Metadata = {
-  alternates: { canonical: '/sports-medicine' },
-  title: '運動醫學',
-  description: CATEGORY_DESCRIPTIONS['sports-medicine'],
-}
 
 interface Props {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: PageParameter }>
+}
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const { page } = await searchParams
+  const { canonicalPath } = getPagination({
+    page,
+    totalItems: getPostsByCategory('sports-medicine').length,
+    basePath: '/sports-medicine',
+  })
+
+  return {
+    alternates: { canonical: canonicalPath },
+    title: '運動醫學',
+    description: CATEGORY_DESCRIPTIONS['sports-medicine'],
+  }
 }
 
 export default async function SportsMedicinePage({ searchParams }: Props) {
   const { page } = await searchParams
   const allPosts = getPostsByCategory('sports-medicine')
-  const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE)
-  const currentPage = Math.min(
-    Math.max(1, parseInt(page ?? '1') || 1),
-    Math.max(totalPages, 1)
-  )
-  const paginatedPosts = allPosts.slice(
-    (currentPage - 1) * POSTS_PER_PAGE,
-    currentPage * POSTS_PER_PAGE
-  )
+  const { currentPage, totalPages, canonicalPath, startIndex, endIndex } = getPagination({
+    page,
+    totalItems: allPosts.length,
+    basePath: '/sports-medicine',
+  })
+  const paginatedPosts = allPosts.slice(startIndex, endIndex)
 
   return (
     <>
@@ -40,7 +46,7 @@ export default async function SportsMedicinePage({ searchParams }: Props) {
             generateCollectionPageSchema({
               name: '運動醫學',
               description: CATEGORY_DESCRIPTIONS['sports-medicine'],
-              url: `${BASE_URL}/sports-medicine`,
+              url: `${BASE_URL}${canonicalPath}`,
               specialty: 'SportsMedicine',
             })
           ),

@@ -2,35 +2,41 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getPostsByCategory, CATEGORY_DESCRIPTIONS } from '@/lib/posts'
 import { generateCollectionPageSchema } from '@/lib/schema'
+import { getPagination, type PageParameter } from '@/lib/pagination'
 import PostList from '@/components/PostList'
 import Pagination from '@/components/Pagination'
 import Breadcrumbs from '@/components/Breadcrumbs'
 
 const BASE_URL = 'https://camsavant.com'
-const POSTS_PER_PAGE = 12
-
-export const metadata: Metadata = {
-  alternates: { canonical: '/functional-medicine' },
-  title: '功能醫學',
-  description: CATEGORY_DESCRIPTIONS['functional-medicine'],
-}
 
 interface Props {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: PageParameter }>
+}
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const { page } = await searchParams
+  const { canonicalPath } = getPagination({
+    page,
+    totalItems: getPostsByCategory('functional-medicine').length,
+    basePath: '/functional-medicine',
+  })
+
+  return {
+    alternates: { canonical: canonicalPath },
+    title: '功能醫學',
+    description: CATEGORY_DESCRIPTIONS['functional-medicine'],
+  }
 }
 
 export default async function FunctionalMedicinePage({ searchParams }: Props) {
   const { page } = await searchParams
   const allPosts = getPostsByCategory('functional-medicine')
-  const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE)
-  const currentPage = Math.min(
-    Math.max(1, parseInt(page ?? '1') || 1),
-    Math.max(totalPages, 1)
-  )
-  const paginatedPosts = allPosts.slice(
-    (currentPage - 1) * POSTS_PER_PAGE,
-    currentPage * POSTS_PER_PAGE
-  )
+  const { currentPage, totalPages, canonicalPath, startIndex, endIndex } = getPagination({
+    page,
+    totalItems: allPosts.length,
+    basePath: '/functional-medicine',
+  })
+  const paginatedPosts = allPosts.slice(startIndex, endIndex)
 
   return (
     <>
@@ -41,7 +47,7 @@ export default async function FunctionalMedicinePage({ searchParams }: Props) {
             generateCollectionPageSchema({
               name: '功能醫學',
               description: CATEGORY_DESCRIPTIONS['functional-medicine'],
-              url: `${BASE_URL}/functional-medicine`,
+              url: `${BASE_URL}${canonicalPath}`,
               specialty: 'InternalMedicine',
             })
           ),
@@ -81,10 +87,10 @@ export default async function FunctionalMedicinePage({ searchParams }: Props) {
               互動工具
             </p>
             <h2 className="text-base font-bold text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
-              Metagenics 營養品推薦工具
+              Metagenics 營養品查找工具
             </h2>
             <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
-              輸入症狀，獲取個人化營養品前五名建議 →
+              依中英文品名查找產品，核對標示與一般使用安全資訊 →
             </p>
           </div>
           <div className="flex-shrink-0 text-neutral-300 dark:text-neutral-600 group-hover:text-neutral-500 dark:group-hover:text-neutral-400 transition-colors">

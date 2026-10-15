@@ -1,16 +1,12 @@
 import Link from 'next/link'
 import clsx from 'clsx'
+import { getPageHref } from '@/lib/pagination'
 
 interface PaginationProps {
   currentPage: number
   totalPages: number
   /** Base path, e.g. "/posts" or "/sports-medicine" */
   basePath: string
-}
-
-function pageHref(basePath: string, page: number) {
-  if (page === 1) return basePath
-  return `${basePath}?page=${page}`
 }
 
 function buildPageList(current: number, total: number): (number | 'ellipsis')[] {
@@ -48,7 +44,7 @@ export default function Pagination({ currentPage, totalPages, basePath }: Pagina
     >
       {/* ← Prev */}
       {currentPage > 1 ? (
-        <Link href={pageHref(basePath, currentPage - 1)} className={clsx(btnBase, btnDefault)}>
+        <Link href={getPageHref(basePath, currentPage - 1)} className={clsx(btnBase, btnDefault)}>
           ←
         </Link>
       ) : (
@@ -64,7 +60,7 @@ export default function Pagination({ currentPage, totalPages, basePath }: Pagina
         ) : (
           <Link
             key={page}
-            href={pageHref(basePath, page)}
+            href={getPageHref(basePath, page)}
             className={clsx(btnBase, page === currentPage ? btnActive : btnDefault)}
             aria-current={page === currentPage ? 'page' : undefined}
           >
@@ -75,7 +71,7 @@ export default function Pagination({ currentPage, totalPages, basePath }: Pagina
 
       {/* → Next */}
       {currentPage < totalPages ? (
-        <Link href={pageHref(basePath, currentPage + 1)} className={clsx(btnBase, btnDefault)}>
+        <Link href={getPageHref(basePath, currentPage + 1)} className={clsx(btnBase, btnDefault)}>
           →
         </Link>
       ) : (
