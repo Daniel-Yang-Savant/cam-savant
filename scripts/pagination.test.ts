@@ -2,7 +2,8 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { getPagination, type PageParameter } from '../lib/pagination'
-import { getPostsByCategory } from '../lib/posts'
+import { getPostsByCategory, getPublicPosts } from '../lib/posts'
+import PostsPage, { generateMetadata as postsMetadata } from '../app/(zh)/posts/page'
 import SportsMedicinePage, { generateMetadata as sportsMetadata } from '../app/(zh)/sports-medicine/page'
 import RehabMedicinePage, { generateMetadata as rehabMetadata } from '../app/(zh)/rehabilitation-medicine/page'
 import FunctionalMedicinePage, { generateMetadata as functionalMetadata } from '../app/(zh)/functional-medicine/page'
@@ -95,3 +96,57 @@ for (const { category, Page, metadata } of categories) {
     }
   })
 }
+
+test('all articles are reachable exactly once by following rendered /posts pagination links without JavaScript', async () => {
+  const expected = getPublicPosts().map((post) => post.slug)
+  const queued = new Set(['/posts'])
+  const pages = new Map<number, string[]>()
+
+  for (const path of queued) {
+    const url = new URL(path, 'https://camsavant.com')
+    const page = url.searchParams.get('page') ?? undefined
+    const props = { searchParams: Promise.resolve({ page }) }
+    const html = renderToStaticMarkup(await PostsPage(props))
+    const metadata = await postsMetadata(props)
+    assert.equal(metadata.alternates?.canonical, path)
+    assert.equal(metadata.robots, undefined)
+    const pageNumber = page ? Number(page) : 1
+    const slugs = [...html.matchAll(/href="\/posts\/([^"]+)"/g)].map((match) => match[1])
+    assert.deepEqual(slugs, expected.slice((pageNumber - 1) * 12, pageNumber * 12))
+    pages.set(pageNumber, slugs)
+
+    const pagination = html.match(/<nav aria-label="文章分頁"[^>]*>(.*?)<\/nav>/)?.[1]
+    assert.ok(pagination, 'the complete article index needs crawlable pagination')
+    assert.doesNotMatch(pagination, /<button\b/)
+    for (const [, href] of pagination.matchAll(/href="(\/posts(?:\?page=\d+)?)"/g)) {
+      queued.add(href)
+    }
+  }
+
+  assert.equal(pages.size, Math.ceil(expected.length / 12))
+  assert.deepEqual([...pages].sort(([a], [b]) => a - b).flatMap(([, slugs]) => slugs), expected)
+})
+
+test('/posts URL variants keep their rendered articles and canonical on the same page', async () => {
+  const posts = getPublicPosts()
+  const lastPage = Math.max(1, Math.ceil(posts.length / 12))
+  const cases: { input: PageParameter; expected: number }[] = [
+    { input: undefined, expected: 1 },
+    { input: '1', expected: 1 },
+    { input: '2', expected: Math.min(2, lastPage) },
+    { input: '02', expected: Math.min(2, lastPage) },
+    { input: '999', expected: lastPage },
+    { input: '-1', expected: 1 },
+    { input: '2abc', expected: 1 },
+    { input: ['2', '3'], expected: 1 },
+  ]
+
+  for (const { input, expected } of cases) {
+    const props = { searchParams: Promise.resolve({ page: input }) }
+    const html = renderToStaticMarkup(await PostsPage(props))
+    const metadata = await postsMetadata(props)
+    assert.equal(metadata.alternates?.canonical, expected === 1 ? '/posts' : `/posts?page=${expected}`)
+    const slugs = [...html.matchAll(/href="\/posts\/([^"]+)"/g)].map((match) => match[1])
+    assert.deepEqual(slugs, posts.slice((expected - 1) * 12, expected * 12).map((post) => post.slug))
+  }
+})

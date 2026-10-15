@@ -3,11 +3,14 @@
 import { useState, useMemo, useId } from 'react'
 import clsx from 'clsx'
 import ArticleCard from '@/components/ArticleCard'
+import Pagination from '@/components/Pagination'
 import type { ArticleSummary } from '@/lib/article-discovery'
+import { getPagination } from '@/lib/pagination'
 
 interface Props {
   allPosts: ArticleSummary[]
   allTags: { tag: string; count: number }[]
+  currentPage: number
 }
 
 const POSTS_PER_PAGE = 12
@@ -21,14 +24,14 @@ const CATEGORY_TABS = [
   { key: 'fsm',                     href: '/fsm',                    label: 'FSM'    },
 ]
 
-export default function PostsClient({ allPosts, allTags }: Props) {
+export default function PostsClient({ allPosts, allTags, currentPage }: Props) {
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set())
   const [showFilter, setShowFilter] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [filteredPage, setFilteredPage] = useState(1)
   const tagPanelId = useId()
 
   function toggleTag(tag: string) {
-    setCurrentPage(1)
+    setFilteredPage(1)
     setSelectedTags((prev) => {
       const next = new Set(prev)
       if (next.has(tag)) next.delete(tag)
@@ -38,7 +41,7 @@ export default function PostsClient({ allPosts, allTags }: Props) {
   }
 
   function clearTags() {
-    setCurrentPage(1)
+    setFilteredPage(1)
     setSelectedTags(new Set())
   }
 
@@ -49,12 +52,15 @@ export default function PostsClient({ allPosts, allTags }: Props) {
     )
   }, [allPosts, selectedTags])
 
-  const totalPages = Math.ceil(filtered.length / POSTS_PER_PAGE)
-  const safePage = Math.min(currentPage, Math.max(totalPages, 1))
-  const paginated = filtered.slice(
-    (safePage - 1) * POSTS_PER_PAGE,
-    safePage * POSTS_PER_PAGE
-  )
+  // Unfiltered results follow the server URL. Tag selections only paginate
+  // their local result set; clearing them restores the requested URL's page.
+  const { currentPage: safePage, totalPages, startIndex, endIndex } = getPagination({
+    page: String(selectedTags.size > 0 ? filteredPage : currentPage),
+    totalItems: filtered.length,
+    basePath: '/posts',
+    pageSize: POSTS_PER_PAGE,
+  })
+  const paginated = filtered.slice(startIndex, endIndex)
 
   // ── Page button helpers ──────────────────────────────────────────────────
   function buildPages(current: number, total: number): (number | 'ellipsis')[] {
@@ -236,12 +242,14 @@ export default function PostsClient({ allPosts, allTags }: Props) {
       )}
 
       {/* ── Pagination ── */}
-      {totalPages > 1 && (
+      {selectedTags.size === 0 ? (
+        <Pagination currentPage={safePage} totalPages={totalPages} basePath="/posts" />
+      ) : totalPages > 1 ? (
         <nav aria-label="文章分頁" className="flex items-center justify-center gap-1 mt-14 flex-wrap">
           <button
             type="button"
             aria-label="上一頁"
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            onClick={() => setFilteredPage((p) => Math.max(1, p - 1))}
             disabled={safePage <= 1}
             className={clsx(btnBase, safePage <= 1 ? btnDisabled : btnDefault)}
           >←</button>
@@ -252,7 +260,7 @@ export default function PostsClient({ allPosts, allTags }: Props) {
             ) : (
               <button
                 key={page}
-                onClick={() => setCurrentPage(page)}
+                onClick={() => setFilteredPage(page)}
                 className={clsx(btnBase, page === safePage ? btnActive : btnDefault)}
                 aria-current={page === safePage ? 'page' : undefined}
               >
@@ -264,12 +272,12 @@ export default function PostsClient({ allPosts, allTags }: Props) {
           <button
             type="button"
             aria-label="下一頁"
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            onClick={() => setFilteredPage((p) => Math.min(totalPages, p + 1))}
             disabled={safePage >= totalPages}
             className={clsx(btnBase, safePage >= totalPages ? btnDisabled : btnDefault)}
           >→</button>
         </nav>
-      )}
+      ) : null}
     </div>
   )
 }

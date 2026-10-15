@@ -3,16 +3,36 @@ import { getPublicPosts, getIndexableTags } from '@/lib/posts'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import PostsClient from '@/components/PostsClient'
 import { createPublicArticleSummaries } from '@/lib/article-discovery'
+import { getPagination, type PageParameter } from '@/lib/pagination'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/posts' },
-  title: '所有文章',
-  description: '瀏覽所有運動醫學、功能醫學與 FSM 相關文章',
+interface Props {
+  searchParams: Promise<{ page?: PageParameter }>
 }
 
-export default function PostsPage() {
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const { page } = await searchParams
+  const { canonicalPath } = getPagination({
+    page,
+    totalItems: createPublicArticleSummaries(getPublicPosts()).length,
+    basePath: '/posts',
+  })
+
+  return {
+    alternates: { canonical: canonicalPath },
+    title: '所有文章',
+    description: '瀏覽所有運動醫學、功能醫學與 FSM 相關文章',
+  }
+}
+
+export default async function PostsPage({ searchParams }: Props) {
+  const { page } = await searchParams
   const allPosts = createPublicArticleSummaries(getPublicPosts())
   const allTags = getIndexableTags()
+  const { currentPage } = getPagination({
+    page,
+    totalItems: allPosts.length,
+    basePath: '/posts',
+  })
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
@@ -38,8 +58,8 @@ export default function PostsPage() {
         </p>
       </div>
 
-      {/* ── Client component: tag filter + pagination ── */}
-      <PostsClient allPosts={allPosts} allTags={allTags} />
+      {/* The requested page is rendered before client-side tag filtering. */}
+      <PostsClient allPosts={allPosts} allTags={allTags} currentPage={currentPage} />
     </div>
   )
 }
