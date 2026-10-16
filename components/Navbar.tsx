@@ -36,7 +36,6 @@ export default function Navbar({ locale = 'zh' }: NavbarProps) {
   const currentPath = pathname ?? (locale === 'en' ? '/en' : '/')
   const [open, setOpen] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
-  const articleMenuRef = useRef<HTMLDetailsElement>(null)
   const mobileMenuRef = useRef<HTMLDetailsElement>(null)
   const menuToggleRef = useRef<HTMLButtonElement>(null)
   const searchToggleRef = useRef<HTMLButtonElement>(null)
@@ -67,6 +66,14 @@ export default function Navbar({ locale = 'zh' }: NavbarProps) {
     { href: '/perioperative-rehab', label: t('navPerioperativeRehab') },
   ]
 
+  const DESKTOP_NAV_LINKS = isEnglish
+    ? NAV_LINKS
+    : [
+        { href: '/', label: t('home') },
+        { href: '/about', label: t('about') },
+        ...ARTICLE_LINKS,
+      ]
+
   function isActive(href: string) {
     if (href === '/' || href === '/en') return currentPath === href
     if (href === '/about' || href === '/en/about') {
@@ -82,21 +89,12 @@ export default function Navbar({ locale = 'zh' }: NavbarProps) {
   function closeMenus() {
     setOpen(false)
     setMobileSearchOpen(false)
-    if (articleMenuRef.current) articleMenuRef.current.open = false
     if (mobileMenuRef.current) mobileMenuRef.current.open = false
   }
 
   useEffect(() => {
-    function onPointerDown(event: PointerEvent) {
-      const menu = articleMenuRef.current
-      if (menu?.open && !menu.contains(event.target as Node)) menu.open = false
-    }
     function onKeyDown(event: KeyboardEvent) {
       if (event.key !== 'Escape' || event.defaultPrevented) return
-      if (articleMenuRef.current?.open) {
-        articleMenuRef.current.open = false
-        articleMenuRef.current.querySelector('summary')?.focus()
-      }
       if (mobileSearchOpen) {
         setMobileSearchOpen(false)
         searchToggleRef.current?.focus()
@@ -106,10 +104,8 @@ export default function Navbar({ locale = 'zh' }: NavbarProps) {
         menuToggleRef.current?.focus()
       }
     }
-    document.addEventListener('pointerdown', onPointerDown)
     document.addEventListener('keydown', onKeyDown)
     return () => {
-      document.removeEventListener('pointerdown', onPointerDown)
       document.removeEventListener('keydown', onKeyDown)
     }
   }, [open, mobileSearchOpen])
@@ -117,7 +113,6 @@ export default function Navbar({ locale = 'zh' }: NavbarProps) {
   useEffect(() => {
     setOpen(false)
     setMobileSearchOpen(false)
-    if (articleMenuRef.current) articleMenuRef.current.open = false
     if (mobileMenuRef.current) mobileMenuRef.current.open = false
   }, [currentPath])
 
@@ -154,8 +149,8 @@ export default function Navbar({ locale = 'zh' }: NavbarProps) {
           )}
 
           {/* Desktop nav links */}
-          <ul className="hidden xl:flex shrink-0 items-center gap-5">
-            {NAV_LINKS.map(({ href, label }) => {
+          <ul className="hidden xl:flex shrink-0 items-center gap-8">
+            {DESKTOP_NAV_LINKS.map(({ href, label }) => {
               const active = isActive(href)
               return (
                 <li key={href} className="flex items-center">
@@ -172,22 +167,6 @@ export default function Navbar({ locale = 'zh' }: NavbarProps) {
                   >
                     {label}
                   </Link>
-                  {!isEnglish && href === '/posts' && (
-                    <details ref={articleMenuRef} className="group relative">
-                      <summary aria-label="開啟文章分類" className="flex h-11 w-8 cursor-pointer list-none items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 [&::-webkit-details-marker]:hidden">
-                        <svg aria-hidden="true" className="h-4 w-4 transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg>
-                      </summary>
-                      <ul className="absolute left-0 top-full z-50 w-52 rounded-xl border border-neutral-200 bg-white p-2 shadow-lg dark:border-neutral-700 dark:bg-neutral-900">
-                        {ARTICLE_LINKS.map((link) => (
-                          <li key={link.href}>
-                            <Link href={link.href} onClick={closeMenus} aria-current={currentPath === link.href ? 'page' : undefined} className={clsx('flex min-h-11 items-center rounded-lg px-3 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800', isActive(link.href) ? 'font-medium text-accent-700 dark:text-accent-400' : 'text-neutral-600 dark:text-neutral-300')}>
-                              {link.label}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </details>
-                  )}
                 </li>
               )
             })}
