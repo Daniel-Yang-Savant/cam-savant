@@ -12,6 +12,7 @@ import {
   isExerciseGuideIndexable,
 } from '@/lib/exercise-guides'
 import { CLINIC_LOCATIONS } from '@/lib/locations'
+import { RESOURCE_UPDATED_AT } from '@/lib/rehab-resources'
 import { MetadataRoute } from 'next'
 
 const BASE_URL = 'https://camsavant.com'
@@ -165,6 +166,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(getExerciseGuideCollectionModifiedDate(EXERCISE_GUIDE_MODULES)),
       changeFrequency: 'monthly' as const,
       priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/rehab-resources`,
+      lastModified: new Date(RESOURCE_UPDATED_AT),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
     },
     categoryPage('sports-medicine', 'sports-medicine'),
     categoryPage('weekly-picks', 'weekly-picks'),

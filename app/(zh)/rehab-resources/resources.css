@@ -1,0 +1,37 @@
+.ResourcePrintOnly { display: none; }
+.RehabResourcesPage input:focus-visible,
+.RehabResourcesPage button:focus-visible,
+.RehabResourcesPage a:focus-visible,
+.RehabResourcesPage summary:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 4px;
+}
+.ResourceSourceUrl { overflow-wrap: anywhere; }
+.RehabResourcesPage { overflow-wrap: break-word; }
+body:has(.ResourceSelectionBar) > button[aria-label="回到頂部"] { bottom: 6rem; }
+
+@media print {
+  @page rehab-resources { size: A4; margin: 15mm 14mm; }
+  .RehabResourcesPage { page: rehab-resources; }
+  body:has(.RehabResourcesPage) > :not(main) { display: none !important; }
+  .RehabResourcesPage .ResourceScreenOnly { display: none !important; }
+  .RehabResourcesPage .ResourcePrintOnly { display: block !important; color: #111 !important; }
+  .RehabResourcesPage, .RehabResourceDirectory { margin: 0 !important; padding: 0 !important; max-width: none !important; background: white !important; }
+  .ResourcePrintOnly * { color: #111 !important; background: transparent !important; box-shadow: none !important; }
+  .ResourcePrintOnly { font-size: 10pt; line-height: 1.65; }
+  .ResourcePrintOnly .ResourcePrintTitle { font-size: 21pt; font-weight: 700; line-height: 1.4; margin: 8pt 0; }
+  .ResourcePrintOnly h2 { font-size: 14pt; line-height: 1.5; break-after: avoid; margin-top: 14pt; }
+  .ResourcePrintOnly h3, .ResourcePrintOnly h4 { font-size: 10.5pt; break-after: avoid; }
+  .ResourcePrintOnly p { margin: 3pt 0; }
+  .ResourcePrintOnly ul, .ResourcePrintOnly ol { list-style-position: outside; padding-left: 16pt; }
+  .ResourcePrintOnly ul { list-style-type: disc; }
+  .ResourcePrintOnly ol { list-style-type: decimal; }
+  .ResourcePrintOnly .ResourceDetails { font-size: 9.5pt; line-height: 1.6; }
+  .ResourcePrintOnly .ResourceDetails > div { margin-top: 9pt; break-inside: avoid; }
+  .ResourcePrintIntro, .ResourcePrintSummary { break-inside: avoid; }
+  .ResourcePrintItem { break-before: page; }
+  .ResourcePrintOnly a { text-decoration: none; }
+  .ResourcePrintOnly a[href]::after { content: none !important; }
+  .ResourceSourceUrl { font-size: 7.5pt; line-height: 1.5; }
+  .ResourceSocialWorkerNotes { margin-top: 14pt; padding-top: 9pt; border-top: 1px solid #888; break-inside: avoid; line-height: 2; }
+}

@@ -18,7 +18,7 @@ export default function FloatingChatButton({ locale = 'zh' }: { locale?: 'zh' | 
   const [open, setOpen] = useState(false)
   const isEnglish = locale === 'en'
 
-  if (pathname?.startsWith('/admin')) return null
+  if (pathname?.startsWith('/admin') || pathname === '/rehab-resources') return null
 
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-3">
