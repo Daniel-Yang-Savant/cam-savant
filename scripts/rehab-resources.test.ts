@@ -5,7 +5,7 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import {
   REHAB_RESOURCES, REGIONAL_CONTACTS, REGIONS, PRIORITY_REGIONS, DISEASE_GROUPS, NEEDS,
-  resourceStatus, matchesResource, geographicMatch, matchReasons, taipeiDate,
+  resourceStatus, matchesResource, geographicMatch, groupResourceProviders, isResourceSearchReady, matchingProviders, matchReasons, taipeiDate, toggleProviderSelection,
   type RehabResource, type ResourceFilters,
 } from '../lib/rehab-resources'
 import ResourceDetails from '../components/rehab-resources/ResourceDetails'
@@ -13,7 +13,7 @@ import RehabResourcesPage, { metadata, dynamic } from '../app/(zh)/rehab-resourc
 import sitemap from '../app/sitemap'
 
 const TODAY = '2026-10-18'
-const EMPTY: ResourceFilters = { diseases: [], needs: [], residence: '', household: '', hospitalRegion: '', kind: '', status: '' }
+const EMPTY: ResourceFilters = { diseases: [], needs: [], region: '', residence: '', household: '', hospitalRegion: '', kind: '', status: '' }
 function fixture(overrides: Partial<RehabResource> = {}): RehabResource {
   return { ...REHAB_RESOURCES[0], id: 'test-resource', status: 'ongoing', checkedAt: TODAY, reviewAfterDays: 30, ...overrides }
 }
@@ -41,12 +41,66 @@ test('22 county contacts remain separate from grants; all four priority counties
   assert.equal(REGIONAL_CONTACTS.length, 22)
   assert.equal(new Set(REGIONAL_CONTACTS.map((contact) => contact.region)).size, 22)
   assert.deepEqual([...REGIONAL_CONTACTS.map((contact) => contact.region)].sort(), [...REGIONS].sort())
+  const central = groupResourceProviders(REHAB_RESOURCES).filter((provider) => provider.resources.some((resource) => resource.regions.some((region) => region !== '全國' && PRIORITY_REGIONS.includes(region))))
+  assert.ok(central.length >= 50, `only ${central.length} distinct central providers`)
   for (const region of PRIORITY_REGIONS) {
     const local = REHAB_RESOURCES.filter((resource) => resource.regions.includes(region))
     assert.ok(local.some((resource) => resource.kind === 'government' && resource.resourceType === 'scheme'), region)
     assert.ok(local.some((resource) => resource.kind === 'hospital'), region)
     assert.ok(local.some((resource) => resource.kind === 'foundation' || resource.kind === 'charity'), region)
   }
+})
+
+test('programmes, departments and family foundation sites are grouped into one provider', () => {
+  const resources = [
+    fixture({ id: 'public-a', kind: 'government', geographicBasis: 'household', organization: '彰化縣政府社會處', regions: ['彰化縣'], diseases: 'all', needs: ['medical'] }),
+    fixture({ id: 'public-b', kind: 'government', geographicBasis: 'household', organization: '彰化縣政府／受託服務單位', regions: ['彰化縣'], diseases: 'all', needs: ['assistive'] }),
+    fixture({ id: 'ccf-a', organization: '家扶基金會雲林家扶中心', kind: 'foundation', geographicBasis: 'residence', regions: ['雲林縣'] }),
+    fixture({ id: 'ccf-b', organization: '家扶基金會南投家扶中心', kind: 'foundation', geographicBasis: 'residence', regions: ['南投縣'] }),
+  ]
+  const providers = groupResourceProviders(resources)
+  assert.equal(providers.length, 2)
+  assert.deepEqual(providers.map((provider) => provider.resources.length), [2, 2])
+  assert.equal(new Set(providers.map((provider) => provider.id)).size, 2)
+  const matching = matchingProviders(resources, { ...EMPTY, diseases: ['stroke'], region: '彰化縣', needs: ['medical'] }, TODAY)
+  assert.equal(matching.length, 1)
+  assert.deepEqual(matching[0].resources.map((resource) => resource.id), ['public-a'])
+})
+
+test('search requires a disease, county and need; the disease options contain only the two defined clinical groups', () => {
+  const complete: ResourceFilters = { ...EMPTY, diseases: ['stroke'], region: '彰化縣', needs: ['medical'] }
+  assert.equal(isResourceSearchReady(EMPTY), false)
+  assert.equal(isResourceSearchReady(complete), true)
+  for (const incomplete of [
+    { ...complete, diseases: [] }, { ...complete, region: '' as const }, { ...complete, needs: [] },
+    { ...EMPTY, diseases: ['stroke'] as const, residence: '彰化縣' as const, needs: ['medical'] as const },
+  ]) assert.equal(isResourceSearchReady({ ...incomplete, diseases: [...incomplete.diseases], needs: [...incomplete.needs] }), false)
+  assert.equal(DISEASE_GROUPS.length, 2)
+  assert.equal(DISEASE_GROUPS.reduce((count, group) => count + group.items.length, 0), 9)
+  assert.doesNotMatch(JSON.stringify(DISEASE_GROUPS), /assessing|other|尚未確定/)
+})
+
+test('adding newly matched services keeps the same provider selected once and preserves prior services', () => {
+  const provider = { id: 'one-provider', name: '同一單位', resources: [fixture({ id: 'service-a' })] }
+  const first = toggleProviderSelection([], provider)
+  const updated = toggleProviderSelection(first, { ...provider, resources: [fixture({ id: 'service-b' }), fixture({ id: 'service-a' })] })
+  assert.equal(updated.length, 1)
+  assert.deepEqual(updated[0].resourceIds, ['service-a', 'service-b'])
+  assert.deepEqual(first[0].resourceIds, ['service-a'])
+  assert.deepEqual(toggleProviderSelection(updated, provider), [])
+})
+
+test('a query county narrows local candidates without claiming household, residence or hospital eligibility', () => {
+  for (const geographicBasis of ['household', 'residence', 'hospital'] as const) {
+    const resource = fixture({ regions: ['彰化縣'], geographicBasis })
+    const local = geographicMatch(resource, { ...EMPTY, region: '彰化縣' })
+    assert.equal(local.matches, true)
+    assert.match(local.reason, /實際資格仍須確認/)
+    const otherCounty = geographicMatch(resource, { ...EMPTY, region: '臺中市' })
+    assert.equal(otherCounty.matches, false)
+    assert.match(otherCounty.reason, /所選臺中市不在/)
+  }
+  assert.equal(geographicMatch(fixture({ regions: ['全國'], geographicBasis: 'nationwide' }), { ...EMPTY, region: '彰化縣' }).matches, true)
 })
 
 test('unknown registered address keeps candidate grants without inferring it from residence', () => {
@@ -71,7 +125,6 @@ test('disease and need selections combine across fields, with broad schemes stil
   assert.equal(matchesResource(resource, { ...EMPTY, diseases: ['stroke', 'sci'], needs: ['transport', 'assistive'] }, TODAY), true)
   assert.equal(matchesResource(resource, { ...EMPTY, diseases: ['stroke'], needs: ['assistive'] }, TODAY), false)
   assert.equal(matchesResource(resource, { ...EMPTY, diseases: ['sci'], needs: ['medical'] }, TODAY), false)
-  assert.equal(matchesResource(resource, { ...EMPTY, diseases: ['assessing'] }, TODAY), true)
   assert.equal(matchesResource(fixture({ diseases: 'all' }), { ...EMPTY, diseases: ['autism'] }, TODAY), true)
   assert.ok(matchReasons(resource, { ...EMPTY, diseases: ['sci'], needs: ['assistive'] }).some((reason) => reason.includes('脊髓損傷')))
 })
@@ -113,9 +166,13 @@ test('page stays static, indexable and has matching canonical and sitemap dates'
   const entry = sitemap().find((item) => item.url === 'https://camsavant.com/rehab-resources')
   assert.equal((entry?.lastModified as Date).toISOString().slice(0, 10), TODAY)
   const html = renderToStaticMarkup(createElement(RehabResourcesPage))
-  assert.match(html, /22 縣市官方窗口/)
-  assert.match(html, /社工討論準備清單/)
-  assert.match(html, /尚未選擇資源/)
+  assert.match(html, /相關網頁/)
+  assert.match(html, /常用政府網站/)
+  assert.match(html, /選擇疾病/)
+  assert.doesNotMatch(html, /22 縣市官方窗口|收錄範圍、核對方式與使用提醒|筆可能相關的資源|尚未確定/)
+  assert.doesNotMatch(html, /aria-label="查詢結果"|ResourcePrintItem|我的資源討論清單/)
+  for (const resource of REHAB_RESOURCES) assert.ok(!html.includes(resource.title), resource.id)
+  assert.match(html, /disabled=""[^>]*>下一步/)
   assert.equal([...html.matchAll(/<h1\b/g)].length, 1)
 })
 
@@ -123,7 +180,6 @@ test('patient selections use no storage, network submission or URL state and pri
   const source = readFileSync('components/rehab-resources/ResourceDirectory.tsx', 'utf8')
   assert.doesNotMatch(source, /localStorage|sessionStorage|fetch\(|trackAnalyticsEvent|URLSearchParams|history\.pushState|router\.push/)
   assert.match(source, /window\.print\(\)/)
-  assert.match(source, /useState\('unknown'\)/)
   const styles = readFileSync('app/(zh)/rehab-resources/resources.css', 'utf8')
   assert.match(styles, /body:has\(\.RehabResourcesPage\)/)
   assert.match(styles, /\.RehabResourcesPage \.ResourcePrintOnly/)

@@ -1,7 +1,7 @@
 import type { DiseaseId, RehabResource } from './types'
 
 const CHILD_DEVELOPMENT_DISEASES: DiseaseId[] = [
-  'developmental-delay', 'autism', 'cerebral-palsy', 'sma', 'muscular-dystrophy', 'assessing', 'other',
+  'developmental-delay', 'autism', 'cerebral-palsy', 'sma', 'muscular-dystrophy',
 ]
 
 const CHANGHUA_EARLY = 'https://www.chcg.gov.tw/DTO/social/07other/other01_con.aspx?cate_id=3308&data_id=14526&topsn=1755'

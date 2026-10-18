@@ -47,6 +47,15 @@ export function geographicMatch(resource: RehabResource, filters: ResourceFilter
   if (resource.regions.includes('全國') || resource.geographicBasis === 'nationwide') {
     return { matches: true, reason: '全國性資源；仍須確認個別資格與服務範圍。' }
   }
+  if (filters.region) {
+    const matches = resource.regions.includes(filters.region)
+    return {
+      matches,
+      reason: matches
+        ? `查詢地區包含${filters.region}；${GEOGRAPHY_LABELS[resource.geographicBasis]}的實際資格仍須確認。`
+        : `所選${filters.region}不在此資源列示範圍（${resource.regions.join('、')}），請先核對適用地區。`,
+    }
+  }
   const region = resource.geographicBasis === 'household' ? filters.household
     : resource.geographicBasis === 'hospital' ? filters.hospitalRegion : filters.residence
   if (!region) {
@@ -61,12 +70,15 @@ export function geographicMatch(resource: RehabResource, filters: ResourceFilter
 }
 
 export function matchesResource(resource: RehabResource, filters: ResourceFilters, today: string) {
-  const specificDiseases = filters.diseases.filter((id) => id !== 'other' && id !== 'assessing')
   const diseaseMatch = resource.diseases === 'all' || filters.diseases.length === 0 ||
-    specificDiseases.length === 0 || filters.diseases.some((id) => resource.diseases !== 'all' && resource.diseases.includes(id))
+    filters.diseases.some((id) => resource.diseases !== 'all' && resource.diseases.includes(id))
   return diseaseMatch && (filters.needs.length === 0 || filters.needs.some((id) => resource.needs.includes(id))) &&
     geographicMatch(resource, filters).matches && (!filters.kind || filters.kind === resource.kind) &&
     (!filters.status || resourceStatus(resource, today).status === filters.status)
+}
+
+export function isResourceSearchReady(filters: ResourceFilters): boolean {
+  return filters.diseases.length > 0 && Boolean(filters.region) && filters.needs.length > 0
 }
 
 export function matchReasons(resource: RehabResource, filters: ResourceFilters): string[] {

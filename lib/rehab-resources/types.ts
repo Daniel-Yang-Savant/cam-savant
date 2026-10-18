@@ -11,7 +11,6 @@ export const DISEASE_GROUPS = [
     { id: 'autism', label: '自閉症' }, { id: 'cerebral-palsy', label: '腦性麻痺' },
     { id: 'sma', label: 'SMA 脊髓性肌肉萎縮症' }, { id: 'muscular-dystrophy', label: '肌肉失養症' },
   ] },
-  { label: '尚未確定', items: [{ id: 'assessing', label: '疑似／評估中' }, { id: 'other', label: '其他／不確定' }] },
 ] as const
 export type DiseaseId = typeof DISEASE_GROUPS[number]['items'][number]['id']
 export const NEEDS = [
@@ -65,6 +64,8 @@ export interface RegionalContact {
 }
 
 export interface ResourceFilters {
+  /** A resource search area, not an assertion of the patient's registered or treatment address. */
+  region?: Region | ''
   diseases: DiseaseId[]
   needs: NeedId[]
   residence: Region | ''
