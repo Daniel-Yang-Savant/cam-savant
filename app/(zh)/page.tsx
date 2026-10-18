@@ -54,25 +54,16 @@ export default function HomePage() {
       {/* ── Body ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <section>
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 mb-8">
+          <div className="flex items-baseline justify-between mb-8">
             <h2 className="text-xs font-semibold tracking-widest uppercase text-neutral-500">
               最新復健與運動傷害文章
             </h2>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/rehab-resources"
-                prefetch={false}
-                className="inline-flex min-h-11 items-center text-xs text-neutral-500 hover:text-teal-800 dark:hover:text-teal-300 transition-colors"
-              >
-                補助與援助 ↗
-              </Link>
-              <Link
-                href="/posts"
-                className="text-xs text-neutral-500 hover:text-neutral-950 transition-colors"
-              >
-                更多 →
-              </Link>
-            </div>
+            <Link
+              href="/posts"
+              className="text-xs text-neutral-500 hover:text-neutral-950 transition-colors"
+            >
+              更多 →
+            </Link>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-x-8 gap-y-12">

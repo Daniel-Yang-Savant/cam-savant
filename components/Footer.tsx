@@ -26,7 +26,7 @@ export default function Footer({ locale = 'zh' }: { locale?: Lang }) {
       ]
     : [
         ['/', '首頁'],
-        ['/posts', '所有文章'],
+        ['/rehab-resources', '補助與援助'],
         ['/about', '醫師團隊'],
         ['/locations', '看診資訊'],
       ]
@@ -83,6 +83,7 @@ export default function Footer({ locale = 'zh' }: { locale?: Lang }) {
                   <li key={href}>
                     <Link
                       href={href}
+                      prefetch={href === '/rehab-resources' ? false : undefined}
                       className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-950 dark:hover:text-neutral-100 transition-colors"
                     >
                       {label}
