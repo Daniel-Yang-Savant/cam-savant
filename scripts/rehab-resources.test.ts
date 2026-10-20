@@ -4,15 +4,16 @@ import test from 'node:test'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import {
-  REHAB_RESOURCES, REGIONAL_CONTACTS, REGIONS, PRIORITY_REGIONS, DISEASE_GROUPS, NEEDS,
-  resourceStatus, matchesResource, geographicMatch, groupResourceProviders, isResourceSearchReady, matchingProviders, matchReasons, taipeiDate, toggleProviderSelection,
+  REHAB_RESOURCES, REHAB_RESOURCE_CATALOGUE, RESOURCE_GUIDES, PUBLICATION_HOLDS, REGIONAL_CONTACTS, REGIONS, PRIORITY_REGIONS, DISEASE_GROUPS, NEEDS,
+  resourceStatus, resourceAvailability, publicationLevel, visibleResources, matchesResource, geographicMatch, groupResourceProviders, isResourceSearchReady, matchingProviders, matchReasons, taipeiDate, toggleProviderSelection,
   type RehabResource, type ResourceFilters,
 } from '../lib/rehab-resources'
 import ResourceDetails from '../components/rehab-resources/ResourceDetails'
+import ResourceService from '../components/rehab-resources/ResourceService'
 import RehabResourcesPage, { metadata, dynamic } from '../app/(zh)/rehab-resources/page'
 import sitemap from '../app/sitemap'
 
-const TODAY = '2026-10-18'
+const TODAY = '2026-10-19'
 const EMPTY: ResourceFilters = { diseases: [], needs: [], region: '', residence: '', household: '', hospitalRegion: '', kind: '', status: '' }
 function fixture(overrides: Partial<RehabResource> = {}): RehabResource {
   return { ...REHAB_RESOURCES[0], id: 'test-resource', status: 'ongoing', checkedAt: TODAY, reviewAfterDays: 30, ...overrides }
@@ -34,6 +35,66 @@ test('catalogue has unique sourced records, explicit restrictions and real verif
     assert.ok(resource.regions.every((region) => region === '全國' || REGIONS.includes(region)), resource.id)
     if (resource.status === 'open') assert.ok(resource.endsOn && resource.verification === 'current-notice', resource.id)
     if (resource.startsOn && resource.endsOn) assert.ok(resource.startsOn <= resource.endsOn, resource.id)
+  }
+})
+
+test('unverified application routes and unreviewed additions stay out of results and printable selections', () => {
+  const heldIds = Object.keys(PUBLICATION_HOLDS)
+  assert.equal(heldIds.length, 5)
+  for (const id of heldIds) {
+    const held = REHAB_RESOURCE_CATALOGUE.find((resource) => resource.id === id)
+    assert.ok(held, id)
+    assert.equal(publicationLevel(held), 'withheld', id)
+    assert.equal(REHAB_RESOURCES.some((resource) => resource.id === id), false, id)
+    assert.equal(visibleResources([held], TODAY).length, 0, id)
+    assert.equal(renderToStaticMarkup(createElement(ResourceService, { resource: held, today: TODAY })), '', id)
+  }
+  assert.equal(publicationLevel(fixture()), 'withheld', 'a new record needs a reviewed guide')
+  for (const resource of REHAB_RESOURCES) {
+    assert.notEqual(resource.resourceType, 'directory', resource.id)
+    const guide = RESOURCE_GUIDES[resource.id]
+    for (const text of Object.values(guide)) {
+      assert.ok(text.trim(), resource.id)
+      assert.doesNotMatch(text, /待確認|可能有|保證補助|一定補助|一定可領/, resource.id)
+    }
+  }
+  assert.deepEqual(Object.keys(RESOURCE_GUIDES).sort(), REHAB_RESOURCES.map((resource) => resource.id).sort())
+})
+
+test('expired checks are hidden even for inquiry records; a verified rule never becomes an open application claim', () => {
+  const original = REHAB_RESOURCES.find((resource) => resource.resourceType === 'scheme' && resource.status === 'inquiry')!
+  const stale = { ...original, checkedAt: '2026-01-01', reviewAfterDays: 30 }
+  assert.equal(visibleResources([stale], TODAY).length, 0)
+  assert.equal(resourceAvailability(original, TODAY).status, 'inquiry')
+  assert.equal(resourceAvailability(original, TODAY).label, '先確認收件')
+  assert.match(resourceAvailability(original, TODAY).detail, /未經窗口確認/)
+  const consultation = REHAB_RESOURCES.find((resource) => resource.id === 'national-1957-welfare')!
+  assert.equal(resourceAvailability(consultation, TODAY).label, '提供服務')
+  assert.doesNotMatch(resourceAvailability(consultation, TODAY).label, /補助|受理中/)
+})
+
+test('cards show help, key restrictions and the first step before the single detail disclosure', () => {
+  const resource = REHAB_RESOURCES.find((resource) => resource.id === 'changhua-disability-assistive-subsidy')!
+  const guide = RESOURCE_GUIDES[resource.id]
+  const html = renderToStaticMarkup(createElement(ResourceService, { resource, today: TODAY }))
+  const disclosure = html.indexOf('<details')
+  assert.ok(disclosure > 0)
+  for (const value of ['能幫什麼', '適用對象', '第一步', guide.help, guide.who, guide.firstStep, '打電話', '先確認收件']) assert.ok(html.indexOf(value) < disclosure, value)
+  assert.match(guide.who, /設籍彰化.*身障證明/)
+  assert.match(guide.firstStep, /核定函後再買/)
+  assert.equal([...html.matchAll(/<details\b/g)].length, 1)
+  const cp = REHAB_RESOURCES.find((item) => item.id === 'taichung-cerebral-palsy-association-support')!
+  assert.equal(cp.needs.includes('therapy'), false)
+  assert.doesNotMatch(RESOURCE_GUIDES[cp.id].help, /療育課程|治療/)
+})
+
+test('financial limits and cost sharing survive both expanded details and the printable sheet', () => {
+  const resource = REHAB_RESOURCES.find((item) => item.id === 'yunlin-disability-startup-rent-equipment-115')!
+  for (const props of [{ detailsOnly: true }, { print: true }]) {
+    const html = renderToStaticMarkup(createElement(ResourceDetails, { resource, today: TODAY, ...props }))
+    assert.ok(html.includes(resource.benefits))
+    assert.match(html, /一半|50%|二分之一/)
+    assert.ok(html.includes(resource.applicationPeriod ?? resource.endsOn!))
   }
 })
 
@@ -153,7 +214,7 @@ test('contact extensions remain human readable without being appended to the tel
   const html = renderToStaticMarkup(createElement(ResourceDetails, { resource, today: TODAY, print: true }))
   assert.match(html, /href="tel:0422363595"/)
   assert.doesNotMatch(html, /tel:04223635951516/)
-  for (const text of ['待確認資格', '文件準備', '申請與轉介方式', '核對日期', resource.source.url]) assert.ok(html.includes(text))
+  for (const text of ['申請條件', '要帶什麼', '怎麼申請', '資料核對', resource.source.url]) assert.ok(html.includes(text))
   assert.match(html, /referrerPolicy="no-referrer"/i)
   const multiplePhones = renderToStaticMarkup(createElement(ResourceDetails, { resource: fixture({ contact: { ...resource.contact, phone: '04-7532310、04-7532309' } }), today: TODAY }))
   assert.match(multiplePhones, /href="tel:047532310"/)
@@ -170,7 +231,7 @@ test('page stays static, indexable and has matching canonical and sitemap dates'
   assert.match(html, /常用政府網站/)
   assert.match(html, /選擇疾病/)
   assert.doesNotMatch(html, /22 縣市官方窗口|收錄範圍、核對方式與使用提醒|筆可能相關的資源|尚未確定/)
-  assert.doesNotMatch(html, /aria-label="查詢結果"|ResourcePrintItem|我的資源討論清單/)
+  assert.doesNotMatch(html, /aria-label="查詢結果"|ResourcePrintItem|我的列印清單/)
   for (const resource of REHAB_RESOURCES) assert.ok(!html.includes(resource.title), resource.id)
   assert.match(html, /disabled=""[^>]*>下一步/)
   assert.equal([...html.matchAll(/<h1\b/g)].length, 1)

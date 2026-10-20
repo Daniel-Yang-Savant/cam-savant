@@ -35,7 +35,7 @@ export default function RehabResourcesPage() {
             <Breadcrumbs items={[{ label: '首頁', href: '/' }, { label: '補助與援助' }]} />
             <GovernmentLinks />
           </div>
-          <div className="max-w-3xl"><h1 className="text-3xl font-bold leading-snug tracking-tight md:text-4xl">復健科常見疾病<span className="mt-2 block text-2xl font-medium leading-snug text-neutral-600 dark:text-neutral-300 md:text-3xl">全台政府和民間補助與援助查詢</span></h1><p className="mt-5 text-base leading-8 text-neutral-600 dark:text-neutral-300">依序選擇疾病、所在地與需要的協助，找適合詢問的資源。</p></div>
+          <div className="max-w-3xl"><h1 className="text-3xl font-bold leading-snug tracking-tight md:text-4xl">復健科常見疾病<span className="mt-2 block text-2xl font-medium leading-snug text-neutral-600 dark:text-neutral-300 md:text-3xl">全台政府和民間補助與援助查詢</span></h1><p className="mt-5 text-base leading-8 text-neutral-600 dark:text-neutral-300">選疾病、選縣市、選需要，找到窗口後打電話，或列印帶去問社工。</p></div>
         </div>
       </header>
       <ResourceDirectory />

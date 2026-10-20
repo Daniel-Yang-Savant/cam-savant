@@ -14,10 +14,10 @@ export const DISEASE_GROUPS = [
 ] as const
 export type DiseaseId = typeof DISEASE_GROUPS[number]['items'][number]['id']
 export const NEEDS = [
-  { id: 'medical', label: '醫療費用' }, { id: 'therapy', label: '復健與療育' },
-  { id: 'transport', label: '就醫交通' }, { id: 'assistive', label: '輔具與居家改善' },
-  { id: 'care', label: '照顧與喘息' }, { id: 'living', label: '生活與急難救助' },
-  { id: 'education', label: '就學與溝通支持' }, { id: 'employment', label: '就業支持' },
+  { id: 'medical', label: '醫療費' }, { id: 'therapy', label: '復健、兒童療育' },
+  { id: 'transport', label: '看診接送' }, { id: 'assistive', label: '輪椅等輔具、居家改善' },
+  { id: 'care', label: '請人照顧、短期托顧' }, { id: 'living', label: '生活費、急難救助' },
+  { id: 'education', label: '上學、溝通協助' }, { id: 'employment', label: '找工作、重返職場' },
   { id: 'caregiver', label: '家屬與照顧者支持' },
 ] as const
 export type NeedId = typeof NEEDS[number]['id']
