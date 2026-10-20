@@ -100,9 +100,9 @@ export default async function TagPage({ params }: Props) {
           ← 返回首頁
         </Link>
         <div className="mt-4 flex items-center gap-3">
-          <span className="text-2xl font-bold text-neutral-950 dark:text-neutral-100">
+          <h1 className="text-2xl font-bold text-neutral-950 dark:text-neutral-100 print:mb-0">
             #{tag}
-          </span>
+          </h1>
           <span className="text-sm text-neutral-400 dark:text-neutral-500">
             {posts.length} 篇文章
           </span>
