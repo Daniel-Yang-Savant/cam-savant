@@ -3,9 +3,11 @@ import Breadcrumbs from '@/components/Breadcrumbs'
 import ResourceDirectory from '@/components/rehab-resources/ResourceDirectory'
 import GovernmentLinks from '@/components/rehab-resources/GovernmentLinks'
 import { RESOURCE_UPDATED_AT } from '@/lib/rehab-resources'
+import Link from 'next/link'
+import { COUNTY_RESOURCE_PAGES } from '@/lib/rehab-resources/counties'
 
-const TITLE = '復健科常見疾病｜全台政府和民間補助與援助查詢'
-const DESCRIPTION = '依疾病、所在地與協助需求查找復健、早療、交通、輔具、照顧及急難資源。全台官方窗口，優先整理彰化、南投、台中、雲林，附受理狀態、核對日期與可列印的社工討論清單。'
+const TITLE = '復健科補助與援助查詢｜中部四縣市為主・全台政府窗口'
+const DESCRIPTION = '依疾病、多個查詢縣市與需要查找復健、早療、照顧、身障證明及保險給付。中部四縣市在地資源為主，其他縣市提供官方窗口及全國資源，附核對日期與社工列印清單。'
 
 export const dynamic = 'force-static'
 export const metadata: Metadata = {
@@ -22,7 +24,7 @@ export default function RehabResourcesPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
         '@context': 'https://schema.org', '@type': 'CollectionPage',
         name: TITLE, description: DESCRIPTION, url: 'https://camsavant.com/rehab-resources',
-        datePublished: RESOURCE_UPDATED_AT, dateModified: RESOURCE_UPDATED_AT,
+        datePublished: '2026-10-18', dateModified: RESOURCE_UPDATED_AT,
         inLanguage: 'zh-TW', isPartOf: { '@id': 'https://camsavant.com/#website' },
         breadcrumb: { '@type': 'BreadcrumbList', itemListElement: [
           { '@type': 'ListItem', position: 1, name: '首頁', item: 'https://camsavant.com/' },
@@ -35,10 +37,11 @@ export default function RehabResourcesPage() {
             <Breadcrumbs items={[{ label: '首頁', href: '/' }, { label: '補助與援助' }]} />
             <GovernmentLinks />
           </div>
-          <div className="max-w-3xl"><h1 className="text-3xl font-bold leading-snug tracking-tight md:text-4xl">復健科常見疾病<span className="mt-2 block text-2xl font-medium leading-snug text-neutral-600 dark:text-neutral-300 md:text-3xl">全台政府和民間補助與援助查詢</span></h1><p className="mt-5 text-base leading-8 text-neutral-600 dark:text-neutral-300">選疾病、選縣市、選需要，找到窗口後打電話，或列印帶去問社工。</p></div>
+          <div className="max-w-3xl"><h1 className="text-3xl font-bold leading-snug tracking-tight md:text-4xl">復健科補助與援助查詢<span className="mt-2 block text-2xl font-medium leading-snug text-neutral-600 dark:text-neutral-300 md:text-3xl">中部四縣市為主・全台政府窗口</span></h1><p className="mt-5 text-base leading-8 text-neutral-600 dark:text-neutral-300">選疾病、選縣市、選需要，找到窗口後打電話，或列印帶去問社工。</p></div>
         </div>
       </header>
       <ResourceDirectory />
+      <nav aria-label="中部縣市資源介紹" className="ResourceScreenOnly mx-auto max-w-5xl border-t border-neutral-200 px-4 py-8 sm:px-6 dark:border-neutral-800"><h2 className="text-lg font-bold">先看縣市資源介紹</h2><div className="mt-4 flex flex-wrap gap-3">{COUNTY_RESOURCE_PAGES.map((county) => <Link key={county.slug} href={`/rehab-resources/${county.slug}`} className="inline-flex min-h-12 items-center rounded-xl border border-neutral-300 px-5 text-base hover:border-teal-700 dark:border-neutral-700">{county.label}補助與援助 →</Link>)}</div></nav>
     </div>
   )
 }

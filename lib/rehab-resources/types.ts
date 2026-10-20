@@ -11,6 +11,10 @@ export const DISEASE_GROUPS = [
     { id: 'autism', label: '自閉症' }, { id: 'cerebral-palsy', label: '腦性麻痺' },
     { id: 'sma', label: 'SMA 脊髓性肌肉萎縮症' }, { id: 'muscular-dystrophy', label: '肌肉失養症' },
   ] },
+  { label: '其他復健需求', items: [
+    { id: 'parkinsons', label: '帕金森氏症' }, { id: 'als', label: 'ALS 漸凍症' },
+    { id: 'amputation', label: '截肢、義肢需求' },
+  ] },
 ] as const
 export type DiseaseId = typeof DISEASE_GROUPS[number]['items'][number]['id']
 export const NEEDS = [
@@ -19,11 +23,23 @@ export const NEEDS = [
   { id: 'care', label: '請人照顧、短期托顧' }, { id: 'living', label: '生活費、急難救助' },
   { id: 'education', label: '上學、溝通協助' }, { id: 'employment', label: '找工作、重返職場' },
   { id: 'caregiver', label: '家屬與照顧者支持' },
+  { id: 'benefits', label: '證明、保險與給付' },
 ] as const
 export type NeedId = typeof NEEDS[number]['id']
-export const KIND_LABELS = { government: '政府', foundation: '基金會', charity: '地方慈善／病友團體', hospital: '醫院' } as const
+export const KIND_LABELS = { government: '政府', foundation: '基金會', charity: '地方慈善／病友團體', hospital: '醫院', insurance: '保險諮詢' } as const
 export type ResourceKind = keyof typeof KIND_LABELS
 export type ApplicationStatus = 'open' | 'ongoing' | 'upcoming' | 'closed' | 'paused' | 'inquiry'
+
+/** Evidence is recorded after an actual observation, never inferred from deployment. */
+export interface ResourceReviewEvidence {
+  kind: 'not-found' | 'discontinued' | 'content-verified'
+  /** Taiwan calendar date of the observation. */
+  observedAt: string
+  /** The affected official URL; re-verification resolves only this exact URL. */
+  url: string
+  /** Official discontinuation notice or other supporting source, when applicable. */
+  sourceUrl?: string
+}
 
 export interface RehabResource {
   id: string
@@ -34,6 +50,8 @@ export interface RehabResource {
   regions: Array<Region | '全國'>
   geographicBasis: 'household' | 'residence' | 'hospital' | 'nationwide'
   diseases: DiseaseId[] | 'all'
+  /** False for cause/insurance-based schemes; a disease tag alone is not specialist care. */
+  diseaseSpecific?: boolean
   needs: NeedId[]
   summary: string
   benefits: string
@@ -50,6 +68,8 @@ export interface RehabResource {
   checkedAt: string
   verification: 'official-page' | 'current-notice' | 'contact-confirmed'
   reviewAfterDays: number
+  /** Append observations in actual order; array order breaks ties on the same day. */
+  reviewEvidence?: ResourceReviewEvidence[]
   cautions: string[]
 }
 
@@ -64,6 +84,8 @@ export interface RegionalContact {
 }
 
 export interface ResourceFilters {
+  /** Multiple search areas; none of these is a claim about the patient's address. */
+  regions?: Region[]
   /** A resource search area, not an assertion of the patient's registered or treatment address. */
   region?: Region | ''
   diseases: DiseaseId[]

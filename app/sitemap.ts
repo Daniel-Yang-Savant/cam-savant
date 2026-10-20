@@ -13,6 +13,7 @@ import {
 } from '@/lib/exercise-guides'
 import { CLINIC_LOCATIONS } from '@/lib/locations'
 import { RESOURCE_UPDATED_AT } from '@/lib/rehab-resources'
+import { COUNTY_RESOURCE_PAGES } from '@/lib/rehab-resources/counties'
 import { MetadataRoute } from 'next'
 
 const BASE_URL = 'https://camsavant.com'
@@ -173,6 +174,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
+    ...COUNTY_RESOURCE_PAGES.map((county) => ({
+      url: `${BASE_URL}/rehab-resources/${county.slug}`,
+      lastModified: new Date(RESOURCE_UPDATED_AT),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    })),
     categoryPage('sports-medicine', 'sports-medicine'),
     categoryPage('weekly-picks', 'weekly-picks'),
     categoryPage('rehabilitation-medicine', 'rehabilitation-medicine'),

@@ -1,10 +1,11 @@
 import { REGIONAL_CONTACTS } from '@/lib/rehab-resources/regional-contacts'
 import { ResourceLink } from './ResourceDetails'
+import { LTC_LINKS } from '@/lib/rehab-resources/official-links'
 
 const GOVERNMENT_LINKS = [
   { name: '衛生福利部', url: 'https://www.mohw.gov.tw/' },
   { name: '社會及家庭署', url: 'https://www.sfaa.gov.tw/' },
-  { name: '1966 長照服務', url: 'https://1966.gov.tw/LTC/mp-207.html' },
+  { name: '1966 長照服務', url: LTC_LINKS.home },
   { name: '1957 福利諮詢', url: 'https://www.mohw.gov.tw/cp-7183-81286-1.html' },
   { name: '身心障礙福利與輔具', url: 'https://www.mohw.gov.tw/fp-88-235-1.html' },
   { name: '早期療育申辦資訊', url: 'https://www.gov.tw/News_Content_26_578611' },

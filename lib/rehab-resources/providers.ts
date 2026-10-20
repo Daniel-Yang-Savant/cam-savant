@@ -1,5 +1,6 @@
 import { PRIORITY_REGIONS, type RehabResource, type ResourceFilters } from './types'
-import { matchesResource } from './matching'
+import { matchesResource, queryRegions, taipeiDate } from './matching'
+import { resourceFreshness } from './freshness'
 
 export interface ResourceProvider {
   id: string
@@ -63,8 +64,21 @@ export function groupResourceProviders(resources: RehabResource[]): ResourceProv
 }
 
 export function matchingProviders(resources: RehabResource[], filters: ResourceFilters, today: string): ResourceProvider[] {
-  const providers = groupResourceProviders(resources.filter((resource) => matchesResource(resource, filters, today)))
-  const region = filters.region
-  const local = (provider: ResourceProvider) => region && provider.resources.some((resource) => resource.regions.includes(region)) ? 1 : 0
-  return providers.sort((left, right) => local(right) - local(left))
+  const ranked = resources.filter((resource) => matchesResource(resource, filters, today)).sort((left, right) => compareResourceRelevance(left, right, filters, today))
+  const providers = groupResourceProviders(ranked)
+  // Compare the best matching service, not a sum that rewards one provider for
+  // publishing many similar programmes. Keep service and provider order aligned.
+  return providers.sort((left, right) => compareResourceRelevance(left.resources[0], right.resources[0], filters, today))
+}
+
+export function compareResourceRelevance(left: RehabResource, right: RehabResource, filters: ResourceFilters, today = taipeiDate()): number {
+  const score = (resource: RehabResource) => [
+    Number(resourceFreshness(resource, today).level === 'full'),
+    resource.diseases === 'all' || resource.diseaseSpecific === false ? 0 : Number(filters.diseases.some((id) => resource.diseases !== 'all' && resource.diseases.includes(id))),
+    filters.needs.filter((need) => resource.needs.includes(need)).length,
+    Number(queryRegions(filters).some((region) => resource.regions.includes(region))),
+  ]
+  const a = score(left), b = score(right)
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return b[i] - a[i]
+  return 0
 }

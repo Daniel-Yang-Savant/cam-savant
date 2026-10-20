@@ -1,4 +1,5 @@
 import { DISEASE_GROUPS, NEEDS, type ApplicationStatus, type RehabResource, type ResourceFilters } from './types'
+import { resourceFreshness } from './freshness'
 
 export const STATUS_LABELS: Record<ApplicationStatus, string> = {
   open: '公告受理中', ongoing: '常態受理／服務', upcoming: '尚未開放',
@@ -23,8 +24,9 @@ export function taipeiDate(date = new Date()): string {
 }
 
 export function resourceStatus(resource: RehabResource, today: string) {
-  const ageInDays = (Date.parse(today) - Date.parse(resource.checkedAt)) / 86_400_000
-  const stale = ageInDays > resource.reviewAfterDays
+  const freshness = resourceFreshness(resource, today)
+  const stale = freshness.overdueDays > 0
+  if (freshness.level !== 'full') return { status: 'inquiry' as const, reason: freshness.notice, stale, label: STATUS_LABELS.inquiry }
   let status = resource.status
   let reason = resource.statusNote
   if (resource.endsOn && today > resource.endsOn) {
@@ -36,9 +38,6 @@ export function resourceStatus(resource: RehabResource, today: string) {
   } else if (status === 'upcoming' && resource.startsOn && today >= resource.startsOn) {
     status = 'inquiry'
     reason = '公告開始日已到，尚未重新核實實際受理與名額。'
-  } else if (stale && (status === 'open' || status === 'ongoing')) {
-    status = 'inquiry'
-    reason = `已超過建議複核週期；上次記錄為「${STATUS_LABELS[resource.status]}」，請先確認目前受理情形。`
   }
   return { status, reason, stale, label: STATUS_LABELS[status] }
 }
@@ -47,13 +46,15 @@ export function geographicMatch(resource: RehabResource, filters: ResourceFilter
   if (resource.regions.includes('全國') || resource.geographicBasis === 'nationwide') {
     return { matches: true, reason: '全國性資源；仍須確認個別資格與服務範圍。' }
   }
-  if (filters.region) {
-    const matches = resource.regions.includes(filters.region)
+  const selectedRegions = queryRegions(filters)
+  if (selectedRegions.length) {
+    const overlap = selectedRegions.filter((region) => resource.regions.includes(region))
+    const matches = overlap.length > 0
     return {
       matches,
       reason: matches
-        ? `查詢地區包含${filters.region}；${GEOGRAPHY_LABELS[resource.geographicBasis]}的實際資格仍須確認。`
-        : `所選${filters.region}不在此資源列示範圍（${resource.regions.join('、')}），請先核對適用地區。`,
+        ? `查詢地區包含${overlap.join('、')}；${GEOGRAPHY_LABELS[resource.geographicBasis]}的實際資格仍須確認。`
+        : `所選${selectedRegions.join('、')}不在此資源列示範圍（${resource.regions.join('、')}），請先核對適用地區。`,
     }
   }
   const region = resource.geographicBasis === 'household' ? filters.household
@@ -69,16 +70,22 @@ export function geographicMatch(resource: RehabResource, filters: ResourceFilter
   }
 }
 
+export function queryRegions(filters: ResourceFilters) {
+  return [...new Set(filters.regions?.length ? filters.regions : filters.region ? [filters.region] : [])]
+}
+
 export function matchesResource(resource: RehabResource, filters: ResourceFilters, today: string) {
+  const freshness = resourceFreshness(resource, today)
+  if (freshness.level === 'hidden') return false
   const diseaseMatch = resource.diseases === 'all' || filters.diseases.length === 0 ||
     filters.diseases.some((id) => resource.diseases !== 'all' && resource.diseases.includes(id))
   return diseaseMatch && (filters.needs.length === 0 || filters.needs.some((id) => resource.needs.includes(id))) &&
     geographicMatch(resource, filters).matches && (!filters.kind || filters.kind === resource.kind) &&
-    (!filters.status || resourceStatus(resource, today).status === filters.status)
+    (!filters.status || (freshness.level === 'full' ? resourceStatus(resource, today).status : 'inquiry') === filters.status)
 }
 
 export function isResourceSearchReady(filters: ResourceFilters): boolean {
-  return filters.diseases.length > 0 && Boolean(filters.region) && filters.needs.length > 0
+  return filters.diseases.length > 0 && queryRegions(filters).length > 0 && filters.needs.length > 0
 }
 
 export function matchReasons(resource: RehabResource, filters: ResourceFilters): string[] {

@@ -1,4 +1,5 @@
 import type { RehabResource } from './types'
+import { LTC_LINKS } from './official-links'
 
 // Checked against the linked first-party pages on this date. A readable programme
 // description does not establish that funding or appointments remain available.
@@ -32,9 +33,9 @@ export const NATIONAL_RESOURCES: RehabResource[] = [
     eligibility: ['病名本身不等於長照資格，須由照管中心依當期年齡、身分及照顧需要規定評估。', '115 年起新增部分給付對象；急性後期整合照護計畫收案者須符合公告條件。', '聘僱外籍看護工、已領其他照顧補助及服務組合，均需向照管中心核對。'],
     documents: ['先詢問居住地照管中心的申請方式與評估需備資料。', '討論時可整理目前照顧困難、使用中的服務、聘僱看護及已領補助；身分或診斷文件依承辦要求提供。'],
     application: '自行撥打 1966 或洽居住地照管中心；住院期間可請出院準備團隊或醫院社工協助銜接。',
-    contact: { name: '1966 長照服務專線', phone: '1966', url: 'https://1966.gov.tw/LTC/cp-6443-69944-207.html' },
+    contact: { name: '1966 長照服務專線', phone: '1966', url: LTC_LINKS.countyContacts },
     status: 'ongoing', statusNote: '官方提供向照管中心申請及 1966 諮詢入口；實際服務需評估、核定並確認地方量能。',
-    source: { title: '衛福部：長期照顧服務申請及給付辦法修正與施行說明', url: 'https://1966.gov.tw/LTC/cp-6440-82812-207.html', publishedOn: '2025-06-19' },
+    source: { title: '衛福部：長期照顧服務申請及給付辦法修正與施行說明', url: LTC_LINKS.benefitRules, publishedOn: '2025-06-19' },
     checkedAt: '2026-10-18', verification: 'official-page', reviewAfterDays: 90,
     cautions: ['並非所有兒童或所有病別均符合長照給付條件。', '服務核定、實際可排案與部分負擔須分別確認。'],
   },

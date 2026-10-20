@@ -9,11 +9,15 @@ import { PROVIDER_CENTRAL_NONPROFITS } from './provider-central-nonprofits'
 import { PROVIDER_LOCAL_ASSOCIATIONS } from './provider-local-associations'
 import { PROVIDER_HOSPITAL_RESOURCES } from './provider-hospitals'
 import { publicationLevel } from './publication'
+import { PREREQUISITE_HEALTH_RESOURCES } from './prerequisites-health'
+import { PREREQUISITE_INSURANCE_RESOURCES } from './prerequisites-insurance'
+import { DISEASE_SPECIFIC_RESOURCES } from './disease-specific'
 export { REGIONAL_CONTACTS } from './regional-contacts'
 export * from './types'
 export * from './matching'
 export * from './providers'
 export * from './publication'
+export * from './freshness'
 
 export const REHAB_RESOURCE_CATALOGUE = [
   ...NATIONAL_RESOURCES, ...CENTRAL_GOVERNMENT_RESOURCES, ...CENTRAL_COMMUNITY_RESOURCES,
@@ -22,7 +26,10 @@ export const REHAB_RESOURCE_CATALOGUE = [
   ...PROVIDER_CENTRAL_NONPROFITS,
   ...PROVIDER_LOCAL_ASSOCIATIONS,
   ...PROVIDER_HOSPITAL_RESOURCES,
+  ...PREREQUISITE_HEALTH_RESOURCES,
+  ...PREREQUISITE_INSURANCE_RESOURCES,
+  ...DISEASE_SPECIFIC_RESOURCES,
 ]
 export const REHAB_RESOURCES = REHAB_RESOURCE_CATALOGUE.filter((resource) => publicationLevel(resource) !== 'withheld')
 // This is a content date, never the deployment/build time.
-export const RESOURCE_UPDATED_AT = '2026-10-19'
+export const RESOURCE_UPDATED_AT = '2026-10-20'

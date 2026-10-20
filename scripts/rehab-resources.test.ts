@@ -12,8 +12,12 @@ import ResourceDetails from '../components/rehab-resources/ResourceDetails'
 import ResourceService from '../components/rehab-resources/ResourceService'
 import RehabResourcesPage, { metadata, dynamic } from '../app/(zh)/rehab-resources/page'
 import sitemap from '../app/sitemap'
+import './rehab-resources-expansion.test'
+import './rehab-resources-freshness.test'
+import './rehab-resources-empty-state.test'
+import './rehab-resource-review-warnings.test'
 
-const TODAY = '2026-10-19'
+const TODAY = '2026-10-20'
 const EMPTY: ResourceFilters = { diseases: [], needs: [], region: '', residence: '', household: '', hospitalRegion: '', kind: '', status: '' }
 function fixture(overrides: Partial<RehabResource> = {}): RehabResource {
   return { ...REHAB_RESOURCES[0], id: 'test-resource', status: 'ongoing', checkedAt: TODAY, reviewAfterDays: 30, ...overrides }
@@ -61,15 +65,15 @@ test('unverified application routes and unreviewed additions stay out of results
   assert.deepEqual(Object.keys(RESOURCE_GUIDES).sort(), REHAB_RESOURCES.map((resource) => resource.id).sort())
 })
 
-test('expired checks are hidden even for inquiry records; a verified rule never becomes an open application claim', () => {
+test('checks beyond 365 days are hidden even for inquiry records; a verified rule never becomes an open application claim', () => {
   const original = REHAB_RESOURCES.find((resource) => resource.resourceType === 'scheme' && resource.status === 'inquiry')!
-  const stale = { ...original, checkedAt: '2026-01-01', reviewAfterDays: 30 }
+  const stale = { ...original, checkedAt: '2025-10-19', reviewAfterDays: 30 }
   assert.equal(visibleResources([stale], TODAY).length, 0)
   assert.equal(resourceAvailability(original, TODAY).status, 'inquiry')
-  assert.equal(resourceAvailability(original, TODAY).label, '先確認收件')
+  assert.equal(resourceAvailability(original, TODAY).showBadge, false)
   assert.match(resourceAvailability(original, TODAY).detail, /未經窗口確認/)
   const consultation = REHAB_RESOURCES.find((resource) => resource.id === 'national-1957-welfare')!
-  assert.equal(resourceAvailability(consultation, TODAY).label, '提供服務')
+  assert.equal(resourceAvailability(consultation, TODAY).label, '常態服務')
   assert.doesNotMatch(resourceAvailability(consultation, TODAY).label, /補助|受理中/)
 })
 
@@ -79,7 +83,7 @@ test('cards show help, key restrictions and the first step before the single det
   const html = renderToStaticMarkup(createElement(ResourceService, { resource, today: TODAY }))
   const disclosure = html.indexOf('<details')
   assert.ok(disclosure > 0)
-  for (const value of ['能幫什麼', '適用對象', '第一步', guide.help, guide.who, guide.firstStep, '打電話', '先確認收件']) assert.ok(html.indexOf(value) < disclosure, value)
+  for (const value of ['能幫什麼', '適用對象', '第一步', guide.help, guide.who, guide.firstStep, '打電話']) assert.ok(html.indexOf(value) >= 0 && html.indexOf(value) < disclosure, value)
   assert.match(guide.who, /設籍彰化.*身障證明/)
   assert.match(guide.firstStep, /核定函後再買/)
   assert.equal([...html.matchAll(/<details\b/g)].length, 1)
@@ -128,7 +132,7 @@ test('programmes, departments and family foundation sites are grouped into one p
   assert.deepEqual(matching[0].resources.map((resource) => resource.id), ['public-a'])
 })
 
-test('search requires a disease, county and need; the disease options contain only the two defined clinical groups', () => {
+test('search requires a disease, county and need; each new disease has a checked specific service', () => {
   const complete: ResourceFilters = { ...EMPTY, diseases: ['stroke'], region: '彰化縣', needs: ['medical'] }
   assert.equal(isResourceSearchReady(EMPTY), false)
   assert.equal(isResourceSearchReady(complete), true)
@@ -136,9 +140,10 @@ test('search requires a disease, county and need; the disease options contain on
     { ...complete, diseases: [] }, { ...complete, region: '' as const }, { ...complete, needs: [] },
     { ...EMPTY, diseases: ['stroke'] as const, residence: '彰化縣' as const, needs: ['medical'] as const },
   ]) assert.equal(isResourceSearchReady({ ...incomplete, diseases: [...incomplete.diseases], needs: [...incomplete.needs] }), false)
-  assert.equal(DISEASE_GROUPS.length, 2)
-  assert.equal(DISEASE_GROUPS.reduce((count, group) => count + group.items.length, 0), 9)
-  assert.doesNotMatch(JSON.stringify(DISEASE_GROUPS), /assessing|other|尚未確定/)
+  assert.equal(DISEASE_GROUPS.length, 3)
+  assert.equal(DISEASE_GROUPS.reduce((count, group) => count + group.items.length, 0), 12)
+  assert.doesNotMatch(JSON.stringify(DISEASE_GROUPS), /assessing|尚未確定/)
+  for (const disease of ['parkinsons', 'als', 'amputation']) assert.ok(REHAB_RESOURCES.some((resource) => resource.diseaseSpecific && resource.diseases !== 'all' && resource.diseases.some((id) => id === disease)), disease)
 })
 
 test('adding newly matched services keeps the same provider selected once and preserves prior services', () => {
@@ -191,22 +196,22 @@ test('disease and need selections combine across fields, with broad schemes stil
 })
 
 test('deadline is inclusive in Taiwan and never rolled to a new year', () => {
-  const resource = fixture({ status: 'open', endsOn: '2026-10-18' })
+  const resource = fixture({ status: 'open', checkedAt: '2026-10-18', endsOn: '2026-10-18' })
   assert.equal(resourceStatus(resource, '2026-10-18').status, 'open')
   assert.equal(resourceStatus(resource, '2026-10-19').status, 'closed')
-  assert.equal(resourceStatus(resource, '2027-01-01').status, 'closed')
+  assert.equal(resourceStatus(resource, '2027-01-01').status, 'inquiry')
   assert.equal(taipeiDate(new Date('2026-10-18T16:05:00Z')), '2026-10-19')
 })
 
 test('a future start date and overdue checks do not silently claim applications are open', () => {
-  const future = fixture({ status: 'upcoming', startsOn: '2026-10-20' })
+  const future = fixture({ status: 'upcoming', startsOn: '2026-10-21' })
   assert.equal(resourceStatus(future, TODAY).status, 'upcoming')
-  assert.equal(resourceStatus(future, '2026-10-20').status, 'inquiry')
+  assert.equal(resourceStatus(future, '2026-10-21').status, 'inquiry')
   const expiredCheck = fixture({ checkedAt: '2026-08-01', reviewAfterDays: 30 })
   assert.equal(resourceStatus(expiredCheck, TODAY).status, 'inquiry')
   assert.equal(resourceStatus(expiredCheck, TODAY).stale, true)
   assert.equal(expiredCheck.checkedAt, '2026-08-01')
-  assert.equal(resourceStatus(fixture({ status: 'paused', checkedAt: '2026-08-01' }), TODAY).status, 'paused')
+  assert.equal(resourceStatus(fixture({ status: 'paused', checkedAt: '2026-08-01' }), TODAY).status, 'inquiry')
 })
 
 test('contact extensions remain human readable without being appended to the telephone number', () => {

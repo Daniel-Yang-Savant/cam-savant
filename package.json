@@ -22,8 +22,9 @@
     "rotate-token": "ts-node scripts/rotate-token.ts",
     "new": "ts-node scripts/new-article.ts",
     "validate:posts": "tsx scripts/validate-posts.ts",
-    "prebuild": "npm run validate:posts && npm run test:seo && npm run test:discovery && npm run test:fsm && npm run test:opd && npm run test:periop && npm run test:resources",
-    "test:resources": "node --import tsx --test scripts/rehab-resources.test.ts"
+    "prebuild": "npm run warn:resources && npm run validate:posts && npm run test:seo && npm run test:discovery && npm run test:fsm && npm run test:opd && npm run test:periop && npm run test:resources",
+    "test:resources": "node --import tsx --test scripts/rehab-resources.test.ts",
+    "warn:resources": "node --import tsx scripts/check-rehab-resource-reviews.ts"
   },
   "ts-node": {
     "transpileOnly": true,

@@ -1,16 +1,17 @@
 import { GEOGRAPHY_LABELS, VERIFICATION_LABELS } from '@/lib/rehab-resources/matching'
 import { resourceAvailability } from '@/lib/rehab-resources/publication'
 import type { RehabResource } from '@/lib/rehab-resources/types'
+import { QRCodeSVG } from 'qrcode.react'
+import { resourceFreshness } from '@/lib/rehab-resources/freshness'
+import ResourceContact from './ResourceContact'
+import { ResourceLink, resourceTelephone } from './ResourceLinks'
 
-export function ResourceLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return <a href={href} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="underline decoration-neutral-300 underline-offset-4 hover:text-teal-700 dark:hover:text-teal-300">{children}<span className="sr-only">（另開視窗）</span></a>
-}
-
-export function resourceTelephone(phone: string): string {
-  return phone.split(/[、,，;/]|分機|轉|#|ext\.?/i)[0].replace(/[^\d+]/g, '')
-}
+export { ResourceLink, resourceTelephone } from './ResourceLinks'
 
 export default function ResourceDetails({ resource, today, print = false, detailsOnly = false }: { resource: RehabResource; today: string; print?: boolean; detailsOnly?: boolean }) {
+  const freshness = resourceFreshness(resource, today)
+  if (freshness.level === 'hidden') return null
+  if (freshness.level === 'contact-only') return <ResourceContact resource={resource} today={today} print={print} />
   const availability = resourceAvailability(resource, today)
   return (
     <div className="ResourceDetails space-y-5 text-base leading-8 text-neutral-700 dark:text-neutral-200">
@@ -29,7 +30,7 @@ export default function ResourceDetails({ resource, today, print = false, detail
         {resource.source.publishedOn && <p>來源發布／修正日：{resource.source.publishedOn}</p>}{resource.source.rocYear && <p>適用年度：民國 {resource.source.rocYear} 年</p>}
         <p><ResourceLink href={resource.contact.url}>官方申請說明 ↗</ResourceLink></p>
         <p>來源：<ResourceLink href={resource.source.url}>{resource.source.title}</ResourceLink></p>
-        {print && <><p className="ResourceSourceUrl">{resource.source.url}</p>{resource.contact.url !== resource.source.url && <p className="ResourceSourceUrl">{resource.contact.url}</p>}</>}
+        {print && <div className="ResourcePrintQr" data-resource-qr={resource.id}><QRCodeSVG value={resource.contact.url} size={120} level="M" marginSize={4} bgColor="#ffffff" fgColor="#000000" title={`${resource.title} 官方申請說明`} /><div><p>掃碼看官方申請說明</p><p className="ResourceSourceUrl">{resource.contact.url}</p>{resource.contact.url !== resource.source.url && <p className="ResourceSourceUrl">資料來源：{resource.source.url}</p>}</div></div>}
       </div>
     </div>
   )

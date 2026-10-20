@@ -33,5 +33,7 @@ body:has(.ResourceSelectionBar) > button[aria-label="回到頂部"] { bottom: 6r
   .ResourcePrintOnly a { text-decoration: none; }
   .ResourcePrintOnly a[href]::after { content: none !important; }
   .ResourceSourceUrl { font-size: 7.5pt; line-height: 1.5; }
+  .ResourcePrintQr { display: flex; align-items: center; gap: 10pt; break-inside: avoid; }
+  .ResourcePrintQr svg { width: 32mm; height: 32mm; min-width: 32mm; print-color-adjust: exact; }
   .ResourceSocialWorkerNotes { margin-top: 14pt; padding-top: 9pt; border-top: 1px solid #888; break-inside: avoid; line-height: 2; }
 }
