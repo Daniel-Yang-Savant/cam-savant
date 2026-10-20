@@ -81,6 +81,7 @@ export default function ResourceDirectory() {
     activeFilters.diseases.map(diseaseLabel).join('、'), selectedQueryRegions.join('、'), activeFilters.needs.map(needLabel).join('、'),
   ].filter(Boolean).join(' · ')
   const canContinue = step === 0 ? draft.diseases.length > 0 : step === 1 ? queryRegions(draft).length > 0 : isResourceSearchReady(draft)
+  const allNeedsSelected = NEEDS.every((need) => draft.needs.includes(need.id))
 
   function focusHeading() {
     window.requestAnimationFrame(() => {
@@ -148,7 +149,19 @@ export default function ResourceDirectory() {
               {DISEASE_GROUPS.map((group) => <div key={group.label} className="mb-6 last:mb-0"><h3 className="mb-3 text-sm font-semibold text-neutral-500">{group.label}</h3><div className="grid gap-3 sm:grid-cols-2">{group.items.map((item) => <label key={item.id} className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-base ${draft.diseases.includes(item.id) ? 'border-teal-700 bg-teal-50 dark:bg-teal-950/40' : 'border-neutral-200 hover:border-teal-600 dark:border-neutral-700'}`}><input className="h-4 w-4 shrink-0 accent-teal-700" type="checkbox" checked={draft.diseases.includes(item.id)} onChange={() => updateDraft('diseases', toggleItem<DiseaseId>(draft.diseases, item.id))} />{item.label}</label>)}</div></div>)}
             </fieldset>}
             {step === 1 && <fieldset className="mt-6"><legend className="sr-only">查詢縣市，可複選</legend><p className="mb-5 text-base leading-8 text-neutral-600 dark:text-neutral-300">可複選。例如戶籍在雲林、在彰化看病，可以兩個都選。這只是查詢範圍，不用填地址或身分資料。</p><div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{QUERY_REGIONS.map((region) => <label key={region} className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-base ${queryRegions(draft).includes(region) ? 'border-teal-700 bg-teal-50 dark:bg-teal-950/40' : 'border-neutral-200 hover:border-teal-600 dark:border-neutral-700'}`}><input className="h-4 w-4 shrink-0 accent-teal-700" type="checkbox" checked={queryRegions(draft).includes(region)} onChange={() => toggleRegion(region)} />{region}</label>)}</div><p className="mt-4 text-sm leading-7 text-neutral-500">各項方案仍依自己的戶籍、居住或就醫規定審查。</p></fieldset>}
-            {step === 2 && <fieldset className="mt-6"><legend className="sr-only">協助需求，可複選</legend><p className="mb-5 text-sm text-neutral-500">可複選</p><div className="grid gap-3 sm:grid-cols-2">{NEEDS.map((need) => <label key={need.id} className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-base ${draft.needs.includes(need.id) ? 'border-teal-700 bg-teal-50 dark:bg-teal-950/40' : 'border-neutral-200 hover:border-teal-600 dark:border-neutral-700'}`}><input type="checkbox" className="h-4 w-4 shrink-0 accent-teal-700" checked={draft.needs.includes(need.id)} onChange={() => updateDraft('needs', toggleItem<NeedId>(draft.needs, need.id))} />{need.label}</label>)}</div></fieldset>}
+            {step === 2 && <fieldset className="mt-6">
+              <legend className="sr-only">協助需求，可複選</legend>
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <p className="text-sm text-neutral-500">可複選</p>
+                <label className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-4 py-2 text-base font-semibold ${allNeedsSelected ? 'border-teal-700 bg-teal-50 dark:bg-teal-950/40' : 'border-neutral-200 hover:border-teal-600 dark:border-neutral-700'}`}>
+                  <input type="checkbox" className="h-4 w-4 shrink-0 accent-teal-700" checked={allNeedsSelected}
+                    ref={(input) => { if (input) input.indeterminate = draft.needs.length > 0 && !allNeedsSelected }}
+                    onChange={(event) => updateDraft('needs', event.target.checked ? NEEDS.map((need) => need.id) : [])} />
+                  全選
+                </label>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">{NEEDS.map((need) => <label key={need.id} className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-base ${draft.needs.includes(need.id) ? 'border-teal-700 bg-teal-50 dark:bg-teal-950/40' : 'border-neutral-200 hover:border-teal-600 dark:border-neutral-700'}`}><input type="checkbox" className="h-4 w-4 shrink-0 accent-teal-700" checked={draft.needs.includes(need.id)} onChange={() => updateDraft('needs', toggleItem<NeedId>(draft.needs, need.id))} />{need.label}</label>)}</div>
+            </fieldset>}
             <div className="mt-8 flex items-center justify-between gap-3 border-t border-neutral-100 pt-6 dark:border-neutral-800">
               {step > 0 ? <button type="button" onClick={() => { setStep(step - 1); focusHeading() }} className={SECONDARY_BUTTON}>上一步</button> : <span className="text-xs text-neutral-500">第 1／3 步</span>}
               <button type="submit" disabled={!canContinue} className={PRIMARY_BUTTON}>{step === 2 ? '找資源' : '下一步 →'}</button>
