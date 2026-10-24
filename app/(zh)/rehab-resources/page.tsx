@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { COUNTY_RESOURCE_PAGES } from '@/lib/rehab-resources/counties'
 
 const TITLE = '復健科補助與援助查詢｜中部四縣市為主・全台政府窗口'
-const DESCRIPTION = '依疾病、多個查詢縣市與需要查找復健、早療、照顧、身障證明及保險給付。中部四縣市在地資源為主，其他縣市提供官方窗口及全國資源，附核對日期與社工列印清單。'
+const DESCRIPTION = '依疾病、多個查詢縣市與需要查找復健、早療、照顧、身障證明及保險給付。中部四縣市在地資源為主，其他縣市提供官方窗口及全國資源，附核對日期，可複製聯絡資訊、列印或儲存 PDF。'
 
 export const dynamic = 'force-static'
 export const metadata: Metadata = {
@@ -38,7 +38,7 @@ export default function RehabResourcesPage() {
             <Breadcrumbs items={[{ label: '首頁', href: '/' }, { label: '補助與援助' }]} />
             <GovernmentLinks />
           </div>
-          <div className="max-w-3xl"><h1 className="text-3xl font-bold leading-snug tracking-tight md:text-4xl">復健科補助與援助查詢<span className="mt-2 block text-2xl font-medium leading-snug text-neutral-600 dark:text-neutral-300 md:text-3xl">中部四縣市為主・全台政府窗口</span></h1><p className="mt-5 text-base leading-8 text-neutral-600 dark:text-neutral-300">選疾病、選縣市、選需要，找到窗口後打電話，或列印帶去問社工。</p></div>
+          <div className="max-w-3xl"><h1 className="text-3xl font-bold leading-snug tracking-tight md:text-4xl">復健科補助與援助查詢<span className="mt-2 block text-2xl font-medium leading-snug text-neutral-600 dark:text-neutral-300 md:text-3xl">中部四縣市為主・全台政府窗口</span></h1><p className="mt-5 text-base leading-8 text-neutral-600 dark:text-neutral-300">選疾病、選縣市、選需要，找到窗口後打電話，或把聯絡資訊帶走。</p></div>
         </div>
       </header>
       <ResourceDirectory />

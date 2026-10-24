@@ -13,6 +13,7 @@ import ResourceService from './ResourceService'
 import RegionalContactCards from './RegionalContactCards'
 import ResourceNoResults from './ResourceNoResults'
 import { resourceFreshness, resourceQueryDate } from '@/lib/rehab-resources/freshness'
+import { resourceContactsText } from '@/lib/rehab-resources/contact-export'
 
 const EMPTY_FILTERS: ResourceFilters = { diseases: [], needs: [], regions: [], region: '', residence: '', household: '', hospitalRegion: '', kind: '', status: '' }
 const PAGE_SIZE = 5
@@ -48,6 +49,9 @@ export default function ResourceDirectory() {
   const [selections, setSelections] = useState<ProviderSelection[]>([])
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [today, setToday] = useState(RESOURCE_UPDATED_AT)
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copying' | 'copied' | 'manual'>('idle')
+  const copyAttemptRef = useRef(0)
+  const manualCopyRef = useRef<HTMLTextAreaElement>(null)
   const discussionRef = useRef<HTMLElement>(null)
   const headingRef = useRef<HTMLHeadingElement>(null)
   const id = useId()
@@ -113,7 +117,12 @@ export default function ResourceDirectory() {
     focusHeading()
   }
   function toggleSelection(provider: ResourceProvider) {
+    resetCopy()
     setSelections((previous) => toggleProviderSelection(previous, provider))
+  }
+  function resetCopy() {
+    copyAttemptRef.current += 1
+    setCopyStatus('idle')
   }
   function showBenefits() {
     setAppliedFilters({ ...activeFilters, regions: selectedQueryRegions, region: '', needs: ['benefits'], kind: '', status: '' })
@@ -121,6 +130,7 @@ export default function ResourceDirectory() {
     focusHeading()
   }
   function clearPrivateDetails() {
+    resetCopy()
     setDraft(EMPTY_FILTERS); setAppliedFilters(null); setStep(0); setView('wizard'); setVisibleCount(PAGE_SIZE)
     setSelections([])
     focusHeading()
@@ -130,6 +140,29 @@ export default function ResourceDirectory() {
     flushSync(() => setToday(resourceQueryDate(taipeiDate(), RESOURCE_UPDATED_AT)))
     window.print()
   }
+  async function copyContacts() {
+    const queryDate = resourceQueryDate(taipeiDate(), RESOURCE_UPDATED_AT)
+    const contacts = resourceContactsText(selectedProviders, queryDate)
+    setToday(queryDate)
+    if (!contacts) return
+    const attempt = ++copyAttemptRef.current
+    setCopyStatus('copying')
+    try {
+      await navigator.clipboard.writeText(contacts)
+      if (attempt === copyAttemptRef.current) setCopyStatus('copied')
+    } catch {
+      if (attempt !== copyAttemptRef.current) return
+      setCopyStatus('manual')
+      window.requestAnimationFrame(() => {
+        manualCopyRef.current?.focus()
+        manualCopyRef.current?.select()
+        manualCopyRef.current?.scrollIntoView({ block: 'center' })
+      })
+    }
+  }
+  const copyFeedback = copyStatus === 'copied' ? '已複製窗口與電話，可以貼到備忘錄或傳給家人。'
+    : copyStatus === 'manual' ? '無法自動複製，請長按下方文字選取並複製。' : ''
+  const manualContacts = copyStatus === 'manual' ? resourceContactsText(selectedProviders, today) : ''
   const profile = [
     `疾病：${activeFilters.diseases.map(diseaseLabel).join('、')}`,
     `協助需求：${activeFilters.needs.map(needLabel).join('、')}`,
@@ -138,7 +171,7 @@ export default function ResourceDirectory() {
 
   return (
     <div className="RehabResourceDirectory">
-      <div className="ResourceScreenOnly mx-auto max-w-5xl px-4 pb-32 pt-8 sm:px-6 lg:px-8">
+      <div className="ResourceScreenOnly mx-auto max-w-5xl px-4 pb-48 pt-8 sm:px-6 lg:px-8">
         {view === 'wizard' ? (
           <form onSubmit={submitStep} aria-label="資源篩選" className="mx-auto max-w-3xl rounded-2xl border border-neutral-200 bg-white p-5 sm:p-8 dark:border-neutral-800 dark:bg-neutral-950">
             <ol aria-label="篩選步驟" className="mb-8 flex items-center gap-2 sm:gap-5">
@@ -185,7 +218,7 @@ export default function ResourceDirectory() {
                 <p className="mb-2 text-xs font-semibold text-neutral-500">{[...new Set(provider.resources.map((resource) => KIND_LABELS[resource.kind]))].join('・')}</p>
                 <h3 className="text-xl font-bold leading-8">{provider.name}</h3>
                 <div className="mt-6 divide-y divide-neutral-200 dark:divide-neutral-800">{provider.resources.map((resource) => <ResourceService key={resource.id} resource={resource} today={today} />)}</div>
-                <div className="mt-3 flex justify-end border-t border-neutral-100 pt-4 dark:border-neutral-800"><button type="button" aria-pressed={hasAdditional ? undefined : selected} onClick={() => toggleSelection(provider)} className={`min-h-12 rounded-xl border px-5 text-base font-semibold ${selected && !hasAdditional ? 'border-teal-700 bg-teal-700 text-white' : 'border-neutral-300 text-neutral-800 hover:border-teal-700 hover:text-teal-800 dark:border-neutral-700 dark:text-neutral-100'}`}>{hasAdditional ? '＋ 加入其他服務' : selected ? '✓ 已加入清單' : '＋ 加入列印清單'}</button></div>
+                <div className="mt-3 flex justify-end border-t border-neutral-100 pt-4 dark:border-neutral-800"><button type="button" aria-pressed={hasAdditional ? undefined : selected} onClick={() => toggleSelection(provider)} className={`min-h-12 rounded-xl border px-5 text-base font-semibold ${selected && !hasAdditional ? 'border-teal-700 bg-teal-700 text-white' : 'border-neutral-300 text-neutral-800 hover:border-teal-700 hover:text-teal-800 dark:border-neutral-700 dark:text-neutral-100'}`}>{hasAdditional ? '＋ 加入其他服務' : selected ? '✓ 已加入清單' : '＋ 加入聯絡清單'}</button></div>
               </article>
             })}</div>
             {visibleCount < results.length && <button type="button" onClick={() => setVisibleCount((count) => count + PAGE_SIZE)} className="mt-6 min-h-12 w-full rounded-xl border border-neutral-300 text-sm font-semibold hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-900">看更多單位（還有 {results.length - visibleCount} 個）↓</button>}
@@ -194,8 +227,10 @@ export default function ResourceDirectory() {
         )}
 
         {selectedProviders.length > 0 && <section ref={discussionRef} id="discussion-list" className="mt-12 scroll-mt-24 rounded-2xl border border-teal-200 bg-teal-50/30 p-5 sm:p-8 dark:border-teal-900 dark:bg-teal-950/10" aria-labelledby={`${id}-discussion-title`}>
-          <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-semibold tracking-widest text-teal-800 dark:text-teal-300">帶去與社工討論</p><h2 id={`${id}-discussion-title`} className="mt-2 text-2xl font-bold">我的列印清單</h2></div><button type="button" onClick={printList} className={PRIMARY_BUTTON}>列印清單（{selectedProviders.length} 個單位）</button></div>
-          <p className="mt-3 text-sm leading-7 text-neutral-600 dark:text-neutral-300">選好後列印，帶去醫院請社工協助申請。</p>
+          <div className="flex flex-wrap items-center justify-between gap-4"><div><p className="text-xs font-semibold tracking-widest text-teal-800 dark:text-teal-300">保存、交給家人，或帶去與社工討論</p><h2 id={`${id}-discussion-title`} className="mt-2 text-2xl font-bold">帶走聯絡資訊</h2></div><div className="grid w-full gap-3 sm:w-auto sm:grid-cols-2"><button type="button" onClick={copyContacts} disabled={copyStatus === 'copying'} className={`${SECONDARY_BUTTON} disabled:cursor-wait disabled:opacity-50`}>{copyStatus === 'copying' ? '複製中…' : copyStatus === 'copied' ? '✓ 已複製窗口與電話' : '複製窗口與電話'}</button><button type="button" onClick={printList} className={PRIMARY_BUTTON}>列印／儲存 PDF</button></div></div>
+          <p className="mt-3 text-sm leading-7 text-neutral-600 dark:text-neutral-300">複製窗口與電話，貼到備忘錄或交給家人；也可列印完整清單，或在列印畫面選擇儲存為 PDF，帶去與社工討論。</p>
+          <p className="mt-2 text-xs leading-6 text-neutral-500">複製內容只有公開的單位、窗口與電話，不包含病名或查詢條件。</p>
+          {manualContacts && <div className="mt-5 rounded-xl border border-teal-200 bg-white p-4 dark:border-teal-800 dark:bg-neutral-950"><label htmlFor={`${id}-manual-contacts`} className="text-sm font-semibold">{copyFeedback}</label><textarea ref={manualCopyRef} id={`${id}-manual-contacts`} readOnly value={manualContacts} onFocus={(event) => event.currentTarget.select()} rows={8} className="mt-3 w-full rounded-lg border border-neutral-300 bg-transparent p-3 text-base leading-7 dark:border-neutral-700" /></div>}
           <ol className="mt-6 space-y-3">{selectedProviders.map((provider, index) => <li key={provider.id} className="flex items-start justify-between gap-3 rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"><div><p className="text-sm font-bold">{index + 1}. {provider.name}</p><ul className="mt-2 space-y-2">{provider.resources.map((resource) => {
             const freshness = resourceFreshness(resource, today)
             if (freshness.level === 'hidden') return null
@@ -203,10 +238,10 @@ export default function ResourceDirectory() {
             const availability = resourceAvailability(resource, today)
             return <li key={resource.id} className="text-sm leading-7 text-neutral-600 dark:text-neutral-300">{resource.title}{availability.showBadge && <> · {availability.label}</>}{!matchesCurrentContext(resource, activeFilters, today) && <p className="text-amber-800 dark:text-amber-200">這項服務與新的查詢條件不同。</p>}</li>
           })}</ul></div><button type="button" aria-label={`移除${provider.name}`} onClick={() => toggleSelection(provider)} className="min-h-11 shrink-0 px-2 text-xs text-neutral-500 underline underline-offset-4">移除</button></li>)}</ol>
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-neutral-200 pt-5 dark:border-neutral-800"><p className="max-w-2xl text-xs leading-6 text-neutral-500">清單只留在這一頁，重新整理就會清除。資料不會上傳。</p><button type="button" onClick={clearPrivateDetails} className="min-h-11 text-xs text-neutral-500 underline underline-offset-4">清除本頁資料</button></div>
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-neutral-200 pt-5 dark:border-neutral-800"><p className="max-w-2xl text-xs leading-6 text-neutral-500">清單只留在這一頁，重新整理就會清除。離開前可先複製聯絡資訊或儲存 PDF；本頁資料不會上傳。</p><button type="button" onClick={clearPrivateDetails} className="min-h-11 text-xs text-neutral-500 underline underline-offset-4">清除本頁資料</button></div>
         </section>}
 
-        {selectedProviders.length > 0 && <div className="ResourceSelectionBar fixed bottom-0 left-0 right-0 z-40 border-t border-neutral-200 bg-white/95 px-4 py-3 backdrop-blur dark:border-neutral-700 dark:bg-neutral-950/95"><div className="mx-auto flex max-w-5xl items-center justify-between gap-3"><button type="button" onClick={() => discussionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="min-h-11 text-sm font-semibold">已選 {selectedProviders.length} 個單位 · 看清單 ↑</button><button type="button" onClick={printList} className="min-h-11 rounded-xl bg-teal-800 px-4 text-sm font-semibold text-white">列印清單</button></div></div>}
+        {selectedProviders.length > 0 && <div className="ResourceSelectionBar fixed bottom-0 left-0 right-0 z-40 border-t border-neutral-200 bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur dark:border-neutral-700 dark:bg-neutral-950/95"><div className="mx-auto flex max-w-5xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4"><div><button type="button" onClick={() => discussionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="min-h-11 text-sm font-semibold">已選 {selectedProviders.length} 個單位 · 看聯絡資訊 ↑</button><p role="status" className="text-xs leading-6 text-teal-800 dark:text-teal-300">{copyFeedback}</p></div><div className="grid grid-cols-2 gap-2 sm:shrink-0"><button type="button" onClick={copyContacts} disabled={copyStatus === 'copying'} className="min-h-12 rounded-xl border border-neutral-300 px-3 text-sm font-semibold disabled:cursor-wait disabled:opacity-50 dark:border-neutral-700">{copyStatus === 'copying' ? '複製中…' : copyStatus === 'copied' ? '✓ 已複製窗口與電話' : '複製窗口與電話'}</button><button type="button" onClick={printList} className="min-h-12 rounded-xl bg-teal-800 px-3 text-sm font-semibold text-white hover:bg-teal-900">列印／儲存 PDF</button></div></div></div>}
       </div>
 
       <section className="ResourcePrintOnly" aria-label="社工討論清單列印內容">

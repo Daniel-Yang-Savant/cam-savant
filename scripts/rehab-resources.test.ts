@@ -16,6 +16,7 @@ import './rehab-resources-expansion.test'
 import './rehab-resources-freshness.test'
 import './rehab-resources-empty-state.test'
 import './rehab-resource-review-warnings.test'
+import './rehab-resource-contact-export.test'
 
 const TODAY = '2026-10-20'
 const EMPTY: ResourceFilters = { diseases: [], needs: [], region: '', residence: '', household: '', hospitalRegion: '', kind: '', status: '' }

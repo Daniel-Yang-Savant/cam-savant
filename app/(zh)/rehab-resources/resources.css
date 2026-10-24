@@ -2,13 +2,17 @@
 .RehabResourcesPage input:focus-visible,
 .RehabResourcesPage button:focus-visible,
 .RehabResourcesPage a:focus-visible,
-.RehabResourcesPage summary:focus-visible {
+.RehabResourcesPage summary:focus-visible,
+.RehabResourcesPage textarea:focus-visible {
   outline: 2px solid #0f766e;
   outline-offset: 4px;
 }
 .ResourceSourceUrl { overflow-wrap: anywhere; }
 .RehabResourcesPage { overflow-wrap: break-word; }
-body:has(.ResourceSelectionBar) > button[aria-label="回到頂部"] { bottom: 6rem; }
+body:has(.ResourceSelectionBar) > button[aria-label="回到頂部"] { bottom: 11rem; }
+@media (min-width: 640px) {
+  body:has(.ResourceSelectionBar) > button[aria-label="回到頂部"] { bottom: 7rem; }
+}
 
 @media print {
   @page rehab-resources { size: A4; margin: 15mm 14mm; }
