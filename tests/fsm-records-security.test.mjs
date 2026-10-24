@@ -305,3 +305,71 @@ test('redirect POST credentials are processed only after the callback and applic
   const pendingIndex = application.indexOf('(function processPendingCredential()')
   assert.ok(callbackIndex >= 0 && vaultIndex > callbackIndex && pendingIndex > vaultIndex)
 })
+
+function signInGateHarness({ loaded = true, userAgent = 'Mozilla/5.0 Chrome/130.0.0.0 Safari/537.36' } = {}) {
+  const views = new Map(), sdkEvents = new Map(), initialized = [], rendered = []
+  let redirects = 0
+  const identity = {
+    initialize(options) { initialized.push(options) },
+    renderButton(container, options) { rendered.push({ container, options }) },
+    prompt() { throw new Error('Explicit sign-in must not depend on One Tap or its FedCM notifications') },
+  }
+  const getView = id => {
+    if (!views.has(id)) {
+      const button = { addEventListener(type, listener) { this[type] = listener } }
+      const container = { innerHTML: '', querySelector: () => button }
+      const error = { textContent: '', style: {} }
+      views.set(id, { innerHTML: '', button, container, error, querySelector: selector => selector === '.gate-gsi-container' ? container : error })
+    }
+    return views.get(id)
+  }
+  const context = vm.createContext({
+    window: { google: loaded ? { accounts: { id: identity } } : undefined, handleGoogleCredential() {} },
+    document: { getElementById: getView, querySelector: () => ({ addEventListener: (type, listener) => sdkEvents.set(type, listener) }) },
+    navigator: { userAgent }, GOOGLE_CLIENT_ID: 'synthetic-client',
+    t: key => key, beginOAuthRedirect: () => { redirects += 1 },
+  })
+  const source = html.slice(html.indexOf('function renderGate(viewId)'), html.indexOf('// ── Bind redirect login'))
+  vm.runInContext(source, context)
+  return { context, getView, initialized, rendered, sdkEvents, get redirects() { return redirects },
+    load() { context.window.google = { accounts: { id: identity } }; sdkEvents.get('load')() },
+  }
+}
+
+test('desktop, iOS and Android Chrome render the explicit Google button without waiting for One Tap notifications', () => {
+  for (const userAgent of ['Mozilla/5.0 Chrome/130.0.0.0 Safari/537.36', 'Mozilla/5.0 Firefox/130.0', 'Mozilla/5.0 iPhone Version/18.0 Mobile Safari/604.1', 'Mozilla/5.0 Android Chrome/130.0.0.0 Mobile Safari/537.36']) {
+    const app = signInGateHarness({ userAgent })
+    app.context.renderGate('view-records')
+    assert.equal(app.rendered.length, 1, userAgent)
+    assert.equal(app.rendered[0].container, app.getView('view-records').container)
+    assert.equal(app.initialized[0].ux_mode, 'popup')
+    assert.equal(app.initialized[0].callback, app.context.window.handleGoogleCredential)
+    app.context.renderGate('view-info')
+    assert.equal(app.initialized.length, 1, 'all locked tabs share one Google client initialization')
+    assert.equal(app.rendered.length, 2)
+  }
+})
+
+test('a delayed Google SDK replaces the temporary control as soon as it loads and reports load failures', () => {
+  const app = signInGateHarness({ loaded: false })
+  app.context.renderGate('view-records')
+  assert.equal(app.rendered.length, 0)
+  app.getView('view-records').button.click()
+  assert.match(app.getView('view-records').error.textContent, /尚未載入/)
+  app.load()
+  assert.equal(app.rendered.length, 1)
+  assert.equal(app.getView('view-records').error.style.display, 'none')
+  const blocked = signInGateHarness({ loaded: false })
+  blocked.context.renderGate('view-records')
+  blocked.sdkEvents.get('error')()
+  assert.match(blocked.getView('view-records').error.textContent, /載入失敗/)
+})
+
+test('non-Chrome Android keeps the existing secure redirect sign-in flow', () => {
+  const app = signInGateHarness({ userAgent: 'Mozilla/5.0 Android SamsungBrowser/26.0 Chrome/124.0 Mobile Safari/537.36' })
+  app.context.renderGate('view-records')
+  assert.equal(app.initialized.length, 0)
+  assert.equal(app.rendered.length, 0)
+  app.getView('view-records').button.click()
+  assert.equal(app.redirects, 1)
+})

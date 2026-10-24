@@ -5,7 +5,7 @@ export function GET() {
     { authenticated: true },
     {
       headers: {
-        'Cache-Control': 'no-store',
+        'Cache-Control': 'private, no-store, max-age=0, must-revalidate',
       },
     }
   )
