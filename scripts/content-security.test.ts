@@ -67,3 +67,14 @@ test('public article lookups reject directory separators and encoded traversal',
     assert.equal(englishPosts.getEnglishPostBySlug(slug), null)
   }
 })
+
+test('the retired OAuth callback is inert and only links to the current sign-in entry', () => {
+  const source = fs.readFileSync(path.join(originalDirectory, 'public/fsm/studio/auth-callback.html'), 'utf8')
+  const document = parseDocument(source)
+  for (const tag of ['script', 'iframe', 'form']) {
+    assert.equal(DomUtils.getElementsByTagName(tag, document.children).length, 0)
+  }
+  const links = DomUtils.getElementsByTagName('a', document.children)
+  assert.deepEqual(links.map(link => link.attribs.href), ['/fsm/studio'])
+  assert.doesNotMatch(source, /postMessage|sessionStorage|localStorage|location\.(?:hash|replace)|http-equiv/i)
+})

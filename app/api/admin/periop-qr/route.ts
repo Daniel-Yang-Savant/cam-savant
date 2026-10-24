@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createPeriopQrGrant, getPeriopSigningSecret } from '@/lib/periop-auth'
+import { checkRateLimit, getClientIp, isAllowedWriteOrigin, rateLimitError } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
+  if (!isAllowedWriteOrigin(request.headers, request.nextUrl.origin)) {
+    return NextResponse.json({ error: 'Invalid request origin' }, { status: 403 })
+  }
+  const limit = await checkRateLimit(`admin-qr:${getClientIp(request.headers)}`, 30, 60_000)
+  if (!limit.allowed) {
+    const error = rateLimitError(limit)
+    return NextResponse.json({ error: error.error, code: error.code }, { status: error.status, headers: error.headers })
+  }
   const secret = getPeriopSigningSecret()
   if (!secret) {
     return NextResponse.json(

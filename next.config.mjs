@@ -1,9 +1,42 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createHash } from 'node:crypto'
 
 const projectDirectory = path.dirname(fileURLToPath(import.meta.url))
 const postsDirectory = path.join(projectDirectory, 'content', 'posts')
+
+// Hash the bytes the browser executes. Reading inside headers() keeps the
+// policy in sync with the final Studio source in each build and dev restart.
+function studioScriptHashes(fileName) {
+  const html = fs.readFileSync(path.join(projectDirectory, 'public', 'fsm', 'studio', fileName), 'utf8')
+  return [...new Set([...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)]
+    .filter(([, attributes, source]) => !/\bsrc\s*=/i.test(attributes) && source.trim())
+    .map(([, , source]) => `'sha256-${createHash('sha256').update(source, 'utf8').digest('base64')}'`))]
+}
+
+function studioContentSecurityPolicy(fileName, isProduction) {
+  return [
+    "default-src 'self'",
+    `script-src 'self' ${studioScriptHashes(fileName).join(' ')} https://accounts.google.com`,
+    "script-src-attr 'none'",
+    // Studio uses inline layout styles and the Google button injects styles.
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: blob: https://lh3.googleusercontent.com",
+    "connect-src 'self' https://accounts.google.com https://oauth2.googleapis.com",
+    "frame-src https://accounts.google.com",
+    // iOS audio unlock and exported preview audio use data/blob URLs.
+    "media-src 'self' data: blob:",
+    "worker-src 'self' blob:",
+    "manifest-src 'self' data:",
+    "object-src 'none'",
+    "base-uri 'none'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+    ...(isProduction ? ["upgrade-insecure-requests"] : []),
+  ].join('; ')
+}
 
 function getProtectedPostRedirects() {
   if (!fs.existsSync(postsDirectory)) return []
@@ -97,7 +130,9 @@ const nextConfig = {
           { key: 'Strict-Transport-Security',  value: 'max-age=63072000; includeSubDomains; preload' },
           { key: 'X-Frame-Options',            value: 'DENY' },
           { key: 'X-Content-Type-Options',     value: 'nosniff' },
-          { key: 'Referrer-Policy',            value: 'strict-origin-when-cross-origin' },
+          // Do not attach page paths or query strings to analytics/API requests,
+          // including same-origin requests to Vercel's analytics collector.
+          { key: 'Referrer-Policy',            value: 'strict-origin' },
           { key: 'Permissions-Policy',         value: 'camera=(), microphone=(), geolocation=(), payment=()' },
           // same-origin-allow-popups: allows Google OAuth popup to communicate back
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
@@ -122,7 +157,17 @@ const nextConfig = {
       {
         source: '/fsm/studio/:path*',
         headers: [
+          { key: 'Content-Security-Policy', value: studioContentSecurityPolicy('index.html', isProduction) },
           { key: 'Cache-Control', value: 'private, no-store, max-age=0, must-revalidate' },
+          // Retain only the origin for Google's client-origin validation.
+          { key: 'Referrer-Policy', value: 'strict-origin' },
+          { key: 'Cross-Origin-Resource-Policy', value: 'same-origin' },
+        ],
+      },
+      {
+        source: '/fsm/studio/auth-callback.html',
+        headers: [
+          { key: 'Content-Security-Policy', value: studioContentSecurityPolicy('auth-callback.html', isProduction) },
         ],
       },
       // 靜態資源長快取

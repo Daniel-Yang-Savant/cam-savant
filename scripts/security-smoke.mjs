@@ -1,6 +1,6 @@
 // Exercise a production build against synthetic local configuration and a read-only KV fixture.
 import assert from 'node:assert/strict'
-import { createHmac } from 'node:crypto'
+import { createHash, createHmac } from 'node:crypto'
 import fs from 'node:fs'
 import http from 'node:http'
 import { spawn } from 'node:child_process'
@@ -17,9 +17,27 @@ const keepOpen = process.argv.includes('--keep-open')
 let next
 let output = ''
 let passed = 0
+const rateLimitCounters = new Map()
 
-const kv = http.createServer((request, response) => {
+const kv = http.createServer(async (request, response) => {
   response.setHeader('Content-Type', 'application/json')
+  if (request.method === 'POST' && request.url === '/') {
+    let body = ''
+    for await (const chunk of request) body += chunk
+    try {
+      const [command, script, keyCount, bucket, window] = JSON.parse(body)
+      if (command !== 'EVAL' || keyCount !== '1' || !script.includes("redis.call('INCR'") || !script.includes("redis.call('PEXPIRE'") || !/^request-limit:v1:[a-f0-9]{64}$/.test(bucket) || !Number.isSafeInteger(Number(window))) throw new Error('Unexpected request')
+      const now = Date.now()
+      let record = rateLimitCounters.get(bucket)
+      if (!record || record.resetAt <= now) record = { count: 0, resetAt: now + Number(window) }
+      record.count++
+      rateLimitCounters.set(bucket, record)
+      response.end(JSON.stringify({ result: [record.count, record.resetAt - now] }))
+    } catch {
+      response.writeHead(400).end(JSON.stringify({ error: 'Only synthetic rate-limit EVAL commands are allowed' }))
+    }
+    return
+  }
   if (request.method !== 'GET') {
     response.writeHead(405).end(JSON.stringify({ error: 'Smoke fixture is read-only' }))
     return
@@ -31,8 +49,8 @@ const kv = http.createServer((request, response) => {
 
 function session(email) {
   const now = Date.now()
-  const encoded = Buffer.from(JSON.stringify({ email, iat: now, exp: now + 60_000 })).toString('base64url')
-  return `${encoded}.${createHmac('sha256', sessionSecret).update(encoded).digest('base64url')}`
+  const encoded = Buffer.from(JSON.stringify({ v: 2, email, iat: now, exp: now + 60_000 })).toString('base64url')
+  return `${encoded}.${createHmac('sha256', sessionSecret).update('fsm-cookie-session:v2:' + encoded).digest('base64url')}`
 }
 
 function check(name, callback) {
@@ -65,7 +83,11 @@ try {
     await delay(200)
   }
   assert.ok(ready, 'Production server must start')
-  const request = (url, options = {}) => fetch(base + url, { redirect: 'manual', ...options })
+  const request = (url, options = {}) => fetch(base + url, {
+    redirect: 'manual', ...options,
+    headers: { Origin: base, 'X-FSM-CSRF': '1', ...options.headers },
+  })
+  const memberHeaders = email => ({ Cookie: `__Host-fsm_session=${session(email)}`, 'X-FSM-Account': email })
   const json = body => ({ method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
   await check('public home, English home, article directory, exercise guides and care locations render', async () => {
     for (const url of ['/', '/en', '/posts', '/exercise-guides', '/locations', '/rehab-resources', '/fsm/studio/index.html']) {
@@ -82,7 +104,7 @@ try {
   })
   await check('anonymous private routes deny access', async () => {
     assert.equal((await request('/admin/editor')).status, 404)
-    for (const url of ['/api/admin/session', '/api/admin/articles', '/api/pending-users', '/api/protocols', '/api/my-protocols', '/api/reference-protocols']) assert.equal((await request(url)).status, 401, url)
+    for (const url of ['/api/admin/session', '/api/admin/articles', '/api/pending-users', '/api/protocols', '/api/my-protocols', '/api/reference-protocols', '/api/fsm-session']) assert.equal((await request(url)).status, 401, url)
     const response = await request('/perioperative-rehab')
     assert.equal(response.status, 307)
     assert.ok(response.headers.get('location').endsWith('/perioperative-rehab/locked'))
@@ -111,9 +133,38 @@ try {
     assert.equal((await request('/api/admin/session', { headers: { Cookie: cookie } })).status, 401)
   })
   await check('normal FSM member and admin read APIs work with local read-only KV', async () => {
-    for (const url of ['/api/protocols', '/api/my-protocols', '/api/reference-protocols']) assert.equal((await request(url, { headers: { Authorization: `Bearer ${session(member)}` } })).status, 200, url)
-    assert.equal((await request('/api/pending-users', { headers: { Authorization: `Bearer ${session(adminEmail)}` } })).status, 200)
-    assert.equal((await request('/api/protected-data', { ...json({ resource: 'guide' }), headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session(member)}` } })).status, 200)
+    for (const url of ['/api/protocols', '/api/my-protocols', '/api/reference-protocols']) assert.equal((await request(url, { headers: memberHeaders(member) })).status, 200, url)
+    assert.equal((await request('/api/pending-users', { headers: memberHeaders(adminEmail) })).status, 200)
+    assert.equal((await request('/api/protected-data', { ...json({ resource: 'guide' }), headers: { 'Content-Type': 'application/json', ...memberHeaders(member) } })).status, 200)
+    const restored = await request('/api/fsm-session', { headers: memberHeaders(member) })
+    assert.equal(restored.status, 200)
+    const profile = await restored.json()
+    assert.equal(profile.email, member)
+    assert.equal(Object.hasOwn(profile, 'token'), false)
+    assert.equal((await request('/api/protocols', { headers: { Authorization: `Bearer ${session(member)}` } })).status, 401)
+  })
+  await check('cross-origin writes and a simultaneous account change cannot read or save another account', async () => {
+    assert.equal((await request('/api/admin/periop-qr', { method: 'POST', headers: { Cookie: adminCookie, Origin: 'https://example.invalid' } })).status, 403)
+    assert.equal((await request('/api/protocols', { ...json({ protocols: [] }), headers: { ...memberHeaders(member), Origin: 'https://example.invalid', 'Content-Type': 'application/json' } })).status, 403)
+    assert.equal((await request('/api/protocols', { headers: { ...memberHeaders(member), 'X-FSM-Account': 'another@example.invalid' } })).status, 409)
+    const logout = await request('/api/fsm-logout', { method: 'POST', headers: memberHeaders(member) })
+    assert.equal(logout.status, 200)
+    assert.match(logout.headers.get('set-cookie'), /__Host-fsm_session=;.*HttpOnly.*Max-Age=0/)
+  })
+  await check('the deployed Studio CSP hashes match its exact script and the obsolete callback is inert', async () => {
+    const response = await request('/fsm/studio/index.html')
+    const html = await response.text()
+    const csp = response.headers.get('content-security-policy') || ''
+    const script = csp.split(';').find(value => value.trim().startsWith('script-src '))
+    assert.ok(script)
+    assert.doesNotMatch(script, /unsafe-inline|unsafe-eval/)
+    for (const [, attrs, body] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)) {
+      if (!/\bsrc\s*=/.test(attrs) && body.trim()) assert.ok(script.includes(`'sha256-${createHash('sha256').update(body).digest('base64')}'`))
+    }
+    assert.match(csp, /script-src-attr 'none'/)
+    const callback = await request('/fsm/studio/auth-callback.html')
+    assert.equal(callback.status, 200)
+    assert.doesNotMatch(await callback.text(), /<script|postMessage|sessionStorage/i)
   })
   await check('Google callback rejects missing CSRF and accepts valid-shaped same-flow handoff', async () => {
     assert.equal((await request('/api/fsm-auth-callback', json({ credential: 'header.payload.signature' }))).status, 400)

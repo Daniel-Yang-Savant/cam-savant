@@ -25,7 +25,7 @@
     "prebuild": "npm run test:security && npm run test:sw && npm run warn:resources && npm run validate:posts && npm run test:seo && npm run test:discovery && npm run test:fsm && npm run test:opd && npm run test:periop && npm run test:resources",
     "test:resources": "node --import tsx --test scripts/rehab-resources.test.ts",
     "warn:resources": "node --import tsx scripts/check-rehab-resource-reviews.ts",
-    "test:security": "node --import tsx --test scripts/admin-auth.test.ts scripts/content-security.test.ts",
+    "test:security": "node --import tsx --test scripts/admin-auth.test.ts scripts/content-security.test.ts scripts/analytics-security.test.ts scripts/mdx-security.test.mjs tests/security-*.test.mjs",
     "test:smoke": "node scripts/security-smoke.mjs"
   },
   "ts-node": {

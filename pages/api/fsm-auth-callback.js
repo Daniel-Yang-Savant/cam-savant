@@ -3,8 +3,10 @@
 // We store the credential in sessionStorage via a tiny HTML shim, then redirect back to Studio.
 
 import { isGoogleCredential } from '../../lib/fsm/session-auth';
+import { createHash } from 'node:crypto';
+import { applyPagesRateLimit } from '../../lib/security/request-protection';
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'private, no-store');
   if (req.method !== 'POST') {
     res.redirect(302, '/fsm/studio/');
@@ -19,7 +21,12 @@ export default function handler(req, res) {
   }
   const credential = req.body?.credential;
   if (!isGoogleCredential(credential)) return res.status(400).json({ error: 'Invalid sign-in credential' });
+  if (!await applyPagesRateLimit(req, res, 'fsm-google-callback', 20, 15 * 60 * 1000)) return;
   const credentialJSON = JSON.stringify(credential).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+  const script = `\n(function(){\n  try{ sessionStorage.setItem('fsm_pending_credential',${credentialJSON}); }catch(e){}\n  window.location.replace('/fsm/studio/');\n})();\n`;
+  const scriptHash = createHash('sha256').update(script).digest('base64');
+  res.setHeader('Content-Security-Policy', `default-src 'none'; script-src 'sha256-${scriptHash}'; style-src 'unsafe-inline'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'`);
+  res.setHeader('Referrer-Policy', 'no-referrer');
 
   // Return a minimal HTML page that stores the JWT in sessionStorage and redirects.
   // sessionStorage is same-origin only; the credential is a signed JWT from Google
@@ -31,11 +38,6 @@ export default function handler(req, res) {
 <title>登入中…</title>
 <style>body{margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0d0d0d;color:#aaa;font:14px system-ui,sans-serif;}</style>
 </head><body><p>登入中，請稍候…</p>
-<script>
-(function(){
-  try{ sessionStorage.setItem('fsm_pending_credential',${credentialJSON}); }catch(e){}
-  window.location.replace('/fsm/studio/');
-})();
-</script>
+<script>${script}</script>
 </body></html>`);
 }

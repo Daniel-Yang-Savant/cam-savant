@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
+import { checkRateLimit, getClientIp, isAllowedWriteOrigin, rateLimitError } from '@/lib/rate-limit'
 
 export const runtime = 'nodejs'
 
@@ -25,29 +25,33 @@ function text(value: unknown, maxLength: number): string | null {
 }
 
 export async function POST(request: NextRequest) {
-  const requestOrigin = request.headers.get('origin')
-  if (requestOrigin && requestOrigin !== request.nextUrl.origin) {
+  if (!isAllowedWriteOrigin(request.headers, request.nextUrl.origin)) {
     return NextResponse.json({ error: 'Invalid request origin' }, { status: 403 })
   }
 
   const ip = getClientIp(request.headers)
-  const rateLimit = checkRateLimit(`consult:${ip}`, LIMIT, WINDOW_MS)
+  const rateLimit = await checkRateLimit(`consult:${ip}`, LIMIT, WINDOW_MS)
   if (!rateLimit.allowed) {
+    const error = rateLimitError(rateLimit)
     return NextResponse.json(
-      { error: 'Too many requests' },
+      { error: error.error, code: error.code },
       {
-        status: 429,
-        headers: { 'Retry-After': String(Math.ceil(rateLimit.resetIn / 1000)) },
+        status: error.status,
+        headers: error.headers,
       }
     )
   }
 
-  let payload: ConsultPayload
+  let parsed: unknown
   try {
-    payload = await request.json()
+    parsed = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+  }
+  const payload = parsed as ConsultPayload
 
   const name = text(payload.name ?? '', 100)
   const question = text(payload.question, 3000)

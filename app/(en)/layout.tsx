@@ -1,9 +1,8 @@
 import { safeJsonLd } from '@/lib/safe-json'
 import type { Metadata } from 'next'
 import { generateOrganizationSchema } from '@/lib/schema'
-import Script from 'next/script'
 import '../globals.css'
-import { Analytics } from '@vercel/analytics/react'
+import PrivacyAnalytics from '@/components/PrivacyAnalytics'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import FloatingChatButton from '@/components/FloatingChatButton'
@@ -78,21 +77,7 @@ export default function EnglishRootLayout({ children }: { children: React.ReactN
         />
       </head>
       <body className="min-h-screen flex flex-col bg-white dark:bg-neutral-900">
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-          <>
-            <Script
-              strategy="afterInteractive"
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
-            />
-            <Script
-              id="ga4-init-en"
-              strategy="afterInteractive"
-              dangerouslySetInnerHTML={{
-                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}',{page_path:window.location.pathname});`,
-              }}
-            />
-          </>
-        )}
+
         <script dangerouslySetInnerHTML={{ __html: `
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
@@ -107,7 +92,7 @@ export default function EnglishRootLayout({ children }: { children: React.ReactN
           <FloatingChatButton locale="en" />
           <AdminPeriopQrButton locale="en" />
           <BackToTop locale="en" />
-          <Analytics />
+          <PrivacyAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
         </AdminSessionProvider>
       </body>
     </html>

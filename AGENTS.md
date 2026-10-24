@@ -21,6 +21,10 @@
 - `PERIOP_SIGNING_SECRET` — 可選的術後專區私有簽章密鑰；未設定時由 `ADMIN_SECRET` 衍生，必須與對外兌換碼不同
 - `SESSION_SECRET` — FSM 登入簽章專用隨機密鑰，必填且沒有預設值；在 Vercel 標記為 Sensitive
 - FSM 所有受保護 API 必須共用 `lib/fsm/session-auth.js`，逐次確認目前會員資格；不得只驗證簽章而跳過撤權檢查
+- FSM 登入憑證只放在 HttpOnly session cookie，前端僅保留顯示資料；不得將登入 token 寫回 localStorage 或回傳給 JavaScript
+- FSM cookie 寫入請求必須檢查同源 Origin、`X-FSM-CSRF` 與帳號綁定；帳號 header 只用於避免跨分頁混淆，不能當作授權依據
+- 正式環境限流共用 `lib/security/request-protection.js` 與現有可寫入的 `KV_REST_API_URL`／`KV_REST_API_TOKEN`；儲存故障時拒絕受保護操作，不退回單機限流
+- 文章必須使用 `components/SafeMdx.tsx` 渲染，保留 `blockJS: true` 與可執行 HTML 過濾；不得直接以未過濾的 MDXRemote 取代
 
 ### API
 - `POST /api/admin-login` — 驗證密碼並設定 admin_token cookie

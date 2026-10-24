@@ -16,8 +16,9 @@ const record = (id = 'record_1', patch = {}) => ({
 })
 const plain = value => JSON.parse(JSON.stringify(value))
 const flush = () => new Promise(resolve => setImmediate(resolve))
-function harness({ entries = new Map(), email = 'a@example.invalid', confirm = () => true } = {}) {
-  const elements = new Map(), windowEvents = new Map(), requests = [], alerts = []
+function harness({ entries = new Map(), email = 'a@example.invalid', confirm = () => true, clock, fetchOverride } = {}) {
+  const elements = new Map(), windowEvents = new Map(), documentEvents = new Map(), requests = [], alerts = [], timers = new Map()
+  let timerId = 0
   const element = id => {
     if (!elements.has(id)) {
       const classes = new Set()
@@ -30,18 +31,23 @@ function harness({ entries = new Map(), email = 'a@example.invalid', confirm = (
     }
     return elements.get(id)
   }
-  entries.set('fsm_auth', JSON.stringify({ email, token: 'synthetic-token' }))
   const localStorage = { getItem: key => entries.get(key) ?? null, setItem: (key, value) => entries.set(key, value), removeItem: key => entries.delete(key) }
   const context = vm.createContext({
     console: { log() {}, error() {}, warn() {} },
     window: { location: { hash: '', pathname: '/fsm/studio/', search: '' }, addEventListener(type, handler) { windowEvents.set(type, handler) } },
-    document: { getElementById: element, querySelectorAll: () => [], querySelector: selector => selector.startsWith('.tab[data-view=') ? element('tab') : null, addEventListener() {}, documentElement: { style: { setProperty() {} } } },
+    document: { getElementById: element, querySelectorAll: () => [], querySelector: selector => selector.startsWith('.tab[data-view=') ? element('tab') : null, addEventListener(type, listener) { if (!documentEvents.has(type)) documentEvents.set(type, []); documentEvents.get(type).push(listener) }, documentElement: { style: { setProperty() {} } } },
     localStorage, sessionStorage: { getItem: () => null, setItem() {}, removeItem() {} },
     navigator: { userAgent: 'synthetic-test', mediaSession: null },
-    setTimeout, clearTimeout, setInterval, clearInterval, URL, URLSearchParams, TextEncoder, TextDecoder, Uint8Array, btoa, atob,
+    Date: clock ? class extends Date { static now() { return clock.now } } : Date,
+    setTimeout: clock ? (callback, delay) => { const id = ++timerId; timers.set(id, { callback, delay }); return id } : setTimeout,
+    clearTimeout: clock ? id => timers.delete(id) : clearTimeout,
+    setInterval, clearInterval, URL, URLSearchParams, TextEncoder, TextDecoder, Uint8Array, btoa, atob,
     performance: { now: () => 0 }, crypto: webcrypto, confirm, alert: message => alerts.push(message), prompt: () => backupPassword,
     fetch: async (url, options = {}) => {
       requests.push({ url, options })
+      if (fetchOverride) { const response = await fetchOverride(url, options); if (response) return response }
+      if (url.endsWith('/fsm-session')) return { ok: true, json: async () => ({ authorized: true, email }) }
+      if (url.endsWith('/fsm-logout')) return { ok: true, json: async () => ({ ok: true }) }
       if (url.endsWith('/protected-data')) return { ok: true, json: async () => ({ data: { channel_a: [], channel_b: [], curated: [], full: [] } }) }
       if (url.endsWith('/protocols')) return { ok: true, json: async () => ({ protocols: [], favorite_protocol_ids: [] }) }
       if (url.endsWith('/pending-users')) return { ok: true, json: async () => ({ pending: [], approved: [] }) }
@@ -49,11 +55,11 @@ function harness({ entries = new Map(), email = 'a@example.invalid', confirm = (
     },
   })
   vm.runInContext(application, context)
-  return { context, entries, requests, alerts, element, windowEvents,
+  return { context, entries, requests, alerts, element, windowEvents, documentEvents, timers,
     run: code => vm.runInContext(code, context),
-    async unlock(password = passphrase) { return vm.runInContext(`unlockRecordsVault(${JSON.stringify(password)}, ${JSON.stringify(password)})`, context) },
+    async unlock(password = passphrase) { await vm.runInContext('auth.ready', context); return vm.runInContext(`unlockRecordsVault(${JSON.stringify(password)}, ${JSON.stringify(password)})`, context) },
     async save(value) { context.recordsFixture = value; return vm.runInContext('saveSessions(recordsFixture)', context) },
-    setAccount(email) { context.nextAccount = { email, token: 'synthetic-new-token' }; vm.runInContext('auth.user = nextAccount; updateAuthUI()', context) },
+    setAccount(email) { context.nextAccount = { authorized: true, email }; vm.runInContext('auth.user = nextAccount; updateAuthUI()', context) },
   }
 }
 function assertSafeMarkup(markup) {
@@ -138,7 +144,8 @@ test('reload and logout lock ciphertext; wrong password and copying a vault to a
 
 test('logout/account replacement cancels an asynchronous unlock and another tab changes lock immediately', async () => {
   const app = harness()
-  const pending = app.unlock()
+  await app.run('auth.ready')
+  const pending = app.run('unlockRecordsVault('+JSON.stringify(passphrase)+','+JSON.stringify(passphrase)+')')
   app.setAccount('b@example.invalid')
   assert.equal(await pending, false)
   assert.equal(app.run('recordVault.key'), null)
@@ -372,4 +379,101 @@ test('non-Chrome Android keeps the existing secure redirect sign-in flow', () =>
   assert.equal(app.rendered.length, 0)
   app.getView('view-records').button.click()
   assert.equal(app.redirects, 1)
+})
+
+test('reload restores only the server cookie session and removes legacy readable credentials', async () => {
+  const entries = new Map([['fsm_auth', JSON.stringify({ email: 'forged@example.invalid', token: 'old-readable-token' })]])
+  const app = harness({ entries })
+  assert.equal(app.run('auth.user'), null, 'stored identity never authenticates the page')
+  await app.run('auth.ready')
+  assert.equal(app.run('auth.user.email'), 'a@example.invalid')
+  assert.equal(app.run('Object.hasOwn(auth.user, "token")'), false)
+  assert.equal(entries.has('fsm_auth'), false)
+  for (const { options } of app.requests) {
+    assert.equal(options.credentials, 'same-origin')
+    assert.equal(options.headers['X-FSM-CSRF'], '1')
+    assert.equal(Object.hasOwn(options.headers, 'Authorization'), false)
+    assert.equal(JSON.stringify(options).includes('old-readable-token'), false)
+  }
+  const anonymous = harness({ entries: new Map([['fsm_auth', '{"token":"old"}']]), fetchOverride: url => url.endsWith('/fsm-session') ? { ok: false, status: 401 } : null })
+  await anonymous.run('auth.ready')
+  assert.equal(anonymous.run('auth.user'), null)
+  assert.equal(anonymous.requests.length, 1, 'an obsolete token never fetches protected data')
+})
+
+test('logout waits for a pending Google exchange before deleting its cookie and cannot restore readable tokens', async () => {
+  let finishExchange
+  const exchange = new Promise(resolve => { finishExchange = resolve })
+  const app = harness({ fetchOverride: url => url === '/api/auth' ? exchange : null })
+  await app.run('auth.ready')
+  const signIn = app.run('window.handleGoogleCredential({credential:"synthetic"})')
+  const logout = app.run('auth.logout()')
+  assert.equal(app.run('auth.user'), null)
+  assert.equal(app.requests.some(request => request.url.endsWith('/fsm-logout')), false)
+  finishExchange({ ok: true, json: async () => ({ authorized: true, email: 'new@example.invalid', token: 'must-not-be-saved' }) })
+  await Promise.all([signIn, logout])
+  assert.equal(app.requests.at(-1).url, '/api/fsm-logout')
+  assert.equal(app.run('auth.user'), null)
+  assert.equal(app.entries.has('fsm_auth'), false)
+  assert.ok(app.entries.has('fsm_auth_event'))
+  assert.equal([...app.entries.values()].some(value => value.includes('must-not-be-saved')), false)
+})
+
+test('cross-tab authentication events lock records and revalidate the cookie without trusting event contents', async () => {
+  let checks = 0
+  const app = harness({ fetchOverride: url => url.endsWith('/fsm-session') && checks++ > 0 ? { ok: false, status: 401 } : null })
+  await app.unlock()
+  await app.save([record()])
+  app.windowEvents.get('storage')({ key: 'fsm_auth_event', newValue: '{"authorized":true,"email":"forged@example.invalid","token":"forged"}' })
+  assert.equal(app.run('auth.user'), null)
+  assert.equal(app.run('recordVault.key'), null)
+  await app.run('auth.ready')
+  assert.equal(app.run('auth.user'), null)
+  assert.equal(app.requests.filter(request => request.url.endsWith('/fsm-session')).length, 2)
+})
+
+test('15 minutes without trusted activity locks only the vault and preserves encrypted and legacy data', async () => {
+  const clock = { now: 1_800_000_000_000 }
+  const legacy = JSON.stringify([record('legacy')])
+  const app = harness({ clock, entries: new Map([['fsm_sessions_v1', legacy]]) })
+  await app.unlock(); await app.save([record()])
+  const encrypted = app.entries.get('fsm_records_vault_v1:a@example.invalid')
+  app.element('sessionModal').classList.add('show')
+  app.element('sessionNotes').value = 'Unsaved synthetic note'
+  app.run('state.running = true; state.loadedProtocol = null')
+  clock.now += 14 * 60 * 1000
+  app.documentEvents.get('input').forEach(listener => listener({ isTrusted: false }))
+  clock.now += 60 * 1000
+  const timer = [...app.timers.values()].at(-1)
+  timer.callback()
+  assert.equal(app.run('recordsAreUnlocked()'), false)
+  assert.equal(app.run('auth.isAuthed()'), true)
+  assert.equal(app.run('state.running'), true, 'unrelated listening playback is preserved')
+  assert.equal(app.element('sessionNotes').value, '')
+  assert.match(app.alerts.at(-1), /未儲存的表單已清空/)
+  assert.equal(app.entries.get('fsm_records_vault_v1:a@example.invalid'), encrypted)
+  assert.equal(app.entries.get('fsm_sessions_v1'), legacy)
+  await app.unlock()
+  app.run('state.running = true; state.loadedProtocol = { _recordOwner: recordsOwner() }')
+  clock.now += 15 * 60 * 1000
+  assert.equal(app.run('checkRecordsIdle()'), true)
+  assert.equal(app.run('state.running'), false, 'patient-linked playback stops when its vault locks')
+})
+
+test('trusted activity extends the idle window and a throttled background timer is checked on return', async () => {
+  const clock = { now: 1_800_000_000_000 }
+  const app = harness({ clock })
+  await app.unlock()
+  clock.now += 14 * 60 * 1000
+  app.documentEvents.get('pointerdown').forEach(listener => listener({ isTrusted: true }))
+  clock.now += 60 * 1000
+  assert.equal(app.run('checkRecordsIdle()'), false)
+  app.context.document.hidden = true
+  app.documentEvents.get('visibilitychange').forEach(listener => listener({}))
+  assert.equal(app.run('recordsAreUnlocked()'), true)
+  clock.now += 14 * 60 * 1000
+  app.context.document.hidden = false
+  app.documentEvents.get('visibilitychange').forEach(listener => listener({}))
+  assert.equal(app.run('recordsAreUnlocked()'), false)
+  assert.equal(app.run('auth.isAuthed()'), true)
 })

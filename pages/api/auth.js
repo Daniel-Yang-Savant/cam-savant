@@ -3,7 +3,8 @@
 // Also checks Upstash `approved_emails` (admin-approved via Studio).
 // Stores pending users in Upstash `pending_list`.
 
-import { createSessionToken, getCurrentMembership, isGoogleCredential, isSessionConfigured } from '../../lib/fsm/session-auth';
+import { createSessionToken, getCurrentMembership, isGoogleCredential, isSessionConfigured, requireSameOriginWrite, setSessionCookie } from '../../lib/fsm/session-auth';
+import { applyPagesRateLimit } from '../../lib/security/request-protection';
 
 // ── Upstash helpers ───────────────────────────────────────────────────────────
 async function kvGet(key) {
@@ -34,18 +35,16 @@ async function kvSet(key, value) {
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'private, no-store');
-  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (!requireSameOriginWrite(req, res)) return;
   if (!isSessionConfigured() || !process.env.GOOGLE_CLIENT_ID) {
     return res.status(503).json({ error: 'Membership sign-in is temporarily unavailable. Contact the administrator.', code: 'session_configuration_unavailable' });
   }
 
   const { credential } = req.body || {};
   if (!isGoogleCredential(credential)) return res.status(400).json({ error: 'Invalid sign-in credential' });
+  if (!await applyPagesRateLimit(req, res, 'fsm-sign-in', 20, 15 * 60 * 1000)) return;
 
   try {
     // Verify with Google tokeninfo
@@ -95,12 +94,12 @@ export default async function handler(req, res) {
     }
 
     const sessionToken = await createSessionToken(email);
+    setSessionCookie(res, sessionToken);
     return res.status(200).json({
       authorized: true,
       email,
       name: typeof payload.name === 'string' ? payload.name.slice(0, 200) : email.split('@')[0],
-      picture: typeof payload.picture === 'string' ? payload.picture.slice(0, 2048) : null,
-      token: sessionToken
+      picture: typeof payload.picture === 'string' ? payload.picture.slice(0, 2048) : null
     });
   } catch (err) {
     console.error('Auth error:', err);

@@ -3,7 +3,7 @@ import ArticleReview from '@/components/ArticleReview'
 import { getAuthor } from '@/lib/authors'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { MDXRemote } from 'next-mdx-remote/rsc'
+import SafeMdx from '@/components/SafeMdx'
 import { getAllEnglishPosts, getEnglishPostBySlug } from '@/lib/english-posts'
 import { englishAlternates } from '@/lib/locales'
 import ReadingProgress from '@/components/ReadingProgress'
@@ -95,7 +95,7 @@ export default async function EnglishPerioperativeArticlePage({ params }: Props)
             </div>
 
             <PrintButton locale="en" />
-            <div className="prose prose-neutral dark:prose-invert max-w-none"><MDXRemote source={enhancedContent} components={mdxComponents} /></div>
+            <div className="prose prose-neutral dark:prose-invert max-w-none"><SafeMdx source={enhancedContent} components={mdxComponents} /></div>
 
             <div className="mt-12 rounded-2xl bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-100 dark:border-neutral-700 p-6">
               <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">Need individualized guidance?</h2>

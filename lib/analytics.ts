@@ -1,6 +1,7 @@
 'use client'
 
 import { track } from '@vercel/analytics/react'
+import { safeAnalyticsUrl, safeAnalyticsReferrer } from './analytics-privacy'
 
 export type AnalyticsEventName =
   | 'article_engaged'
@@ -39,6 +40,9 @@ export function trackAnalyticsEvent(
   name: AnalyticsEventName,
   properties: AnalyticsProperties = {}
 ) {
+  if (typeof window === 'undefined') return
+  const location = safeAnalyticsUrl(window.location.href)
+  if (!location) return
   const safeProperties = Object.fromEntries(
     ALLOWED_PROPERTY_KEYS.flatMap((key) => {
       const value = properties[key]
@@ -51,5 +55,9 @@ export function trackAnalyticsEvent(
   const analyticsWindow = window as typeof window & {
     gtag?: (...args: unknown[]) => void
   }
-  analyticsWindow.gtag?.('event', name, safeProperties)
+  analyticsWindow.gtag?.('event', name, {
+    ...safeProperties,
+    page_location: location,
+    page_referrer: safeAnalyticsReferrer(document.referrer),
+  })
 }

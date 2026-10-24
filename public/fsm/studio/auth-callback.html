@@ -3,49 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>登入中...</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>請重新登入 · FSM Studio</title>
   <style>
     body { margin: 0; display: flex; align-items: center; justify-content: center;
            min-height: 100vh; background: #0d0d0d; color: #aaa;
            font-family: system-ui, sans-serif; font-size: 14px; }
+    main { max-width: 32rem; padding: 24px; text-align: center; }
+    a { display: inline-block; margin-top: 16px; color: #8bdacb; }
   </style>
 </head>
 <body>
-  <p id="msg">登入處理中，請稍候…</p>
-  <script>
-    (function () {
-      // Extract params from URL fragment (implicit flow returns hash)
-      const hash = new URLSearchParams(window.location.hash.slice(1));
-      const idToken = hash.get('id_token');
-      const error   = hash.get('error');
-
-      if (error) {
-        document.getElementById('msg').textContent = '登入取消或發生錯誤：' + error;
-        setTimeout(() => window.close(), 2000);
-        return;
-      }
-
-      if (!idToken) {
-        document.getElementById('msg').textContent = '未收到憑證，請重試。';
-        setTimeout(() => window.close(), 2000);
-        return;
-      }
-
-      if (window.opener && !window.opener.closed) {
-        // Popup flow: send token back to parent, then close
-        window.opener.postMessage(
-          { type: 'fsm_google_oauth', id_token: idToken },
-          window.location.origin
-        );
-        window.close();
-      } else {
-        // Redirect flow (mobile): store token, go back to Studio
-        try { sessionStorage.setItem('fsm_oauth_token', idToken); } catch (e) {}
-        const returnUrl = sessionStorage.getItem('fsm_return_url') || '/fsm/studio/';
-        try { sessionStorage.removeItem('fsm_return_url'); } catch (e) {}
-        window.location.replace(returnUrl);
-      }
-    })();
-  </script>
+  <main>
+    <h1>請重新登入</h1>
+    <p>登入流程已更新，請回到 FSM Studio 重新選擇 Google 帳號。</p>
+    <a href="/fsm/studio" rel="noreferrer">返回 FSM Studio</a>
+  </main>
 </body>
 </html>

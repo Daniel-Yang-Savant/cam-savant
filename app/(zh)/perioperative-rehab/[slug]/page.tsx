@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import ArticleReview from '@/components/ArticleReview'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { MDXRemote } from 'next-mdx-remote/rsc'
+import SafeMdx from '@/components/SafeMdx'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import { getPostBySlug, getPostsByCategory } from '@/lib/posts'
@@ -195,7 +195,7 @@ export default async function PerioperativeRehabArticlePage({ params }: Props) {
 
             {/* MDX content */}
             <div className="prose prose-neutral dark:prose-invert max-w-none">
-              <MDXRemote source={enhancedContent} components={mdxComponents} />
+              <SafeMdx source={enhancedContent} components={mdxComponents} />
             </div>
 
             {/* Consultation form */}

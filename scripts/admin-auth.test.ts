@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { NextRequest } from 'next/server'
+import { installRateLimitFixture } from './rate-limit-fixture'
 import {
   ADMIN_COOKIE_NAME,
   ADMIN_SESSION_MAX_AGE_SECONDS,
@@ -21,15 +22,18 @@ describe('administrator sessions', { concurrency: false }, () => {
   const originalSecret = process.env.ADMIN_SECRET
   const originalNodeEnv = process.env.NODE_ENV
   let requestCounter = 0
+  let restoreRateLimit = () => {}
 
   before(async () => {
     process.env.ADMIN_SECRET = SECRET
     Object.assign(process.env, { NODE_ENV: 'production' })
+    restoreRateLimit = installRateLimitFixture()
     ;({ POST: login } = await import('../app/api/admin-login/route'))
     ;({ proxy } = await import('../proxy'))
   })
 
   after(() => {
+    restoreRateLimit()
     if (originalSecret === undefined) delete process.env.ADMIN_SECRET
     else process.env.ADMIN_SECRET = originalSecret
     if (originalNodeEnv === undefined) Reflect.deleteProperty(process.env, 'NODE_ENV')
@@ -126,8 +130,10 @@ describe('article file boundaries', { concurrency: false }, () => {
   let putArticle: typeof import('../app/api/admin/articles/[slug]/route').PUT
   let fixtureDirectory: string
   let postsDirectory: string
+  let restoreRateLimit = () => {}
 
   before(async () => {
+    restoreRateLimit = installRateLimitFixture()
     fixtureDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'cam-savant-admin-security-'))
     postsDirectory = path.join(fixtureDirectory, 'content', 'posts')
     fs.mkdirSync(postsDirectory, { recursive: true })
@@ -146,7 +152,10 @@ describe('article file boundaries', { concurrency: false }, () => {
     }
   })
 
-  after(() => fs.rmSync(fixtureDirectory, { recursive: true, force: true }))
+  after(() => {
+    restoreRateLimit()
+    fs.rmSync(fixtureDirectory, { recursive: true, force: true })
+  })
 
   function params(slug: string) {
     return { params: Promise.resolve({ slug }) }

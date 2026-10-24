@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { createHmac } from 'node:crypto'
 import { createAdminSession, verifyAdminSession } from '../lib/admin-auth'
+import { installRateLimitFixture } from './rate-limit-fixture'
 import { after, before, describe, test } from 'node:test'
 import { NextRequest, type NextResponse } from 'next/server'
 import {
@@ -68,12 +69,14 @@ describe('postoperative patient authorization', { concurrency: false }, () => {
   let access: typeof import('../app/(zh)/perioperative-rehab/access/route').GET
   let generateQr: typeof import('../app/api/admin/periop-qr/route').POST
   let adminSession: string
+  let restoreRateLimit = () => {}
   const environmentKeys = ['PERIOP_ACCESS_TOKEN', 'PERIOP_SIGNING_SECRET', 'ADMIN_SECRET', 'NODE_ENV'] as const
   const originalEnvironment = new Map(
     environmentKeys.map((key) => [key, process.env[key]])
   )
 
   before(async () => {
+    restoreRateLimit = installRateLimitFixture()
     // Use synthetic configuration only and keep env-dependent cases serial.
     Object.assign(process.env, {
       PERIOP_ACCESS_TOKEN: PATIENT_ACCESS_TOKEN,
@@ -88,6 +91,7 @@ describe('postoperative patient authorization', { concurrency: false }, () => {
   })
 
   after(() => {
+    restoreRateLimit()
     for (const key of environmentKeys) {
       const value = originalEnvironment.get(key)
       if (value === undefined) delete process.env[key]

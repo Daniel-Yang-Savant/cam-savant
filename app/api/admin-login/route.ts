@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
+import { checkRateLimit, getClientIp, isAllowedWriteOrigin, rateLimitError } from '@/lib/rate-limit'
 import {
   ADMIN_COOKIE_NAME,
   ADMIN_SESSION_MAX_AGE_SECONDS,
@@ -14,17 +14,20 @@ const WINDOW_MS = 15 * 60 * 1000
 const DELAY_MS = 300
 
 export async function POST(request: NextRequest) {
+  if (!isAllowedWriteOrigin(request.headers, request.nextUrl.origin)) {
+    return NextResponse.json({ error: 'Invalid request origin' }, { status: 403 })
+  }
   const ip = getClientIp(request.headers)
-  const rl = checkRateLimit(`admin-login:${ip}`, LIMIT, WINDOW_MS)
+  const rl = await checkRateLimit(`admin-login:${ip}`, LIMIT, WINDOW_MS)
 
   if (!rl.allowed) {
-    const retryAfterSec = Math.ceil(rl.resetIn / 1000)
+    const error = rateLimitError(rl)
     return NextResponse.json(
-      { error: 'Too many attempts. Please try again later.' },
+      { error: error.error, code: error.code },
       {
-        status: 429,
+        status: error.status,
         headers: {
-          'Retry-After': String(retryAfterSec),
+          ...error.headers,
           'X-RateLimit-Limit': String(LIMIT),
           'X-RateLimit-Remaining': '0',
           'X-RateLimit-Reset': String(Date.now() + rl.resetIn),

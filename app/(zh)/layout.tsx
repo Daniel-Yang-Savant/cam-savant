@@ -1,9 +1,8 @@
 import { safeJsonLd } from '@/lib/safe-json'
 import type { Metadata } from 'next'
 import { generateOrganizationSchema } from '@/lib/schema'
-import Script from 'next/script'
 import '../globals.css'
-import { Analytics } from '@vercel/analytics/react'
+import PrivacyAnalytics from '@/components/PrivacyAnalytics'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import FloatingChatButton from '@/components/FloatingChatButton'
@@ -79,21 +78,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col bg-white dark:bg-neutral-900">
         {/* ── Google Analytics 4（afterInteractive：不阻塞首屏渲染） ── */}
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-          <>
-            <Script
-              strategy="afterInteractive"
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
-            />
-            <Script
-              id="ga4-init"
-              strategy="afterInteractive"
-              dangerouslySetInnerHTML={{
-                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}',{page_path:window.location.pathname});`,
-              }}
-            />
-          </>
-        )}
+
         {/* ── Service Worker registration ── */}
         <script dangerouslySetInnerHTML={{ __html: `
   if ('serviceWorker' in navigator) {
@@ -109,7 +94,7 @@ export default function RootLayout({
           <FloatingChatButton locale="zh" />
           <AdminPeriopQrButton />
           <BackToTop locale="zh" />
-          <Analytics />
+          <PrivacyAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
         </AdminSessionProvider>
       </body>
     </html>

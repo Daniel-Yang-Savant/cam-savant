@@ -16,8 +16,8 @@ const extractFunction = name => {
 const escapeFunction = html.match(/function escapeHtml\(s\) \{[^\n]+\}/)?.[0]
 assert.ok(escapeFunction)
 const source = [html.slice(guideStart, guideEnd), extractFunction('switchToView'),
-  extractFunction('updateAuthUI'), escapeFunction].join('\n')
-const member = () => ({ email: 'member@example.invalid', token: 'synthetic-member-token' })
+  extractFunction('updateAuthUI'), extractFunction('fsmFetch'), escapeFunction].join('\n')
+const member = () => ({ authorized: true, email: 'member@example.invalid' })
 const guide = {
   zh: { title: '會員說明', intro: '中文介紹', sections: [{ title: '第一節', body: '中文內容' }] },
   en: { title: 'Member guide', intro: 'English introduction', sections: [{ title: 'First section', body: 'English content' }] },
@@ -55,7 +55,7 @@ function harness({ user = member(), lang = 'en', fetchResult = () => response() 
   const context = vm.createContext({
     LANG: lang, API_BASE: '/api', ADMIN_EMAIL: 'admin@example.invalid',
     CHANNEL_A: null, PROTOCOLS_CURATED: null,
-    auth: { user, isAuthed() { return !!this.user }, save() { saved++ } },
+    auth: { user, isAuthed() { return !!this.user?.authorized }, save() { saved++ } },
     $: get,
     document: {
       getElementById: get,
@@ -88,7 +88,7 @@ function harness({ user = member(), lang = 'en', fetchResult = () => response() 
   }
 }
 
-test('guests and local profiles without a token only see the gate and make no request', async () => {
+test('guests and unverified local profiles only see the gate and make no request', async () => {
   for (const user of [null, {}, { email: 'member@example.invalid' }, { token: '' }]) {
     const h = harness({ user })
     await h.context.renderInfoView()
@@ -114,7 +114,7 @@ test('the info tab is membership-gated and does not load the protocol library', 
   assert.equal(signedIn.protectedLoads, 0, 'guide must not depend on loading frequency/protocol data')
 })
 
-test('every visit authenticates with the current bearer token, guide resource and no-store cache', async () => {
+test('every visit uses the HttpOnly session, CSRF header, guide resource and no-store cache', async () => {
   const h = harness()
   await h.context.renderInfoView()
   await h.context.renderInfoView()
@@ -123,7 +123,9 @@ test('every visit authenticates with the current bearer token, guide resource an
     assert.equal(url, '/api/protected-data')
     assert.equal(options.method, 'POST')
     assert.equal(options.cache, 'no-store')
-    assert.equal(options.headers.Authorization, 'Bearer synthetic-member-token')
+    assert.equal(options.credentials, 'same-origin')
+    assert.equal(options.headers['X-FSM-CSRF'], '1')
+    assert.equal(Object.hasOwn(options.headers, 'Authorization'), false)
     assert.equal(options.headers['Content-Type'], 'application/json')
     assert.deepEqual(JSON.parse(options.body), { resource: 'guide' })
   }

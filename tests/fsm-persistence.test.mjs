@@ -11,9 +11,8 @@ const protocol = id => ({ id, name: id, _custom: true, steps: [{ freq_a: 40, fre
 const jsonResponse = (value, status = 200) => ({ ok: status >= 200 && status < 300, status, json: async () => value })
 const flush = () => new Promise(resolve => setImmediate(resolve))
 
-function studio({ protocols = [protocol('existing')], favorites = ['reference-1'], storage, fetchOverride } = {}) {
+function studio({ protocols = [protocol('existing')], favorites = ['reference-1'], storage, fetchOverride, email = 'audit@example.invalid' } = {}) {
   const entries = storage || new Map()
-  if (!entries.has('fsm_auth')) entries.set('fsm_auth', JSON.stringify({ email: 'audit@example.invalid', token: 'synthetic-token' }))
   const requests = []
   const alerts = []
   const elements = new Map()
@@ -40,6 +39,8 @@ function studio({ protocols = [protocol('existing')], favorites = ['reference-1'
     alert: message => alerts.push(message), confirm: () => true,
     fetch: async (url, options = {}) => {
       requests.push({ url, options })
+      if (url.endsWith('/fsm-session')) return jsonResponse({ authorized: true, email })
+      if (url.endsWith('/fsm-logout')) return jsonResponse({ ok: true })
       if (fetchOverride) {
         const response = await fetchOverride(url, options)
         if (response) return response
@@ -56,7 +57,7 @@ function studio({ protocols = [protocol('existing')], favorites = ['reference-1'
 test('a remembered login loads personal protocols and favorites before allowing mutation', async () => {
   const app = studio()
   await flush()
-  assert.deepEqual(app.requests.map(request => request.url).sort(), ['/api/protected-data', '/api/protocols'])
+  assert.deepEqual(app.requests.map(request => request.url).sort(), ['/api/fsm-session', '/api/protected-data', '/api/protocols'])
   assert.equal(app.run('personalSync.ready'), true)
   assert.equal(app.run('USER_PROTOCOLS[0].id'), 'existing')
   assert.equal(app.run('FAVORITE_PROTOCOL_IDS.has("reference-1")'), true)
@@ -124,12 +125,12 @@ async function apiHandler({ kvResponses, method = 'GET', body }) {
   const calls = []
   let response
   const secret = 'synthetic-test-secret'
-  const payload = Buffer.from(JSON.stringify({ email: 'audit@example.invalid', exp: Date.now() + 60000 })).toString('base64url')
+  const payload = Buffer.from(JSON.stringify({ v: 2, iat: Date.now(), email: 'audit@example.invalid', exp: Date.now() + 60000 })).toString('base64url')
   const key = await webcrypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
-  const signature = Buffer.from(await webcrypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload))).toString('base64url')
+  const signature = Buffer.from(await webcrypto.subtle.sign('HMAC', key, new TextEncoder().encode('fsm-cookie-session:v2:' + payload))).toString('base64url')
   const context = vm.createContext({
-    Buffer, TextEncoder, crypto: webcrypto, console: { error() {} },
-    process: { env: { SESSION_SECRET: secret, AUTHORIZED_EMAILS: 'audit@example.invalid', KV_REST_API_URL: 'https://synthetic.invalid', KV_REST_API_TOKEN: 'fake-kv-token' } },
+    applyPagesRateLimit: async () => true, Buffer, TextEncoder, URL, crypto: webcrypto, console: { error() {} },
+    process: { env: { NODE_ENV: 'production', SESSION_SECRET: secret, AUTHORIZED_EMAILS: 'audit@example.invalid', KV_REST_API_URL: 'https://synthetic.invalid', KV_REST_API_TOKEN: 'fake-kv-token' } },
     fetch: async (url, options = {}) => {
       calls.push({ url, options })
       const next = kvResponses.shift()
@@ -138,11 +139,11 @@ async function apiHandler({ kvResponses, method = 'GET', body }) {
       return next
     },
   })
-  const authSource = fs.readFileSync(new URL('../lib/fsm/session-auth.js', import.meta.url), 'utf8').replace(/^export /gm, '')
+  const authSource = fs.readFileSync(new URL('../lib/fsm/session-auth.js', import.meta.url), 'utf8').replace(/^import .+;\r?$/gm, '').replace(/^export /gm, '')
   vm.runInContext(authSource, context)
   const source = fs.readFileSync(new URL('../pages/api/protocols.js', import.meta.url), 'utf8').replace(/^import .+;\r?$/gm, '').replace('export default async function handler', 'async function handler')
   vm.runInContext(source, context)
-  const req = { method, headers: { authorization: 'Bearer ' + payload + '.' + signature }, body }
+  const req = { method, cookies: { '__Host-fsm_session': payload + '.' + signature }, headers: { host: 'synthetic-studio.invalid', origin: 'https://synthetic-studio.invalid', 'x-fsm-csrf': '1', 'x-fsm-account': 'audit@example.invalid' }, body }
   const res = { setHeader() {}, status(status) { this.statusCode = status; return this }, json(data) { response = { status: this.statusCode, data }; return this }, end() {} }
   await context.handler(req, res)
   return { calls, response }
@@ -201,7 +202,7 @@ test('drafts cannot be restored into another signed-in account', async () => {
     ['fsm_auth', JSON.stringify({ email: 'other@example.invalid', token: 'synthetic-other-token' })],
     ['fsm_personal_pending_v1:audit@example.invalid', JSON.stringify({ patch: { protocols: [protocol('private-draft')] }, base: { protocols: [] } })],
   ])
-  const app = studio({ storage: entries, protocols: [protocol('other-user-protocol')] })
+  const app = studio({ storage: entries, email: 'other@example.invalid', protocols: [protocol('other-user-protocol')] })
   await flush()
   assert.equal(app.run('USER_PROTOCOLS[0].id'), 'other-user-protocol')
   assert.equal(app.run('personalSync.pending'), null)

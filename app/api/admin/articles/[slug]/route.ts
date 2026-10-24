@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
+import { checkRateLimit, getClientIp, isAllowedWriteOrigin, rateLimitError } from '@/lib/rate-limit'
 
 const postsDirectory = path.join(process.cwd(), 'content', 'posts')
 const allowedExtensions = new Set(['.mdx', '.md'])
@@ -65,6 +66,14 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  if (!isAllowedWriteOrigin(req.headers, req.nextUrl.origin)) {
+    return NextResponse.json({ error: 'Invalid request origin' }, { status: 403 })
+  }
+  const limit = await checkRateLimit(`admin-article-write:${getClientIp(req.headers)}`, 60, 60_000)
+  if (!limit.allowed) {
+    const error = rateLimitError(limit)
+    return NextResponse.json({ error: error.error, code: error.code }, { status: error.status, headers: error.headers })
+  }
   const { slug } = await params
   if (!validSlug(slug)) {
     return NextResponse.json({ error: 'Invalid article slug' }, { status: 400 })

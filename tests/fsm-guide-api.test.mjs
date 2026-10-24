@@ -7,15 +7,15 @@ import vm from 'node:vm'
 const apiSource = fs.readFileSync(new URL('../pages/api/protected-data.js', import.meta.url), 'utf8')
 const guide = JSON.parse(fs.readFileSync(new URL('../data/fsm/studio-guide.json', import.meta.url), 'utf8'))
 const source = apiSource.replace(/^import .+;\r?$/gm, '').replace('export default async function handler', 'async function handler')
-const authSource = fs.readFileSync(new URL('../lib/fsm/session-auth.js', import.meta.url), 'utf8').replace(/^export /gm, '')
+const authSource = fs.readFileSync(new URL('../lib/fsm/session-auth.js', import.meta.url), 'utf8').replace(/^import .+;\r?$/gm, '').replace(/^export /gm, '')
 const fixtureEmail = 'member@example.invalid'
 const fixtureSecret = 'synthetic-guide-test-secret'
 const now = 1_800_000_000_000
-const validPayload = { email: fixtureEmail, exp: now + 60_000 }
+const validPayload = { v: 2, iat: now, email: fixtureEmail, exp: now + 60_000 }
 
 function sessionToken(payload = validPayload, secret = fixtureSecret) {
   const encoded = Buffer.from(typeof payload === 'string' ? payload : JSON.stringify(payload)).toString('base64url')
-  return encoded + '.' + createHmac('sha256', secret).update(encoded).digest('base64url')
+  return encoded + '.' + createHmac('sha256', secret).update('fsm-cookie-session:v2:' + encoded).digest('base64url')
 }
 
 function harness({ authorizedEmails = fixtureEmail, approvedEmails = [] } = {}) {
@@ -23,13 +23,13 @@ function harness({ authorizedEmails = fixtureEmail, approvedEmails = [] } = {}) 
   let approved = approvedEmails
   let protocolTransforms = 0
   const env = {
-    SESSION_SECRET: fixtureSecret,
+    NODE_ENV: 'production', SESSION_SECRET: fixtureSecret,
     AUTHORIZED_EMAILS: authorizedEmails,
     KV_REST_API_URL: 'https://synthetic-kv.invalid',
     KV_REST_API_TOKEN: 'synthetic-kv-token',
   }
   const context = vm.createContext({
-    Buffer, TextEncoder, crypto: webcrypto,
+    applyPagesRateLimit: async () => true, Buffer, TextEncoder, URL, crypto: webcrypto,
     Date: class extends Date { static now() { return now } },
     process: { env }, STUDIO_GUIDE: guide,
     MB_REFERENCE: [{ id: 'synthetic-reference', steps: [] }],
@@ -53,8 +53,7 @@ function harness({ authorizedEmails = fixtureEmail, approvedEmails = [] } = {}) 
     setApproved(value) { approved = value },
     async request({ token = sessionToken(), method = 'POST', body = { resource: 'guide' } } = {}) {
       const response = { status: undefined, headers: {}, body: undefined }
-      const req = { method, body, headers: { origin: 'https://synthetic-studio.invalid' } }
-      if (token !== null) req.headers.authorization = 'Bearer ' + token
+      const req = { method, body, cookies: token === null ? {} : { '__Host-fsm_session': token }, headers: { host: 'synthetic-studio.invalid', origin: 'https://synthetic-studio.invalid', 'x-fsm-csrf': '1', 'x-fsm-account': fixtureEmail } }
       const res = {
         setHeader(name, value) { response.headers[name.toLowerCase()] = value },
         status(value) { response.status = value; return this },
