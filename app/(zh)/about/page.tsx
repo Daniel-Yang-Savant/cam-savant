@@ -1,3 +1,4 @@
+import { safeJsonLd } from '@/lib/safe-json'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -45,7 +46,7 @@ export default function AboutPage() {
     <div className="min-h-screen bg-[#f5f0e8] dark:bg-neutral-900">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(orgSchema) }}
       />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
 

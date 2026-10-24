@@ -1,3 +1,4 @@
+import { safeJsonLd } from '@/lib/safe-json'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -69,7 +70,7 @@ export default async function EnglishDoctorPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-[#f5f0e8] dark:bg-neutral-900">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }} />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
         <nav className="mb-8 text-xs text-neutral-500 dark:text-neutral-400">
           <Link href="/en/about" className="hover:text-neutral-950 dark:hover:text-neutral-100">Medical Team</Link>

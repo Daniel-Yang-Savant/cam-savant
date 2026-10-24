@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createPeriopQrGrant } from '@/lib/periop-auth'
+import { createPeriopQrGrant, getPeriopSigningSecret } from '@/lib/periop-auth'
 
 export async function POST(request: NextRequest) {
-  const secret = process.env.PERIOP_ACCESS_TOKEN
+  const secret = getPeriopSigningSecret()
   if (!secret) {
     return NextResponse.json(
-      { error: 'PERIOP_ACCESS_TOKEN 尚未設定' },
+      { error: '術後專區簽章金鑰尚未設定' },
       { status: 503 }
     )
   }

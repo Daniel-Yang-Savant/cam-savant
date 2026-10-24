@@ -1,3 +1,4 @@
+import { safeJsonLd } from '@/lib/safe-json'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getPostsByCategory, CATEGORY_DESCRIPTIONS } from '@/lib/posts'
@@ -43,7 +44,7 @@ export default async function FunctionalMedicinePage({ searchParams }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: safeJsonLd(
             generateCollectionPageSchema({
               name: '功能醫學',
               description: CATEGORY_DESCRIPTIONS['functional-medicine'],

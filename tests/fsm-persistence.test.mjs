@@ -129,7 +129,7 @@ async function apiHandler({ kvResponses, method = 'GET', body }) {
   const signature = Buffer.from(await webcrypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload))).toString('base64url')
   const context = vm.createContext({
     Buffer, TextEncoder, crypto: webcrypto, console: { error() {} },
-    process: { env: { SESSION_SECRET: secret, KV_REST_API_URL: 'https://synthetic.invalid', KV_REST_API_TOKEN: 'fake-kv-token' } },
+    process: { env: { SESSION_SECRET: secret, AUTHORIZED_EMAILS: 'audit@example.invalid', KV_REST_API_URL: 'https://synthetic.invalid', KV_REST_API_TOKEN: 'fake-kv-token' } },
     fetch: async (url, options = {}) => {
       calls.push({ url, options })
       const next = kvResponses.shift()
@@ -138,7 +138,9 @@ async function apiHandler({ kvResponses, method = 'GET', body }) {
       return next
     },
   })
-  const source = fs.readFileSync(new URL('../pages/api/protocols.js', import.meta.url), 'utf8').replace('export default async function handler', 'async function handler')
+  const authSource = fs.readFileSync(new URL('../lib/fsm/session-auth.js', import.meta.url), 'utf8').replace(/^export /gm, '')
+  vm.runInContext(authSource, context)
+  const source = fs.readFileSync(new URL('../pages/api/protocols.js', import.meta.url), 'utf8').replace(/^import .+;\r?$/gm, '').replace('export default async function handler', 'async function handler')
   vm.runInContext(source, context)
   const req = { method, headers: { authorization: 'Bearer ' + payload + '.' + signature }, body }
   const res = { setHeader() {}, status(status) { this.statusCode = status; return this }, json(data) { response = { status: this.statusCode, data }; return this }, end() {} }

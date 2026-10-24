@@ -3,6 +3,8 @@
 // Also checks Upstash `approved_emails` (admin-approved via Studio).
 // Stores pending users in Upstash `pending_list`.
 
+import { createSessionToken, getCurrentMembership, isGoogleCredential, isSessionConfigured } from '../../lib/fsm/session-auth';
+
 // ── Upstash helpers ───────────────────────────────────────────────────────────
 async function kvGet(key) {
   const url = process.env.KV_REST_API_URL;
@@ -31,15 +33,19 @@ async function kvSet(key, value) {
 }
 
 export default async function handler(req, res) {
+  res.setHeader('Cache-Control', 'private, no-store');
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (!isSessionConfigured() || !process.env.GOOGLE_CLIENT_ID) {
+    return res.status(503).json({ error: 'Membership sign-in is temporarily unavailable. Contact the administrator.', code: 'session_configuration_unavailable' });
+  }
 
   const { credential } = req.body || {};
-  if (!credential) return res.status(400).json({ error: 'Missing credential' });
+  if (!isGoogleCredential(credential)) return res.status(400).json({ error: 'Invalid sign-in credential' });
 
   try {
     // Verify with Google tokeninfo
@@ -50,31 +56,21 @@ export default async function handler(req, res) {
     const payload = await verifyResp.json();
 
     const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-    if (!CLIENT_ID) return res.status(500).json({ error: 'Server config error: missing GOOGLE_CLIENT_ID' });
     if (payload.aud !== CLIENT_ID) return res.status(401).json({ error: 'Token audience mismatch' });
+    if (!['accounts.google.com', 'https://accounts.google.com'].includes(payload.iss)) return res.status(401).json({ error: 'Invalid token issuer' });
 
     const now = Math.floor(Date.now() / 1000);
-    if (parseInt(payload.exp) < now) return res.status(401).json({ error: 'Token expired' });
+    const expiration = Number(payload.exp);
+    if (!Number.isSafeInteger(expiration) || expiration <= now) return res.status(401).json({ error: 'Token expired' });
 
-    const email = (payload.email || '').toLowerCase().trim();
+    const email = typeof payload.email === 'string' ? payload.email.toLowerCase().trim() : '';
     const verified = payload.email_verified === 'true' || payload.email_verified === true;
-    if (!email || !verified) return res.status(401).json({ error: 'Email not verified' });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 || !verified) return res.status(401).json({ error: 'Email not verified' });
 
-    // ── Check 1: hardcoded env-var whitelist ──────────────────────────────────
-    const envList = (process.env.AUTHORIZED_EMAILS || '')
-      .split(',').map(e => e.toLowerCase().trim()).filter(Boolean);
-    const inEnvList = envList.includes(email);
+    const membership = await getCurrentMembership(email);
+    if (membership.unavailable) return res.status(503).json({ error: 'Membership verification is temporarily unavailable. Please retry later.', code: 'membership_verification_unavailable' });
 
-    // ── Check 2: admin-approved list in Upstash ───────────────────────────────
-    let inApprovedList = false;
-    if (!inEnvList) {
-      const approved = await kvGet('approved_emails') || [];
-      inApprovedList = approved.includes(email);
-    }
-
-    const isAuthorized = inEnvList || inApprovedList;
-
-    if (!isAuthorized) {
+    if (!membership.authorized) {
       // Add to pending_list if not already there (fire-and-forget)
       (async () => {
         try {
@@ -82,8 +78,8 @@ export default async function handler(req, res) {
           if (!pending.find(p => p.email === email)) {
             pending.push({
               email,
-              name: payload.name || '',
-              picture: payload.picture || '',
+              name: typeof payload.name === 'string' ? payload.name.slice(0, 200) : '',
+              picture: typeof payload.picture === 'string' ? payload.picture.slice(0, 2048) : '',
               requestedAt: new Date().toISOString()
             });
             await kvSet('pending_list', pending);
@@ -102,27 +98,12 @@ export default async function handler(req, res) {
     return res.status(200).json({
       authorized: true,
       email,
-      name: payload.name || email.split('@')[0],
-      picture: payload.picture || null,
+      name: typeof payload.name === 'string' ? payload.name.slice(0, 200) : email.split('@')[0],
+      picture: typeof payload.picture === 'string' ? payload.picture.slice(0, 2048) : null,
       token: sessionToken
     });
   } catch (err) {
     console.error('Auth error:', err);
     return res.status(500).json({ error: 'Verification failed' });
   }
-}
-
-async function createSessionToken(email) {
-  const secret = process.env.SESSION_SECRET || 'CHANGE_ME_IN_PRODUCTION';
-  const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
-  const payload = JSON.stringify({ email, exp: expiresAt });
-  const payloadB64 = Buffer.from(payload).toString('base64url');
-  const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    'raw', enc.encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
-  );
-  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(payloadB64));
-  const sigB64 = Buffer.from(sig).toString('base64url');
-  return `${payloadB64}.${sigB64}`;
 }

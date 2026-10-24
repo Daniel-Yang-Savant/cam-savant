@@ -4,6 +4,15 @@
 /out
 /build
 *.tsbuildinfo
+/.seo-audit
+/output
+/research-notes
+/tmp
+/.claude
+/*.zip
+/*.md
+!/README.md
+**/.fuse_hidden*
 
 # Local environment and credentials
 .env

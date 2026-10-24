@@ -1,3 +1,5 @@
+import { authorizeSession } from '../../lib/fsm/session-auth';
+
 // /api/protocols.js
 // GET  → returns this user's personal protocol list (from Vercel KV)
 // POST → saves this user's personal protocol list (to Vercel KV)
@@ -41,26 +43,6 @@ async function kvSet(key, value) {
   if (result.error || result.result !== 'OK') throw new Error('KV write was not acknowledged');
 }
 
-// ── Session token verification (same as auth.js) ──────────────────────────
-async function verifySessionToken(token) {
-  try {
-    const [payloadB64, sigB64] = token.split('.');
-    if (!payloadB64 || !sigB64) return null;
-    const secret = process.env.SESSION_SECRET || 'CHANGE_ME_IN_PRODUCTION';
-    const enc = new TextEncoder();
-    const key = await crypto.subtle.importKey(
-      'raw', enc.encode(secret),
-      { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']
-    );
-    const sigBytes = Buffer.from(sigB64, 'base64url');
-    const valid = await crypto.subtle.verify('HMAC', key, sigBytes, enc.encode(payloadB64));
-    if (!valid) return null;
-    const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString());
-    if (payload.exp < Date.now()) return null;
-    return payload;
-  } catch { return null; }
-}
-
 // ── Main handler ──────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
@@ -71,10 +53,8 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   // Auth check
-  const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-  if (!token) return res.status(401).json({ error: 'Missing token' });
-  const payload = await verifySessionToken(token);
-  if (!payload) return res.status(401).json({ error: 'Invalid or expired token' });
+  const payload = await authorizeSession(req, res);
+  if (!payload) return;
 
   const email = payload.email;
   const kvKey = `protocols:${email}`;

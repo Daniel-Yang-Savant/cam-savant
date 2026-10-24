@@ -1,3 +1,5 @@
+import { authorizeSession } from '../../lib/fsm/session-auth';
+
 // /api/pending-users.js
 // Admin-only endpoint for managing the user approval queue.
 // GET  → returns current pending_list from Upstash
@@ -38,26 +40,6 @@ async function kvSet(key, value) {
   if (!res.ok) throw new Error('KV set failed: ' + res.status);
 }
 
-// ── Session token verification (same as auth.js) ──────────────────────────
-async function verifySessionToken(token) {
-  try {
-    const [payloadB64, sigB64] = token.split('.');
-    if (!payloadB64 || !sigB64) return null;
-    const secret = process.env.SESSION_SECRET || 'CHANGE_ME_IN_PRODUCTION';
-    const enc = new TextEncoder();
-    const key = await crypto.subtle.importKey(
-      'raw', enc.encode(secret),
-      { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']
-    );
-    const sigBytes = Buffer.from(sigB64, 'base64url');
-    const valid = await crypto.subtle.verify('HMAC', key, sigBytes, enc.encode(payloadB64));
-    if (!valid) return null;
-    const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString());
-    if (payload.exp < Date.now()) return null;
-    return payload;
-  } catch { return null; }
-}
-
 // ── Main handler ──────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
@@ -68,10 +50,8 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   // Auth check — must be admin
-  const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-  if (!token) return res.status(401).json({ error: 'Missing token' });
-  const payload = await verifySessionToken(token);
-  if (!payload) return res.status(401).json({ error: 'Invalid or expired token' });
+  const payload = await authorizeSession(req, res);
+  if (!payload) return;
   if (payload.email !== ADMIN_EMAIL) return res.status(403).json({ error: 'Admin only' });
 
   // ── GET: return pending list + approved list ──────────────────────────
@@ -93,6 +73,7 @@ export default async function handler(req, res) {
     const { action, email } = req.body || {};
     if (!action || !email) return res.status(400).json({ error: 'Missing action or email' });
     if (!['approve', 'reject', 'revoke'].includes(action)) return res.status(400).json({ error: 'action must be approve, reject, or revoke' });
+    if (typeof email !== 'string' || email.length > 254 || email !== email.toLowerCase().trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Invalid email' });
 
     try {
       if (action === 'revoke') {

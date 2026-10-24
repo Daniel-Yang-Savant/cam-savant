@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState, useCallback, useRef } from 'react'
+import DOMPurify from 'dompurify'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -16,7 +17,7 @@ interface ArticleMeta {
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
-// ── Simple Markdown → HTML renderer (no deps) ──────────────────────────────
+// ── Markdown preview: sanitize after all markup transformations ────────────
 
 function renderMarkdown(raw: string): string {
   // Strip frontmatter for preview
@@ -53,7 +54,14 @@ function renderMarkdown(raw: string): string {
     // Paragraphs (double newline)
     .replace(/\n\n(?!<)/g, '</p><p class="my-3 leading-relaxed">')
 
-  return `<div class="text-sm text-neutral-700 dark:text-neutral-300"><p class="my-3 leading-relaxed">${html}</p></div>`
+  return DOMPurify.sanitize(
+    `<div class="text-sm text-neutral-700 dark:text-neutral-300"><p class="my-3 leading-relaxed">${html}</p></div>`,
+    {
+      ALLOWED_TAGS: ['div', 'p', 'br', 'h1', 'h2', 'h3', 'h4', 'strong', 'em', 'b', 'i', 'a', 'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'hr', 'img'],
+      ALLOWED_ATTR: ['class', 'href', 'src', 'alt', 'title'],
+      ALLOW_DATA_ATTR: false,
+    },
+  )
 }
 
 // ── Category label map ─────────────────────────────────────────────────────

@@ -1,3 +1,4 @@
+import { safeJsonLd } from '@/lib/safe-json'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Breadcrumbs from '@/components/Breadcrumbs'
@@ -192,7 +193,7 @@ export default function PerioperativeRehabPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: safeJsonLd(
             generateCollectionPageSchema({
               name: '術前・術後復健',
               description: DESCRIPTION,

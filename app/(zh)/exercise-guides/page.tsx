@@ -1,3 +1,4 @@
+import { safeJsonLd } from '@/lib/safe-json'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import ArticleReview from '@/components/ArticleReview'
@@ -57,7 +58,7 @@ export default function ExerciseGuidesPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: safeJsonLd({
             ...collectionSchema,
             mainEntity: {
               '@type': 'ItemList',
@@ -74,7 +75,7 @@ export default function ExerciseGuidesPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: safeJsonLd(
             generateBreadcrumbSchema([
               { name: '首頁', url: BASE_URL },
               { name: '圖解運動專區', url: `${BASE_URL}/exercise-guides` },

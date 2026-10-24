@@ -2,7 +2,7 @@
  * scripts/rotate-token.ts
  *
  * 每月 token 輪換工具：
- *   1. 依當前年月產生新 token（格式：camSavant-YYYY-MM）
+ *   1. 以密碼學安全亂數產生新的 32-byte token
  *   2. 呼叫 Vercel API 更新 PERIOP_ACCESS_TOKEN 環境變數
  *   3. 觸發 Vercel redeploy
  *   4. 印出新的 QR Code 網址供列印
@@ -16,6 +16,7 @@
  */
 
 import * as dotenv from 'dotenv'
+import { randomBytes } from 'node:crypto'
 import * as path from 'path'
 import fetch from 'node-fetch'
 
@@ -36,10 +37,7 @@ const ENV_VAR_NAME  = 'PERIOP_ACCESS_TOKEN'
 // ── Helper ──────────────────────────────────────────────────────────────────
 
 function generateToken(): string {
-  const now  = new Date()
-  const yyyy = now.getFullYear()
-  const mm   = String(now.getMonth() + 1).padStart(2, '0')
-  return `camSavant-${yyyy}-${mm}`
+  return randomBytes(32).toString('base64url')
 }
 
 function teamQuery(): string {
@@ -193,15 +191,15 @@ async function main() {
   console.log('\n' + '═'.repeat(60))
   console.log('✅ Token 輪換完成！')
   console.log('═'.repeat(60))
-  console.log(`\n📅 月份：${newToken.replace('camSavant-', '')}`)
   console.log(`\n🔗 新的 QR Code 網址（複製後產生 QR Code）：`)
   console.log(`\n   ${accessUrl}\n`)
   console.log('📋 下一步：')
   console.log('   1. 複製上方網址')
-  console.log('   2. 前往 https://qr.io 或任意 QR Code 產生器')
-  console.log('   3. 貼上網址 → 產生 → 下載 → 印出')
+  console.log('   2. 使用離線或院內可信的 QR Code 工具')
+  console.log('   3. 產生 → 下載 → 印出；不要把存取網址上傳到第三方服務')
   console.log('   4. 更換診間 QR Code 告示牌\n')
   console.log('⏱  Redeploy 約需 1–2 分鐘，完成後新 token 正式生效。\n')
+  console.log('既有簽章 cookie 不會因兌換碼更新而失效；如需全面撤銷，請輪替 PERIOP_SIGNING_SECRET（未設定時為 ADMIN_SECRET）。')
 }
 
 main().catch((err) => {

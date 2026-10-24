@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
+import {
+  ADMIN_COOKIE_NAME,
+  ADMIN_SESSION_MAX_AGE_SECONDS,
+  createAdminSession,
+} from '@/lib/admin-auth'
 
 // 5 attempts per 15-minute window per IP
 const LIMIT = 5
 const WINDOW_MS = 15 * 60 * 1000
-const ADMIN_SESSION_MAX_AGE_SECONDS = 6 * 60 * 60
 
 // Fixed 300 ms delay on every login attempt (slows brute-force regardless of outcome)
 const DELAY_MS = 300
@@ -32,14 +36,17 @@ export async function POST(request: NextRequest) {
   // Fixed delay — apply before any response to slow down automated attacks
   await new Promise((resolve) => setTimeout(resolve, DELAY_MS))
 
-  let body: { password?: unknown }
+  let body: unknown
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const { password } = body
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+  }
+  const { password } = body as { password?: unknown }
   const secret = process.env.ADMIN_SECRET
 
   if (!secret) {
@@ -58,8 +65,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
   }
 
-  const response = NextResponse.json({ ok: true })
-  response.cookies.set('admin_token', secret, {
+  const response = NextResponse.json({ ok: true }, {
+    headers: { 'Cache-Control': 'private, no-store' },
+  })
+  response.cookies.set(ADMIN_COOKIE_NAME, await createAdminSession(secret), {
     maxAge: ADMIN_SESSION_MAX_AGE_SECONDS,
     httpOnly: true,
     sameSite: 'strict',

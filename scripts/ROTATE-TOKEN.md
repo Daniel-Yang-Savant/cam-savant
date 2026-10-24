@@ -1,6 +1,6 @@
 # 每月 Token 輪換 SOP
 
-> 目的：每月自動更換 `/perioperative-rehab` 的存取 token，確保 QR Code 連結每月失效，只有持有當月 QR Code 的患者可進入。
+> 目的：更新舊式 `/perioperative-rehab` 連結的隨機兌換碼。兌換碼更新只會使舊連結失效，不會撤銷已簽發的三十天 cookie。日常優先使用管理員工具產生十分鐘有效的短效 QR。
 
 ---
 
@@ -42,12 +42,12 @@ npm run rotate-token
 
 🔗 新的 QR Code 網址（複製後產生 QR Code）：
 
-   https://cam-savant.vercel.app/perioperative-rehab/access?token=camSavant-2026-04
+   https://camsavant.com/perioperative-rehab/access?token=<隨機兌換碼>
 
 📋 下一步：
    1. 複製上方網址
-   2. 前往 https://qr.io 或任意 QR Code 產生器
-   3. 貼上網址 → 產生 → 下載 → 印出
+   2. 使用離線或院內可信的 QR Code 工具
+   3. 產生 → 下載 → 印出；不把完整存取網址上傳到第三方
    4. 更換診間 QR Code 告示牌
 ```
 
@@ -56,12 +56,10 @@ npm run rotate-token
 ## Token 格式
 
 ```
-camSavant-YYYY-MM
+32 bytes 安全亂數的 base64url（43 字元）
 ```
 
-例如：
-- 2026 年 4 月 → `camSavant-2026-04`
-- 2026 年 12 月 → `camSavant-2026-12`
+每次執行都產生新碼，不使用可推算的年月字串。
 
 ---
 
@@ -72,7 +70,7 @@ npm run rotate-token
       │
       ├─ [1/3] 查找 Vercel 上的 PERIOP_ACCESS_TOKEN env var
       │
-      ├─ [2/3] PATCH 更新為本月 token（camSavant-YYYY-MM）
+      ├─ [2/3] PATCH 更新為新的安全隨機兌換碼
       │
       ├─ [3/3] 觸發 Vercel production redeploy
       │
@@ -87,4 +85,6 @@ Redeploy 約需 **1–2 分鐘**，完成後新 token 正式生效，舊 QR Code
 
 - `.env.local` 含有高權限的 `VERCEL_TOKEN`，**請勿 commit 到 git**（`.gitignore` 已排除）
 - 若 Redeploy 失敗，可手動到 Vercel Dashboard → Deployments → Redeploy
-- 患者瀏覽器中的舊 cookie（`periop_access`）在 redeploy 後仍有效（30 天），cookie 本身不含 token 內容，無資安疑慮
+- 新版患者 cookie 使用獨立私有密鑰簽章，最長有效三十天；輪替兌換碼不會撤銷它。
+- 如需使全部患者 cookie／短效 QR 立即失效，輪替 `PERIOP_SIGNING_SECRET`。未設定專用密鑰時改用 `ADMIN_SECRET`，更換它也會使管理員 session 失效。
+- 請確認正式環境有 `PERIOP_SIGNING_SECRET` 或 `ADMIN_SECRET`，且不與兌換碼相同。此工具不應執行於測試流程；會更新正式環境並觸發部署。

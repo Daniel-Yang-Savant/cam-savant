@@ -10,14 +10,17 @@
 - `/admin-login` — 管理員登入頁（設定 HttpOnly cookie `admin_token`，有效期 6 小時）
 
 ### 權限架構
-- middleware.ts 對 `/admin/**` 與 `/api/admin/**` 檢查 `admin_token` cookie
-- cookie 值需與環境變數 `ADMIN_SECRET` 相符
+- `proxy.ts` 對 `/admin/**` 與 `/api/admin/**` 檢查 `admin_token` cookie
+- cookie 為獨立簽章 session（`lib/admin-auth.ts`），以 `ADMIN_SECRET` 驗證簽章，伺服器強制檢查 6 小時期限；不得再把密碼本身當作 cookie
 - 未通過驗證：頁面回傳 404、API 回傳 401
 - 此邏輯與現有 `periop_access` 邏輯完全獨立
 
 ### 相關環境變數（需手動加到 .env.local 和 Vercel）
-- `ADMIN_SECRET` — 管理員密碼（同時作為 cookie 值）；建議在 Vercel 標記為 Sensitive
-- `PERIOP_ACCESS_TOKEN` — 術後復健頁存取碼
+- `ADMIN_SECRET` — 管理員密碼與私有 session 簽章根密鑰；在 Vercel 標記為 Sensitive
+- `PERIOP_ACCESS_TOKEN` — 舊術後復健連結的兌換碼，只能用來兌換授權，不得作為簽章密鑰
+- `PERIOP_SIGNING_SECRET` — 可選的術後專區私有簽章密鑰；未設定時由 `ADMIN_SECRET` 衍生，必須與對外兌換碼不同
+- `SESSION_SECRET` — FSM 登入簽章專用隨機密鑰，必填且沒有預設值；在 Vercel 標記為 Sensitive
+- FSM 所有受保護 API 必須共用 `lib/fsm/session-auth.js`，逐次確認目前會員資格；不得只驗證簽章而跳過撤權檢查
 
 ### API
 - `POST /api/admin-login` — 驗證密碼並設定 admin_token cookie

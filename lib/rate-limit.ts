@@ -13,12 +13,14 @@ const store = new Map<string, RateLimitRecord>()
 
 // Prune expired entries every minute to avoid memory leaks
 if (typeof setInterval !== 'undefined') {
-  setInterval(() => {
+  const pruneTimer = setInterval(() => {
     const now = Date.now()
     Array.from(store.entries()).forEach(([key, record]) => {
       if (record.resetAt < now) store.delete(key)
     })
   }, 60_000)
+  // Background cleanup must not keep command-line checks or idle workers alive.
+  pruneTimer.unref?.()
 }
 
 export interface RateLimitResult {

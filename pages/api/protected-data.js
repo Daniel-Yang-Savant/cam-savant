@@ -1,3 +1,4 @@
+import { authorizeSession } from '../../lib/fsm/session-auth';
 // /api/protected-data.js
 // Returns the protected payload (full protocols, channel maps) only to authenticated users.
 // The session token (from auth.js) is required.
@@ -19,47 +20,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const authHeader = req.headers.authorization || '';
-  const token = authHeader.replace(/^Bearer\s+/i, '');
-  if (!token) {
-    return res.status(401).json({ error: 'Missing token' });
-  }
-
-  // Verify session token
-  const verified = await verifySessionToken(token);
-  if (!verified) {
-    return res.status(401).json({ error: 'Invalid or expired token' });
-  }
-
-  // Re-check email is still authorized: env var list OR Upstash approved_emails
-  const allowList = (process.env.AUTHORIZED_EMAILS || '')
-    .split(',')
-    .map(e => e.toLowerCase().trim())
-    .filter(Boolean);
-  const inEnvList = allowList.includes(verified.email);
-  let isAuthorized = inEnvList;
-  if (!inEnvList) {
-    try {
-      const kvUrl = process.env.KV_REST_API_URL;
-      const kvToken = process.env.KV_REST_API_TOKEN;
-      if (kvUrl && kvToken) {
-        const r = await fetch(`${kvUrl}/get/${encodeURIComponent('approved_emails')}`, {
-          headers: { Authorization: `Bearer ${kvToken}` }
-        });
-        if (r.ok) {
-          const { result } = await r.json();
-          if (result) {
-            let approved = JSON.parse(result);
-            if (typeof approved === 'string') approved = JSON.parse(approved);
-            if (Array.isArray(approved)) isAuthorized = approved.includes(verified.email);
-          }
-        }
-      }
-    } catch {}
-  }
-  if (!isAuthorized) {
-    return res.status(403).json({ error: 'Email no longer authorized' });
-  }
+  const verified = await authorizeSession(req, res);
+  if (!verified) return;
 
   if (req.body?.resource === 'guide') {
     return res.status(200).json({ email: verified.email, guide: STUDIO_GUIDE });
@@ -97,36 +59,6 @@ async function kvGetJSON(key) {
     if (typeof parsed === 'string') parsed = JSON.parse(parsed);
     return parsed;
   } catch { return null; }
-}
-
-async function verifySessionToken(token) {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 2 || parts.some(part => !/^[A-Za-z0-9_-]+$/.test(part))) return null;
-    const [payloadB64, sigB64] = parts;
-
-    const secret = process.env.SESSION_SECRET;
-    if (typeof secret !== 'string' || !secret.trim()) return null;
-    const enc = new TextEncoder();
-    const key = await crypto.subtle.importKey(
-      'raw',
-      enc.encode(secret),
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['verify']
-    );
-    const sigBytes = Buffer.from(sigB64, 'base64url');
-    const ok = await crypto.subtle.verify('HMAC', key, sigBytes, enc.encode(payloadB64));
-    if (!ok) return null;
-
-    const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString());
-    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return null;
-    if (typeof payload.email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) return null;
-    if (!Number.isFinite(payload.exp) || payload.exp <= Date.now()) return null;
-    return payload;
-  } catch {
-    return null;
-  }
 }
 
 // Protected payload — injected at build time

@@ -1,3 +1,5 @@
+import { authorizeSession } from '../../lib/fsm/session-auth';
+
 // /api/reference-protocols.js
 // Admin-curated SHARED reference protocols (the "參考協定" library), stored in Vercel KV.
 //   GET  → any authenticated user: returns the current shared reference list
@@ -45,26 +47,6 @@ async function kvSet(key, value) {
   if (result.error || result.result !== 'OK') throw new Error('KV write was not acknowledged');
 }
 
-// ── Session token verification (same scheme as auth.js / protocols.js) ─────
-async function verifySessionToken(token) {
-  try {
-    const [payloadB64, sigB64] = token.split('.');
-    if (!payloadB64 || !sigB64) return null;
-    const secret = process.env.SESSION_SECRET || 'CHANGE_ME_IN_PRODUCTION';
-    const enc = new TextEncoder();
-    const key = await crypto.subtle.importKey(
-      'raw', enc.encode(secret),
-      { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']
-    );
-    const sigBytes = Buffer.from(sigB64, 'base64url');
-    const valid = await crypto.subtle.verify('HMAC', key, sigBytes, enc.encode(payloadB64));
-    if (!valid) return null;
-    const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString());
-    if (payload.exp < Date.now()) return null;
-    return payload;
-  } catch { return null; }
-}
-
 function validateReferenceProtocols(protocols) {
   if (!Array.isArray(protocols)) return 'protocols must be an array';
   if (protocols.length > MAX_PROTOCOLS) return `Too many protocols (max ${MAX_PROTOCOLS})`;
@@ -95,10 +77,8 @@ export default async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-  if (!token) return res.status(401).json({ error: 'Missing token' });
-  const payload = await verifySessionToken(token);
-  if (!payload) return res.status(401).json({ error: 'Invalid or expired token' });
+  const payload = await authorizeSession(req, res);
+  if (!payload) return;
 
   // GET: anyone authenticated can read the shared reference list
   if (req.method === 'GET') {

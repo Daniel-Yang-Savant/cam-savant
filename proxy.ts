@@ -3,11 +3,10 @@ import {
   PERIOP_COOKIE_MAX_AGE_SECONDS,
   PERIOP_COOKIE_NAME,
   createPeriopAccessCookie,
+  getPeriopSigningSecret,
   verifyPeriopAccessCookie,
 } from '@/lib/periop-auth'
-
-const TOKEN = process.env.PERIOP_ACCESS_TOKEN
-const ADMIN_SECRET = process.env.ADMIN_SECRET
+import { ADMIN_COOKIE_NAME, verifyAdminSession } from '@/lib/admin-auth'
 
 function withPrivateNoStore(response: NextResponse): NextResponse {
   response.headers.set(
@@ -24,9 +23,9 @@ export async function proxy(request: NextRequest) {
   const isEnglishPeriop =
     pathname === '/en/perioperative-rehab' ||
     pathname.startsWith('/en/perioperative-rehab/')
-  const adminCookie = request.cookies.get('admin_token')
-  const hasAdminAccess = Boolean(
-    ADMIN_SECRET && adminCookie?.value === ADMIN_SECRET
+  const adminCookie = request.cookies.get(ADMIN_COOKIE_NAME)
+  const hasAdminAccess = await verifyAdminSession(
+    adminCookie?.value, process.env.ADMIN_SECRET
   )
 
   // ── Admin routes: /admin/** and /api/admin/** ──
@@ -58,14 +57,16 @@ export async function proxy(request: NextRequest) {
   }
 
   // Valid signed cookie already set → allow
+  const signingSecret = getPeriopSigningSecret()
   const cookie = request.cookies.get(PERIOP_COOKIE_NAME)
-  if (await verifyPeriopAccessCookie(cookie?.value, TOKEN)) {
+  if (await verifyPeriopAccessCookie(cookie?.value, signingSecret)) {
     return withPrivateNoStore(NextResponse.next())
   }
 
   // ?access=TOKEN in query → set cookie and redirect to clean URL
   const accessParam = searchParams.get('access')
-  if (accessParam && TOKEN && accessParam === TOKEN) {
+  const accessToken = process.env.PERIOP_ACCESS_TOKEN
+  if (accessParam && accessToken && accessParam === accessToken && signingSecret) {
     const dest = request.nextUrl.clone()
     dest.pathname = isEnglishPeriop
       ? '/en/perioperative-rehab'
@@ -74,7 +75,7 @@ export async function proxy(request: NextRequest) {
     const response = NextResponse.redirect(dest)
     response.cookies.set(
       PERIOP_COOKIE_NAME,
-      await createPeriopAccessCookie(TOKEN),
+      await createPeriopAccessCookie(signingSecret),
       {
         maxAge: PERIOP_COOKIE_MAX_AGE_SECONDS,
         httpOnly: true,

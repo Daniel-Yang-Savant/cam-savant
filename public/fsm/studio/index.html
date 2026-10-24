@@ -1298,7 +1298,7 @@ const I18N = {
     btn_import_records_encrypted: '📥 匯入加密備份',
     encrypt_prompt_password: '請設定密碼以加密備份檔案 (請務必牢記，遺失無法復原)：',
     decrypt_prompt_password: '請輸入備份檔案的密碼：',
-    encrypt_password_too_short: '密碼至少需要 6 個字元',
+    encrypt_password_too_short: '新備份密碼需為 12 至 200 個字元',
     encrypt_success: '已加密匯出 {n} 筆紀錄',
     decrypt_failed: '解密失敗 — 密碼錯誤或檔案損壞',
     decrypt_merged: '已合併 {n} 筆紀錄（重複的依較新者保留）',
@@ -1331,7 +1331,7 @@ const I18N = {
     gate_feat_5: '協定與紀錄 PDF 匯出',
     gate_pending: '您的帳號 ({email}) 尚未授權。請聯絡管理員加入白名單。',
     gate_error: '登入失敗，請稍後再試',
-    logout_confirm: '確定登出？已儲存的治療紀錄保留在本機。',
+    logout_confirm: '確定登出？本機紀錄將鎖定，再次查看需輸入紀錄密碼。',
   },
   en: {
     tab_manual: 'Manual', tab_protocols: 'Protocols', tab_library: 'Library', tab_music: 'Music', tab_records: 'Records', tab_info: 'Info',
@@ -1371,7 +1371,7 @@ const I18N = {
     btn_import_records_encrypted: '📥 Import encrypted backup',
     encrypt_prompt_password: 'Set a password to encrypt the backup (remember it — cannot be recovered if lost):',
     decrypt_prompt_password: 'Enter the backup file password:',
-    encrypt_password_too_short: 'Password must be at least 6 characters',
+    encrypt_password_too_short: 'New backup passwords need 12 to 200 characters',
     encrypt_success: 'Encrypted {n} records',
     decrypt_failed: 'Decryption failed — wrong password or corrupted file',
     decrypt_merged: 'Merged {n} records (kept newer versions for duplicates)',
@@ -1404,7 +1404,7 @@ const I18N = {
     gate_feat_5: 'Protocol & record PDF export',
     gate_pending: 'Your account ({email}) is not authorized yet. Please contact the administrator.',
     gate_error: 'Sign-in failed, please try again',
-    logout_confirm: 'Sign out? Saved session records remain on this device.',
+    logout_confirm: 'Sign out and lock local records? Your records password is required to reopen them.',
   }
 };
 let LANG = localStorage.getItem('fsm_lang') || 'zh';
@@ -1481,6 +1481,8 @@ const auth = {
     this.user = null;
     this.save();
     resetPersonalProtocolState();
+    lockRecordsVault();
+    clearAdminPanel();
     CHANNEL_A = null; CHANNEL_B = null;
     PROTOCOLS_CURATED = null; PROTOCOLS_FULL = null; USER_PROTOCOLS = null; FAVORITE_PROTOCOL_IDS = new Set();
     FREQ_A_MAP = PUBLIC_FREQ_MAP_A;
@@ -1494,16 +1496,6 @@ const auth = {
   }
 };
 auth.load();
-
-// ── Process credential returned via GSI redirect flow (/api/fsm-auth-callback) ──
-(function processPendingCredential() {
-  try {
-    const cred = sessionStorage.getItem('fsm_pending_credential');
-    if (!cred) return;
-    sessionStorage.removeItem('fsm_pending_credential');
-    window.handleGoogleCredential({ credential: cred });
-  } catch(e) {}
-})();
 
 // Google Sign-in callback (window-scoped for the GSI library)
 window.handleGoogleCredential = async function(response) {
@@ -1821,6 +1813,8 @@ function _protoSignature(p) {
 function updateAuthUI() {
   syncMusicDownload();
   if (typeof syncMusicPreviewOwner === 'function') syncMusicPreviewOwner();
+  if (typeof syncRecordsOwner === 'function') syncRecordsOwner();
+  if (typeof clearAdminPanel === 'function' && (!auth.user || auth.user.email !== ADMIN_EMAIL)) clearAdminPanel();
   if (!auth.user || infoSession !== auth.user) clearInfoView();
   const chip = document.getElementById('userChip');
   const adminBtn = document.getElementById('adminBadgeBtn');
@@ -1868,11 +1862,16 @@ let _adminTab = 'pending';
 let _adminData = null;
 
 async function _fetchAdminData() {
+  const session = auth.user;
+  if (!session || session.email !== ADMIN_EMAIL) throw new Error('請先登入管理員帳號。');
   const r = await fetch(API_BASE + '/pending-users', {
-    headers: { 'Authorization': 'Bearer ' + auth.user.token }
+    headers: { 'Authorization': 'Bearer ' + session.token }
   });
+  if (auth.user !== session) throw new Error('登入已變更。');
   if (!r.ok) throw new Error('HTTP ' + r.status);
-  return await r.json(); // { pending, approved }
+  const data = await r.json();
+  if (auth.user !== session) throw new Error('登入已變更。');
+  return data; // { pending, approved }
 }
 
 async function checkPendingCount() {
@@ -1886,50 +1885,40 @@ async function checkPendingCount() {
   } catch(e) { /* silent */ }
 }
 
+function clearAdminPanel() {
+  _adminData = null;
+  const overlay = document.getElementById('adminModalOverlay'); if (overlay) overlay.classList.remove('open');
+  const list = document.getElementById('adminModalList'); if (list) list.innerHTML = '';
+  const badge = document.getElementById('adminBadgeCount'); if (badge) { badge.textContent = ''; badge.classList.remove('visible'); }
+}
+function safeAvatarUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && (url.hostname === 'googleusercontent.com' || url.hostname.endsWith('.googleusercontent.com')) ? url.href : '';
+  } catch { return ''; }
+}
 function _renderAdminList() {
+  if (!auth.user || auth.user.email !== ADMIN_EMAIL) { clearAdminPanel(); return; }
   const list = document.getElementById('adminModalList');
-  const pending = (_adminData && _adminData.pending) || [];
-  const approved = (_adminData && _adminData.approved) || [];
-
-  // Tab badges
-  const pb = document.getElementById('tabPendingBadge');
-  const ab = document.getElementById('tabApprovedBadge');
+  const pending = Array.isArray(_adminData?.pending) ? _adminData.pending.filter(u => u && typeof u.email === 'string') : [];
+  const approved = Array.isArray(_adminData?.approved) ? _adminData.approved.filter(email => typeof email === 'string') : [];
+  const pb = document.getElementById('tabPendingBadge'), ab = document.getElementById('tabApprovedBadge');
   if (pb) pb.textContent = pending.length ? `(${pending.length})` : '';
   if (ab) ab.textContent = approved.length ? `(${approved.length})` : '';
-
   if (_adminTab === 'pending') {
-    if (!pending.length) { list.innerHTML = '<div class="admin-modal-empty">目前沒有待審核用戶 ✓</div>'; return; }
-    list.innerHTML = pending.map(u => {
-      const pic = u.picture ? `<img src="${u.picture}" alt="" onerror="this.style.display='none'">` : '<img style="display:none">';
-      const date = u.requestedAt ? new Date(u.requestedAt).toLocaleString('zh-TW', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
-      return `<div class="pending-user-row" id="pur-${CSS.escape(u.email)}">
-        ${pic}
-        <div class="pending-user-info">
-          <div class="pu-name">${u.name || '—'}</div>
-          <div class="pu-email" title="${u.email}">${u.email}</div>
-          <div class="pu-date">${date}</div>
-        </div>
-        <div class="pending-user-actions">
-          <button class="btn-approve" onclick="handleUserAction('approve','${u.email}')">批准</button>
-          <button class="btn-reject" onclick="handleUserAction('reject','${u.email}')">拒絕</button>
-        </div>
-      </div>`;
-    }).join('');
+    list.innerHTML = pending.length ? pending.map(u => {
+      const picture = safeAvatarUrl(u.picture);
+      const pic = picture ? '<img src="' + escapeHtml(picture) + '" alt="" referrerpolicy="no-referrer">' : '';
+      const time = Date.parse(u.requestedAt);
+      const date = Number.isFinite(time) ? new Date(time).toLocaleString('zh-TW', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+      return '<div class="pending-user-row">' + pic + '<div class="pending-user-info"><div class="pu-name">' + escapeHtml(u.name || '—') + '</div><div class="pu-email" title="' + escapeHtml(u.email) + '">' + escapeHtml(u.email) + '</div><div class="pu-date">' + escapeHtml(date) + '</div></div><div class="pending-user-actions"><button class="btn-approve" data-user-action="approve" data-email="' + escapeHtml(u.email) + '">批准</button><button class="btn-reject" data-user-action="reject" data-email="' + escapeHtml(u.email) + '">拒絕</button></div></div>';
+    }).join('') : '<div class="admin-modal-empty">目前沒有待審核用戶 ✓</div>';
   } else {
-    const addRow = `<div class="add-email-row">
-      <input type="email" id="addEmailInput" placeholder="直接輸入 email 批准…" onkeydown="if(event.key==='Enter')directApproveEmail()" />
-      <button class="btn-add-email" onclick="directApproveEmail()">新增</button>
-    </div>`;
-    if (!approved.length) {
-      list.innerHTML = addRow + '<div class="admin-modal-empty">目前沒有已批准用戶</div>';
-      return;
-    }
-    list.innerHTML = addRow + approved.map(email => `
-      <div class="approved-user-row" id="aur-${CSS.escape(email)}">
-        <div class="approved-user-email">✅ ${email}</div>
-        <button class="btn-revoke" onclick="handleUserAction('revoke','${email}')">撤銷</button>
-      </div>`).join('');
+    list.innerHTML = '<div class="add-email-row"><input type="email" id="addEmailInput" placeholder="直接輸入 email 批准…"><button class="btn-add-email" id="addApprovedEmailBtn">新增</button></div>' + (approved.length ? approved.map(email => '<div class="approved-user-row"><div class="approved-user-email">✅ ' + escapeHtml(email) + '</div><button class="btn-revoke" data-user-action="revoke" data-email="' + escapeHtml(email) + '">撤銷</button></div>').join('') : '<div class="admin-modal-empty">目前沒有已批准用戶</div>');
+    document.getElementById('addEmailInput').addEventListener('keydown', event => { if (event.key === 'Enter') directApproveEmail(); });
+    document.getElementById('addApprovedEmailBtn').addEventListener('click', directApproveEmail);
   }
+  list.querySelectorAll('[data-user-action]').forEach(button => button.addEventListener('click', () => handleUserAction(button.dataset.userAction, button.dataset.email)));
 }
 
 function switchAdminTab(tab) {
@@ -1950,7 +1939,7 @@ async function openAdminPanel() {
     _adminData = await _fetchAdminData();
     _renderAdminList();
   } catch(e) {
-    list.innerHTML = '<div class="admin-modal-empty">載入失敗：' + e.message + '</div>';
+    if (auth.user && auth.user.email === ADMIN_EMAIL) list.innerHTML = '<div class="admin-modal-empty">載入失敗：' + escapeHtml(e.message) + '</div>';
   }
 }
 
@@ -1971,12 +1960,15 @@ async function directApproveEmail() {
 }
 
 async function handleUserAction(action, email) {
+  const session = auth.user;
+  if (!session || session.email !== ADMIN_EMAIL || !['approve', 'reject', 'revoke'].includes(action)) return;
   try {
     const r = await fetch(API_BASE + '/pending-users', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.user.token },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.token },
       body: JSON.stringify({ action, email })
     });
+    if (auth.user !== session) return;
     if (!r.ok) { alert('操作失敗'); return; }
     // Refresh data and re-render
     _adminData = await _fetchAdminData();
@@ -2060,17 +2052,8 @@ function renderGate(viewId) {
       // ── OAuth 2.0 id_token implicit redirect ──────────────────────────────
       // Works on all Android browsers. Returns id_token in URL hash.
       // Requires the page URL to be added as Authorized Redirect URI in Google Cloud Console.
-      const nonce = Math.random().toString(36).slice(2) + Date.now().toString(36);
-      sessionStorage.setItem('fsm_oauth_nonce', nonce);
-      const redirectUri = window.location.href.split('#')[0].split('?')[0];
-      const params = new URLSearchParams({
-        client_id: GOOGLE_CLIENT_ID,
-        redirect_uri: redirectUri,
-        response_type: 'id_token',
-        scope: 'openid email profile',
-        nonce,
-      });
-      window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
+      try { beginOAuthRedirect(); }
+      catch { showErr('無法啟動安全登入，請允許此分頁使用瀏覽器儲存空間後重試。'); }
       return;
     }
 
@@ -2096,24 +2079,46 @@ function renderGate(viewId) {
   });
 }
 
-// ── OAuth redirect callback — check for id_token in URL hash on page load ──
-(function checkOAuthCallback() {
-  const hash = window.location.hash;
-  if (!hash || !hash.includes('id_token=')) return;
-  const params = new URLSearchParams(hash.replace(/^#/, ''));
-  const idToken = params.get('id_token');
-  if (!idToken) return;
-  // Clean up URL so refreshing doesn't re-trigger
-  history.replaceState({}, '', window.location.pathname + window.location.search);
-  // Use the same credential handler as GSI popup
-  if (typeof window.handleGoogleCredential === 'function') {
+// ── Bind redirect login to the request initiated in this browser tab. ──────
+function clearOAuthRequest() {
+  for (const key of ['fsm_oauth_nonce', 'fsm_oauth_state', 'fsm_oauth_started']) sessionStorage.removeItem(key);
+}
+function beginOAuthRedirect() {
+  const randomToken = () => Array.from(crypto.getRandomValues(new Uint8Array(32)), byte => byte.toString(16).padStart(2, '0')).join('');
+  const nonce = randomToken(), state = randomToken();
+  try {
+    sessionStorage.setItem('fsm_oauth_nonce', nonce);
+    sessionStorage.setItem('fsm_oauth_state', state);
+    sessionStorage.setItem('fsm_oauth_started', String(Date.now()));
+  } catch (error) { try { clearOAuthRequest(); } catch {} throw error; }
+  const redirectUri = window.location.href.split('#')[0].split('?')[0];
+  const params = new URLSearchParams({ client_id: GOOGLE_CLIENT_ID, redirect_uri: redirectUri, response_type: 'id_token', scope: 'openid email profile', nonce, state });
+  window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
+}
+function checkOAuthCallback() {
+  const params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  if (!params.has('id_token') && !params.has('error')) return false;
+  let nonce, state, started;
+  try {
+    nonce = sessionStorage.getItem('fsm_oauth_nonce');
+    state = sessionStorage.getItem('fsm_oauth_state');
+    started = Number(sessionStorage.getItem('fsm_oauth_started'));
+    clearOAuthRequest(); // Consume once, including unsuccessful or malformed responses.
+    history.replaceState({}, '', window.location.pathname + window.location.search);
+    const idToken = params.get('id_token');
+    if (params.has('error') || params.getAll('state').length !== 1 || params.getAll('id_token').length !== 1 || !/^[a-f0-9]{64}$/.test(state || '') || !/^[a-f0-9]{64}$/.test(nonce || '') || params.get('state') !== state || !Number.isFinite(started) || Date.now() - started > 10 * 60 * 1000 || started > Date.now() + 30000 || typeof idToken !== 'string' || idToken.length > 16384 || !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(idToken)) throw new Error('Invalid OAuth callback');
+    const encoded = idToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(encoded), character => character.charCodeAt(0))));
+    if (!payload || payload.nonce !== nonce) throw new Error('OAuth nonce mismatch');
+    // The API independently validates Google's signature, audience and expiry.
     window.handleGoogleCredential({ credential: idToken });
-  } else {
-    // handleGoogleCredential not yet defined — wait for DOM
-    window._pendingOAuthCredential = idToken;
+    return true;
+  } catch {
+    try { clearOAuthRequest(); history.replaceState({}, '', window.location.pathname + window.location.search); } catch {}
+    showGateError('登入驗證已失效，請從此分頁重新按 Google 登入。');
+    return false;
   }
-})();
-
+}
 
 // ============================================================
 // CUSTOM PROTOCOLS — account-scoped cache; cloud writes use the reliable save path
@@ -2218,10 +2223,10 @@ function addCpStepRow(step, refEl, insertBefore) {
   div.innerHTML = `
     <span class="cp-step-num"></span>
     <div class="cp-step-fields">
-      <input type="number" class="form-input cp-freqa" placeholder="CH A" value="${step.freq_a !== undefined && step.freq_a !== '' ? step.freq_a : ''}" min="0.1" max="999" step="any">
+      <input type="number" class="form-input cp-freqa" placeholder="CH A" value="${escapeHtml(step.freq_a !== undefined && step.freq_a !== '' ? step.freq_a : '')}" min="0.1" max="999" step="any">
       <span class="cp-sep">/</span>
-      <input type="number" class="form-input cp-freqb" placeholder="CH B" value="${step.freq_b !== undefined && step.freq_b !== '' ? step.freq_b : ''}" min="0.1" max="999" step="any">
-      <input type="number" class="form-input cp-dur" placeholder="min" value="${step.duration || 4}" min="0" max="60" step="any">
+      <input type="number" class="form-input cp-freqb" placeholder="CH B" value="${escapeHtml(step.freq_b !== undefined && step.freq_b !== '' ? step.freq_b : '')}" min="0.1" max="999" step="any">
+      <input type="number" class="form-input cp-dur" placeholder="min" value="${escapeHtml(step.duration || 4)}" min="0" max="60" step="any">
       <select class="form-input cp-polarity">
         <option value="" ${!step.polarity ? 'selected' : ''}>極性?</option>
         <option value="Alternating" ${step.polarity === 'Alternating' ? 'selected' : ''}>+/-</option>
@@ -4248,24 +4253,250 @@ function renderLibraryView() {
 // ============================================================
 // PROTECTED: RECORDS VIEW
 // ============================================================
+// Legacy plaintext stays untouched for recovery. It is never loaded automatically.
 const SESSIONS_KEY = 'fsm_sessions_v1';
-function loadSessions() { try { return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]'); } catch(e) { return []; } }
-function saveSessions(arr) { localStorage.setItem(SESSIONS_KEY, JSON.stringify(arr)); }
+const RECORDS_LEGACY_OWNER_KEY = 'fsm_records_legacy_owner_v1';
+const RECORDS_MAX_BYTES = 2000000;
+const recordVault = { owner: '', session: null, key: null, salt: null, records: [], unlocked: false, saving: false, serialized: null, epoch: 0 };
+function recordsOwner() { return auth.user && auth.user.token && typeof auth.user.email === 'string' ? auth.user.email.trim().toLowerCase() : ''; }
+function recordsStorageKey(owner) { return 'fsm_records_vault_v1:' + owner; }
+function recordsArchiveKey(owner) { return 'fsm_records_legacy_archive_v1:' + owner; }
+function recordsAreUnlocked() { return !!(recordVault.unlocked && recordVault.key && recordVault.session === auth.user && recordVault.owner === recordsOwner()); }
+function recordsText(value, max) {
+  if (value === undefined || value === null) return '';
+  if (typeof value !== 'string' || value.length > max) throw new Error('紀錄欄位格式或長度不符。');
+  return value;
+}
+function validateSessionRecords(value) {
+  if (!Array.isArray(value) || value.length > 1000) throw new Error('紀錄數量或格式不符。');
+  const ids = new Set();
+  const dateValue = value => {
+    if (typeof value !== 'string' || value.length > 40 || !/^\d{4}-\d{2}-\d{2}T/.test(value) || !Number.isFinite(Date.parse(value))) throw new Error('紀錄日期無效。');
+    return new Date(value).toISOString();
+  };
+  const rating = value => {
+    if (value === undefined || value === null) return null;
+    if (!Number.isInteger(value) || value < 0 || value > 10) throw new Error('疼痛分數須為 0 至 10。');
+    return value;
+  };
+  const result = value.map(item => {
+    if (!item || typeof item !== 'object' || Array.isArray(item) || typeof item.id !== 'string' || !/^[A-Za-z0-9_-]{1,120}$/.test(item.id) || ids.has(item.id)) throw new Error('紀錄識別碼無效或重複。');
+    ids.add(item.id);
+    let protoSteps = null;
+    if (item.protoSteps != null) {
+      if (!Array.isArray(item.protoSteps) || item.protoSteps.length > 200) throw new Error('協定步驟數量無效。');
+      protoSteps = item.protoSteps.map(raw => {
+        if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('協定步驟格式無效。');
+        const step = normalizeStep(raw);
+        if (typeof step.freq_a !== 'number' || typeof step.freq_b !== 'number' || !isValidFrequency(step.freq_a) || !isValidFrequency(step.freq_b) || typeof step.duration !== 'number' || !isValidStepDuration(step.duration) || ![null, undefined, 'Positive', 'Alternating'].includes(step.polarity) || ![null, undefined, 'Sharp', 'Medium', 'Gentle'].includes(step.wave)) throw new Error('協定步驟數值無效。');
+        return { freq_a: step.freq_a, freq_b: step.freq_b, duration: step.duration, polarity: step.polarity || null, wave: step.wave || null, observed_marker: recordsText(raw.observed_marker, 120) || null };
+      });
+    }
+    return { id: item.id, date: dateValue(item.date), modified: dateValue(item.modified || item.date),
+      patient: recordsText(item.patient, 200), complaint: recordsText(item.complaint, 2000), protocol: recordsText(item.protocol, 1000),
+      response: recordsText(item.response, 5000), notes: recordsText(item.notes, 10000), painBefore: rating(item.painBefore), painAfter: rating(item.painAfter), protoSteps };
+  });
+  if (new TextEncoder().encode(JSON.stringify(result)).length > RECORDS_MAX_BYTES) throw new Error('紀錄總大小超過 2 MB，請先分批備份。');
+  return result;
+}
+function recordsToBase64(bytes) {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+  return btoa(binary);
+}
+function recordsFromBase64(text, min, max) {
+  if (typeof text !== 'string' || text.length > Math.ceil(max / 3) * 4 + 4 || !/^[A-Za-z0-9+/]*={0,2}$/.test(text) || text.length % 4) throw new Error('加密檔案格式無效。');
+  const bytes = Uint8Array.from(atob(text), character => character.charCodeAt(0));
+  if (bytes.length < min || bytes.length > max) throw new Error('加密檔案大小無效。');
+  return bytes;
+}
+function lockRecordsVault() {
+  recordVault.epoch++;
+  Object.assign(recordVault, { owner: '', session: null, key: null, salt: null, records: [], unlocked: false, saving: false, serialized: null });
+  const view = $('view-records'); if (view) view.innerHTML = '';
+  for (const id of ['sessionPatient', 'sessionComplaint', 'sessionProtocol', 'sessionResponse', 'sessionNotes', 'recordsPassword', 'recordsPasswordConfirm', 'recordSearch']) { const input = $(id); if (input) input.value = ''; }
+  for (const id of ['recordList', 'followupInfo', 'followupStepInfo', 'modalTitle']) { const element = $(id); if (element) element.innerHTML = ''; }
+  const modal = $('sessionModal'); if (modal) modal.classList.remove('show');
+  const followup = $('followupModal'); if (followup) followup.style.display = 'none';
+  state.editingSessionId = null;
+  editingRatings = { before: null, after: null };
+  _followupProto = null;
+  if (state.loadedProtocol && state.loadedProtocol._recordOwner) {
+    stopRun(); state.loadedProtocol = null;
+    for (const id of ['runOverlayTitle', 'ovStepInfo', 'ovQueueList']) { const element = $(id); if (element) element.textContent = ''; }
+  }
+  // Follow-up details can also be present in the load/editor dialogs.
+  for (const id of ['modalBody', 'cpStepsList']) { const element = $(id); if (element) element.innerHTML = ''; }
+  for (const id of ['cpName', 'cpIndication', 'cpFolder', 'cpGroup']) { const input = $(id); if (input) input.value = ''; }
+  for (const id of ['loadModal', 'customProtocolModal']) { const element = $(id); if (element) element.classList.remove('show'); }
+}
+function syncRecordsOwner() {
+  if (recordVault.session && (recordVault.session !== auth.user || recordVault.owner !== recordsOwner())) lockRecordsVault();
+}
+function loadSessions() {
+  syncRecordsOwner();
+  return recordsAreUnlocked() ? JSON.parse(JSON.stringify(recordVault.records)) : [];
+}
+async function saveSessions(arr) {
+  if (!recordsAreUnlocked() || recordVault.saving) throw new Error('請先解鎖紀錄，並等候上一筆儲存完成。');
+  const records = validateSessionRecords(arr);
+  const { owner, key, salt, epoch, session, serialized } = recordVault;
+  const storageKey = recordsStorageKey(owner);
+  if (localStorage.getItem(storageKey) !== serialized) { lockRecordsVault(); throw new Error('另一個分頁已更新紀錄，請重新解鎖。'); }
+  recordVault.saving = true;
+  try {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(owner) }, key, new TextEncoder().encode(JSON.stringify(records)));
+    if (recordVault.epoch !== epoch || auth.user !== session || !recordsAreUnlocked()) throw new Error('登入已變更，紀錄未儲存。');
+    if (localStorage.getItem(storageKey) !== serialized) { lockRecordsVault(); throw new Error('另一個分頁已更新紀錄，請重新解鎖。'); }
+    const next = JSON.stringify({ format: 'fsm-local-records-vault-v1', owner, salt: recordsToBase64(salt), iv: recordsToBase64(iv), data: recordsToBase64(new Uint8Array(ciphertext)) });
+    localStorage.setItem(storageKey, next);
+    recordVault.serialized = next;
+    recordVault.records = records;
+    return true;
+  } finally { if (recordVault.epoch === epoch) recordVault.saving = false; }
+}
+async function unlockRecordsVault(password, confirmation) {
+  const session = auth.user, owner = recordsOwner();
+  if (!owner || typeof password !== 'string' || !password) throw new Error('請先登入並輸入紀錄密碼。');
+  lockRecordsVault();
+  const epoch = recordVault.epoch;
+  recordVault.owner = owner; recordVault.session = session;
+  try {
+    const serialized = localStorage.getItem(recordsStorageKey(owner));
+    let key, salt, records = [];
+    if (serialized !== null) {
+      if (serialized.length > 2800000) throw new Error('紀錄檔過大。');
+      const envelope = JSON.parse(serialized);
+      if (!envelope || envelope.format !== 'fsm-local-records-vault-v1' || envelope.owner !== owner) throw new Error('紀錄格式不符。');
+      salt = recordsFromBase64(envelope.salt, 16, 16);
+      const iv = recordsFromBase64(envelope.iv, 12, 12);
+      const data = recordsFromBase64(envelope.data, 16, RECORDS_MAX_BYTES + 16);
+      key = await deriveKey(password, salt);
+      const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(owner) }, key, data);
+      if (plaintext.byteLength > RECORDS_MAX_BYTES) throw new Error('紀錄檔過大。');
+      records = validateSessionRecords(JSON.parse(new TextDecoder().decode(plaintext)));
+    } else {
+      if (password.length < 12 || password.length > 200 || password !== confirmation) throw new Error('請使用至少 12 字元的密碼，並再次輸入確認。');
+      salt = crypto.getRandomValues(new Uint8Array(16));
+      key = await deriveKey(password, salt);
+    }
+    if (recordVault.epoch !== epoch || auth.user !== session || recordsOwner() !== owner) return false;
+    Object.assign(recordVault, { key, salt, records, serialized, unlocked: true });
+    if (serialized === null) await saveSessions([]);
+    return true;
+  } catch (error) {
+    if (recordVault.epoch === epoch) lockRecordsVault();
+    throw new Error('無法解鎖；請確認密碼與紀錄檔。新密碼需至少 12 字元且兩次相同。');
+  }
+}
+async function decryptLegacyArchive(envelope, key, owner) {
+  if (!envelope || envelope.format !== 'fsm-legacy-archive-v1' || envelope.owner !== owner) throw new Error('舊紀錄封存帳號不符。');
+  const iv = recordsFromBase64(envelope.iv, 12, 12);
+  const data = recordsFromBase64(envelope.data, 16, RECORDS_MAX_BYTES + 16);
+  const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(owner + ':legacy') }, key, data);
+  if (plaintext.byteLength > RECORDS_MAX_BYTES) throw new Error('舊紀錄封存過大。');
+  return new TextDecoder().decode(plaintext);
+}
+async function migrateLegacyRecords() {
+  if (!recordsAreUnlocked()) return false;
+  const { owner, session, epoch, key, salt } = recordVault;
+  const stillCurrent = () => auth.user === session && recordVault.epoch === epoch && recordsAreUnlocked();
+  const claimed = localStorage.getItem(RECORDS_LEGACY_OWNER_KEY);
+  if (claimed && claimed !== owner) throw new Error('此裝置的舊紀錄已由其他帳號認領。');
+  if (!confirm('舊紀錄未標示擁有者。僅在確認全部紀錄屬於目前帳號 ' + owner + '，且你有權處理這些患者資料時才繼續。成功後會建立完整的加密封存，核對無誤才移除舊版未加密副本。確定遷移？')) return false;
+  const legacy = localStorage.getItem(SESSIONS_KEY);
+  if (!legacy || new TextEncoder().encode(legacy).length > RECORDS_MAX_BYTES) throw new Error('舊紀錄不存在或過大。');
+  const incoming = validateSessionRecords(JSON.parse(legacy));
+  const byId = new Map(loadSessions().map(record => [record.id, record]));
+  for (const record of incoming) { const existing = byId.get(record.id); if (!existing || Date.parse(record.modified) > Date.parse(existing.modified)) byId.set(record.id, record); }
+  const merged = validateSessionRecords([...byId.values()].sort((a, b) => Date.parse(b.date) - Date.parse(a.date)));
+  const archiveKey = recordsArchiveKey(owner);
+  let archive = localStorage.getItem(archiveKey);
+  if (archive !== null) {
+    if (await decryptLegacyArchive(JSON.parse(archive), key, owner) !== legacy) throw new Error('已有不同的舊資料封存；為保留完整資料，這次遷移已停止。');
+  } else {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(owner + ':legacy') }, key, new TextEncoder().encode(legacy));
+    archive = JSON.stringify({ format: 'fsm-legacy-archive-v1', owner, salt: recordsToBase64(salt), iv: recordsToBase64(iv), data: recordsToBase64(new Uint8Array(data)) });
+  }
+  if (!stillCurrent()) return false;
+  await saveSessions(merged);
+  if (!stillCurrent()) return false;
+  localStorage.setItem(archiveKey, archive);
+  // Verify both persisted encrypted copies before removing any plaintext.
+  const recovered = await decryptLegacyArchive(JSON.parse(localStorage.getItem(archiveKey)), key, owner);
+  if (!stillCurrent()) return false;
+  const serializedVault = localStorage.getItem(recordsStorageKey(owner));
+  const envelope = JSON.parse(serializedVault);
+  const vaultData = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: recordsFromBase64(envelope.iv, 12, 12), additionalData: new TextEncoder().encode(owner) }, key, recordsFromBase64(envelope.data, 16, RECORDS_MAX_BYTES + 16));
+  const recoveredRecords = validateSessionRecords(JSON.parse(new TextDecoder().decode(vaultData)));
+  if (!stillCurrent() || recovered !== legacy || JSON.stringify(recoveredRecords) !== JSON.stringify(merged) || serializedVault !== recordVault.serialized || localStorage.getItem(recordsStorageKey(owner)) !== serializedVault || localStorage.getItem(archiveKey) !== archive || localStorage.getItem(SESSIONS_KEY) !== legacy) throw new Error('資料已變更，舊版副本未移除，請重新確認。');
+  const latestClaim = localStorage.getItem(RECORDS_LEGACY_OWNER_KEY);
+  if (latestClaim && latestClaim !== owner) throw new Error('舊紀錄已由另一個帳號認領。');
+  localStorage.setItem(RECORDS_LEGACY_OWNER_KEY, owner);
+  localStorage.removeItem(SESSIONS_KEY);
+  return true;
+}
+function downloadLegacyArchive() {
+  if (!recordsAreUnlocked()) return;
+  const archive = localStorage.getItem(recordsArchiveKey(recordVault.owner));
+  if (!archive) return;
+  const url = URL.createObjectURL(new Blob([archive], { type: 'application/json' }));
+  const link = document.createElement('a'); link.href = url; link.download = 'fsm_legacy_archive.fsmarchive';
+  document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+window.addEventListener('storage', event => {
+  if (event.key === null || event.key === 'fsm_auth' || (recordVault.owner && event.key === recordsStorageKey(recordVault.owner))) {
+    lockRecordsVault();
+    if (event.key === null || event.key === 'fsm_auth') { auth.user = null; resetPersonalProtocolState(); updateAuthUI(); }
+    const active = document.querySelector('.tab.active');
+    if (active && active.getAttribute('data-view') === 'records') renderRecordsView();
+  }
+});
 function newId() { return 's_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8); }
 
 function renderRecordsView() {
+  syncRecordsOwner();
+  if (!recordsOwner()) { renderGate('view-records'); return; }
+  if (!recordsAreUnlocked()) {
+    let exists;
+    try { exists = localStorage.getItem(recordsStorageKey(recordsOwner())) !== null; }
+    catch { $('view-records').textContent = '無法存取本機儲存空間，請檢查瀏覽器設定。'; return; }
+    $('view-records').innerHTML = '<div class="empty-state"><h2>本機治療紀錄已鎖定</h2><p>目前帳號：' + escapeHtml(recordsOwner()) + '</p><p>' + (exists ? '輸入此帳號的紀錄密碼以解鎖。' : '先設定獨立的紀錄密碼，至少 12 個字元；遺失後無法還原。') + '</p><form id="recordsUnlockForm"><label for="recordsPassword">紀錄密碼</label><input class="form-input" type="password" id="recordsPassword" autocomplete="' + (exists ? 'current-password' : 'new-password') + '" maxlength="200" required>' + (exists ? '' : '<label for="recordsPasswordConfirm">再次輸入密碼</label><input class="form-input" type="password" id="recordsPasswordConfirm" autocomplete="new-password" maxlength="200" required>') + '<button class="btn-primary" type="submit" id="recordsUnlockBtn">' + (exists ? '解鎖紀錄' : '設定並解鎖') + '</button><p id="recordsUnlockError" role="alert"></p></form><p>紀錄只在此裝置加密儲存；每次登入或重新整理後需再次解鎖，請定期匯出加密備份。Google 登入不會解開紀錄。舊版未加密資料不會自動顯示或歸入目前帳號。</p></div>';
+    $('recordsUnlockForm').addEventListener('submit', async event => {
+      event.preventDefault();
+      const password = $('recordsPassword').value, confirmation = exists ? undefined : $('recordsPasswordConfirm').value;
+      $('recordsPassword').value = ''; if (!exists) $('recordsPasswordConfirm').value = '';
+      const session = auth.user;
+      $('recordsUnlockBtn').disabled = true;
+      try { if (await unlockRecordsVault(password, confirmation)) renderRecordsView(); }
+      catch (error) { if (auth.user === session) { renderRecordsView(); $('recordsUnlockError').textContent = error.message; } }
+    });
+    return;
+  }
+  const legacyOwner = localStorage.getItem(RECORDS_LEGACY_OWNER_KEY);
+  const hasLegacyArchive = !!localStorage.getItem(recordsArchiveKey(recordVault.owner));
+  const canMigrateLegacy = !!localStorage.getItem(SESSIONS_KEY) && (!legacyOwner || legacyOwner === recordVault.owner);
   $('view-records').innerHTML = `
+    <p>紀錄已解鎖 · <button class="btn-secondary" id="lockRecordsBtn" type="button">鎖定紀錄</button></p>
+    ${canMigrateLegacy ? '<p>此裝置留有未加密的舊版資料。確認擁有者後才能遷移；確認後建立加密封存，核對成功才移除未加密副本。</p><button class="btn-secondary" id="migrateLegacyBtn" type="button">確認擁有者並遷移舊紀錄</button>' : ''}
+    ${hasLegacyArchive ? '<p>舊紀錄已完整加密封存，使用同一組紀錄密碼，可由匯入功能還原。</p><button class="btn-secondary" type="button" id="downloadLegacyArchiveBtn">下載加密的舊紀錄封存</button>' : ''}
     <button class="btn-primary" id="newSessionBtn">${t('btn_new_session')}</button>
     <div style="display: flex; gap: 8px; margin-bottom: 12px;">
       <button class="btn-secondary" id="exportEncBtn" style="flex: 1">${t('btn_export_records_encrypted')}</button>
       <button class="btn-secondary" id="importEncBtn" style="flex: 1">${t('btn_import_records_encrypted')}</button>
-      <input type="file" id="importEncFile" accept=".fsmbak,.json" style="display:none">
+      <input type="file" id="importEncFile" accept=".fsmbak,.fsmarchive,.json" style="display:none">
     </div>
     <div class="search-bar">
       <input type="text" class="search-input" id="recordSearch" placeholder="${t('search_records')}">
     </div>
     <div id="recordList"></div>
   `;
+  $('lockRecordsBtn').addEventListener('click', () => { lockRecordsVault(); renderRecordsView(); });
+  if ($('downloadLegacyArchiveBtn')) $('downloadLegacyArchiveBtn').addEventListener('click', downloadLegacyArchive);
+  if ($('migrateLegacyBtn')) $('migrateLegacyBtn').addEventListener('click', async () => { try { if (await migrateLegacyRecords()) renderRecordsView(); } catch (error) { alert(error.message); } });
   $('newSessionBtn').addEventListener('click', () => openSessionModal(null));
   $('recordSearch').addEventListener('input', e => renderRecordList(e.target.value));
   $('exportEncBtn').addEventListener('click', exportEncryptedRecords);
@@ -4276,6 +4507,7 @@ function renderRecordsView() {
 
 let editingRatings = { before: null, after: null };
 function openSessionModal(existing) {
+  if (!recordsAreUnlocked()) return;
   state.editingSessionId = existing ? existing.id : null;
   $('sessionModalTitle').textContent = existing ? t('session_edit_title') : t('session_new_title');
   $('sessionPatient').value = existing ? existing.patient : '';
@@ -4303,7 +4535,9 @@ document.querySelectorAll('#ratingAfter button').forEach(b => {
   });
 });
 $('sessionCancel').addEventListener('click', () => $('sessionModal').classList.remove('show'));
-$('sessionSave').addEventListener('click', () => {
+$('sessionSave').addEventListener('click', async () => {
+  if (!recordsAreUnlocked()) return;
+  const session = auth.user;
   const sessions = loadSessions();
   // Capture protocol steps from current loaded protocol (new sessions only)
   const existingSession = state.editingSessionId ? sessions.find(s => s.id === state.editingSessionId) : null;
@@ -4332,7 +4566,8 @@ $('sessionSave').addEventListener('click', () => {
   } else {
     sessions.unshift(payload);
   }
-  saveSessions(sessions);
+  try { await saveSessions(sessions); } catch (error) { alert(error.message); return; }
+  if (auth.user !== session || !recordsAreUnlocked()) return;
   $('sessionModal').classList.remove('show');
   state.editingSessionId = null;
   renderRecordList('');
@@ -4343,6 +4578,7 @@ function fmtDate(iso) {
   return d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0') + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
 }
 function renderRecordList(filter) {
+  if (!recordsAreUnlocked()) return;
   filter = (filter || '').toLowerCase();
   let sessions = loadSessions();
   if (filter) sessions = sessions.filter(s =>
@@ -4359,15 +4595,15 @@ function renderRecordList(filter) {
   }
   list.innerHTML = sessions.map(s => {
     const painDelta = (s.painBefore !== null && s.painAfter !== null) ? `VAS ${s.painBefore}→${s.painAfter}` : '';
-    return '<div class="session-card" data-id="' + s.id + '">' +
+    return '<div class="session-card" data-id="' + escapeHtml(s.id) + '">' +
       '<div class="session-header">' +
-        '<div class="session-patient">' + (s.patient || '—') + '</div>' +
+        '<div class="session-patient">' + escapeHtml(s.patient || '—') + '</div>' +
         '<div class="session-date">' + fmtDate(s.date) + '</div>' +
       '</div>' +
-      (s.complaint ? '<div class="session-summary"><strong>' + (LANG==='zh'?'主訴':'Complaint') + ':</strong> ' + s.complaint + '</div>' : '') +
-      (s.protocol ? '<div class="session-summary"><strong>' + (LANG==='zh'?'協定':'Protocol') + ':</strong> ' + s.protocol + '</div>' : '') +
-      (s.response ? '<div class="session-summary"><strong>' + (LANG==='zh'?'反應':'Response') + ':</strong> ' + s.response + '</div>' : '') +
-      (s.notes ? '<div class="session-summary"><strong>' + (LANG==='zh'?'備註':'Notes') + ':</strong> ' + s.notes + '</div>' : '') +
+      (s.complaint ? '<div class="session-summary"><strong>' + (LANG==='zh'?'主訴':'Complaint') + ':</strong> ' + escapeHtml(s.complaint) + '</div>' : '') +
+      (s.protocol ? '<div class="session-summary"><strong>' + (LANG==='zh'?'協定':'Protocol') + ':</strong> ' + escapeHtml(s.protocol) + '</div>' : '') +
+      (s.response ? '<div class="session-summary"><strong>' + (LANG==='zh'?'反應':'Response') + ':</strong> ' + escapeHtml(s.response) + '</div>' : '') +
+      (s.notes ? '<div class="session-summary"><strong>' + (LANG==='zh'?'備註':'Notes') + ':</strong> ' + escapeHtml(s.notes) + '</div>' : '') +
       (painDelta ? '<div class="session-meta"><span>' + painDelta + '</span></div>' : '') +
       '<div class="session-actions">' +
         '<button data-action="edit">' + t('record_edit') + '</button>' +
@@ -4383,11 +4619,11 @@ function renderRecordList(filter) {
     card.querySelector('[data-action="edit"]').addEventListener('click', () => openSessionModal(s));
     card.querySelector('[data-action="followup"]').addEventListener('click', () => recordFollowUp(s));
     card.querySelector('[data-action="pdf"]').addEventListener('click', () => exportSessionPDF(s));
-    card.querySelector('[data-action="delete"]').addEventListener('click', () => {
+    card.querySelector('[data-action="delete"]').addEventListener('click', async () => {
       if (confirm(t('record_confirm_delete'))) {
         const all = loadSessions();
-        saveSessions(all.filter(x => x.id !== id));
-        renderRecordList($('recordSearch').value);
+        try { await saveSessions(all.filter(x => x.id !== id)); } catch (error) { alert(error.message); return; }
+        if (recordsAreUnlocked()) renderRecordList($('recordSearch').value);
       }
     });
   });
@@ -4406,6 +4642,8 @@ function _findProtoByName(name) {
 }
 
 function recordFollowUp(s) {
+  if (!recordsAreUnlocked()) return;
+  s = validateSessionRecords([s])[0];
   const protoName = (s.protocol || '').trim();
   const modal = document.getElementById('followupModal');
   const infoEl = document.getElementById('followupInfo');
@@ -4440,20 +4678,21 @@ function recordFollowUp(s) {
 
   // Build the candidate proto object
   _followupProto = resolvedSteps ? {
-    id: null,
-    name: [s.patient, s.complaint].filter(Boolean).join(' · ') || resolvedName,
-    condition: s.complaint || '',
+    id: null, _recordOwner: recordVault.owner,
+    // Patient context stays in the records dialog, never in a cloud-synced protocol.
+    name: resolvedName,
+    condition: '',
     steps: resolvedSteps,
-    note: s.notes || '',
+    note: '',
   } : null;
 
   // Patient info
   const lastDate = s.date ? new Date(s.date).toLocaleDateString('zh-TW', { year:'numeric', month:'numeric', day:'numeric' }) : '—';
   infoEl.innerHTML =
-    `<b>${LANG==='zh'?'患者':'Patient'}：</b>${s.patient || '—'}<br>` +
-    `<b>${LANG==='zh'?'主訴':'Complaint'}：</b>${s.complaint || '—'}<br>` +
+    `<b>${LANG==='zh'?'患者':'Patient'}：</b>${escapeHtml(s.patient || '—')}<br>` +
+    `<b>${LANG==='zh'?'主訴':'Complaint'}：</b>${escapeHtml(s.complaint || '—')}<br>` +
     `<b>${LANG==='zh'?'上次就診':'Last visit'}：</b>${lastDate}<br>` +
-    `<b>${LANG==='zh'?'上次協定':'Protocol'}：</b>${protoName || '—'}`;
+    `<b>${LANG==='zh'?'上次協定':'Protocol'}：</b>${escapeHtml(protoName || '—')}`;
 
   if (_followupProto) {
     const tot = totalProtocolMinutes(_followupProto);
@@ -4462,7 +4701,7 @@ function recordFollowUp(s) {
     document.getElementById('followupRun').style.display = '';
     document.getElementById('followupEdit').style.display = '';
   } else {
-    stepEl.innerHTML = `<span style="color:var(--danger)">⚠ 找不到「${protoName || '（未記錄）'}」的步驟資料</span><br>` +
+    stepEl.innerHTML = `<span style="color:var(--danger)">⚠ 找不到「${escapeHtml(protoName || '（未記錄）')}」的步驟資料</span><br>` +
       `<span style="opacity:0.6">${LANG==='zh'?'可至「協定」分頁手動選取':'Go to Protocol tab to select manually'}</span>`;
     document.getElementById('followupRun').style.display = 'none';
     document.getElementById('followupEdit').style.display = 'none';
@@ -4507,11 +4746,13 @@ async function deriveKey(password, salt) {
   );
 }
 async function exportEncryptedRecords() {
+  if (!recordsAreUnlocked()) return;
+  const session = auth.user, epoch = recordVault.epoch;
   const sessions = loadSessions();
   if (sessions.length === 0) { alert(LANG==='zh' ? '尚無紀錄可匯出' : 'No records to export'); return; }
   const password = prompt(t('encrypt_prompt_password'));
   if (!password) return;
-  if (password.length < 6) { alert(t('encrypt_password_too_short')); return; }
+  if (password.length < 12 || password.length > 200) { alert(t('encrypt_password_too_short')); return; }
   try {
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -4523,7 +4764,8 @@ async function exportEncryptedRecords() {
     combined.set(salt, 0);
     combined.set(iv, salt.length);
     combined.set(new Uint8Array(ciphertext), salt.length + iv.length);
-    const b64 = btoa(String.fromCharCode(...combined));
+    if (auth.user !== session || recordVault.epoch !== epoch || !recordsAreUnlocked()) return;
+    const b64 = recordsToBase64(combined);
     const blob = new Blob([JSON.stringify({ format: 'fsm-encrypted-backup-v1', data: b64 }, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -4540,44 +4782,48 @@ async function exportEncryptedRecords() {
 async function importEncryptedRecords(evt) {
   const file = evt.target.files[0];
   if (!file) return;
-  const password = prompt(t('decrypt_prompt_password'));
-  if (!password) return;
+  const session = auth.user, epoch = recordVault.epoch;
+  const currentRequest = () => auth.user === session && recordVault.epoch === epoch && recordsAreUnlocked();
   try {
+    if (!currentRequest()) return;
+    if (!Number.isFinite(file.size) || file.size > 2800000) throw new Error('備份檔過大。');
+    const password = prompt(t('decrypt_prompt_password'));
+    if (!password) return;
     const text = await file.text();
+    if (!currentRequest()) return;
+    if (text.length > 2800000) throw new Error('備份檔過大。');
     const wrapper = JSON.parse(text);
-    if (wrapper.format !== 'fsm-encrypted-backup-v1') throw new Error('Unknown format');
-    const combined = Uint8Array.from(atob(wrapper.data), c => c.charCodeAt(0));
-    const salt = combined.slice(0, 16);
-    const iv = combined.slice(16, 28);
-    const ciphertext = combined.slice(28);
-    const key = await deriveKey(password, salt);
-    const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
-    const parsed = JSON.parse(new TextDecoder().decode(plaintext));
-    if (!parsed.sessions || !Array.isArray(parsed.sessions)) throw new Error('Invalid backup');
-
-    // Merge with current — for duplicates keep the most recently modified
-    const current = loadSessions();
-    const byId = new Map(current.map(s => [s.id, s]));
-    let imported = 0;
-    for (const s of parsed.sessions) {
-      const existing = byId.get(s.id);
-      if (!existing) { byId.set(s.id, s); imported++; }
-      else {
-        const eM = new Date(existing.modified || existing.date).getTime();
-        const sM = new Date(s.modified || s.date).getTime();
-        if (sM > eM) { byId.set(s.id, s); imported++; }
-      }
+    if (!wrapper || !['fsm-encrypted-backup-v1', 'fsm-legacy-archive-v1'].includes(wrapper.format)) throw new Error('Unknown format');
+    let parsed;
+    if (wrapper.format === 'fsm-legacy-archive-v1') {
+      const key = await deriveKey(password, recordsFromBase64(wrapper.salt, 16, 16));
+      parsed = { version: 1, sessions: JSON.parse(await decryptLegacyArchive(wrapper, key, recordsOwner())) };
+    } else {
+    const combined = recordsFromBase64(wrapper.data, 44, RECORDS_MAX_BYTES + 1024);
+    const key = await deriveKey(password, combined.slice(0, 16));
+    const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: combined.slice(16, 28) }, key, combined.slice(28));
+    if (!currentRequest()) return;
+    if (plaintext.byteLength > RECORDS_MAX_BYTES + 512) throw new Error('備份檔過大。');
+    parsed = JSON.parse(new TextDecoder().decode(plaintext));
     }
-    const merged = Array.from(byId.values()).sort((a,b) => new Date(b.date) - new Date(a.date));
-    saveSessions(merged);
+    if (!currentRequest()) return;
+    if (!parsed || parsed.version !== 1) throw new Error('Invalid backup version');
+    const incoming = validateSessionRecords(parsed.sessions);
+    const byId = new Map(loadSessions().map(record => [record.id, record]));
+    let imported = 0;
+    for (const record of incoming) {
+      const existing = byId.get(record.id);
+      if (!existing || Date.parse(record.modified) > Date.parse(existing.modified)) { byId.set(record.id, record); imported++; }
+    }
+    const merged = [...byId.values()].sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+    if (!currentRequest()) return;
+    await saveSessions(merged);
+    if (!currentRequest()) return;
     alert(t('decrypt_merged').replace('{n}', imported));
     renderRecordList('');
-  } catch (e) {
-    console.error(e);
-    alert(t('decrypt_failed'));
-  } finally {
-    evt.target.value = ''; // reset
-  }
+  } catch (error) {
+    if (currentRequest()) alert(t('decrypt_failed') + '；資料格式、欄位或大小也可能不符。原有紀錄未變更。');
+  } finally { evt.target.value = ''; }
 }
 
 // ============================================================
@@ -5339,6 +5585,8 @@ $('openInfoGuide').addEventListener('click', () => switchToView('info'));
 // PDF EXPORT
 // ============================================================
 function exportSessionPDF(s) {
+  if (!recordsAreUnlocked()) return;
+  s = validateSessionRecords([s])[0];
   const html = generateSessionHTML(s);
   openPrintWindow(html);
 }
@@ -5362,9 +5610,9 @@ function generateSessionHTML(s) {
     : { title: 'FSM Session Record', date: 'Session date', patient: 'Patient', complaint: 'Complaint', protocol: 'Protocol', pain: 'VAS pain (pre → post)', response: 'Response', notes: 'Notes', footer: 'Generated by FSM Studio' };
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${L.title}</title>${pdfStyle()}</head><body>
 <h1>${L.title}</h1><div class="meta">${L.date}: ${date}</div>
-<div class="field"><span class="field-label">${L.patient}:</span> ${s.patient || '—'}</div>
-<div class="field"><span class="field-label">${L.complaint}:</span> ${s.complaint || '—'}</div>
-<div class="field"><span class="field-label">${L.protocol}:</span> ${s.protocol || '—'}</div>
+<div class="field"><span class="field-label">${L.patient}:</span> ${escapeHtml(s.patient || '—')}</div>
+<div class="field"><span class="field-label">${L.complaint}:</span> ${escapeHtml(s.complaint || '—')}</div>
+<div class="field"><span class="field-label">${L.protocol}:</span> ${escapeHtml(s.protocol || '—')}</div>
 <div class="field"><span class="field-label">${L.pain}:</span> <span class="badge">${painDelta}</span></div>
 ${s.response ? `<h2>${L.response}</h2><div>${escapeHtml(s.response).replace(/\n/g,'<br>')}</div>` : ''}
 ${s.notes ? `<h2>${L.notes}</h2><div>${escapeHtml(s.notes).replace(/\n/g,'<br>')}</div>` : ''}
@@ -5382,11 +5630,11 @@ function generateProtocolHTML(p) {
     if (s.freq_a === 79 || s.freq_b === 79) warnings.add('79');
     if (s.polarity === 'Positive') warnings.add('pol');
     const setting = s.polarity && s.wave
-      ? `<td>${s.polarity==='Positive'?'+→':'+/-'}</td><td>${s.wave}</td>`
+      ? `<td>${s.polarity==='Positive'?'+→':'+/-'}</td><td>${escapeHtml(s.wave)}</td>`
       : (s.polarity
           ? `<td>+/-</td><td>待設定</td>`
           : `<td colspan="2">${escapeHtml(String(rs.observed_marker || '?'))} · 待設定</td>`);
-    return `<tr><td>${i+1}</td><td><span class="badge">${s.freq_a} / ${s.freq_b}</span></td>${setting}<td>${s.duration} min</td><td style="font-size:10px;color:#666">${FREQ_A_MAP[s.freq_a]||''} / ${FREQ_B_MAP[s.freq_b]||''}</td></tr>`;
+    return `<tr><td>${i+1}</td><td><span class="badge">${escapeHtml(s.freq_a)} / ${escapeHtml(s.freq_b)}</span></td>${setting}<td>${escapeHtml(s.duration)} min</td><td style="font-size:10px;color:#666">${escapeHtml(FREQ_A_MAP[s.freq_a]||'')} / ${escapeHtml(FREQ_B_MAP[s.freq_b]||'')}</td></tr>`;
   }).join('');
   let warnHtml = '';
   if (warnings.size > 0) {
@@ -5397,16 +5645,16 @@ function generateProtocolHTML(p) {
   }
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${L.title}</title>${pdfStyle()}</head><body>
 <h1>${L.title}</h1><div class="meta">${new Date().toISOString().slice(0,10)}</div>
-<div class="field"><span class="field-label">${L.name}:</span> ${nm}</div>
-<div class="field"><span class="field-label">${L.category}:</span> ${cat}</div>
-${ind ? `<div class="field"><span class="field-label">${L.indication}:</span> ${ind}</div>` : ''}
+<div class="field"><span class="field-label">${L.name}:</span> ${escapeHtml(nm)}</div>
+<div class="field"><span class="field-label">${L.category}:</span> ${escapeHtml(cat)}</div>
+${ind ? `<div class="field"><span class="field-label">${L.indication}:</span> ${escapeHtml(ind)}</div>` : ''}
 <div class="field"><span class="field-label">${L.total}:</span> ${tot} min · ${p.steps.length} steps</div>
 ${warnHtml}
 <h2>${L.steps}</h2><table><thead><tr><th>${L.step}</th><th>${L.freq}</th><th>${L.polarity}</th><th>${L.wave}</th><th>${L.duration}</th><th>${L.tissue}</th></tr></thead><tbody>${rows}</tbody></table>
 <h2>${L.hardware}</h2><div style="font-size:12px">${L.hwb}</div>
 <footer>${L.footer}</footer></body></html>`;
 }
-function escapeHtml(s) { if (!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 // ============================================================
 // LANGUAGE TOGGLE
@@ -5434,6 +5682,18 @@ updateTimerDisplay();
 applyRunScale();
 // If logged in, load protected data in background
 if (auth.isAuthed()) initializeAuthenticatedData();
+checkOAuthCallback();
+// ── Process credential returned via GSI redirect flow (/api/fsm-auth-callback) ──
+(function processPendingCredential() {
+  try {
+    const cred = sessionStorage.getItem('fsm_pending_credential');
+    if (!cred) return;
+    sessionStorage.removeItem('fsm_pending_credential');
+    window.handleGoogleCredential({ credential: cred });
+  } catch(e) {}
+})();
+
+
 </script>
 </body>
 </html>

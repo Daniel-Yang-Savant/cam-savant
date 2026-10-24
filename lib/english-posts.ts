@@ -60,10 +60,12 @@ export function getAllEnglishPosts(): EnglishPost[] {
 }
 
 export function getEnglishPostBySlug(slug: string): EnglishPost | null {
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(slug)) return null
   for (const extension of ['.mdx', '.md']) {
     const fileName = `${slug}${extension}`
     if (fs.existsSync(path.join(englishPostsDirectory, fileName))) {
-      return readEnglishPost(fileName)
+      const post = readEnglishPost(fileName)
+      return post.frontmatter.draft ? null : post
     }
   }
   return null

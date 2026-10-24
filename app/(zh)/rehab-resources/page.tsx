@@ -1,3 +1,4 @@
+import { safeJsonLd } from '@/lib/safe-json'
 import type { Metadata } from 'next'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import ResourceDirectory from '@/components/rehab-resources/ResourceDirectory'
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
 export default function RehabResourcesPage() {
   return (
     <div className="RehabResourcesPage text-neutral-950 dark:text-neutral-100">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd({
         '@context': 'https://schema.org', '@type': 'CollectionPage',
         name: TITLE, description: DESCRIPTION, url: 'https://camsavant.com/rehab-resources',
         datePublished: '2026-10-18', dateModified: RESOURCE_UPDATED_AT,

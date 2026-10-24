@@ -1,3 +1,4 @@
+import { safeJsonLd } from '@/lib/safe-json'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -22,7 +23,7 @@ export default function EnglishAboutPage() {
 
   return (
     <div className="min-h-screen bg-[#f5f0e8] dark:bg-neutral-900">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }} />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
         <header className="text-center mb-16">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-neutral-400">CAM Savant</p>

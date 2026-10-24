@@ -111,10 +111,12 @@ export function getAllPosts(): Post[] {
 }
 
 export function getPostBySlug(slug: string): Post | null {
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(slug)) return null
   for (const ext of ['.mdx', '.md']) {
     const fullPath = path.join(postsDirectory, `${slug}${ext}`)
     if (fs.existsSync(fullPath)) {
-      return readPost(`${slug}${ext}`)
+      const post = readPost(`${slug}${ext}`)
+      return post.frontmatter.draft ? null : post
     }
   }
   return null

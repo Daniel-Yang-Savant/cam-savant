@@ -1,3 +1,4 @@
+import { safeJsonLd } from '@/lib/safe-json'
 import type { Metadata } from 'next'
 import { bilingualAlternates } from '@/lib/locales'
 
@@ -45,7 +46,7 @@ export default function HomePage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(websiteJsonLd) }}
       />
 
       {/* ── Visual exercise guides ── */}

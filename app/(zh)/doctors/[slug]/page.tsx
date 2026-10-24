@@ -1,3 +1,4 @@
+import { safeJsonLd } from '@/lib/safe-json'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -74,12 +75,12 @@ export default async function DoctorProfilePage({ params }: Props) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(profileSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(profileSchema) }}
       />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: safeJsonLd(
             generateBreadcrumbSchema([
               { name: '首頁', url: BASE_URL },
               { name: '醫師團隊', url: `${BASE_URL}/about` },

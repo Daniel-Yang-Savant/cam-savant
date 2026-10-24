@@ -1,3 +1,4 @@
+import { safeJsonLd } from '@/lib/safe-json'
 import type { Metadata } from 'next'
 import { getPostsByCategory, CATEGORY_DESCRIPTIONS } from '@/lib/posts'
 import { generateCollectionPageSchema } from '@/lib/schema'
@@ -42,7 +43,7 @@ export default async function FSMPage({ searchParams }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: safeJsonLd(
             generateCollectionPageSchema({
               name: 'FSM 頻率特異性微電流',
               description: CATEGORY_DESCRIPTIONS['fsm'],

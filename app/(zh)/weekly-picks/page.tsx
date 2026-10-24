@@ -1,3 +1,4 @@
+import { safeJsonLd } from '@/lib/safe-json'
 import type { Metadata } from 'next'
 import { getPostsByCategory, CATEGORY_DESCRIPTIONS } from '@/lib/posts'
 import { generateCollectionPageSchema } from '@/lib/schema'
@@ -42,7 +43,7 @@ export default async function WeeklyPicksPage({ searchParams }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: safeJsonLd(
             generateCollectionPageSchema({
               name: '每週論文精選',
               description: CATEGORY_DESCRIPTIONS['weekly-picks'],

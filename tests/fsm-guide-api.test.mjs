@@ -7,6 +7,7 @@ import vm from 'node:vm'
 const apiSource = fs.readFileSync(new URL('../pages/api/protected-data.js', import.meta.url), 'utf8')
 const guide = JSON.parse(fs.readFileSync(new URL('../data/fsm/studio-guide.json', import.meta.url), 'utf8'))
 const source = apiSource.replace(/^import .+;\r?$/gm, '').replace('export default async function handler', 'async function handler')
+const authSource = fs.readFileSync(new URL('../lib/fsm/session-auth.js', import.meta.url), 'utf8').replace(/^export /gm, '')
 const fixtureEmail = 'member@example.invalid'
 const fixtureSecret = 'synthetic-guide-test-secret'
 const now = 1_800_000_000_000
@@ -44,6 +45,7 @@ function harness({ authorizedEmails = fixtureEmail, approvedEmails = [] } = {}) 
       throw new Error('Unexpected synthetic KV request: ' + key)
     },
   })
+  vm.runInContext(authSource, context)
   vm.runInContext(source, context)
   return {
     calls, env,
@@ -109,7 +111,7 @@ test('missing or blank session secrets fail closed even for a token signed with 
     if (missingSecret === undefined) delete h.env.SESSION_SECRET
     else h.env.SESSION_SECRET = missingSecret
     const response = await h.request({ token: sessionToken(validPayload, 'CHANGE_ME_IN_PRODUCTION') })
-    assert.equal(response.status, 401)
+    assert.equal(response.status, 503)
     assert.equal(h.calls.length, 0)
   }
 })
@@ -159,7 +161,7 @@ test('unapproved membership and unavailable membership storage fail closed', asy
   for (const approvedEmails of [[], ['someone-else@example.invalid'], new Error('Synthetic membership outage')]) {
     const h = harness({ authorizedEmails: '', approvedEmails })
     const response = await h.request()
-    assert.equal(response.status, 403)
+    assert.equal(response.status, approvedEmails instanceof Error ? 503 : 403)
     assert.equal(Object.hasOwn(response.body, 'guide'), false)
     assert.deepEqual(h.calls.map(call => call.key), ['approved_emails'])
     assert.equal(h.protocolTransforms, 0)

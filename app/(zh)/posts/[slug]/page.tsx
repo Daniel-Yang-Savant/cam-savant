@@ -1,3 +1,4 @@
+import { safeJsonLd } from '@/lib/safe-json'
 import type { Metadata } from 'next'
 import ArticleReview from '@/components/ArticleReview'
 import { notFound, permanentRedirect } from 'next/navigation'
@@ -138,7 +139,7 @@ export default async function PostPage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: safeJsonLd({
             ...generateArticleSchema({
               title: frontmatter.title,
               excerpt: frontmatter.excerpt,
@@ -161,7 +162,7 @@ export default async function PostPage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: safeJsonLd(
             generateBreadcrumbSchema([
               { name: '首頁', url: BASE_URL },
               { name: categoryLabel, url: `${BASE_URL}/${frontmatter.category}` },
@@ -173,7 +174,7 @@ export default async function PostPage({ params }: Props) {
       {faqSchema && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(faqSchema) }}
         />
       )}
 

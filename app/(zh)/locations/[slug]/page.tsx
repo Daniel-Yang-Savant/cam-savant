@@ -1,3 +1,4 @@
+import { safeJsonLd } from '@/lib/safe-json'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -105,12 +106,12 @@ export default async function LocationPage({ params }: Props) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(locationSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(locationSchema) }}
       />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: safeJsonLd(
             generateBreadcrumbSchema([
               { name: '首頁', url: BASE_URL },
               { name: '看診資訊', url: `${BASE_URL}/locations` },
