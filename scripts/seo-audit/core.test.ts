@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import { auditPage, compareSnapshots, parsePage, type PageSnapshot } from './core'
 import { auditPublicArticles } from './articles'
+import { readPublicBuildArtifact } from './build-artifacts'
 
 const url = 'https://camsavant.com/test'
 const html = `<html><head><title>復健 &amp; 運動醫學</title>
@@ -254,4 +258,66 @@ test('metadata and hreflang changes preserve before-and-after evidence', () => {
   const findings = change({ title: '新版標題', description: '新版摘要', h1: ['新版主標題'], alternates: { en: '/en/test' } })
   assert.deepEqual(codes(findings), ['title.changed', 'description.changed', 'h1.changed', 'hreflang.changed'])
   assert.ok(findings.every((finding) => finding.evidence.includes('→') && finding.action.length > 0))
+})
+
+function buildFixture(t: { after: (callback: () => void) => void }) {
+  const directory = mkdtempSync(path.join(tmpdir(), 'cam-public-build-'))
+  t.after(() => rmSync(directory, { recursive: true, force: true }))
+  const server = path.join(directory, 'server')
+  mkdirSync(server)
+  const write = (file: string, contents: string) => {
+    const target = path.join(server, file)
+    mkdirSync(path.dirname(target), { recursive: true })
+    writeFileSync(target, contents)
+    return target
+  }
+  return { directory, server, write }
+}
+
+// Hashes and owners cross-checked against Next 16.4 build metadata.
+const articleCache = 'route-cache/APP_PAGE/627c36cf8651552cc7dec19190690d1203b11ebe1eaaebba2e75b450fbea1faf/$/posts/example.html'
+const sitemapCache = 'route-cache/APP_ROUTE/eac4bd33ebe1853103da0ef2f81c8c91f16652d378ec724ba99b36d0db74c4eb/$/sitemap.xml.body'
+
+test('adapter-only build outputs resolve without legacy aliases or metadata files', t => {
+  const fixture = buildFixture(t)
+  fixture.write(articleCache, '<h1>Current adapter article</h1>')
+  fixture.write(sitemapCache, '<urlset><url><loc>https://camsavant.com/posts/example</loc></url></urlset>')
+  assert.equal(readPublicBuildArtifact(fixture.server, '/posts/example'), '<h1>Current adapter article</h1>')
+  assert.match(readPublicBuildArtifact(fixture.server, '/sitemap.xml')!, /<urlset>/)
+})
+
+test('scoped content wins over stale legacy output and empty scoped output never falls back', t => {
+  const fixture = buildFixture(t)
+  fixture.write('app/posts/example.html', 'old article')
+  fixture.write(articleCache, 'current article')
+  assert.equal(readPublicBuildArtifact(fixture.server, '/posts/example'), 'current article')
+  fixture.write(articleCache, '')
+  assert.equal(readPublicBuildArtifact(fixture.server, '/posts/example'), '')
+})
+
+test('legacy layout works only when scoped output is absent, and missing output stays missing', t => {
+  const fixture = buildFixture(t)
+  fixture.write('app/posts/example.html', 'legacy article')
+  fixture.write('app/sitemap.xml.body', '<urlset />')
+  assert.equal(readPublicBuildArtifact(fixture.server, '/posts/example'), 'legacy article')
+  assert.equal(readPublicBuildArtifact(fixture.server, '/sitemap.xml'), '<urlset />')
+  assert.equal(readPublicBuildArtifact(fixture.server, '/posts/missing'), undefined)
+})
+
+test('artifact reader rejects private paths, traversal, encoded delimiters and trailing newlines', t => {
+  const fixture = buildFixture(t)
+  for (const route of ['/admin/editor', '/perioperative-rehab/example', '/posts/../../.env', '/posts/%2e%2e', '/posts/example/extra', '/posts/example\n', '/posts/example\r\n', '/posts/example\u2028']) {
+    assert.throws(() => readPublicBuildArtifact(fixture.server, route), /Only sitemap/)
+  }
+})
+
+test('artifact reader rejects cache symlinks outside the build instead of reading a legacy substitute', t => {
+  const fixture = buildFixture(t)
+  fixture.write('app/posts/example.html', 'legacy article')
+  const target = path.join(fixture.directory, 'outside.html')
+  writeFileSync(target, 'outside sentinel')
+  const cache = path.join(fixture.server, articleCache)
+  mkdirSync(path.dirname(cache), { recursive: true })
+  symlinkSync(target, cache)
+  assert.throws(() => readPublicBuildArtifact(fixture.server, '/posts/example'), /outside the build/)
 })

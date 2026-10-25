@@ -53,7 +53,7 @@ export function sanitizeAnalyticsProperties(properties: unknown): Record<string,
   return Object.fromEntries(ALLOWED_PROPERTY_KEYS.flatMap(key => {
     if (!Object.prototype.hasOwnProperty.call(properties, key)) return []
     const value = (properties as Record<string, unknown>)[key]
-    if (typeof value !== 'string' || !PUBLIC_IDENTIFIER.test(value)) return []
+    if (typeof value !== 'string' || value.trim() !== value || !PUBLIC_IDENTIFIER.test(value)) return []
     if (key === 'locale' && value !== 'zh-TW' && value !== 'en') return []
     return [[key, value]]
   }))

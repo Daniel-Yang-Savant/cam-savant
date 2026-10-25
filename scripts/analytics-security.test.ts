@@ -130,7 +130,7 @@ test('only fixed event names and bounded public identifier properties survive ru
   const permitted = { slug: 'ankle-sprain-2026', category: 'sports-medicine', locale: 'zh-TW', placement: 'doctor_clinic_card', clinic_slug: 'erlin', referrer_group: 'search' }
   assert.deepEqual(sanitizeAnalyticsProperties(permitted), permitted)
   assert.deepEqual(sanitizeAnalyticsProperties({ ...permitted, email: 'patient@example.invalid', question: 'synthetic question' }), permitted)
-  for (const value of ['', '0912345678', 'synthetic patient', 'patient@example.invalid', 'https://example.invalid', 'synthetic%20patient', 'synthetic\npatient', '病情內容', 'a'.repeat(121), 123, {}, ['synthetic']]) {
+  for (const value of ['', '0912345678', 'synthetic patient', 'patient@example.invalid', 'https://example.invalid', 'synthetic%20patient', 'synthetic\npatient', 'synthetic\n', 'synthetic\r\n', 'synthetic\u2028', '病情內容', 'a'.repeat(121), 123, {}, ['synthetic']]) {
     assert.deepEqual(sanitizeAnalyticsProperties({ slug: value, category: value, placement: value, clinic_slug: value, referrer_group: value }), {})
   }
   assert.deepEqual(sanitizeAnalyticsProperties({ locale: 'arbitrary_locale' }), {})

@@ -5,6 +5,7 @@ import { Parser } from 'htmlparser2'
 import { getPublicPosts } from '../lib/posts'
 import { BASE_URL } from '../lib/locales'
 import { auditPublicArticles } from './seo-audit/articles'
+import { readPublicBuildArtifact } from './seo-audit/build-artifacts'
 
 // Independent release gate: older local-care experiments are not required.
 function main() {
@@ -16,25 +17,22 @@ function main() {
     console.log('npm run audit:articles -- [--output FILE]\n只讀取上次本機 build 的已發布公開文章；error 回傳 1，執行失敗回傳 2。')
     return
   }
-  const buildRoot = path.resolve('.next/server/app')
+  const serverDirectory = path.resolve('.next/server')
   const buildId = readFileSync('.next/BUILD_ID', 'utf8').trim()
   const urls = new Set<string>()
   let inLoc = false
   let text = ''
+  const sitemap = readPublicBuildArtifact(serverDirectory, '/sitemap.xml')
+  if (sitemap === undefined) throw new Error('找不到本機 sitemap 建置輸出，請重新 build。')
   new Parser({
     onopentag(tag) { if (tag === 'loc') { inLoc = true; text = '' } },
     ontext(value) { if (inLoc) text += value },
     onclosetag(tag) {
       if (tag === 'loc') { urls.add(text.trim()); inLoc = false }
     },
-  }, { xmlMode: true, decodeEntities: true }).end(readFileSync(path.join(buildRoot, 'sitemap.xml.body'), 'utf8'))
+  }, { xmlMode: true, decodeEntities: true }).end(sitemap)
   if (!urls.size) throw new Error('本機 sitemap 為空，請重新 build。')
-  const audit = auditPublicArticles(getPublicPosts(), BASE_URL, urls, (route) => {
-    try { return readFileSync(path.join(buildRoot, `${route.slice(1)}.html`), 'utf8') } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined
-      throw error
-    }
-  })
+  const audit = auditPublicArticles(getPublicPosts(), BASE_URL, urls, route => readPublicBuildArtifact(serverDirectory, route))
   const summary = {
     pages: audit.pages, expectedPages: audit.expectedPages,
     errors: audit.findings.filter(item => item.severity === 'error').length,
