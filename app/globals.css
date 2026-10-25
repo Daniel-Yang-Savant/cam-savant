@@ -73,6 +73,12 @@ img {
 
 /* ── Print styles ─────────────────────────────────────────────────────────── */
 
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 @media print {
   /* Hide elements that shouldn't be printed */
   nav,
@@ -82,6 +88,10 @@ img {
   .PrintButton,
   .ConsultForm,
   .TableOfContents {
+    display: none !important;
+  }
+
+  .ArticleHeadingLink {
     display: none !important;
   }
 

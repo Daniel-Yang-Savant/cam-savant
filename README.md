@@ -135,4 +135,21 @@ Vercel 會自動偵測並觸發重新建置。
 
 ---
 
+## 公開文章檢查、隱私分析與段落導覽
+
+2026-10-25 補強，本次新增範圍：
+
+- 借鏡 [claude-seo](https://github.com/AgriciDaniel/claude-seo) 的分項稽核：`scripts/seo-audit/articles.ts` 檢查每篇已發布公開文章的建置 HTML、canonical、索引設定、H1、Article 網址／標題／日期與 sitemap。正式發布流程以 `npm run audit:articles` 獨立執行，報告寫入 `.seo-audit/public-articles.json`，避免連帶發布先前尚未上線的院區／schema 修改。原本本機 local-care 基準工具保持獨立，不將文章混入舊基準。
+- 借鏡 [Plausible 的資料最小化](https://plausible.io/data-policy)與[自訂事件](https://plausible.io/docs/custom-event-goals)：沿用 GA4／Vercel Analytics，新增瀏覽器 DNT／GPC 停送與延後載入。事件名稱及六個屬性欄位由共用清單驗證，屬性只接受最多 120 字元的英數識別碼（必須以英文字母起首）及限定語系；拒絕自由文字、網址、email、純數字電話與編碼字串。這是格式防護，呼叫端仍只能傳公開內容識別碼，不能傳個資。未新增 Plausible 服務或設定。
+- 借鏡 [Clarify 的文件閱讀與穩定連結](https://github.com/taicode-labs/clarify)：中英文文章使用共用的安全 MDX 標題處理，支援格式化標題與重複標題的唯一段落網址，每段提供原生 `#` 連結。目錄只收文章正文，支援分段載入、切換文章後更新、鍵盤焦點與減少動畫偏好；長目錄可獨立捲動，列印隱藏段落連結符號。保留 `SafeMdx`、`blockJS: true` 與 HTML 過濾。
+
+**患者問題與假設**：讀者需要準確跳到、分享衛教段落，並在尊重隱私偏好的前提下完成看診資訊操作。這批屬 P2 結構補強，以發布檢查降低回歸風險，以手動閱讀驗證評估導覽可用性；未改醫療正文、日期、醫師資格或門診資訊，未新增臨床宣稱，亦未安裝三個上游專案。
+
+**資料與量測**：已有 `output/seo-links-2026-10-20/gsc-baseline.json` 的 2026-09-20 至 10-17 搜尋背景資料（98 次點擊、2,942 次曝光，非本次修改後的成效）。尚未取得本次部署前最新 GA4／Vercel 資料。部署時保存最近 28／56 天搜尋與既有看診行動資料，於實際部署後 28／56／84 天比較；尊重退出追蹤後事件數可能降低，不將此變化直接解讀為就醫需求下降。未建立排程，未宣稱排名、流量或轉換改善。
+
+**驗證紀錄**：`output/project-learning-2026-10-25/verification.json` 記錄本次檔案、測試、建置、來源與限制。上游來源查閱日期：2026-10-25。
+
+
+---
+
 *本站內容僅供醫療專業人員參考，不構成個別診療建議。*

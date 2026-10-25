@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { translations, type Lang } from '@/lib/i18n'
 
 interface Heading {
@@ -21,18 +22,18 @@ export default function TableOfContents({
   const [headings, setHeadings] = useState<Heading[]>([])
   const [activeId, setActiveId] = useState<string>('')
   const detailsRef = useRef<HTMLDetailsElement>(null)
+  const pathname = usePathname()
   const t = (key: keyof typeof translations.zh) => translations[locale][key]
 
   useEffect(() => {
-    let mutationObserver: MutationObserver | null = null
-
     const scanHeadings = () => {
+      const article = document.getElementById('article-content')
       const elements = Array.from(
-        document.querySelectorAll('h2[id], h3[id]')
+        article?.querySelectorAll('h2[id], h3[id]') ?? []
       ) as HTMLHeadingElement[]
       const nextHeadings = elements.map((el) => ({
         id: el.id,
-        text: el.textContent ?? '',
+        text: (el.querySelector('[data-heading-text]') ?? el).textContent ?? '',
         level: Number(el.tagName[1]) as 2 | 3,
       }))
 
@@ -48,22 +49,22 @@ export default function TableOfContents({
         return unchanged ? current : nextHeadings
       })
 
-      if (nextHeadings.length > 0) mutationObserver?.disconnect()
-      return nextHeadings.length
     }
 
-    const initialHeadingCount = scanHeadings()
+    scanHeadings()
     const animationFrame = window.requestAnimationFrame(scanHeadings)
-    if (initialHeadingCount === 0) {
-      mutationObserver = new MutationObserver(scanHeadings)
-      mutationObserver.observe(document.body, { childList: true, subtree: true })
-    }
+    // MDX can arrive in multiple streamed segments. Keep observing the article
+    // so a partial first segment does not leave the remaining sections out.
+    const mutationObserver = new MutationObserver(scanHeadings)
+    mutationObserver.observe(document.getElementById('article-content') ?? document.body, {
+      childList: true, subtree: true, characterData: true,
+    })
 
     return () => {
       window.cancelAnimationFrame(animationFrame)
-      mutationObserver?.disconnect()
+      mutationObserver.disconnect()
     }
-  }, [])
+  }, [pathname])
 
   useEffect(() => {
     const elements = headings
@@ -72,21 +73,26 @@ export default function TableOfContents({
 
     if (elements.length === 0) return
 
-    // Track active heading via IntersectionObserver
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id)
-          }
-        }
-      },
-      { rootMargin: '-8% 0% -70% 0%', threshold: 0 }
-    )
-
-    elements.forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
-  }, [headings])
+    let frame = 0
+    const update = () => {
+      frame = 0
+      let current = elements[0]
+      for (const element of elements) {
+        if (element.getBoundingClientRect().top > 112) break
+        current = element
+      }
+      setActiveId(current.id)
+    }
+    const schedule = () => { if (!frame) frame = window.requestAnimationFrame(update) }
+    update()
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', schedule)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+    }
+  }, [headings, pathname])
 
   if (headings.length === 0) return null
 
@@ -95,12 +101,17 @@ export default function TableOfContents({
       {headings.map((h) => (
         <li key={h.id} className={h.level === 3 ? 'pl-3' : ''}>
           <a
-            href={`#${h.id}`}
+            href={`#${encodeURIComponent(h.id)}`}
+            aria-current={activeId === h.id ? 'location' : undefined}
             onClick={(e) => {
+              if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
               e.preventDefault()
               const target = document.getElementById(h.id)
-              const scrollToTarget = () =>
-                target?.scrollIntoView({ behavior: 'smooth' })
+              if (!target) return
+              const scrollToTarget = () => {
+                target.focus({ preventScroll: true })
+                target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
+              }
 
               if (collapsible && detailsRef.current) {
                 detailsRef.current.open = false
@@ -109,7 +120,7 @@ export default function TableOfContents({
                 scrollToTarget()
               }
 
-              window.history.replaceState(null, '', `#${h.id}`)
+              window.history.replaceState(window.history.state, '', `#${encodeURIComponent(h.id)}`)
               setActiveId(h.id)
             }}
             className={`block rounded-md py-1 text-sm leading-snug transition-colors ${
@@ -145,7 +156,7 @@ export default function TableOfContents({
           </svg>
         </summary>
         <nav
-          className="border-t border-neutral-200 px-4 py-4 dark:border-neutral-700"
+          className="max-h-[60dvh] overflow-y-auto border-t border-neutral-200 px-4 py-4 dark:border-neutral-700"
           aria-label={locale === 'en' ? 'Table of contents' : '文章目錄'}
         >
           {headingList}
@@ -155,7 +166,7 @@ export default function TableOfContents({
   }
 
   return (
-    <nav className="TableOfContents" aria-label={locale === 'en' ? 'Table of contents' : '文章目錄'}>
+    <nav className="TableOfContents max-h-[calc(100dvh-8rem)] overflow-y-auto pr-2" aria-label={locale === 'en' ? 'Table of contents' : '文章目錄'}>
       <p className="text-xs tracking-widest uppercase text-neutral-400 dark:text-neutral-500 mb-3 font-semibold">
         {t('tocTitle')}
       </p>

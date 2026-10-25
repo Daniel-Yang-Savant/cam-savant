@@ -40,22 +40,7 @@ export function generateStaticParams() {
 
 // ── Custom heading components (add id for ToC anchors) ─────────────────────
 
-function slugify(text: string) {
-  return String(text)
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^\w\u4e00-\u9fff-]/g, '')
-}
-
 const mdxComponents = {
-  h2: ({ children }: { children?: React.ReactNode }) => {
-    const id = slugify(String(children ?? ''))
-    return <h2 id={id} className="scroll-mt-24">{children}</h2>
-  },
-  h3: ({ children }: { children?: React.ReactNode }) => {
-    const id = slugify(String(children ?? ''))
-    return <h3 id={id} className="scroll-mt-24">{children}</h3>
-  },
   ContextualCareCTA: () => <ContextualCareCTA />,
 }
 
@@ -312,7 +297,7 @@ export default async function PostPage({ params }: Props) {
           </div>
 
           {/* MDX content */}
-          <div className="prose prose-neutral dark:prose-invert max-w-none">
+          <div id="article-content" className="prose prose-neutral dark:prose-invert max-w-none">
             <SafeMdx source={enhancedContent} components={mdxComponents} />
           </div>
 

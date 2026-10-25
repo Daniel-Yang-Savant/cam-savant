@@ -1,54 +1,26 @@
 'use client'
 
 import { track } from '@vercel/analytics/react'
-import { safeAnalyticsUrl, safeAnalyticsReferrer } from './analytics-privacy'
+import {
+  hasAnalyticsOptOut,
+  safeAnalyticsUrl,
+  safeAnalyticsReferrer,
+  sanitizeAnalyticsProperties,
+  validAnalyticsEventName,
+  type AnalyticsEventName,
+  type AnalyticsProperties,
+} from './analytics-privacy'
 
-export type AnalyticsEventName =
-  | 'article_engaged'
-  | 'line_clicked'
-  | 'booking_clicked'
-  | 'location_opened'
-  | 'consult_started'
-  | 'consult_submitted'
-  | 'site_search_used'
-
-/**
- * Analytics privacy contract.
- *
- * Keep this list aligned with CAM-SAVANT-SEO-CONTENT-WORKFLOW.md. Do not add
- * free-text form values, search queries, contact details, or URL parameters.
- */
-export interface AnalyticsProperties {
-  slug?: string
-  category?: string
-  locale?: 'zh-TW' | 'en'
-  placement?: string
-  clinic_slug?: string
-  referrer_group?: string
-}
-
-const ALLOWED_PROPERTY_KEYS = [
-  'slug',
-  'category',
-  'locale',
-  'placement',
-  'clinic_slug',
-  'referrer_group',
-] as const satisfies readonly (keyof AnalyticsProperties)[]
+export type { AnalyticsEventName, AnalyticsProperties } from './analytics-privacy'
 
 export function trackAnalyticsEvent(
   name: AnalyticsEventName,
   properties: AnalyticsProperties = {}
 ) {
-  if (typeof window === 'undefined') return
+  if (typeof window === 'undefined' || hasAnalyticsOptOut(window.navigator) || !validAnalyticsEventName(name)) return
   const location = safeAnalyticsUrl(window.location.href)
   if (!location) return
-  const safeProperties = Object.fromEntries(
-    ALLOWED_PROPERTY_KEYS.flatMap((key) => {
-      const value = properties[key]
-      return typeof value === 'string' ? [[key, value]] : []
-    })
-  ) as Record<string, string>
+  const safeProperties = sanitizeAnalyticsProperties(properties)
 
   track(name, safeProperties)
 

@@ -21,13 +21,7 @@ export function generateStaticParams() {
 
 export const dynamicParams = false
 
-function slugify(text: string) {
-  return String(text).toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')
-}
-
 const mdxComponents = {
-  h2: ({ children }: { children?: React.ReactNode }) => <h2 id={slugify(String(children ?? ''))} className="scroll-mt-24">{children}</h2>,
-  h3: ({ children }: { children?: React.ReactNode }) => <h3 id={slugify(String(children ?? ''))} className="scroll-mt-24">{children}</h3>,
   ContextualCareCTA: () => <ContextualCareCTA variant="perioperative" locale="en" />,
 }
 
@@ -95,7 +89,7 @@ export default async function EnglishPerioperativeArticlePage({ params }: Props)
             </div>
 
             <PrintButton locale="en" />
-            <div className="prose prose-neutral dark:prose-invert max-w-none"><SafeMdx source={enhancedContent} components={mdxComponents} /></div>
+            <div id="article-content" className="prose prose-neutral dark:prose-invert max-w-none"><SafeMdx locale="en" source={enhancedContent} components={mdxComponents} /></div>
 
             <div className="mt-12 rounded-2xl bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-100 dark:border-neutral-700 p-6">
               <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">Need individualized guidance?</h2>

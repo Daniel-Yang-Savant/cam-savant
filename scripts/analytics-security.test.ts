@@ -1,13 +1,21 @@
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import test from 'node:test'
+import { trackAnalyticsEvent } from '../lib/analytics'
+import { buildSearchIndex } from '../lib/search'
+import { CLINIC_LOCATIONS } from '../lib/locations'
 import {
+  ANALYTICS_EVENT_NAMES,
   configureGoogleAnalyticsPage,
   filterAnalyticsEvent,
+  hasAnalyticsOptOut,
   isPrivateAnalyticsPath,
   safeAnalyticsReferrer,
   safeAnalyticsUrl,
+  sanitizeAnalyticsProperties,
+  validAnalyticsEventName,
   validGoogleMeasurementId,
+  type AnalyticsPrivacySignals,
   type PrivacyAnalyticsWindow,
 } from '../lib/analytics-privacy'
 
@@ -85,4 +93,101 @@ test('layouts only mount the privacy-aware analytics component and no longer emb
 test('invalid Google IDs cannot break out into inline configuration or an arbitrary script URL', () => {
   for (const value of [undefined, '', 'G-A\');alert(1);//', 'https://external.invalid', 'G-<script>']) assert.equal(validGoogleMeasurementId(value), false)
   assert.equal(validGoogleMeasurementId('G-TEST123'), true)
+})
+
+test('browser privacy opt-outs block Vercel page views/events and initial Google configuration', () => {
+  for (const signals of [{ doNotTrack: '1' }, { doNotTrack: 'yes' }, { globalPrivacyControl: true }]) {
+    assert.equal(hasAnalyticsOptOut(signals), true)
+    for (const type of ['pageview', 'event']) {
+      assert.equal(filterAnalyticsEvent({ type, url: origin + '/posts' }, origin + '/posts', signals), null)
+    }
+    const target: PrivacyAnalyticsWindow = {}
+    assert.equal(configureGoogleAnalyticsPage(target, 'G-TEST123', origin + '/posts', '', signals), false)
+    assert.equal(target['ga-disable-G-TEST123'], true)
+    assert.equal(target.dataLayer, undefined)
+    assert.equal(target.gtag, undefined)
+  }
+  for (const signals of [{}, { doNotTrack: '0' }, { doNotTrack: 'unspecified' }, { doNotTrack: null }, { globalPrivacyControl: false }]) {
+    assert.equal(hasAnalyticsOptOut(signals), false)
+    assert.notEqual(filterAnalyticsEvent({ type: 'pageview', url: origin + '/posts' }, origin + '/posts', signals), null)
+  }
+})
+
+test('an opt-out disables Google after a prior public page without adding events', () => {
+  const target: PrivacyAnalyticsWindow = {}
+  configureGoogleAnalyticsPage(target, 'G-TEST123', origin + '/posts', '')
+  const previousCount = target.dataLayer!.length
+  assert.equal(configureGoogleAnalyticsPage(target, 'G-TEST123', origin + '/locations', '', { globalPrivacyControl: true }), false)
+  assert.equal(target.dataLayer!.length, previousCount)
+  assert.equal(target['ga-disable-G-TEST123'], true)
+})
+
+test('only fixed event names and bounded public identifier properties survive runtime validation', () => {
+  for (const name of ANALYTICS_EVENT_NAMES) assert.equal(validAnalyticsEventName(name), true)
+  for (const name of [undefined, null, 123, 'patient@example.invalid', 'patient_named_synthetic', '', 'booking_clicked\n']) {
+    assert.equal(validAnalyticsEventName(name), false)
+  }
+  const permitted = { slug: 'ankle-sprain-2026', category: 'sports-medicine', locale: 'zh-TW', placement: 'doctor_clinic_card', clinic_slug: 'erlin', referrer_group: 'search' }
+  assert.deepEqual(sanitizeAnalyticsProperties(permitted), permitted)
+  assert.deepEqual(sanitizeAnalyticsProperties({ ...permitted, email: 'patient@example.invalid', question: 'synthetic question' }), permitted)
+  for (const value of ['', '0912345678', 'synthetic patient', 'patient@example.invalid', 'https://example.invalid', 'synthetic%20patient', 'synthetic\npatient', '病情內容', 'a'.repeat(121), 123, {}, ['synthetic']]) {
+    assert.deepEqual(sanitizeAnalyticsProperties({ slug: value, category: value, placement: value, clinic_slug: value, referrer_group: value }), {})
+  }
+  assert.deepEqual(sanitizeAnalyticsProperties({ locale: 'arbitrary_locale' }), {})
+  assert.deepEqual(sanitizeAnalyticsProperties({ locale: 'en' }), { locale: 'en' })
+  assert.deepEqual(sanitizeAnalyticsProperties(Object.create({ slug: 'inherited' })), {})
+  for (const properties of [undefined, null, [], 'synthetic', 123]) assert.deepEqual(sanitizeAnalyticsProperties(properties), {})
+})
+
+test('the identifier contract preserves current public search metadata and clinic identifiers', () => {
+  for (const item of buildSearchIndex()) {
+    const properties = { slug: item.slug, category: item.category }
+    assert.deepEqual(sanitizeAnalyticsProperties(properties), properties, item.id)
+  }
+  for (const clinic of CLINIC_LOCATIONS) {
+    const properties = { clinic_slug: clinic.slug }
+    assert.deepEqual(sanitizeAnalyticsProperties(properties), properties)
+  }
+})
+
+test('custom event dispatch honors browser preferences and sends the same sanitized properties to both providers', () => {
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window')
+  const previousDocument = Object.getOwnPropertyDescriptor(globalThis, 'document')
+  const vercel: unknown[][] = []
+  const google: unknown[][] = []
+  const browser = {
+    navigator: {} as AnalyticsPrivacySignals,
+    location: { href: origin + '/posts/example?email=synthetic%40example.invalid#private' },
+    va: (...args: unknown[]) => vercel.push(args),
+    gtag: (...args: unknown[]) => google.push(args),
+  }
+  Object.defineProperty(globalThis, 'window', { configurable: true, value: browser })
+  Object.defineProperty(globalThis, 'document', { configurable: true, value: { referrer: 'https://www.google.com/search?q=synthetic' } })
+  try {
+    for (const signals of [{ doNotTrack: '1' }, { doNotTrack: 'yes' }, { globalPrivacyControl: true }]) {
+      browser.navigator = signals
+      trackAnalyticsEvent('booking_clicked', { placement: 'doctor_clinic_card' })
+    }
+    browser.navigator = {}
+    trackAnalyticsEvent('unapproved_event' as never, {})
+    assert.deepEqual(vercel, [])
+    assert.deepEqual(google, [])
+
+    trackAnalyticsEvent('booking_clicked', {
+      placement: 'doctor_clinic_card', clinic_slug: 'erlin', locale: 'zh-TW',
+      slug: 'patient@example.invalid', category: 'synthetic question',
+      email: 'patient@example.invalid',
+    } as never)
+    const safeProperties = { locale: 'zh-TW', placement: 'doctor_clinic_card', clinic_slug: 'erlin' }
+    assert.deepEqual(vercel, [['event', { name: 'booking_clicked', data: safeProperties, options: undefined }]])
+    assert.deepEqual(google, [['event', 'booking_clicked', {
+      ...safeProperties, page_location: origin + '/posts/example', page_referrer: 'https://www.google.com/',
+    }]])
+    assert.doesNotMatch(JSON.stringify([vercel, google]), /example\.invalid|synthetic|email=|#private|search\?q/)
+  } finally {
+    if (previousWindow) Object.defineProperty(globalThis, 'window', previousWindow)
+    else Reflect.deleteProperty(globalThis, 'window')
+    if (previousDocument) Object.defineProperty(globalThis, 'document', previousDocument)
+    else Reflect.deleteProperty(globalThis, 'document')
+  }
 })

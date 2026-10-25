@@ -12,7 +12,7 @@
     "test:fsm": "node --test tests/fsm-*.test.mjs",
     "test:opd": "TSX_TSCONFIG_PATH=scripts/tsconfig.opd-tests.json node --conditions=react-server --import tsx --test scripts/opd-plan-phases.test.ts scripts/opd-hemophilia.test.ts",
     "test:discovery": "node --import tsx --test scripts/article-discovery.test.ts scripts/site-search.test.ts",
-    "test:seo": "tsx --test scripts/seo-contract.test.ts scripts/exercise-guide-related.test.ts scripts/exercise-guide-expansion.test.ts scripts/content-review.test.ts scripts/doctor-clinics.test.ts scripts/pagination.test.ts scripts/related-articles.test.ts",
+    "test:seo": "node --import tsx --test scripts/seo-contract.test.ts scripts/exercise-guide-related.test.ts scripts/exercise-guide-expansion.test.ts scripts/content-review.test.ts scripts/doctor-clinics.test.ts scripts/pagination.test.ts scripts/related-articles.test.ts scripts/seo-audit/core.test.ts",
     "optimize:covers": "tsx scripts/optimize-cover-images.ts",
     "publish-post": "tsx scripts/publish-from-pdf.ts",
     "prompts": "ts-node scripts/today-tasks.ts",
@@ -26,7 +26,9 @@
     "test:resources": "node --import tsx --test scripts/rehab-resources.test.ts",
     "warn:resources": "node --import tsx scripts/check-rehab-resource-reviews.ts",
     "test:security": "node --import tsx --test scripts/admin-auth.test.ts scripts/content-security.test.ts scripts/analytics-security.test.ts scripts/mdx-security.test.mjs tests/security-*.test.mjs",
-    "test:smoke": "node scripts/security-smoke.mjs"
+    "test:smoke": "node scripts/security-smoke.mjs",
+    "audit:articles": "node --import tsx scripts/audit-public-articles.ts",
+    "postbuild": "npm run audit:articles"
   },
   "ts-node": {
     "transpileOnly": true,
