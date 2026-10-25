@@ -8,6 +8,7 @@ const apiSource = fs.readFileSync(new URL('../pages/api/protected-data.js', impo
 const guide = JSON.parse(fs.readFileSync(new URL('../data/fsm/studio-guide.json', import.meta.url), 'utf8'))
 const source = apiSource.replace(/^import .+;\r?$/gm, '').replace('export default async function handler', 'async function handler')
 const authSource = fs.readFileSync(new URL('../lib/fsm/session-auth.js', import.meta.url), 'utf8').replace(/^import .+;\r?$/gm, '').replace(/^export /gm, '')
+const referenceSource = fs.readFileSync(new URL('../lib/fsm/reference-library.js', import.meta.url), 'utf8').replace(/^import .+;\r?$/gm, '').replace(/^export /gm, '')
 const fixtureEmail = 'member@example.invalid'
 const fixtureSecret = 'synthetic-guide-test-secret'
 const now = 1_800_000_000_000
@@ -31,9 +32,8 @@ function harness({ authorizedEmails = fixtureEmail, approvedEmails = [] } = {}) 
   const context = vm.createContext({
     applyPagesRateLimit: async () => true, Buffer, TextEncoder, URL, crypto: webcrypto,
     Date: class extends Date { static now() { return now } },
-    process: { env }, STUDIO_GUIDE: guide,
+    process: { env }, STUDIO_GUIDE: guide, COURSE_REFERENCE: [], FREQUENCY_GROUPS: [{ id: 'synthetic-frequency-group' }],
     MB_REFERENCE: [{ id: 'synthetic-reference', steps: [] }],
-    toPublicReferenceProtocols(protocols) { protocolTransforms++; return protocols },
     fetch: async (url, options) => {
       const key = decodeURIComponent(new URL(url).pathname.split('/').at(-1))
       calls.push({ key, options })
@@ -46,6 +46,9 @@ function harness({ authorizedEmails = fixtureEmail, approvedEmails = [] } = {}) 
     },
   })
   vm.runInContext(authSource, context)
+  vm.runInContext(referenceSource, context)
+  const publicTransform = context.toPublicReferenceProtocols
+  context.toPublicReferenceProtocols = protocols => { protocolTransforms++; return publicTransform(protocols) }
   vm.runInContext(source, context)
   return {
     calls, env,
@@ -174,6 +177,7 @@ test('the default protected payload does not bundle the guide and retains protoc
   assert.ok(response.body.data)
   assert.equal(Object.hasOwn(response.body, 'guide'), false)
   assert.equal(Object.hasOwn(response.body.data, 'guide'), false)
+  assert.deepEqual(response.body.data.frequency_groups, [{ id: 'synthetic-frequency-group' }])
   assert.deepEqual(h.calls.map(call => call.key), ['reference_protocols_v3'])
   assert.equal(h.protocolTransforms, 1)
 })

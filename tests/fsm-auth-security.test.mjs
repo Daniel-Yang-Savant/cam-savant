@@ -11,6 +11,7 @@ const admin = 'hermiterudite@gmail.com'
 const credential = 'syntheticHeader.syntheticPayload.syntheticSignature'
 const maxAge = 7 * 24 * 60 * 60 * 1000
 const helperSource = fs.readFileSync(new URL('../lib/fsm/session-auth.js', import.meta.url), 'utf8').replace(/^import .+;\r?$/gm, '').replace(/^export /gm, '')
+const referenceSource = fs.readFileSync(new URL('../lib/fsm/reference-library.js', import.meta.url), 'utf8').replace(/^import .+;\r?$/gm, '').replace(/^export /gm, '')
 const protectedRoutes = ['protected-data', 'protocols', 'my-protocols', 'reference-protocols', 'pending-users']
 const protocol = { id: 'synthetic-reference', name: 'Synthetic reference', steps: [{ freq_a: 40, freq_b: 116, duration: 4 }] }
 
@@ -27,8 +28,7 @@ function harness(route, { env: overrides = {}, approved = [], google = {}, membe
   const context = vm.createContext({
     applyPagesRateLimit: async () => true, Buffer, TextEncoder, URL, createHash, crypto: webcrypto, console: { error() {} },
     Date: class extends Date { static now() { return now } }, process: { env },
-    MB_REFERENCE: [protocol], STUDIO_GUIDE: { zh: { title: '說明' }, en: { title: 'Guide' } },
-    toPublicReferenceProtocols: value => value,
+    MB_REFERENCE: [protocol], COURSE_REFERENCE: [], FREQUENCY_GROUPS: [], STUDIO_GUIDE: { zh: { title: '說明' }, en: { title: 'Guide' } },
     fetch: async (url, options = {}) => {
       calls.push({ url, method: options.method || 'GET' })
       const parsed = new URL(url)
@@ -44,6 +44,7 @@ function harness(route, { env: overrides = {}, approved = [], google = {}, membe
     },
   })
   vm.runInContext(helperSource, context)
+  vm.runInContext(referenceSource, context)
   const source = fs.readFileSync(new URL(`../pages/api/${route}.js`, import.meta.url), 'utf8')
     .replace(/^import .+;\r?$/gm, '').replace('export default async function handler', 'async function handler').replace('export default function handler', 'function handler')
   vm.runInContext(source, context)
@@ -153,7 +154,11 @@ test('authorized personal saves and admin approval/reference saves still work wi
   assert.deepEqual(approvals.store.get('approved_emails'), [member])
   const references = harness('reference-protocols')
   assert.equal((await references.request({ bearer: token({ email: admin, exp: now + 60_000 }), method: 'POST', body: { protocols: [protocol] } })).status, 200)
-  assert.deepEqual(references.store.get('reference_protocols_v3'), [protocol])
+  assert.deepEqual(references.store.get('reference_protocols_v3'), {
+    version: 4,
+    protocols: [{ ...protocol, source: 'Reference', category: '全身調節與恢復', _ref: true }],
+    applied_additions: ['course-2026-10-25'],
+  })
 })
 
 test('Google sign-in verifies issuer, audience, expiration and verified email before issuing sessions', async () => {

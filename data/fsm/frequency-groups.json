@@ -1,0 +1,301 @@
+{
+  "chakra": {
+    "title_zh": "脈輪對照",
+    "title_en": "Chakra references",
+    "note_zh": "保留圖片中的七脈輪 Solfeggio 對照，並列太陽神經叢的 FSM 官方 200 Hz（由使用者確認）與圖片／Solfeggio 528 Hz，分別標示來源。此表與 FSM A／B 分開查閱；選取僅帶入數值，不代表治療配對或療效。",
+    "note_en": "The seven Solfeggio chakra mappings from the photo coexist with FSM official solar plexus 200 Hz (confirmed by the user) and photo/Solfeggio 528 Hz, with separate source labels. This reference is kept separate from FSM A/B; applying a number does not establish a treatment pairing or effect.",
+    "entries": [
+      {
+        "id": "photo_chakra_396",
+        "freq": 396,
+        "name": "Root chakra",
+        "name_zh": "海底輪（根輪）",
+        "aliases": [
+          "root",
+          "muladhara",
+          "根輪"
+        ],
+        "source_label": "圖片 IMG_3887：Solfeggio 脈輪圖",
+        "note_zh": "",
+        "note_en": ""
+      },
+      {
+        "id": "photo_chakra_417",
+        "freq": 417,
+        "name": "Sacral chakra",
+        "name_zh": "臍輪（薦輪）",
+        "aliases": [
+          "sacral",
+          "svadhisthana",
+          "臍輪"
+        ],
+        "source_label": "圖片 IMG_3887：Solfeggio 脈輪圖",
+        "note_zh": "",
+        "note_en": ""
+      },
+      {
+        "id": "fsm_chakra_solar_200",
+        "freq": 200,
+        "name": "Solar plexus chakra · FSM official",
+        "name_zh": "太陽神經叢脈輪（FSM 官方）",
+        "aliases": [
+          "solar plexus",
+          "manipura",
+          "太陽輪",
+          "官方",
+          "official"
+        ],
+        "source_label": "FSM 官方對照（使用者於 2026-10-25 確認）",
+        "note_zh": "官方對照值 200 Hz 由使用者確認；圖片／Solfeggio 的 528 Hz 另列保留。",
+        "note_en": "The official value of 200 Hz was confirmed by the user on 2026-10-25. The photo/Solfeggio value of 528 Hz remains a separate entry.",
+        "verification_status": "user_confirmed_official",
+        "confirmed_by": "user",
+        "confirmed_at": "2026-10-25"
+      },
+      {
+        "id": "photo_chakra_528",
+        "freq": 528,
+        "name": "Solar plexus chakra · Photo / Solfeggio",
+        "name_zh": "太陽神經叢脈輪（圖片／Solfeggio）",
+        "aliases": [
+          "solar plexus",
+          "manipura",
+          "太陽輪"
+        ],
+        "source_label": "圖片 IMG_3887：Solfeggio 脈輪圖",
+        "note_zh": "圖片原值 528 Hz，與 FSM 官方對照 200 Hz 並存；兩者來源不同。",
+        "note_en": "The original photo value is 528 Hz; it coexists with the separately labelled FSM official value of 200 Hz.",
+        "verification_status": "photo_transcribed"
+      },
+      {
+        "id": "photo_chakra_639",
+        "freq": 639,
+        "name": "Heart chakra",
+        "name_zh": "心輪",
+        "aliases": [
+          "heart",
+          "anahata"
+        ],
+        "source_label": "圖片 IMG_3887：Solfeggio 脈輪圖",
+        "note_zh": "",
+        "note_en": ""
+      },
+      {
+        "id": "photo_chakra_741",
+        "freq": 741,
+        "name": "Throat chakra",
+        "name_zh": "喉輪",
+        "aliases": [
+          "throat",
+          "vishuddha"
+        ],
+        "source_label": "圖片 IMG_3887：Solfeggio 脈輪圖",
+        "note_zh": "",
+        "note_en": ""
+      },
+      {
+        "id": "photo_chakra_852",
+        "freq": 852,
+        "name": "Third eye chakra",
+        "name_zh": "眉心輪（第三眼）",
+        "aliases": [
+          "third eye",
+          "ajna",
+          "第三眼"
+        ],
+        "source_label": "圖片 IMG_3887：Solfeggio 脈輪圖",
+        "note_zh": "",
+        "note_en": ""
+      },
+      {
+        "id": "photo_chakra_963",
+        "freq": 963,
+        "name": "Crown chakra",
+        "name_zh": "頂輪",
+        "aliases": [
+          "crown",
+          "sahasrara"
+        ],
+        "source_label": "圖片 IMG_3887：Solfeggio 脈輪圖",
+        "note_zh": "",
+        "note_en": ""
+      }
+    ]
+  },
+  "solfeggio": {
+    "title_zh": "Solfeggio 頻率",
+    "title_en": "Solfeggio frequencies",
+    "note_zh": "依提供圖片收錄九個頻率，主題名稱為來源描述的中性改寫；圖片的「修復 DNA、器官修復、排毒」等宣稱未作為已證實效果收錄。這些聲音／傳統分類與 FSM 組織頻率意義不同。選取僅帶入數值，不代表治療配對或療效。",
+    "note_en": "Nine frequencies from the supplied photo, with neutral paraphrases of its theme labels. Claims such as DNA repair, organ healing and detoxification are not presented as established effects. Sound/traditional classifications differ from FSM tissue frequency meanings. Applying a number does not establish a treatment pairing or effect.",
+    "entries": [
+      {
+        "id": "photo_solfeggio_174",
+        "freq": 174,
+        "name": "Solfeggio · Comfort and calm",
+        "name_zh": "Solfeggio · 舒適與平靜",
+        "aliases": [
+          "solfeggio",
+          "索爾費吉奧",
+          "索爾菲吉奧"
+        ],
+        "source_label": "圖片 IMG_3886：6 or 9 Solfeggio Frequencies",
+        "note_zh": "",
+        "note_en": ""
+      },
+      {
+        "id": "photo_solfeggio_285",
+        "freq": 285,
+        "name": "Solfeggio · Tissue and organ theme",
+        "name_zh": "Solfeggio · 組織與器官主題",
+        "aliases": [
+          "solfeggio",
+          "索爾費吉奧",
+          "索爾菲吉奧"
+        ],
+        "source_label": "圖片 IMG_3886：6 or 9 Solfeggio Frequencies",
+        "note_zh": "",
+        "note_en": ""
+      },
+      {
+        "id": "photo_solfeggio_396",
+        "freq": 396,
+        "name": "Solfeggio · Fear and grief theme",
+        "name_zh": "Solfeggio · 恐懼與悲傷主題",
+        "aliases": [
+          "solfeggio",
+          "索爾費吉奧",
+          "索爾菲吉奧"
+        ],
+        "source_label": "圖片 IMG_3886：6 or 9 Solfeggio Frequencies",
+        "note_zh": "",
+        "note_en": ""
+      },
+      {
+        "id": "photo_solfeggio_417",
+        "freq": 417,
+        "name": "Solfeggio · Change theme",
+        "name_zh": "Solfeggio · 改變主題",
+        "aliases": [
+          "solfeggio",
+          "索爾費吉奧",
+          "索爾菲吉奧"
+        ],
+        "source_label": "圖片 IMG_3886：6 or 9 Solfeggio Frequencies",
+        "note_zh": "",
+        "note_en": ""
+      },
+      {
+        "id": "photo_solfeggio_528",
+        "freq": 528,
+        "name": "Solfeggio · Transformation theme",
+        "name_zh": "Solfeggio · 轉化主題",
+        "aliases": [
+          "solfeggio",
+          "索爾費吉奧",
+          "索爾菲吉奧"
+        ],
+        "source_label": "圖片 IMG_3886：6 or 9 Solfeggio Frequencies",
+        "note_zh": "",
+        "note_en": ""
+      },
+      {
+        "id": "photo_solfeggio_639",
+        "freq": 639,
+        "name": "Solfeggio · Connection and compassion",
+        "name_zh": "Solfeggio · 連結與同理",
+        "aliases": [
+          "solfeggio",
+          "索爾費吉奧",
+          "索爾菲吉奧"
+        ],
+        "source_label": "圖片 IMG_3886：6 or 9 Solfeggio Frequencies",
+        "note_zh": "",
+        "note_en": ""
+      },
+      {
+        "id": "photo_solfeggio_741",
+        "freq": 741,
+        "name": "Solfeggio · Clarity theme",
+        "name_zh": "Solfeggio · 清晰主題",
+        "aliases": [
+          "solfeggio",
+          "索爾費吉奧",
+          "索爾菲吉奧"
+        ],
+        "source_label": "圖片 IMG_3886：6 or 9 Solfeggio Frequencies",
+        "note_zh": "",
+        "note_en": ""
+      },
+      {
+        "id": "photo_solfeggio_852",
+        "freq": 852,
+        "name": "Solfeggio · Intuition theme",
+        "name_zh": "Solfeggio · 直覺主題",
+        "aliases": [
+          "solfeggio",
+          "索爾費吉奧",
+          "索爾菲吉奧"
+        ],
+        "source_label": "圖片 IMG_3886：6 or 9 Solfeggio Frequencies",
+        "note_zh": "",
+        "note_en": ""
+      },
+      {
+        "id": "photo_solfeggio_963",
+        "freq": 963,
+        "name": "Solfeggio · Higher self theme",
+        "name_zh": "Solfeggio · 高我主題",
+        "aliases": [
+          "solfeggio",
+          "索爾費吉奧",
+          "索爾菲吉奧"
+        ],
+        "source_label": "圖片 IMG_3886：6 or 9 Solfeggio Frequencies",
+        "note_zh": "",
+        "note_en": ""
+      }
+    ]
+  },
+  "energy_pairs": {
+    "title_zh": "能量配對",
+    "title_en": "Energy pairs",
+    "note_zh": "使用者提供的傳統／能量用途名稱，未作為已證實的醫療效果。保留完整 A／B 配對，帶入後由使用者設定操作參數並手動開始。",
+    "note_en": "Traditional/energy-use labels supplied by the user, not established medical effects. Each entry preserves its full A/B pair; configure the operating settings and start manually after applying it.",
+    "entries": [
+      {
+        "id": "user_family_karma_550_687",
+        "freq_a": 550,
+        "freq_b": 687,
+        "name": "Family karma",
+        "name_zh": "家族業力",
+        "aliases": [
+          "family karma",
+          "ancestral karma",
+          "家族業力",
+          "550/687"
+        ],
+        "source_label": "使用者於 2026-10-25 提供",
+        "verification_status": "user_provided",
+        "note_zh": "",
+        "note_en": ""
+      },
+      {
+        "id": "user_clear_illness_energy_6_2_74",
+        "freq_a": 6.2,
+        "freq_b": 74,
+        "name": "Clearing illness energy",
+        "name_zh": "排除病氣",
+        "aliases": [
+          "clearing illness energy",
+          "排除病氣",
+          "病氣",
+          "6.2/74"
+        ],
+        "source_label": "使用者於 2026-10-25 提供",
+        "verification_status": "user_provided",
+        "note_zh": "",
+        "note_en": ""
+      }
+    ]
+  }
+}

@@ -5,7 +5,8 @@ import { authorizeSession } from '../../lib/fsm/session-auth';
 
 import MB_REFERENCE from '../../data/fsm/mb-reference.json';
 import STUDIO_GUIDE from '../../data/fsm/studio-guide.json';
-import { toPublicReferenceProtocols } from '../../lib/fsm/reference-library';
+import FREQUENCY_GROUPS from '../../data/fsm/frequency-groups.json';
+import { resolveReferenceProtocols, toPublicReferenceProtocols } from '../../lib/fsm/reference-library';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'private, no-store');
@@ -24,14 +25,15 @@ export default async function handler(req, res) {
     return res.status(200).json({ email: verified.email, guide: STUDIO_GUIDE });
   }
 
-  // The effective reference library has exactly one layer. A validated admin
-  // replacement in KV wins; otherwise the audited repository seed is used.
-  let referenceProtocols = MB_REFERENCE;
+  let referenceProtocols;
   try {
     const stored = await kvGetJSON('reference_protocols_v3');
-    if (Array.isArray(stored)) referenceProtocols = stored;
-  } catch {}
-  const payload = { ...PROTECTED_PAYLOAD, full: toPublicReferenceProtocols(referenceProtocols) };
+    referenceProtocols = resolveReferenceProtocols(stored, MB_REFERENCE);
+  } catch (err) {
+    console.error('protected-data reference load error:', err);
+    return res.status(500).json({ error: 'Failed to load reference protocols' });
+  }
+  const payload = { ...PROTECTED_PAYLOAD, full: toPublicReferenceProtocols(referenceProtocols), frequency_groups: FREQUENCY_GROUPS };
 
   // Return the protected data payload
   return res.status(200).json({
@@ -45,17 +47,15 @@ async function kvGetJSON(key) {
   const url = process.env.KV_REST_API_URL;
   const token = process.env.KV_REST_API_TOKEN;
   if (!url || !token) return null;
-  try {
-    const r = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (!r.ok) return null;
-    const { result } = await r.json();
-    if (!result) return null;
-    let parsed = JSON.parse(result);
-    if (typeof parsed === 'string') parsed = JSON.parse(parsed);
-    return parsed;
-  } catch { return null; }
+  const r = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!r.ok) throw new Error('KV get failed: ' + r.status);
+  const response = await r.json();
+  if (response.error || !Object.prototype.hasOwnProperty.call(response, 'result')) throw new Error('Invalid KV response');
+  if (response.result === null) return null;
+  const parsed = JSON.parse(response.result);
+  return typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
 }
 
 // Protected payload — injected at build time

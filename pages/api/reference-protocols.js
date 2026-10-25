@@ -7,7 +7,7 @@ import { authorizeSession } from '../../lib/fsm/session-auth';
 // This is the single effective reference layer used by /api/protected-data.
 
 import MB_REFERENCE from '../../data/fsm/mb-reference.json';
-import { toPublicReferenceProtocols } from '../../lib/fsm/reference-library';
+import { resolveReferenceProtocols, toPublicReferenceProtocols, toStoredReferenceProtocols } from '../../lib/fsm/reference-library';
 
 const ADMIN_EMAIL = 'hermiterudite@gmail.com';
 const KV_KEY = 'reference_protocols_v3';
@@ -81,11 +81,10 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const list = await kvGet(KV_KEY);
-      if (list !== null && !Array.isArray(list)) throw new Error('Invalid saved reference protocols');
-      const protocols = toPublicReferenceProtocols(Array.isArray(list) ? list : MB_REFERENCE);
+      const protocols = toPublicReferenceProtocols(resolveReferenceProtocols(list, MB_REFERENCE));
       return res.status(200).json({
         protocols,
-        source: Array.isArray(list) ? 'kv' : 'repository_seed'
+        source: list !== null ? 'kv' : 'repository_seed'
       });
     } catch (err) {
       console.error('reference-protocols GET error:', err);
@@ -105,7 +104,7 @@ export default async function handler(req, res) {
     const publicValidationError = validateReferenceProtocols(publicProtocols);
     if (publicValidationError) return res.status(400).json({ error: publicValidationError });
     try {
-      await kvSet(KV_KEY, publicProtocols);
+      await kvSet(KV_KEY, toStoredReferenceProtocols(publicProtocols));
       return res.status(200).json({ ok: true, count: publicProtocols.length });
     } catch (err) {
       console.error('reference-protocols POST error:', err);

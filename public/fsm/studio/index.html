@@ -267,6 +267,14 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling
 .lib-freq { font-family: var(--mono); font-weight: 600; font-size: 14px; color: var(--accent); }
 .lib-name { font-size: 12px; line-height: 1.4; }
 .lib-name-zh { font-size: 11px; color: var(--accent); opacity: 0.75; margin-top: 1px; line-height: 1.3; }
+.lib-reference-row { cursor: default; grid-template-columns: 76px minmax(0, 1fr); align-items: start; }
+.lib-pair-row { grid-template-columns: 112px minmax(0, 1fr); }
+.lib-pair-row .lib-freq { font-size: 13px; }
+.lib-reference-note, .lib-source { font-size: 12px; color: var(--text-dim); line-height: 1.5; margin-top: 6px; overflow-wrap: anywhere; }
+.lib-source a { color: var(--accent); }
+.lib-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.lib-actions button { min-height: 36px; }
+.lib-group-note { white-space: pre-line; }
 .lib-count { font-size: 11px; color: var(--text-very-dim); font-family: var(--mono); padding: 6px 12px 8px; }
 
 .pair-drawer { background: var(--bg-elev-2); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); padding: 12px; margin-bottom: 10px; animation: fadeIn 0.15s ease; }
@@ -376,8 +384,8 @@ main { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling
 .subtabs { display: flex; gap: 4px; margin-bottom: 12px; padding: 4px; background: var(--bg-elev); border-radius: var(--radius-lg); }
 .subtab { flex: 1; padding: 8px 4px; text-align: center; background: transparent; border: none; color: var(--text-dim); font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.5px; cursor: pointer; border-radius: var(--radius); text-transform: uppercase; }
 .subtab.active { color: var(--bg); background: var(--accent); }
-.libtabs { display: flex; padding: 0; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
-.libtab { flex: 1; padding: 10px 8px; background: transparent; border: none; color: var(--text-dim); font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 1px; cursor: pointer; border-bottom: 2px solid transparent; }
+.libtabs { display: flex; flex-wrap: wrap; padding: 0; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+.libtab { flex: 1 1 130px; padding: 10px 8px; background: transparent; border: none; color: var(--text-dim); font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 1px; cursor: pointer; border-bottom: 2px solid transparent; }
 .libtab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
 .card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; margin-bottom: 12px; }
@@ -1117,6 +1125,7 @@ const PUBLIC_FREQ_MAP_B = {"10": "Spinal cord", "62": "Artery", "77": "Connectiv
 // Holders for protected data — populated only after auth
 let CHANNEL_A = null;
 let CHANNEL_B = null;
+let FREQUENCY_GROUPS = null;
 let PROTOCOLS_CURATED = null;
 let PROTOCOLS_FULL = null;
 let USER_PROTOCOLS = null;
@@ -1325,7 +1334,7 @@ const I18N = {
     gate_subtitle: '此功能僅開放給已授權的 FSM 治療師使用。請以 Google 帳號登入。',
     gate_features_title: '登入後可使用',
     gate_feat_1: '我的協定庫（10 個常用模板）',
-    gate_feat_2: '參考協定庫完整查詢（含頻率庫 373 個頻率）',
+    gate_feat_2: '參考協定庫與分類頻率庫完整查詢',
     gate_feat_3: '音樂混音與匯出（WAV / MP3）',
     gate_feat_4: '患者治療紀錄 + 加密備份',
     gate_feat_5: '協定與紀錄 PDF 匯出',
@@ -1398,7 +1407,7 @@ const I18N = {
     gate_subtitle: 'This feature is for authorized FSM practitioners. Please sign in with Google.',
     gate_features_title: 'After sign-in you can access',
     gate_feat_1: 'My Protocols (10 curated templates)',
-    gate_feat_2: 'Reference protocol library (373 frequencies)',
+    gate_feat_2: 'Full reference protocols and categorized frequency library',
     gate_feat_3: 'Music export (WAV / MP3)',
     gate_feat_4: 'Patient records + encrypted backup',
     gate_feat_5: 'Protocol & record PDF export',
@@ -1512,7 +1521,7 @@ const auth = {
     resetPersonalProtocolState();
     lockRecordsVault();
     clearAdminPanel();
-    CHANNEL_A = null; CHANNEL_B = null;
+    CHANNEL_A = null; CHANNEL_B = null; FREQUENCY_GROUPS = null;
     PROTOCOLS_CURATED = null; PROTOCOLS_FULL = null; USER_PROTOCOLS = null; FAVORITE_PROTOCOL_IDS = new Set();
     FREQ_A_MAP = PUBLIC_FREQ_MAP_A;
     FREQ_B_MAP = PUBLIC_FREQ_MAP_B;
@@ -1595,6 +1604,7 @@ async function loadProtectedData() {
       if (!data.data || !Array.isArray(data.data.channel_a) || !Array.isArray(data.data.channel_b) || !Array.isArray(data.data.curated) || !Array.isArray(data.data.full)) throw new Error('Invalid reference response');
       CHANNEL_A = data.data.channel_a;
       CHANNEL_B = data.data.channel_b;
+      FREQUENCY_GROUPS = data.data.frequency_groups || null;
       PROTOCOLS_CURATED = data.data.curated;
       PROTOCOLS_FULL = data.data.full;
       FREQ_A_MAP = Object.fromEntries(CHANNEL_A.map(f => [f.freq, f.name]));
@@ -1619,6 +1629,7 @@ const personalSync = {
 let protectedDataRequest = null;
 
 function resetPersonalProtocolState() {
+  if (!auth.isAuthed()) FREQUENCY_GROUPS = null;
   personalSync.epoch += 1;
   Object.assign(personalSync, { owner: auth.user ? auth.user.email : '', ready: false,
     loading: null, saving: false, pending: null, status: 'idle', error: '',
@@ -2247,10 +2258,10 @@ function showCustomProtocolEditor(proto, target) {
     ? '編輯參考協定（所有用戶可見）'
     : (_cpEditTarget === 'copy' ? '建立可微調副本' : (proto ? '編輯自訂協定' : '新增自訂協定'));
   const sourceWarning = $('cpSourceWarning');
-  const hasUnverifiedSettings = !!(proto && (proto.steps || []).some(step => !normalizeStep(step).polarity || !normalizeStep(step).wave));
+  const hasUnverifiedSettings = !!(proto && !protocolHasVerifiedSettings(proto));
   sourceWarning.style.display = _cpEditTarget === 'copy' ? '' : 'none';
   sourceWarning.textContent = hasUnverifiedSettings
-    ? '此參考協定的交流極性已確認，但波形尚未設定。請為每一步選定波形後再儲存與執行。'
+    ? '此參考協定有尚未設定或無效的欄位。請逐步確認頻率、時間、極性與波形後再儲存與執行。'
     : '此副本會獨立儲存在「自訂／微調」，日後不受參考庫更新影響。';
   const baseName = proto ? (proto.name_zh || proto.name || '') : '';
   $('cpName').value = _cpEditTarget === 'copy' ? `${baseName}（微調）` : baseName;
@@ -2281,7 +2292,7 @@ function addCpStepRow(step, refEl, insertBefore) {
       <input type="number" class="form-input cp-freqa" placeholder="CH A" value="${escapeHtml(step.freq_a !== undefined && step.freq_a !== '' ? step.freq_a : '')}" min="0.1" max="999" step="any">
       <span class="cp-sep">/</span>
       <input type="number" class="form-input cp-freqb" placeholder="CH B" value="${escapeHtml(step.freq_b !== undefined && step.freq_b !== '' ? step.freq_b : '')}" min="0.1" max="999" step="any">
-      <input type="number" class="form-input cp-dur" placeholder="min" value="${escapeHtml(step.duration || 4)}" min="0" max="60" step="any">
+      <input type="number" class="form-input cp-dur" placeholder="min" value="${escapeHtml(step.duration == null ? '' : step.duration)}" min="0" max="60" step="any">
       <select class="form-input cp-polarity">
         <option value="" ${!step.polarity ? 'selected' : ''}>極性?</option>
         <option value="Alternating" ${step.polarity === 'Alternating' ? 'selected' : ''}>+/-</option>
@@ -3785,11 +3796,25 @@ function normalizeStep(s) {
     wave: s.w === 'S' ? 'Sharp' : (s.w === 'G' ? 'Gentle' : 'Medium')
   };
 }
+function stepDurationLabel(step) {
+  const minutes = Number(normalizeStep(step).duration);
+  return Number.isFinite(minutes) && minutes > 0 && minutes <= 60
+    ? minutes + 'm' : (LANG === 'zh' ? '時間待設定' : 'Time not set');
+}
+function protocolDurationLabel(protocol) {
+  const complete = Array.isArray(protocol.steps) && protocol.steps.length && protocol.steps.every(step => {
+    const minutes = Number(normalizeStep(step).duration);
+    return Number.isFinite(minutes) && minutes > 0 && minutes <= 60;
+  });
+  return complete ? totalProtocolMinutes(protocol) + ' min' : (LANG === 'zh' ? '時間待設定' : 'Time not set');
+}
 function protocolHasVerifiedSettings(protocol) {
   return !!(protocol && Array.isArray(protocol.steps) && protocol.steps.length &&
     protocol.steps.every(step => {
       const normalized = normalizeStep(step);
-      return !!(normalized.polarity && normalized.wave);
+      return isValidFrequency(normalized.freq_a) && isValidFrequency(normalized.freq_b) &&
+        Number.isFinite(Number(normalized.duration)) && Number(normalized.duration) > 0 && Number(normalized.duration) <= 60 &&
+        ['Alternating', 'Positive'].includes(normalized.polarity) && ['Medium', 'Gentle', 'Sharp'].includes(normalized.wave);
     }));
 }
 const PROTOCOL_NAME_CORRECTIONS = {
@@ -3958,7 +3983,6 @@ function renderProtocolList(filter) {
   const renderCard = p => {
     const nm = getProtocolName(p);
     const ind = getProtocolIndication(p);
-    const tot = totalProtocolMinutes(p);
     const cat = p.category || p.cat || '';
     const safeId = encodeURIComponent(String(p.id || ''));
     const safeName = escapeHtml(String(nm || ''));
@@ -3980,7 +4004,7 @@ function renderProtocolList(filter) {
         '<div class="step-num">' + (i+1) + '</div>' +
         '<div class="step-freq">' + escapeHtml(String(s.freq_a)) + '<span class="sep">/</span>' + escapeHtml(String(s.freq_b)) +
         '<span class="step-tags">' + settingTag + '</span></div>' +
-        '<div class="step-time">' + escapeHtml(String(s.duration)) + 'm</div></div>';
+        '<div class="step-time">' + escapeHtml(stepDurationLabel(s)) + '</div></div>';
     }).join('');
     let actionsHtml = '';
     if (!state.protocolMarkMode) {
@@ -4011,7 +4035,7 @@ function renderProtocolList(filter) {
       '<div class="protocol-name">' + safeName + personalBadge + ' <span class="protocol-cat">' + safeCategory + '</span></div>' +
       locationHtml +
       (ind ? '<div class="protocol-indication">' + safeIndication + '</div>' : '') +
-      '<div class="protocol-meta"><span>' + (p.steps || []).length + ' steps</span><span>· ' + tot + ' min</span></div>' +
+      '<div class="protocol-meta"><span>' + (p.steps || []).length + ' steps</span><span>· ' + escapeHtml(protocolDurationLabel(p)) + '</span></div>' +
       '<div class="steps-list">' + stepsHtml + '</div>' +
       actionsHtml + '</div>';
   };
@@ -4121,13 +4145,18 @@ function renderProtocolList(filter) {
   });
 }
 
+function protocolSettingsPendingMessage() {
+  return LANG === 'zh'
+    ? '此協定有尚未設定或無效的頻率、時間、極性或波形，目前不可直接執行。你可以先收藏，或建立微調副本並逐步確認、補齊後使用。'
+    : 'This protocol has missing or invalid frequencies, durations, polarity or waveform settings and cannot run yet. You can save it to favorites or create an adapted copy, then review and complete every step.';
+}
+
 function askLoadProtocol(p) {
-  const tot = totalProtocolMinutes(p);
   $('modalTitle').textContent = getProtocolName(p);
-  let body = t('modal_load_body').replace('{n}', p.steps.length).replace('{t}', tot + ' min');
+  let body = t('modal_load_body').replace('{n}', p.steps.length).replace('{t}', protocolDurationLabel(p));
   const hasUnverifiedSettings = !protocolHasVerifiedSettings(p);
   if (hasUnverifiedSettings) {
-    body = '<div class="warning-banner danger">此參考協定的 CH A、CH B、時間與交流極性已核對，但波形尚未設定，因此目前不可直接執行。你可以先收藏，或建立微調副本並逐步選定波形後使用。</div>';
+    body = '<div class="warning-banner danger">' + escapeHtml(protocolSettingsPendingMessage()) + '</div>';
   }
   const seen = new Set();
   for (const rawStep of p.steps) {
@@ -4202,16 +4231,57 @@ function showPairDrawer(freqA) {
   });
 }
 
+// Reference systems retain their own names even when their Hz values overlap A/B.
+function frequencyLibraryEntries(tab) {
+  if (tab === 'A') return CHANNEL_A || [];
+  if (tab === 'B') return CHANNEL_B || [];
+  const group = FREQUENCY_GROUPS && FREQUENCY_GROUPS[tab];
+  return group && Array.isArray(group.entries) ? group.entries : [];
+}
+function frequencyLibraryMatches(entry, filter, tab) {
+  filter = String(filter || '').toLowerCase().trim();
+  if (!filter) return true;
+  const zhMap = tab === 'A' ? FREQ_ZH_A : (tab === 'B' ? FREQ_ZH_B : {});
+  const text = [entry.name, entry.name_zh, zhMap[entry.freq], entry.note_zh, entry.note_en,
+    ...(Array.isArray(entry.aliases) ? entry.aliases : [])].join(' ').toLowerCase();
+  const frequencies = [entry.freq, entry.freq_a, entry.freq_b].filter(value => value != null);
+  const pair = entry.freq_a != null && entry.freq_b != null ? entry.freq_a + '/' + entry.freq_b : '';
+  return frequencies.some(value => String(value).startsWith(filter)) ||
+    (pair && pair.includes(filter.replace(/\s/g, ''))) || text.includes(filter);
+}
+function selectLibraryFrequency(freq, channel) {
+  if (!auth.isAuthed() || !['A', 'B'].includes(channel) || !isValidFrequency(freq)) return false;
+  state['freq' + channel] = Number(freq);
+  updateFreqDisplay();
+  switchToView('manual');
+  return true;
+}
+function selectLibraryFrequencyPair(groupKey, entryId) {
+  if (!auth.isAuthed()) return false;
+  const entry = frequencyLibraryEntries(groupKey).find(item => item.id === entryId);
+  if (!entry || !isValidFrequency(entry.freq_a) || !isValidFrequency(entry.freq_b)) return false;
+  state.freqA = Number(entry.freq_a);
+  state.freqB = Number(entry.freq_b);
+  updateFreqDisplay();
+  switchToView('manual');
+  return true;
+}
+function librarySourceMarkup(entry) {
+  if (!entry.source_label) return '';
+  const label = escapeHtml(entry.source_label);
+  const source = /^https?:\/\//i.test(String(entry.source_url || ''))
+    ? '<a href="' + escapeHtml(entry.source_url) + '" target="_blank" rel="noopener noreferrer">' + label + '</a>' : label;
+  return '<div class="lib-source">' + (LANG === 'zh' ? '來源：' : 'Source: ') + source + '</div>';
+}
+
 function renderLibraryView() {
-  // ── Category definitions ──────────────────────────────────────────────────
-  // Channel A = "what to target" (conditions, pathogens, substances)
+  // Channel A = conditions; Channel B = tissues, organs and systems.
   const CATS_A = [
     { key: 'inflam',    label: '消炎 / 代謝',  kw: ['inflam','acidity','alkalin','uric','calcium','copper','iron','metabol','mineral','bleeding','edema','swelling','secretion'] },
     { key: 'pathogen',  label: '病原體',        kw: ['bacteria','bacterial','staphylo','strep','coli','colisepsis','virus','viral','fungal','mycobact','lyme','pneumo','yeast','candida','parasit'] },
     { key: 'toxin',     label: '毒素 / 藥物',   kw: ['poison','morphine','cocaine','radium','x-ray','caffeine','metallic','toxin','alcohol','drug','remove','nicotine'] },
     { key: 'tissue',    label: '組織 / 修復',   kw: ['scar','torn','broken','sclerosis','keloid','adhesion','repair','paralysis','trauma','vitality','allerg','sensitiv'] },
   ];
-  // Channel B = "where to target" (tissues, organs, systems)
   const CATS_B = [
     { key: 'neuro',    label: '神經系統', kw: ['nerve','spinal','brain','medulla','limbic','forebrain','midbrain','neural','cord','gangli','plexus','myelin','dura','arachn','hypothal','cereb','pituitar'] },
     { key: 'musculo',  label: '肌肉 / 筋膜', kw: ['muscle','fascia','myofascial','connective','tendon','bursa','fibro','myelin'] },
@@ -4220,30 +4290,38 @@ function renderLibraryView() {
     { key: 'organ',    label: '器官 / 內臟', kw: ['liver','kidney','lung','heart','stomach','intestine','colon','bladder','organ','pancrea','adrenal','thyroid','prostat','uterus','ovary','spleen','gallblad','bronch','respirat','sinus','trachea','esophag','duoden','ileocec'] },
     { key: 'immune',   label: '免疫 / 皮膚', kw: ['immune','skin','mucous','membrane','epitheli','dermis','mucosa','tonsil','thymus'] },
   ];
-
+  const referenceTabs = ['chakra', 'solfeggio', 'energy_pairs'].map(key => {
+    const group = FREQUENCY_GROUPS && FREQUENCY_GROUPS[key];
+    const fallback = key === 'chakra' ? (LANG === 'zh' ? '脈輪' : 'Chakras')
+      : (key === 'energy_pairs' ? (LANG === 'zh' ? '能量配對' : 'Energy pairs') : 'Solfeggio');
+    const title = group && (group['title_' + LANG] || group.title_zh || group.title_en) || fallback;
+    return '<button class="libtab" data-libtab="' + key + '">' + escapeHtml(title) + ' · ' + frequencyLibraryEntries(key).length + '</button>';
+  }).join('');
   $('view-library').innerHTML = `
     <div class="search-bar">
       <input type="text" class="search-input" id="librarySearch" placeholder="${t('search_library')}">
     </div>
     <div class="libtabs">
-      <button class="libtab active" data-libtab="A">CHANNEL A · ${CHANNEL_A ? CHANNEL_A.length : 0}</button>
-      <button class="libtab" data-libtab="B">CHANNEL B · ${CHANNEL_B ? CHANNEL_B.length : 0}</button>
+      <button class="libtab active" data-libtab="A">CHANNEL A · ${frequencyLibraryEntries('A').length}</button>
+      <button class="libtab" data-libtab="B">CHANNEL B · ${frequencyLibraryEntries('B').length}</button>
+      ${referenceTabs}
     </div>
+    <div id="libraryGroupNote" class="warning-banner info lib-group-note" hidden></div>
     <div id="libCatChips" class="cat-chips"></div>
     <div id="libraryList"></div>
   `;
 
   let libTab = 'A';
   let activeCat = null;
-
-  function getCats() { return libTab === 'A' ? CATS_A : CATS_B; }
-
+  function getCats() { return libTab === 'A' ? CATS_A : (libTab === 'B' ? CATS_B : []); }
   function renderCatChips() {
     const cats = getCats();
-    $('libCatChips').innerHTML =
-      '<button class="cat-chip' + (!activeCat ? ' active' : '') + '" data-cat="">全部</button>' +
-      cats.map(c => '<button class="cat-chip' + (activeCat === c.key ? ' active' : '') + '" data-cat="' + c.key + '">' + c.label + '</button>').join('');
-    document.querySelectorAll('.cat-chip').forEach(chip => {
+    const chipContainer = $('libCatChips');
+    chipContainer.hidden = !cats.length;
+    chipContainer.innerHTML = cats.length
+      ? '<button class="cat-chip' + (!activeCat ? ' active' : '') + '" data-cat="">' + (LANG === 'zh' ? '全部' : 'All') + '</button>' +
+        cats.map(c => '<button class="cat-chip' + (activeCat === c.key ? ' active' : '') + '" data-cat="' + c.key + '">' + c.label + '</button>').join('') : '';
+    chipContainer.querySelectorAll('.cat-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         activeCat = chip.getAttribute('data-cat') || null;
         renderCatChips();
@@ -4251,56 +4329,70 @@ function renderLibraryView() {
       });
     });
   }
-
   function render(filter) {
-    filter = (filter || '').toLowerCase().trim();
-    const list = libTab === 'A' ? CHANNEL_A : CHANNEL_B;
-    if (!list) return;
-    const cats = getCats();
-    const catDef = activeCat ? cats.find(c => c.key === activeCat) : null;
-    const items = list.filter(x => {
-      const nameL = x.name.toLowerCase();
-      const matchFilter = !filter || String(x.freq).startsWith(filter) || nameL.includes(filter);
-      const matchCat = !catDef || catDef.kw.some(kw => nameL.includes(kw));
-      return matchFilter && matchCat;
-    });
-    const zhMap = libTab === 'A' ? FREQ_ZH_A : FREQ_ZH_B;
-    $('libraryList').innerHTML =
-      '<div class="lib-count">' + items.length + ' 個頻率' + (activeCat ? '（已篩選）' : '') + '</div>' +
-      items.map(x => {
-        const zh = zhMap[x.freq] ? '<div class="lib-name-zh">' + zhMap[x.freq] + '</div>' : '';
-        return '<div class="lib-row" data-freq="' + x.freq + '" data-ch="' + libTab + '">' +
-          '<div class="lib-freq">' + x.freq + '</div>' +
-          '<div><div class="lib-name">' + x.name + '</div>' + zh + '</div></div>';
-      }).join('');
-    document.querySelectorAll('.lib-row').forEach(row => {
-      row.addEventListener('click', () => {
-        const f = parseFloat(row.getAttribute('data-freq'));
-        const ch = row.getAttribute('data-ch');
-        if (ch === 'B') {
-          state.freqB = f; updateFreqDisplay(); switchToView('manual'); return;
+    const reference = libTab !== 'A' && libTab !== 'B';
+    const group = reference && FREQUENCY_GROUPS && FREQUENCY_GROUPS[libTab];
+    const note = $('libraryGroupNote');
+    note.hidden = !reference;
+    note.textContent = reference ? ((group && (group['note_' + LANG] || group.note_zh || group.note_en)) ||
+      (LANG === 'zh' ? '此頻率組暫時無法載入。' : 'This frequency group is unavailable.')) : '';
+    const catDef = activeCat ? getCats().find(c => c.key === activeCat) : null;
+    const items = frequencyLibraryEntries(libTab).filter(entry => frequencyLibraryMatches(entry, filter, libTab) &&
+      (!catDef || catDef.kw.some(kw => String(entry.name).toLowerCase().includes(kw))));
+    const zhMap = libTab === 'A' ? FREQ_ZH_A : (libTab === 'B' ? FREQ_ZH_B : {});
+    $('libraryList').innerHTML = '<div class="lib-count">' + items.length + (LANG === 'zh' ? ' 個頻率' : ' frequencies') +
+      (activeCat ? (LANG === 'zh' ? '（已篩選）' : ' (filtered)') : '') + '</div>' + items.map(entry => {
+        const zh = entry.name_zh || zhMap[entry.freq];
+        const names = '<div class="lib-name">' + escapeHtml(entry.name) + '</div>' +
+          (zh ? '<div class="lib-name-zh">' + escapeHtml(zh) + '</div>' : '');
+        if (reference) {
+          const entryNote = entry['note_' + LANG] || entry.note_zh || entry.note_en;
+          const useLabel = LANG === 'zh' ? '帶入 ' : 'Set ';
+          const paired = entry.freq_a != null && entry.freq_b != null;
+          if (paired) {
+            const pairLabel = entry.freq_a + ' / ' + entry.freq_b;
+            return '<div class="lib-row lib-reference-row lib-pair-row"><div class="lib-freq">' + escapeHtml(pairLabel) + '<small> Hz</small></div><div>' + names +
+              (entryNote ? '<div class="lib-reference-note">' + escapeHtml(entryNote) + '</div>' : '') + librarySourceMarkup(entry) +
+              '<div class="lib-actions"><button type="button" class="btn-secondary library-use-pair" data-group="' + escapeHtml(libTab) + '" data-entry-id="' + escapeHtml(entry.id) + '" aria-label="' + escapeHtml(useLabel + 'A / B: ' + pairLabel + ' Hz · ' + (LANG === 'zh' && zh ? zh : entry.name)) + '">' + useLabel + 'A / B</button></div></div></div>';
+          }
+          return '<div class="lib-row lib-reference-row"><div class="lib-freq">' + escapeHtml(entry.freq) + '<small> Hz</small></div><div>' + names +
+            (entryNote ? '<div class="lib-reference-note">' + escapeHtml(entryNote) + '</div>' : '') + librarySourceMarkup(entry) +
+            '<div class="lib-actions">' + ['A', 'B'].map(channel => '<button type="button" class="btn-secondary library-use-frequency" data-frequency="' + escapeHtml(entry.freq) + '" data-channel="' + channel + '" aria-label="' + escapeHtml(useLabel + 'CHANNEL ' + channel + ': ' + entry.freq + ' Hz · ' + (LANG === 'zh' && zh ? zh : entry.name)) + '">' + useLabel + 'CH ' + channel + '</button>').join('') + '</div></div></div>';
         }
-        // Channel A: show pairing drawer
-        state.freqA = f; updateFreqDisplay();
-        document.querySelectorAll('.lib-row').forEach(r => r.classList.remove('selected'));
+        return '<div class="lib-row" data-freq="' + escapeHtml(entry.freq) + '" data-ch="' + libTab + '">' +
+          '<div class="lib-freq">' + escapeHtml(entry.freq) + '</div><div>' + names + '</div></div>';
+      }).join('');
+    $('libraryList').querySelectorAll('.library-use-frequency').forEach(button => {
+      button.addEventListener('click', () => selectLibraryFrequency(Number(button.getAttribute('data-frequency')), button.getAttribute('data-channel')));
+    });
+    $('libraryList').querySelectorAll('.library-use-pair').forEach(button => {
+      button.addEventListener('click', () => selectLibraryFrequencyPair(button.getAttribute('data-group'), button.getAttribute('data-entry-id')));
+    });
+    $('libraryList').querySelectorAll('.lib-row[data-ch]').forEach(row => {
+      row.addEventListener('click', () => {
+        const frequency = parseFloat(row.getAttribute('data-freq'));
+        if (row.getAttribute('data-ch') === 'B') {
+          state.freqB = frequency; updateFreqDisplay(); switchToView('manual'); return;
+        }
+        state.freqA = frequency; updateFreqDisplay();
+        $('libraryList').querySelectorAll('.lib-row').forEach(item => item.classList.remove('selected'));
         row.classList.add('selected');
-        showPairDrawer(f);
+        showPairDrawer(frequency);
       });
     });
   }
-
-  document.querySelectorAll('.libtab').forEach(tab => {
+  $('view-library').querySelectorAll('.libtab').forEach(tab => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.libtab').forEach(t => t.classList.remove('active'));
+      $('view-library').querySelectorAll('.libtab').forEach(item => item.classList.remove('active'));
       tab.classList.add('active');
       libTab = tab.getAttribute('data-libtab');
       activeCat = null;
-      const pd = $('pairDrawer'); if (pd) pd.remove();
+      const drawer = $('pairDrawer'); if (drawer) drawer.remove();
       renderCatChips();
       render($('librarySearch').value);
     });
   });
-  $('librarySearch').addEventListener('input', e => render(e.target.value));
+  $('librarySearch').addEventListener('input', event => render(event.target.value));
   renderCatChips();
   render('');
 }
@@ -5707,23 +5799,22 @@ function generateProtocolHTML(p) {
   const L = LANG === 'zh' ? { title: 'FSM 治療協定', name: '協定名稱', category: '類別', indication: '適應症', total: '總時長', steps: '治療步驟', step: '步驟', freq: '頻率 (A / B)', polarity: '極性', wave: '波形', duration: '時長', tissue: '組織', warnings: '注意事項', hardware: '硬體建議', hwb: '本工具顯示音訊增益，控制數位音訊振幅；未量測或校準硬體實際電流，增益數值不可視為 μA。', footer: '由 FSM Studio 生成' }
     : { title: 'FSM Treatment Protocol', name: 'Protocol', category: 'Category', indication: 'Indication', total: 'Total duration', steps: 'Treatment steps', step: 'Step', freq: 'Freq (A / B)', polarity: 'Polarity', wave: 'Wave', duration: 'Dur.', tissue: 'Tissues', warnings: 'Precautions', hardware: 'Hardware', hwb: 'Audio gain controls digital amplitude. Hardware current is not measured or calibrated; gain values do not represent μA.', footer: 'Generated by FSM Studio' };
   const nm = getProtocolName(p); const ind = getProtocolIndication(p);
-  const cat = p.category || p.cat || ''; const tot = totalProtocolMinutes(p);
+  const cat = p.category || p.cat || '';
   const warnings = new Set();
   const rows = p.steps.map((rs, i) => {
     const s = normalizeStep(rs);
     if (s.freq_a === 13 || s.freq_b === 13) warnings.add('13');
     if (s.freq_a === 79 || s.freq_b === 79) warnings.add('79');
     if (s.polarity === 'Positive') warnings.add('pol');
-    const setting = s.polarity && s.wave
-      ? `<td>${s.polarity==='Positive'?'+→':'+/-'}</td><td>${escapeHtml(s.wave)}</td>`
-      : (s.polarity
-          ? `<td>+/-</td><td>待設定</td>`
-          : `<td colspan="2">${escapeHtml(String(rs.observed_marker || '?'))} · 待設定</td>`);
-    return `<tr><td>${i+1}</td><td><span class="badge">${escapeHtml(s.freq_a)} / ${escapeHtml(s.freq_b)}</span></td>${setting}<td>${escapeHtml(s.duration)} min</td><td style="font-size:10px;color:#666">${escapeHtml(FREQ_A_MAP[s.freq_a]||'')} / ${escapeHtml(FREQ_B_MAP[s.freq_b]||'')}</td></tr>`;
+    const pending = LANG === 'zh' ? '待設定' : 'Not set';
+    const polarityLabel = s.polarity === 'Positive' ? '+→' : (s.polarity === 'Alternating' ? '+/-' : (rs.observed_marker ? rs.observed_marker + ' · ' : '') + pending);
+    const waveLabel = ['Medium', 'Gentle', 'Sharp'].includes(s.wave) ? s.wave : pending;
+    const setting = `<td>${escapeHtml(polarityLabel)}</td><td>${escapeHtml(waveLabel)}</td>`;
+    return `<tr><td>${i+1}</td><td><span class="badge">${escapeHtml(s.freq_a)} / ${escapeHtml(s.freq_b)}</span></td>${setting}<td>${escapeHtml(stepDurationLabel(s))}</td><td style="font-size:10px;color:#666">${escapeHtml(FREQ_A_MAP[s.freq_a]||'')} / ${escapeHtml(FREQ_B_MAP[s.freq_b]||'')}</td></tr>`;
   }).join('');
-  let warnHtml = '';
+  let warnHtml = protocolHasVerifiedSettings(p) ? '' : `<div class="warning">${escapeHtml(protocolSettingsPendingMessage())}</div>`;
   if (warnings.size > 0) {
-    warnHtml = `<h2>${L.warnings}</h2>`;
+    warnHtml += `<h2>${L.warnings}</h2>`;
     if (warnings.has('13')) warnHtml += `<div class="warning">${t('warn_13_scar')}</div>`;
     if (warnings.has('79')) warnHtml += `<div class="warning">${t('warn_79_dvt')}</div>`;
     if (warnings.has('pol')) warnHtml += `<div class="warning">${t('warn_pol_stenosis')}</div>`;
@@ -5733,7 +5824,7 @@ function generateProtocolHTML(p) {
 <div class="field"><span class="field-label">${L.name}:</span> ${escapeHtml(nm)}</div>
 <div class="field"><span class="field-label">${L.category}:</span> ${escapeHtml(cat)}</div>
 ${ind ? `<div class="field"><span class="field-label">${L.indication}:</span> ${escapeHtml(ind)}</div>` : ''}
-<div class="field"><span class="field-label">${L.total}:</span> ${tot} min · ${p.steps.length} steps</div>
+<div class="field"><span class="field-label">${L.total}:</span> ${escapeHtml(protocolDurationLabel(p))} · ${p.steps.length} steps</div>
 ${warnHtml}
 <h2>${L.steps}</h2><table><thead><tr><th>${L.step}</th><th>${L.freq}</th><th>${L.polarity}</th><th>${L.wave}</th><th>${L.duration}</th><th>${L.tissue}</th></tr></thead><tbody>${rows}</tbody></table>
 <h2>${L.hardware}</h2><div style="font-size:12px">${L.hwb}</div>

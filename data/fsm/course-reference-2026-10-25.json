@@ -1,0 +1,312 @@
+[
+  {
+    "source": "Reference",
+    "source_path": "Course photographs · 2026-10-25",
+    "folder": "",
+    "protocol_group": "",
+    "verified": true,
+    "verification_status": "photo_frequencies_user_confirmed_settings",
+    "source_total_duration_minutes": null,
+    "duration_checksum": "user_configured_not_photo_total",
+    "_ref": true,
+    "id": "course_20261025_diaphragm_tension",
+    "name": "Diaphragm tension — course reference",
+    "name_zh": "橫膈張力放鬆（課程參考）",
+    "name_en": "Diaphragm tension release (course reference)",
+    "category": "呼吸、耳鼻喉與循環",
+    "indication_zh": "依橫膈張力投影片整理：40、284／84、87；13、91、217、51／84、87（原投影片註記配合活動）；124／100、62、46；49／33。這是課程配對記錄，未驗證個別療效；每步 4 分鐘、Medium、交流 +/- 由使用者指定，原圖片未列這些設定。",
+    "indication_en": "Course frequency pairs for diaphragm tension: 40,284/84,87; 13,91,217,51/84,87 (slide notes movement); 124/100,62,46; 49/33. These are course references, not validated individual outcomes. The user specified four minutes per step, Medium and Alternating (+/-); these settings are absent from the photo.",
+    "source_files": [
+      "IMG_3884.HEIC",
+      "IMG_3885.HEIC"
+    ],
+    "source_notes_zh": "只轉錄可辨識配對。投影片右欄「Treat target organ」未指定目標器官 B 值，未納入固定步驟。",
+    "steps": [
+      {
+        "freq_a": 40,
+        "freq_b": 84,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "diaphragm_pleura",
+        "note_zh": "課程標示：橫膈膜／胸膜的發炎反應。"
+      },
+      {
+        "freq_a": 40,
+        "freq_b": 87,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "diaphragm_pleura",
+        "note_zh": "課程標示：橫膈膜／胸膜的發炎反應。"
+      },
+      {
+        "freq_a": 284,
+        "freq_b": 84,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "diaphragm_pleura",
+        "note_zh": "課程標示：橫膈膜／胸膜的發炎反應。"
+      },
+      {
+        "freq_a": 284,
+        "freq_b": 87,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "diaphragm_pleura",
+        "note_zh": "課程標示：橫膈膜／胸膜的發炎反應。"
+      },
+      {
+        "freq_a": 13,
+        "freq_b": 84,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "diaphragm_mobility",
+        "note_zh": "原投影片註記 with motion；課程標示疤痕／沾黏處理。"
+      },
+      {
+        "freq_a": 13,
+        "freq_b": 87,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "diaphragm_mobility",
+        "note_zh": "原投影片註記 with motion；課程標示疤痕／沾黏處理。"
+      },
+      {
+        "freq_a": 91,
+        "freq_b": 84,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "diaphragm_mobility",
+        "note_zh": "原投影片註記 with motion；課程標示疤痕／沾黏處理。"
+      },
+      {
+        "freq_a": 91,
+        "freq_b": 87,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "diaphragm_mobility",
+        "note_zh": "原投影片註記 with motion；課程標示疤痕／沾黏處理。"
+      },
+      {
+        "freq_a": 217,
+        "freq_b": 84,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "diaphragm_mobility",
+        "note_zh": "原投影片註記 with motion；課程標示疤痕／沾黏處理。"
+      },
+      {
+        "freq_a": 217,
+        "freq_b": 87,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "diaphragm_mobility",
+        "note_zh": "原投影片註記 with motion；課程標示疤痕／沾黏處理。"
+      },
+      {
+        "freq_a": 51,
+        "freq_b": 84,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "diaphragm_mobility",
+        "note_zh": "原投影片註記 with motion；課程標示疤痕／沾黏處理。"
+      },
+      {
+        "freq_a": 51,
+        "freq_b": 87,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "diaphragm_mobility",
+        "note_zh": "原投影片註記 with motion；課程標示疤痕／沾黏處理。"
+      },
+      {
+        "freq_a": 124,
+        "freq_b": 100,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "supporting_tissues",
+        "note_zh": "課程標示弓狀韌帶、動脈與肌肉的撕裂修復。"
+      },
+      {
+        "freq_a": 124,
+        "freq_b": 62,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "supporting_tissues",
+        "note_zh": "課程標示弓狀韌帶、動脈與肌肉的撕裂修復。"
+      },
+      {
+        "freq_a": 124,
+        "freq_b": 46,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "supporting_tissues",
+        "note_zh": "課程標示弓狀韌帶、動脈與肌肉的撕裂修復。"
+      },
+      {
+        "freq_a": 49,
+        "freq_b": 33,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "circulation",
+        "note_zh": "原投影片標示 circulation rejuvenate；此處僅記錄來源用語。"
+      }
+    ],
+    "settings_source": "user_confirmed_2026-10-25",
+    "settings_note_zh": "每步 4 分鐘、Medium、交流 +/- 由使用者指定；原投影片未標示這些設定。",
+    "settings_note_en": "The user specified four minutes per step, Medium and Alternating (+/-); these settings are not stated in the source slides.",
+    "total_duration_minutes": 64
+  },
+  {
+    "source": "Reference",
+    "source_path": "Course photographs · 2026-10-25",
+    "folder": "",
+    "protocol_group": "",
+    "verified": true,
+    "verification_status": "photo_frequencies_user_confirmed_settings",
+    "source_total_duration_minutes": null,
+    "duration_checksum": "user_configured_not_photo_total",
+    "_ref": true,
+    "id": "course_20261025_post_visceral_autonomic",
+    "name": "Autonomic follow-up after visceral tension — course reference",
+    "name_zh": "內臟張力處理後：自律神經（課程參考）",
+    "name_en": "Autonomic follow-up after visceral tension (course reference)",
+    "category": "腦與自律神經",
+    "indication_zh": "用於記錄內臟張力處理後的神經／交感神經課程配對：40、284／396、562，再以 13、91、217、51／396、562（原投影片註記配合活動）。依課程流程，先評估胸腰椎旋轉、橫膈前後張力與腰大肌／股直肌／闊筋膜張肌，完成橫膈與個別目標器官處理後再進入本組，並重新評估。每步 4 分鐘、Medium、交流 +/- 由使用者指定，原圖片未列這些設定；配對記錄不代表療效已驗證。",
+    "indication_en": "Course pairs for nerve/sympathetic follow-up after visceral tension work: 40,284/396,562, followed by 13,91,217,51/396,562 (slide notes movement). The course sequence assesses thoracic/lumbar rotation, anterior/posterior diaphragm tension and psoas/rectus femoris/TFL, addresses the diaphragm and individual target organ, then reassesses after this block. The user specified four minutes per step, Medium and Alternating (+/-); these settings are absent from the photo. Pair transcription does not validate clinical outcomes.",
+    "source_files": [
+      "IMG_3883.HEIC",
+      "IMG_3885.HEIC"
+    ],
+    "source_notes_zh": "只納入神經／交感神經的可辨識配對。18／62、162 是投影片另列的止血段，不自動套用於本自律神經組；49／39…尾數及右欄部分被遮擋，未補猜；「Treat target organ」未列器官 B 值，保留由個案決定。",
+    "steps": [
+      {
+        "freq_a": 40,
+        "freq_b": 396,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "nerve_sympathetic",
+        "note_zh": "課程標示：神經與交感神經鏈的發炎訊號。"
+      },
+      {
+        "freq_a": 40,
+        "freq_b": 562,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "nerve_sympathetic",
+        "note_zh": "課程標示：神經與交感神經鏈的發炎訊號。"
+      },
+      {
+        "freq_a": 284,
+        "freq_b": 396,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "nerve_sympathetic",
+        "note_zh": "課程標示：神經與交感神經鏈的發炎訊號。"
+      },
+      {
+        "freq_a": 284,
+        "freq_b": 562,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "nerve_sympathetic",
+        "note_zh": "課程標示：神經與交感神經鏈的發炎訊號。"
+      },
+      {
+        "freq_a": 13,
+        "freq_b": 396,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "nerve_mobility",
+        "note_zh": "原投影片註記 with motion，課程描述為 sympathetic sprouting；此處只記錄可辨識配對。"
+      },
+      {
+        "freq_a": 13,
+        "freq_b": 562,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "nerve_mobility",
+        "note_zh": "原投影片註記 with motion，課程描述為 sympathetic sprouting；此處只記錄可辨識配對。"
+      },
+      {
+        "freq_a": 91,
+        "freq_b": 396,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "nerve_mobility",
+        "note_zh": "原投影片註記 with motion，課程描述為 sympathetic sprouting；此處只記錄可辨識配對。"
+      },
+      {
+        "freq_a": 91,
+        "freq_b": 562,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "nerve_mobility",
+        "note_zh": "原投影片註記 with motion，課程描述為 sympathetic sprouting；此處只記錄可辨識配對。"
+      },
+      {
+        "freq_a": 217,
+        "freq_b": 396,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "nerve_mobility",
+        "note_zh": "原投影片註記 with motion，課程描述為 sympathetic sprouting；此處只記錄可辨識配對。"
+      },
+      {
+        "freq_a": 217,
+        "freq_b": 562,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "nerve_mobility",
+        "note_zh": "原投影片註記 with motion，課程描述為 sympathetic sprouting；此處只記錄可辨識配對。"
+      },
+      {
+        "freq_a": 51,
+        "freq_b": 396,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "nerve_mobility",
+        "note_zh": "原投影片註記 with motion，課程描述為 sympathetic sprouting；此處只記錄可辨識配對。"
+      },
+      {
+        "freq_a": 51,
+        "freq_b": 562,
+        "duration": 4,
+        "polarity": "Alternating",
+        "wave": "Medium",
+        "phase": "nerve_mobility",
+        "note_zh": "原投影片註記 with motion，課程描述為 sympathetic sprouting；此處只記錄可辨識配對。"
+      }
+    ],
+    "settings_source": "user_confirmed_2026-10-25",
+    "settings_note_zh": "每步 4 分鐘、Medium、交流 +/- 由使用者指定；原投影片未標示這些設定。",
+    "settings_note_en": "The user specified four minutes per step, Medium and Alternating (+/-); these settings are not stated in the source slides.",
+    "total_duration_minutes": 48
+  }
+]
