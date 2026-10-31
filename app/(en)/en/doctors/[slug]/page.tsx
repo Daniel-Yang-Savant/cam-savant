@@ -105,7 +105,13 @@ export default async function EnglishDoctorPage({ params }: Props) {
         {author.bioEn && (
           <section className="mt-8 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 p-7 sm:p-9">
             <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">Professional Profile</h2>
-            <p className="mt-4 text-sm sm:text-base leading-7 text-neutral-600 dark:text-neutral-300">{author.bioEn}</p>
+            <div className="mt-4 space-y-4">
+              {author.bioEn.split(/\n\s*\n/).map((paragraph) => (
+                <p key={paragraph} className="text-sm sm:text-base leading-7 text-neutral-600 dark:text-neutral-300">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
           </section>
         )}
 
