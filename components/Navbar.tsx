@@ -12,6 +12,7 @@ import { ENGLISH_PERIOP_SLUGS } from '@/lib/locales'
 
 type NavbarProps = {
   locale?: Lang
+  homeHasHeading?: boolean
 }
 
 function englishAlternatePath(pathname: string): string {
@@ -31,7 +32,7 @@ function englishAlternatePath(pathname: string): string {
   return '/en'
 }
 
-export default function Navbar({ locale = 'zh' }: NavbarProps) {
+export default function Navbar({ locale = 'zh', homeHasHeading = false }: NavbarProps) {
   const pathname = usePathname()
   const currentPath = pathname ?? (locale === 'en' ? '/en' : '/')
   const [open, setOpen] = useState(false)
@@ -128,7 +129,7 @@ export default function Navbar({ locale = 'zh' }: NavbarProps) {
         <div className="flex items-center justify-between gap-3 h-16">
 
           {/* Logo */}
-          {currentPath === (isEnglish ? '/en' : '/') ? (
+          {currentPath === (isEnglish ? '/en' : '/') && !(homeHasHeading && !isEnglish) ? (
             <h1 className="shrink-0">
               <Link
                 href={isEnglish ? '/en' : '/'}

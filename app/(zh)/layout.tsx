@@ -5,6 +5,8 @@ import '../globals.css'
 import PrivacyAnalytics from '@/components/PrivacyAnalytics'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import FooterForRoute from '@/components/FooterForRoute'
+import HomeFooter from '@/components/HomeFooter'
 import FloatingChatButton from '@/components/FloatingChatButton'
 import BackToTop from '@/components/BackToTop'
 import AdminPeriopQrButton from '@/components/AdminPeriopQrButton'
@@ -88,9 +90,11 @@ export default function RootLayout({
   }
 ` }} />
         <AdminSessionProvider>
-          <Navbar locale="zh" />
+          <Navbar locale="zh" homeHasHeading />
           <main className="flex-1">{children}</main>
-          <Footer locale="zh" />
+          <FooterForRoute home={<HomeFooter />}>
+            <Footer locale="zh" />
+          </FooterForRoute>
           <FloatingChatButton locale="zh" />
           <AdminPeriopQrButton />
           <BackToTop locale="zh" />
