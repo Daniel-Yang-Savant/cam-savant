@@ -14,7 +14,7 @@ export interface RelatedArticleCandidate {
 
 // These describe the collection or article format rather than its clinical topic.
 const GENERIC_TAGS = new Set([
-  '運動醫學', '復健醫學', '功能醫學', '每週論文精選', 'FSM',
+  '運動醫學', '復健醫學', '功能醫學', '每月論文精選', 'FSM',
   '實證醫學', '文獻回顧', '物理治療', '傷害預防', '運動傷害',
   '訓練', '保守治療', '運動治療', '居家運動',
 ])

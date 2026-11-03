@@ -20,14 +20,16 @@ const TAG_ALIASES: Record<string, string> = {
   頻率共振微電流: 'FSM',
   頻率特異性微電流: 'FSM',
   微電流治療: 'FSM',
-  每週運動醫學論文精選: '每週論文精選',
+  每週運動醫學論文精選: '每月論文精選',
+  每週論文精選: '每月論文精選',
+  每月運動醫學論文精選: '每月論文精選',
 }
 
 const TAG_LANDING_PAGES: Record<string, string> = {
   運動醫學: '/sports-medicine',
   復健醫學: '/rehabilitation-medicine',
   功能醫學: '/functional-medicine',
-  每週論文精選: '/weekly-picks',
+  每月論文精選: '/weekly-picks',
   FSM: '/fsm',
 }
 

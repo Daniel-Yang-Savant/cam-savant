@@ -15,7 +15,7 @@ export default function Footer({ locale = 'zh' }: { locale?: Lang }) {
         ['/sports-medicine', '運動醫學'],
         ['/rehabilitation-medicine', '復健醫學'],
         ['/functional-medicine', '功能醫學'],
-        ['/weekly-picks', '每週論文精選'],
+        ['/weekly-picks', '每月論文精選'],
         ['/fsm', 'FSM'],
       ]
   const siteLinks = isEnglish
