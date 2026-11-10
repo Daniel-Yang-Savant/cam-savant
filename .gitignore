@@ -9,6 +9,10 @@
 /.seo-audit/
 /out/
 
+# ── Browser tests ──────────────────────────────────────────
+/playwright-report/
+/test-results/
+
 # ── Production build ───────────────────────────────────────
 /build
 

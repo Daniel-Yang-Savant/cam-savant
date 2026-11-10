@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test:e2e": "playwright test",
+    "storybook": "storybook dev --host 127.0.0.1 --port 6006 --no-open --disable-telemetry",
+    "build-storybook": "storybook build --output-dir out/storybook --disable-telemetry",
     "test:sw": "node --test tests/service-worker.test.mjs",
     "test:periop": "node --import tsx --test scripts/periop-auth.test.ts",
     "test:fsm": "node --test tests/fsm-*.test.mjs",
@@ -59,6 +62,8 @@
     "unified": "11.0.5"
   },
   "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "@storybook/react-vite": "10.6.6",
     "@tailwindcss/typography": "^0.5.13",
     "@types/node": "^20.19.37",
     "@types/node-fetch": "^2.6.11",
@@ -69,11 +74,13 @@
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.4.3",
     "postcss": "^8.5.25",
+    "storybook": "10.6.6",
     "tailwindcss": "^3.4.4",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "htmlparser2": "8.0.2"
+    "htmlparser2": "8.0.2",
+    "vite": "8.3.7"
   },
   "overrides": {
     "form-data": "4.0.6",

@@ -110,6 +110,22 @@ cam-savant/
 
 ---
 
+## 圖解元件預覽
+
+執行 `npm run storybook` 後，開啟 `http://127.0.0.1:6006`，從「圖解」選擇多張圖解、單張圖解或圖片載入失敗。可用工具列的手機尺寸檢查窄螢幕排版。
+
+執行 `npm run build-storybook` 可將預覽建置到 `out/storybook`。
+
+---
+
+## 圖解瀏覽器測試
+
+首次安裝依賴後，執行 `npx playwright install chromium --only-shell` 安裝測試瀏覽器。之後可用 `npm run test:e2e` 重跑。
+
+測試會自行建置並在 `localhost:3199` 啟動網站，檢查桌面鍵盤換圖與焦點還原、手機滑動與放大拖曳，以及術後圖解的存取驗證與圖說切換。術後測試使用合成憑證。
+
+---
+
 ## 部署到 Vercel
 
 1. 將專案推送到 GitHub（公開或私有倉庫均可）
