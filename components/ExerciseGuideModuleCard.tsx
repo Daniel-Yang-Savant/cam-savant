@@ -2,8 +2,9 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useAdminSession } from '@/components/AdminSessionProvider'
+import ExerciseImageGallery from '@/components/ExerciseImageGallery'
 import RelaxationGuideContent from '@/components/RelaxationGuideContent'
 import {
   getExerciseGuideFollowUp,
@@ -95,19 +96,6 @@ function ConditionGuideContent({ guide, asPage = false }: ExerciseGuideModuleCar
   const pendingReview = guide.reviewStatus === 'pending'
   const { authenticated: isAdmin } = useAdminSession()
   const [showAllSteps, setShowAllSteps] = useState(false)
-  const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(null)
-  const imageDialogRef = useRef<HTMLDialogElement>(null)
-
-  useEffect(() => {
-    const dialog = imageDialogRef.current
-    if (!dialog) return
-
-    if (expandedImageIndex !== null && !dialog.open) {
-      dialog.showModal()
-    } else if (expandedImageIndex === null && dialog.open) {
-      dialog.close()
-    }
-  }, [expandedImageIndex])
 
   return (
     <section
@@ -148,7 +136,9 @@ function ConditionGuideContent({ guide, asPage = false }: ExerciseGuideModuleCar
           )}
         </div>
 
-        <ol
+        <ExerciseImageGallery
+          as="ol"
+          images={guide.images}
           className={`ExerciseGuideStepList mt-8 gap-3 rounded-3xl border p-3 ${theme.surface} ${theme.border} ${
             !hasMultipleSteps || showAllSteps
               ? 'grid grid-cols-1 overflow-visible pb-3'
@@ -172,9 +162,9 @@ function ConditionGuideContent({ guide, asPage = false }: ExerciseGuideModuleCar
                   : 'w-[74vw] max-w-[360px] shrink-0 snap-center'
               } overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-neutral-900 md:w-auto md:max-w-none`}
             >
-              <button
-                type="button"
-                onClick={() => setExpandedImageIndex(imageIndex)}
+              <a
+                href={image.src}
+                data-gallery-index={imageIndex}
                 aria-haspopup="dialog"
                 aria-label={`放大查看：${image.alt}`}
                 className="group/image relative block w-full cursor-zoom-in overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-500"
@@ -203,14 +193,14 @@ function ConditionGuideContent({ guide, asPage = false }: ExerciseGuideModuleCar
                     <span className="absolute bottom-3 right-3 inline-flex size-7 items-center justify-center rounded-full bg-black/75 text-xs font-bold text-white shadow-sm">4</span>
                   </span>
                 )}
-                <span className={`absolute rounded-full bg-black/70 px-3 py-1.5 text-xs font-semibold text-white shadow-sm ${
+                <span className={`ExerciseGuidePrintHide absolute rounded-full bg-black/70 px-3 py-1.5 text-xs font-semibold text-white shadow-sm ${
                   hasMultipleSteps
                     ? 'bottom-3 right-3'
                     : 'bottom-3 left-1/2 -translate-x-1/2'
                 }`}>
                   點圖放大
                 </span>
-              </button>
+              </a>
               <div className="p-4">
                 <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${theme.badge}`}>
                   {image.step}
@@ -227,7 +217,7 @@ function ConditionGuideContent({ guide, asPage = false }: ExerciseGuideModuleCar
               </div>
             </li>
           ))}
-        </ol>
+        </ExerciseImageGallery>
         <div className="ExerciseGuidePrintHide mt-3 flex flex-wrap items-center justify-center gap-2 text-xs md:justify-between">
           {hasMultipleSteps && (
             <p className="text-neutral-500 dark:text-neutral-400 md:hidden">
@@ -256,41 +246,6 @@ function ConditionGuideContent({ guide, asPage = false }: ExerciseGuideModuleCar
             )}
           </div>
         </div>
-        <dialog
-          ref={imageDialogRef}
-          aria-label={expandedImageIndex === null ? '圖解放大檢視' : guide.images[expandedImageIndex].alt}
-          onClose={() => setExpandedImageIndex(null)}
-          onCancel={() => setExpandedImageIndex(null)}
-          onClick={(event) => {
-            if (event.target === event.currentTarget) event.currentTarget.close()
-          }}
-          className="ExerciseGuidePrintHide m-auto max-h-[92vh] w-[min(94vw,1080px)] rounded-3xl border border-neutral-200 bg-white p-3 shadow-2xl backdrop:bg-black/75 dark:border-neutral-700 dark:bg-neutral-950"
-        >
-          {expandedImageIndex !== null && (
-            <div>
-              <div className="mb-3 flex items-center justify-between gap-4 px-1">
-                <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-100">
-                  {guide.images[expandedImageIndex].caption}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => imageDialogRef.current?.close()}
-                  className="inline-flex min-h-11 shrink-0 items-center rounded-full border border-neutral-300 px-4 text-sm font-bold text-neutral-700 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
-                >
-                  關閉
-                </button>
-              </div>
-              <Image
-                src={guide.images[expandedImageIndex].src}
-                alt={guide.images[expandedImageIndex].alt}
-                width={guide.images[expandedImageIndex].width ?? 418}
-                height={guide.images[expandedImageIndex].height ?? 941}
-                sizes="94vw"
-                className="max-h-[78vh] w-full rounded-2xl object-contain"
-              />
-            </div>
-          )}
-        </dialog>
         <p className="ExerciseGuideDisclosure mt-4 rounded-xl bg-neutral-100 px-4 py-3 text-xs leading-5 text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
           圖片為合成教學影像或原創方案示意，並非論文原圖；用於輔助理解，實際姿勢、幅度與支撐方式請依專業評估調整。
         </p>

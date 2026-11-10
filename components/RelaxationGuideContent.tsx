@@ -1,8 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
 import { useAdminSession } from '@/components/AdminSessionProvider'
+import ExerciseImageGallery from '@/components/ExerciseImageGallery'
 import { getExerciseGuideDates, type ExerciseGuideModule } from '@/lib/exercise-guides'
 
 interface RelaxationGuideContentProps {
@@ -14,17 +14,6 @@ export default function RelaxationGuideContent({ guide, asPage = false }: Relaxa
   const Heading = asPage ? 'h1' : 'h2'
   const dates = getExerciseGuideDates(guide)
   const { authenticated: isAdmin } = useAdminSession()
-  const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(null)
-  const imageDialogRef = useRef<HTMLDialogElement>(null)
-
-  useEffect(() => {
-    const dialog = imageDialogRef.current
-    if (!dialog) return
-    if (expandedImageIndex !== null && !dialog.open) dialog.showModal()
-    if (expandedImageIndex === null && dialog.open) dialog.close()
-  }, [expandedImageIndex])
-
-  const expandedImage = expandedImageIndex === null ? null : guide.images[expandedImageIndex]
 
   return (
     <section id={guide.id} className={`scroll-mt-24 py-10 md:py-14 ${asPage ? '' : 'border-t border-neutral-200 dark:border-neutral-800'}`}>
@@ -41,7 +30,12 @@ export default function RelaxationGuideContent({ guide, asPage = false }: Relaxa
           <p className="mt-1 text-teal-800 dark:text-teal-200">{guide.cue}</p>
         </div>
 
-        <ol className="RelaxationGuideStepList mt-8 grid gap-6 print:gap-4" aria-label={`${guide.selectionLabel}放鬆動作`}>
+        <ExerciseImageGallery
+          as="ol"
+          images={guide.images}
+          className="RelaxationGuideStepList mt-8 grid gap-6 print:gap-4"
+          aria-label={`${guide.selectionLabel}放鬆動作`}
+        >
           {guide.images.map((image, index) => {
             const step = guide.steps?.[index]
             return (
@@ -52,9 +46,9 @@ export default function RelaxationGuideContent({ guide, asPage = false }: Relaxa
                       <span>準備</span><span>動作</span>
                     </div>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => setExpandedImageIndex(index)}
+                  <a
+                    href={image.src}
+                    data-gallery-index={index}
                     aria-haspopup="dialog"
                     aria-label={`放大查看：${image.alt}`}
                     className="group/image relative block w-full cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-500"
@@ -69,7 +63,7 @@ export default function RelaxationGuideContent({ guide, asPage = false }: Relaxa
                       className="h-auto w-full object-contain"
                     />
                     <span className="ExerciseGuidePrintHide absolute bottom-3 right-3 rounded-full bg-black/65 px-3 py-1.5 text-xs font-semibold text-white">點圖放大</span>
-                  </button>
+                  </a>
                 </div>
                 <div className="grid gap-4 p-5 sm:p-6 lg:grid-cols-[1fr_220px] lg:gap-8">
                   <div>
@@ -87,7 +81,7 @@ export default function RelaxationGuideContent({ guide, asPage = false }: Relaxa
               </li>
             )
           })}
-        </ol>
+        </ExerciseImageGallery>
 
         <aside className="mt-7 rounded-2xl border border-amber-200 bg-amber-50/60 p-5 text-sm leading-6 text-neutral-700 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-neutral-300" aria-labelledby={`${guide.id}-safety`}>
           <h2 id={`${guide.id}-safety`} className="font-bold text-neutral-950 dark:text-neutral-100">做的時候留意</h2>
@@ -121,28 +115,6 @@ export default function RelaxationGuideContent({ guide, asPage = false }: Relaxa
           </div>
           {isAdmin && <button type="button" onClick={() => window.print()} className="ExerciseGuidePrintHide inline-flex min-h-10 items-center rounded-full border border-neutral-300 px-4 font-semibold hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800">列印／另存 PDF</button>}
         </footer>
-
-        <dialog
-          ref={imageDialogRef}
-          aria-label={expandedImage?.alt ?? '圖解放大檢視'}
-          onClose={() => setExpandedImageIndex(null)}
-          onCancel={() => setExpandedImageIndex(null)}
-          onClick={(event) => { if (event.target === event.currentTarget) event.currentTarget.close() }}
-          className="ExerciseGuidePrintHide m-auto max-h-[92vh] w-[min(96vw,1440px)] rounded-2xl border border-neutral-200 bg-white p-3 shadow-2xl backdrop:bg-black/75 dark:border-neutral-700 dark:bg-neutral-950"
-        >
-          {expandedImage && (
-            <div>
-              <div className="mb-3 flex items-center justify-between gap-4 px-1">
-                <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-100">{expandedImage.caption}</p>
-                <button type="button" onClick={() => imageDialogRef.current?.close()} className="inline-flex min-h-11 shrink-0 items-center rounded-full border border-neutral-300 px-4 text-sm font-bold text-neutral-700 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800">關閉</button>
-              </div>
-              <p className="mb-2 text-xs text-neutral-500 dark:text-neutral-400 md:hidden">左右滑動查看放大的姿勢</p>
-              <div className="overflow-x-auto rounded-xl" tabIndex={0} aria-label="放大圖解，可左右捲動">
-                <Image src={expandedImage.src} alt={expandedImage.alt} width={expandedImage.width ?? 1152} height={expandedImage.height ?? 432} sizes="(max-width: 768px) 768px, 96vw" className="h-auto w-full min-w-[768px] object-contain" />
-              </div>
-            </div>
-          )}
-        </dialog>
       </div>
     </section>
   )

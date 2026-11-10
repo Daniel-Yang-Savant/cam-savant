@@ -79,6 +79,12 @@ img {
   }
 }
 
+@media screen {
+  html:has(.ExerciseImageGalleryDialog[open]) {
+    overflow: hidden;
+  }
+}
+
 @media print {
   /* Hide elements that shouldn't be printed */
   nav,

@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import ExerciseImageGallery from '@/components/ExerciseImageGallery'
 import { getPerioperativeRehabExercises } from '@/lib/perioperative-rehab-exercises'
 
 interface Props {
@@ -30,13 +31,28 @@ export default function PerioperativeExerciseGallery({ slug }: Props) {
         </p>
       </div>
 
-      <div className="mt-6 grid gap-6 sm:grid-cols-2">
+      <ExerciseImageGallery
+        images={exercises.map(({ src, alt, title, stage, instruction }) => ({
+          src,
+          alt,
+          caption: title,
+          detail: `適用：${stage}`,
+          instruction,
+        }))}
+        className="mt-6 grid gap-6 sm:grid-cols-2"
+      >
         {exercises.map((exercise, index) => (
           <figure
             key={exercise.src}
             className="overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-50 shadow-sm dark:border-neutral-700 dark:bg-neutral-900/60"
           >
-            <div className="relative aspect-[4/3] overflow-hidden bg-neutral-100 dark:bg-neutral-900">
+            <a
+              href={exercise.src}
+              data-gallery-index={index}
+              aria-haspopup="dialog"
+              aria-label={`放大查看：${exercise.alt}`}
+              className="relative block aspect-[4/3] cursor-zoom-in overflow-hidden bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-500 dark:bg-neutral-900"
+            >
               <Image
                 src={exercise.src}
                 alt={exercise.alt}
@@ -46,7 +62,8 @@ export default function PerioperativeExerciseGallery({ slug }: Props) {
                 loading="eager"
                 unoptimized
               />
-            </div>
+              <span className="ExerciseGuidePrintHide absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-1.5 text-xs font-semibold text-white">點圖放大</span>
+            </a>
             <figcaption className="p-4">
               <div className="flex items-start gap-3">
                 <span className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-teal-700 text-xs font-bold text-white dark:bg-teal-500 dark:text-neutral-950">
@@ -67,7 +84,7 @@ export default function PerioperativeExerciseGallery({ slug }: Props) {
             </figcaption>
           </figure>
         ))}
-      </div>
+      </ExerciseImageGallery>
 
       <p className="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900 ring-1 ring-inset ring-amber-200 dark:bg-amber-950/50 dark:text-amber-100 dark:ring-amber-800">
         若動作造成疼痛明顯增加、異常腫脹、傷口不適、頭暈、胸痛或喘不過氣，請立即停止，並依本文警示症狀處理。
