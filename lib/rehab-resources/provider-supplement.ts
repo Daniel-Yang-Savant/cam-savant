@@ -15,9 +15,9 @@ export const PROVIDER_SUPPLEMENT: RehabResource[] = [
     documents: ['公開服務頁未列統一備件清單；可先備既有診斷、療育或就學資料供諮詢，正式收案文件由協會告知。'],
     application: '直接聯絡協會說明年齡與教育問題；可請醫院社工或學校協助資源連結。',
     contact: { name: '台中市腦性麻痺關懷協會', phone: '04-22656997', url: 'https://cpatc.org.tw/service.php' },
-    ...VERIFIED, checkedAt: '2026-10-19', statusNote: '已核對官網教育諮詢與資源連結說明；實際預約由協會安排。',
+    ...VERIFIED, checkedAt: '2026-10-19', statusNote: '官網服務頁未能完成複查，服務內容待查。請先向協會確認。',
     source: { title: '台中市腦性麻痺關懷協會：服務內容', url: 'https://cpatc.org.tw/service.php' },
-    cautions: ['官網服務頁未列更新日期；安排前先電話確認，未推定現有療育名額。', '此為諮詢與支持入口，不保證現金補助或特定治療成效。'],
+    cautions: ['官網服務頁未能完成複查，請先電話確認目前的諮詢服務及預約方式。', '此為諮詢與支持入口，不保證現金補助或特定治療成效。'],
   },
   {
     id: 'taichung-autism-education-family-support',

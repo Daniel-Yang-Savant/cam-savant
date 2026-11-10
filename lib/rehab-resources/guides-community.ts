@@ -136,7 +136,7 @@ export const COMMUNITY_GUIDES: Record<string, { help: string; who: string; first
     firstStep: '聯絡西螺通報個管中心，由社工依居住鄉鎮派案，討論療育與家庭需要。',
   },
   'taichung-cerebral-palsy-association-support': {
-    help: '腦性麻痺家庭的教育問題諮詢、就學權益與資源連結。',
+    help: '服務內容待查。腦性麻痺家庭可先向協會詢問教育、就學權益與資源連結。',
     who: '腦性麻痺者及家庭；本筆為協會臺中所在地的教育諮詢窗口。',
     firstStep: '直接聯絡協會說明年齡與就學困難，或請學校、醫院社工協助連結。',
   },
