@@ -84,6 +84,15 @@ const nextConfig = {
         destination: '/en/locations',
         statusCode: 301,
       },
+      // 舊版曾對這些標籤重複編碼。進入頁面渲染前先轉址，保留正常網址的索引設定。
+      ...['慢性疲勞', '代謝', '踝關節'].map((tag) => {
+        const encodedTag = encodeURIComponent(tag)
+        return {
+          source: `/tags/${encodeURIComponent(encodedTag)}`,
+          destination: `/tags/${encodedTag}`,
+          permanent: true,
+        }
+      }),
       ...getProtectedPostRedirects(),
     ]
   },
