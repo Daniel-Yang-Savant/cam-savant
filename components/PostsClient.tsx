@@ -222,8 +222,12 @@ export default function PostsClient({ allPosts, allTags, currentPage }: Props) {
       {/* ── Grid ── */}
       {paginated.length > 0 ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-          {paginated.map((post) => (
-            <ArticleCard key={post.slug} post={post} />
+          {paginated.map((post, index) => (
+            <ArticleCard
+              key={post.slug}
+              post={post}
+              prioritizeCover={index === 0 && selectedTags.size === 0}
+            />
           ))}
         </div>
       ) : (

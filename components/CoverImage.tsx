@@ -8,6 +8,7 @@ interface CoverImageProps {
   alt: string
   categoryLabel: string
   priority?: boolean
+  eager?: boolean
   /** Tailwind classes appended to the Image (e.g. transition / hover scale) */
   imageClassName?: string
   /**
@@ -22,6 +23,7 @@ export default function CoverImage({
   alt,
   categoryLabel,
   priority = false,
+  eager = false,
   imageClassName = 'object-cover transition-transform duration-500 group-hover:scale-105',
   sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
 }: CoverImageProps) {
@@ -56,6 +58,8 @@ export default function CoverImage({
       alt={alt}
       fill
       priority={priority}
+      loading={eager ? 'eager' : undefined}
+      fetchPriority={eager ? 'high' : undefined}
       sizes={sizes}
       className={imageClassName}
       onError={() => setErrored(true)}

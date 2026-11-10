@@ -11,9 +11,10 @@ interface ArticleCardProps {
   post: Post | ArticleSummary
   /** 較大的卡片版型，用於首頁 featured 等場景 */
   large?: boolean
+  prioritizeCover?: boolean
 }
 
-export default function ArticleCard({ post, large = false }: ArticleCardProps) {
+export default function ArticleCard({ post, large = false, prioritizeCover = false }: ArticleCardProps) {
   const { slug, frontmatter } = post
   const categoryLabel = CATEGORY_LABELS[frontmatter.category] ?? frontmatter.category
   const formattedDate = format(new Date(frontmatter.date), 'yyyy.MM.dd', {
@@ -32,6 +33,7 @@ export default function ArticleCard({ post, large = false }: ArticleCardProps) {
               src={frontmatter.coverImage}
               alt={frontmatter.title}
               categoryLabel={categoryLabel}
+              eager={prioritizeCover}
               sizes={
                 large
                   ? '(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 800px'
