@@ -32,7 +32,7 @@
     "test:smoke": "node scripts/security-smoke.mjs",
     "audit:articles": "node --import tsx scripts/audit-public-articles.ts",
     "check:publish-links": "node --import tsx scripts/check-publish-links.ts",
-    "test:publish-links": "node --import tsx --test scripts/link-audit/changed-articles.test.ts scripts/link-audit/next-build.test.ts scripts/link-audit/public-http.test.ts",
+    "test:publish-links": "node --import tsx --test scripts/link-audit/changed-articles.test.ts scripts/link-audit/next-build.test.ts scripts/link-audit/production-baseline.test.ts scripts/link-audit/public-http.test.ts",
     "postbuild": "npm run audit:articles && npm run check:publish-links -- --deployment"
   },
   "ts-node": {

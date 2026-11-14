@@ -8,6 +8,7 @@ import { getPostBySlug, PROTECTED_CATEGORIES } from '../lib/posts'
 import { listChangedArticleFiles } from './link-audit/changed-articles'
 import { createBuildTransport } from './link-audit/next-build'
 import { auditRenderedPages, printPageReport } from './link-audit/pages'
+import { findPreviousProductionCommit, readPublicGithubJson } from './link-audit/production-baseline'
 import { requestPublicUrl } from './link-audit/public-http'
 
 const reportFile = '.seo-audit/publish-links.json'
@@ -17,20 +18,46 @@ function git(args: string[]) {
   return execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim()
 }
 
-function productionRange() {
-  const { VERCEL_GIT_PREVIOUS_SHA: base, VERCEL_GIT_COMMIT_SHA: head } = process.env
-  if (!base || !head || !fullSha.test(base) || !fullSha.test(head)) {
-    throw new Error('正式部署缺少目前或上次成功部署的 Git 提交。請從已連結的 Git 分支部署，並確認 Vercel 已提供系統環境變數。')
-  }
-  if (git(['rev-parse', 'HEAD']) !== head) throw new Error('建置的 Git 提交與 Vercel 部署提交不一致。')
+async function committedArticleChanges(base: string, head: string) {
+  if (base === head) return []
+  // Some Vercel build containers omit Git or have only a shallow checkout.
   try {
     git(['cat-file', '-e', `${base}^{commit}`])
+    git(['cat-file', '-e', `${head}^{commit}`])
+    return listChangedArticleFiles(base, head)
   } catch {
-    // Vercel's shallow checkout may not contain the last successful release.
-    try { git(['fetch', '--no-tags', '--no-recurse-submodules', 'origin', base]) } catch (error) {
-      throw new Error(`無法取得上次成功部署的 Git 提交 ${base}。請確認建置可讀取該提交後重跑部署。`, { cause: error })
+    const comparison = await readPublicGithubJson(`/compare/${base}...${head}`) as {
+      status?: string
+      merge_base_commit?: { sha?: string }
+      files?: { filename?: string; status?: string }[]
     }
+    // GitHub compares from the merge base and caps the file list at 300.
+    if (comparison.status !== 'ahead' || comparison.merge_base_commit?.sha !== base ||
+        !Array.isArray(comparison.files) || comparison.files.length >= 300) {
+      throw new Error('GitHub 無法提供完整的部署差異。請確認上次成功部署位於本次提交的歷史中，並以可讀取完整 Git 差異的環境建置。')
+    }
+    const files: string[] = []
+    for (const file of comparison.files) {
+      if (typeof file?.filename !== 'string' || !['added', 'modified', 'removed', 'renamed', 'copied', 'changed', 'unchanged'].includes(file.status ?? '')) {
+        throw new Error('GitHub 回傳的部署差異格式不正確。')
+      }
+      if (file.status !== 'removed' && file.status !== 'unchanged' &&
+          /^content\/posts(?:-en)?\/[a-zA-Z0-9][a-zA-Z0-9_-]*\.mdx?$/u.test(file.filename)) files.push(file.filename)
+    }
+    return [...new Set(files)].sort()
   }
+}
+
+async function productionRange() {
+  const { VERCEL_GIT_PREVIOUS_SHA: previous, VERCEL_GIT_COMMIT_SHA: current } = process.env
+  let checkout: string | undefined
+  try { checkout = git(['rev-parse', 'HEAD']) } catch { /* Git metadata can be absent from Vercel builds. */ }
+  const head = current || checkout
+  if (!head || !fullSha.test(head)) throw new Error('Vercel 建置缺少目前部署的 Git 提交。')
+  if (checkout && checkout !== head) throw new Error('建置的 Git 提交與 Vercel 部署提交不一致。')
+  if (previous && !fullSha.test(previous)) throw new Error('上次成功部署的 Git 提交格式不正確。')
+  const base = previous || await findPreviousProductionCommit(head)
+  console.log(`部署基準來源 ${previous ? 'Vercel' : 'GitHub 正式部署紀錄'}`)
   return { base, head }
 }
 
@@ -76,9 +103,14 @@ async function main() {
     return
   }
 
-  const { base, head } = values.deployment ? productionRange() : { base: values.base ?? '@{upstream}', head: undefined }
-  const baselineVersion = git(['rev-parse', '--verify', '--end-of-options', `${base}^{commit}`])
-  const files = listChangedArticleFiles(baselineVersion, head, process.cwd(), values.include)
+  const range = values.deployment ? await productionRange() : undefined
+  const head = range?.head
+  const baselineVersion = range?.base ?? git([
+    'rev-parse', '--verify', '--end-of-options', `${values.base ?? '@{upstream}'}^{commit}`,
+  ])
+  const files = range
+    ? await committedArticleChanges(range.base, range.head)
+    : listChangedArticleFiles(baselineVersion, undefined, process.cwd(), values.include)
   const routes = articleRoutes(files)
   console.log(`發布前連結檢查｜基準 ${baselineVersion.slice(0, 12)}｜本次 ${routes.length} 篇待發布文章`)
   for (const route of routes) console.log(`  ${route}`)
