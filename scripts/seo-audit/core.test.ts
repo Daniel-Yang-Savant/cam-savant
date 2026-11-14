@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
 import test from 'node:test'
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { auditPage, compareSnapshots, parsePage, type PageSnapshot } from './core'
+import { auditPage, compareSnapshots, parsePage, parsePageLinks, type PageSnapshot } from './core'
 import { auditPublicArticles } from './articles'
-import { readPublicBuildArtifact } from './build-artifacts'
+import { readBuiltPageArtifact, readPublicBuildArtifact } from './build-artifacts'
 
 const url = 'https://camsavant.com/test'
 const html = `<html><head><title>復健 &amp; 運動醫學</title>
@@ -220,6 +221,43 @@ test('suppresses nested fallback boundaries while retaining subsequent normal co
   assert.equal(page.visibleText, '正常文字 主要內容')
 })
 
+test('extracts main links and document-wide fragments from rendered HTML', () => {
+  const result = parsePageLinks(`<head>
+    <base target="_blank"><base href="/first/"><base href="/second/">
+    </head><header id="top-nav"><a href="/nav">導覽</a></header>
+    <main><h2 id="看診資訊">看診資訊</h2>
+      <a href="clinics?q=a&amp;ref=b">院區</a><a href="clinics?q=a&amp;ref=b">同一院區</a>
+      <a href="#top-nav">返回導覽</a><a href="#legacy">舊錨點</a>
+      <script>self.__next_f.push([1,'<a id="fake" href="/fake">假連結</a>'])</script>
+      <section hidden><a id="hidden" href="/hidden">隱藏</a></section>
+      <template><a name="template" href="/template">範本</a></template>
+    </main><footer><a name="legacy" href="/footer">頁尾</a></footer>`)
+  assert.equal(result.baseHref, '/first/')
+  assert.deepEqual(result.hrefs, ['clinics?q=a&ref=b', '#top-nav', '#legacy'])
+  assert.deepEqual(result.fragments, new Set(['top-nav', '看診資訊', 'legacy']))
+})
+
+test('uses React relocation boundaries to scope streamed links and ignore replaced fallback', () => {
+  const result = parsePageLinks(`<main>
+    <!--$?--><template id="B:0"></template><a id="fallback" href="/main-fallback">稍候</a>
+      <!--$?--><template id="B:3"></template>替代內容的巢狀片段<!--/$-->
+    <!--/$-->
+    <a id="regular" href="/regular">一般內容</a>
+    </main><footer><!--$?--><template id="B:1"></template>稍候<!--/$--></footer>
+    <div hidden id="S:0"><a id="stream-main" href="/main-stream">正文片段</a>
+      <!--$?--><template id="B:2"></template><a href="/nested-fallback">稍候</a><!--/$-->
+    </div>
+    <div hidden id="S:1"><a id="stream-footer" href="/footer-stream">頁尾片段</a></div>
+    <div hidden id="S:2"><a name="stream-nested" href="/main-nested">次層正文片段</a></div>
+    <div hidden id="S:3"><a id="orphaned" href="/orphaned">已移除的巢狀片段</a></div>
+    <div hidden id="S:4"><a id="unconfirmed" href="/unconfirmed">未確認</a></div>
+    <script>$RC("B:0","S:0")</script><script>$RC("B:1","S:1")</script>
+    <script>$RC("B:2","S:2")</script><script>$RC("B:3","S:3")</script>`)
+  assert.equal(result.baseHref, undefined)
+  assert.deepEqual(result.hrefs, ['/regular', '/main-stream', '/main-nested'])
+  assert.deepEqual(result.fragments, new Set(['regular', 'stream-main', 'stream-footer', 'stream-nested']))
+})
+
 test('unchanged snapshots and equivalent metadata order yield no findings', () => {
   assert.deepEqual(compareSnapshots([valid()], [valid()]), [])
   const before = { ...valid(), robots: ['index, FOLLOW'], alternates: { en: '/en', 'zh-tw': '/zh' } }
@@ -302,6 +340,28 @@ test('legacy layout works only when scoped output is absent, and missing output 
   assert.equal(readPublicBuildArtifact(fixture.server, '/posts/example'), 'legacy article')
   assert.equal(readPublicBuildArtifact(fixture.server, '/sitemap.xml'), '<urlset />')
   assert.equal(readPublicBuildArtifact(fixture.server, '/posts/missing'), undefined)
+})
+
+test('generic page artifacts resolve the root and Unicode tag pages in both build layouts', t => {
+  const fixture = buildFixture(t)
+  const owner = '/(zh)/tags/[tag]/page'
+  const ownerHash = createHash('sha256').update(owner).digest('hex')
+  fixture.write('app/index.html', 'home')
+  fixture.write('app/index/index.html', 'index route')
+  fixture.write('app/tags/脊椎 復健.html', 'legacy tag')
+  fixture.write(`route-cache/APP_PAGE/${ownerHash}/$/tags/脊椎 復健.html`, 'scoped tag')
+  assert.equal(readBuiltPageArtifact(fixture.server, '/', '/(zh)/page'), 'home')
+  assert.equal(readBuiltPageArtifact(fixture.server, '/index', '/(zh)/index/page'), 'index route')
+  assert.equal(readBuiltPageArtifact(fixture.server, '/tags/脊椎 復健', owner), 'scoped tag')
+  assert.equal(readBuiltPageArtifact(fixture.server, '/tags/%E8%84%8A%E6%A4%8E%20%E5%BE%A9%E5%81%A5', owner), 'scoped tag')
+})
+
+test('generic page artifacts reject malformed routes and encoded delimiters', t => {
+  const fixture = buildFixture(t)
+  for (const route of ['tags/no-leading-slash', '/tags//gap', '/tags/trailing-slash/', '/tags/../index', '/tags/%2e%2e', '/tags/a%2Fb', '/tags/a%5Cb', '/tags/a%3Fb', '/tags/a%23b', '/tags/a%252Fb', '/tags/a%0Ab', '/tags/a\u2028b', '/tags/a%z']) {
+    assert.throws(() => readBuiltPageArtifact(fixture.server, route, '/(zh)/tags/[tag]/page'), /Invalid build page route/)
+  }
+  assert.throws(() => readBuiltPageArtifact(fixture.server, '/tags/肩關節', '/sitemap.xml/route'), /Invalid App Router page owner/)
 })
 
 test('artifact reader rejects private paths, traversal, encoded delimiters and trailing newlines', t => {

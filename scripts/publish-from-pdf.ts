@@ -16,8 +16,8 @@ import nodeFetch from 'node-fetch'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as readline from 'readline'
-import { execSync } from 'child_process'
 import * as dotenv from 'dotenv'
+import { checkArticleBeforePublish } from './publish-git'
 
 // 載入環境變數（.env 優先，.env.local 可覆蓋）
 dotenv.config({ path: path.resolve(process.cwd(), '.env') })
@@ -104,7 +104,7 @@ async function processPDF(pdfPath: string): Promise<ArticleData> {
           {
             type: 'document',
             source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 },
-          } as any,
+          },
           {
             type: 'text',
             text: `你是一位復健科主治醫師，擅長運動醫學、功能醫學與輔助醫學。
@@ -218,8 +218,8 @@ async function searchPhotos(query: string): Promise<{ photos: PhotoResult[]; sou
       const photos = await searchUnsplash(query)
       if (photos.length > 0) return { photos, source: 'Unsplash' }
       console.warn('   ⚠️  Unsplash 搜尋結果為空，切換到 Pexels...')
-    } catch (e: any) {
-      console.warn(`   ⚠️  Unsplash 搜尋失敗：${e.message}，切換到 Pexels...`)
+    } catch (error) {
+      console.warn(`   ⚠️  Unsplash 搜尋失敗：${error instanceof Error ? error.message : String(error)}，切換到 Pexels...`)
     }
   } else {
     console.log('   ℹ️  UNSPLASH_ACCESS_KEY 未設定，使用 Pexels...')
@@ -230,8 +230,8 @@ async function searchPhotos(query: string): Promise<{ photos: PhotoResult[]; sou
     try {
       const photos = await searchPexels(query)
       return { photos, source: 'Pexels（Unsplash 備用）' }
-    } catch (e: any) {
-      console.warn(`   ⚠️  Pexels 搜尋失敗：${e.message}`)
+    } catch (error) {
+      console.warn(`   ⚠️  Pexels 搜尋失敗：${error instanceof Error ? error.message : String(error)}`)
     }
   } else {
     console.warn('   ⚠️  PEXELS_API_KEY 未設定，無法搜尋備用圖片')
@@ -243,6 +243,7 @@ async function searchPhotos(query: string): Promise<{ photos: PhotoResult[]; sou
 // ── Step 3：建立 .mdx 檔案 ────────────────────────────────────────────────
 
 function writeMDX(article: ArticleData, coverImage: string): string {
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(article.slug)) throw new Error('文章 Slug 格式錯誤。')
   const today = new Date().toISOString().split('T')[0]
   const escape = (s: string) => s.replace(/"/g, '\\"')
 
@@ -260,18 +261,6 @@ ${article.content}
   const filePath = path.join(process.cwd(), 'content', 'posts', `${article.slug}.mdx`)
   fs.writeFileSync(filePath, mdx, 'utf8')
   return filePath
-}
-
-// ── Step 4：git add / commit / push ───────────────────────────────────────
-
-function gitPush(title: string) {
-  const safeTitle = title.replace(/['"]/g, '').slice(0, 60)
-  execSync('git add .', { stdio: 'inherit' })
-  execSync(
-    `git commit -m "feat: add post - ${safeTitle}\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"`,
-    { stdio: 'inherit' }
-  )
-  execSync('git push origin main', { stdio: 'inherit' })
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────
@@ -336,12 +325,13 @@ async function main() {
   // ── 5. 確認發布
   const go = await ask('\n🚀 確認 git push 發布到 Vercel？(y/n)：')
   if (go.toLowerCase() === 'y') {
-    console.log('')
-    gitPush(article.title)
+    const publish = checkArticleBeforePublish(filePath, true)
+    const title = article.title.replace(/['"]/g, '').slice(0, 60)
+    publish(`feat: add post - ${title}\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>`)
     console.log('\n🎉 文章已發布！Vercel 將在 1-2 分鐘內自動部署。')
   } else {
-    console.log('\n📝 .mdx 已建立但尚未發布。執行以下指令即可發布：')
-    console.log('   git add . && git commit -m "feat: add post" && git push origin main\n')
+    console.log('\n📝 .mdx 已建立。發布前請先執行連結檢查：')
+    console.log('   npm run check:publish-links -- --base origin/main\n')
   }
 }
 

@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "buildCommand": "npm run build",
   "rewrites": [
     { "source": "/fsm/studio", "destination": "/fsm/studio/index.html" },
     { "source": "/fsm/studio/", "destination": "/fsm/studio/index.html" }

@@ -24,7 +24,15 @@ export type Finding = {
 
 const normalize = (text: string) => text.replace(/\s+/gu, ' ').trim()
 const blockTags = new Set(['address', 'article', 'aside', 'br', 'div', 'footer', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'li', 'main', 'nav', 'p', 'section', 'td', 'th'])
-type Frame = { tag: string; excluded: boolean; inert: boolean; text: string; jsonLd: boolean }
+type Frame = {
+  tag: string
+  excluded: boolean
+  inert: boolean
+  relocated: boolean
+  visibleBoundary: boolean
+  text: string
+  jsonLd: boolean
+}
 
 // Recognize React's emitted relocation markers without evaluating JavaScript.
 function streamedSegments(html: string) {
@@ -52,7 +60,47 @@ function streamedSegments(html: string) {
     },
   }).end(html)
   const found = pairs.filter(([boundary, segment]) => templates.has(boundary) && segments.has(segment))
-  return { boundaries: new Set(found.map(([boundary]) => boundary)), segments: new Set(found.map(([, segment]) => segment)) }
+  return {
+    boundaries: new Set(found.map(([boundary]) => boundary)),
+    segments: new Map(found.map(([boundary, segment]) => [segment, boundary])),
+  }
+}
+
+type PageVisitor = {
+  openTag(tag: string, attrs: Record<string, string>, frame: Frame): void
+  text?(text: string, frames: Frame[]): void
+  closeTag(frame: Frame): void
+}
+
+function scanRenderedHtml(html: string, visitor: PageVisitor, streamed = streamedSegments(html)) {
+  const frames: Frame[] = []
+  const suspense: boolean[] = []
+  const parser = new Parser({
+    onopentag(tag, attrs) {
+      const parent = frames.at(-1)
+      const boundary = tag === 'template' && streamed.boundaries.has(attrs.id)
+      const visibleBoundary = boundary && !parent?.excluded && !suspense.some(Boolean)
+      if (boundary && suspense.length) suspense[suspense.length - 1] = true
+      const inert = Boolean(parent?.inert || suspense.some(Boolean) || ['template', 'noscript', 'svg', 'math'].includes(tag))
+      const relocated = tag === 'div' && streamed.segments.has(attrs.id)
+      const excluded = Boolean(parent?.excluded || inert || ['head', 'script', 'style', 'title'].includes(tag) || ('hidden' in attrs && !relocated) || attrs['aria-hidden'] === 'true')
+      const frame = { tag, excluded, inert, relocated, visibleBoundary, text: '', jsonLd: tag === 'script' && !inert && attrs.type?.toLowerCase().trim() === 'application/ld+json' }
+      frames.push(frame)
+      visitor.openTag(tag, attrs, frame)
+    },
+    ontext(text) {
+      if (!suspense.some(Boolean)) visitor.text?.(text, frames)
+    },
+    oncomment(text) {
+      if (['$', '$?', '$!'].includes(text)) suspense.push(false)
+      if (text === '/$') suspense.pop()
+    },
+    onclosetag() {
+      const frame = frames.pop()
+      if (frame) visitor.closeTag(frame)
+    },
+  }, { decodeEntities: true })
+  parser.end(html)
 }
 
 /** Parse tags, never strings embedded in Next.js hydration scripts. No scripts execute. */
@@ -61,10 +109,7 @@ export function parsePage(path: string, html: string): PageSnapshot {
     path, title: '', description: '', canonicals: [], robots: [], h1: [],
     alternates: {}, schemas: [], schemaErrors: [], links: [], visibleText: '',
   }
-  const frames: Frame[] = []
   const visible: string[] = []
-  const streamed = streamedSegments(html)
-  const suspense: boolean[] = []
   const collectSchema = (value: unknown): void => {
     if (Array.isArray(value)) {
       value.forEach(collectSchema)
@@ -80,14 +125,8 @@ export function parsePage(path: string, html: string): PageSnapshot {
       page.schemaErrors.push('JSON-LD 必須是物件或物件陣列。')
     }
   }
-  const parser = new Parser({
-    onopentag(tag, attrs) {
-      if (tag === 'template' && streamed.boundaries.has(attrs.id) && suspense.length) suspense[suspense.length - 1] = true
-      const parent = frames.at(-1)
-      const inert = Boolean(parent?.inert || suspense.some(Boolean) || ['template', 'noscript', 'svg', 'math'].includes(tag))
-      const relocated = tag === 'div' && streamed.segments.has(attrs.id)
-      const excluded = Boolean(parent?.excluded || inert || ['head', 'script', 'style', 'title'].includes(tag) || ('hidden' in attrs && !relocated) || attrs['aria-hidden'] === 'true')
-      frames.push({ tag, excluded, inert, text: '', jsonLd: tag === 'script' && !inert && attrs.type?.toLowerCase().trim() === 'application/ld+json' })
+  scanRenderedHtml(html, {
+    openTag(tag, attrs, { excluded, inert }) {
       if (!excluded && blockTags.has(tag)) visible.push(' ')
       if (inert) return
       if (tag === 'meta') {
@@ -104,8 +143,7 @@ export function parsePage(path: string, html: string): PageSnapshot {
       }
       if (tag === 'a' && attrs.href && !excluded) page.links.push(attrs.href.trim())
     },
-    ontext(text) {
-      if (suspense.some(Boolean)) return
+    text(text, frames) {
       const current = frames.at(-1)
       if (current?.tag === 'script') {
         current.text += text
@@ -117,13 +155,7 @@ export function parsePage(path: string, html: string): PageSnapshot {
       }
       if (!current?.excluded) visible.push(text)
     },
-    oncomment(text) {
-      if (['$', '$?', '$!'].includes(text)) suspense.push(false)
-      if (text === '/$') suspense.pop()
-    },
-    onclosetag() {
-      const frame = frames.pop()
-      if (!frame) return
+    closeTag(frame) {
       if (frame.tag === 'title' && !frame.inert && !page.title) page.title = normalize(frame.text)
       if (frame.tag === 'h1' && !frame.excluded) page.h1.push(normalize(frame.text))
       if (frame.jsonLd) {
@@ -135,11 +167,67 @@ export function parsePage(path: string, html: string): PageSnapshot {
       }
       if (!frame.excluded && blockTags.has(frame.tag)) visible.push(' ')
     },
-  }, { decodeEntities: true })
-  parser.end(html)
+  })
   page.visibleText = normalize(visible.join(''))
   page.links = [...new Set(page.links)]
   return page
+}
+
+type LinkLocation = { inMain: boolean; segment?: string }
+
+/** Read visible main links and document-wide fragment targets from rendered HTML. */
+export function parsePageLinks(html: string): { hrefs: string[]; fragments: Set<string>; baseHref?: string } {
+  const streamed = streamedSegments(html)
+  const locations: LinkLocation[] = [{ inMain: false }]
+  const boundaries = new Map<string, LinkLocation>()
+  const links: { href: string; location: LinkLocation }[] = []
+  const targets: { fragment: string; segment?: string }[] = []
+  let baseHref: string | undefined
+  scanRenderedHtml(html, {
+    openTag(tag, attrs, frame) {
+      const parent = locations.at(-1)!
+      // React moves the segment's contents to the template's position.
+      const location = frame.relocated ? { inMain: false, segment: attrs.id }
+        : tag === 'main' && !frame.excluded ? { ...parent, inMain: true } : parent
+      locations.push(location)
+      if (frame.visibleBoundary) boundaries.set(attrs.id, location)
+      if (tag === 'base' && !frame.inert && baseHref === undefined && attrs.href !== undefined) baseHref = attrs.href.trim()
+      if (frame.excluded) return
+      if (attrs.id && !frame.relocated) targets.push({ fragment: attrs.id, segment: location.segment })
+      if (tag !== 'a') return
+      if (attrs.name) targets.push({ fragment: attrs.name, segment: location.segment })
+      if (attrs.href !== undefined && (location.inMain || location.segment)) links.push({ href: attrs.href.trim(), location })
+    },
+    closeTag() { locations.pop() },
+  }, streamed)
+
+  const renderedSegments = new Map<string, boolean>()
+  const children = new Map<string, { segment: string; inMain: boolean }[]>()
+  for (const [segment, boundary] of streamed.segments) {
+    const location = boundaries.get(boundary)
+    if (!location) continue
+    if (location.segment) {
+      const siblings = children.get(location.segment) ?? []
+      siblings.push({ segment, inMain: location.inMain })
+      children.set(location.segment, siblings)
+    } else {
+      renderedSegments.set(segment, location.inMain)
+    }
+  }
+  for (const [segment, inMain] of renderedSegments) {
+    for (const child of children.get(segment) ?? []) renderedSegments.set(child.segment, inMain || child.inMain)
+  }
+
+  const hrefs = new Set<string>()
+  for (const { href, location } of links) {
+    if (location.segment && !renderedSegments.has(location.segment)) continue
+    if (location.inMain || (location.segment && renderedSegments.get(location.segment))) hrefs.add(href)
+  }
+  const fragments = new Set<string>()
+  for (const { fragment, segment } of targets) {
+    if (!segment || renderedSegments.has(segment)) fragments.add(fragment)
+  }
+  return { hrefs: [...hrefs], fragments, baseHref }
 }
 
 const isNoindex = (page: PageSnapshot) => page.robots.some((value) => /(?:^|[\s,;])(?:noindex|none)(?=$|[\s,;])/iu.test(value))

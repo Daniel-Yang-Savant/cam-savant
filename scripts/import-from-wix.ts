@@ -10,7 +10,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as readline from 'readline'
-import { execSync } from 'child_process'
+import { checkArticleBeforePublish } from './publish-git'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -61,18 +61,6 @@ function escape(s: string): string {
   return s.replace(/"/g, '\\"')
 }
 
-// ── Git ────────────────────────────────────────────────────────────────────
-
-function gitPush(title: string) {
-  const safeTitle = title.replace(/['"]/g, '').slice(0, 60)
-  execSync('git add .', { stdio: 'inherit' })
-  execSync(
-    `git commit -m "feat: add post - ${safeTitle}\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"`,
-    { stdio: 'inherit' }
-  )
-  execSync('git push origin main', { stdio: 'inherit' })
-}
-
 // ── Main ───────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -119,6 +107,7 @@ async function main() {
   const autoSlug = slugify(title)
   const rawSlug = await ask(`\n🔗 文章 Slug（留空使用自動產生的：${autoSlug}）：`)
   const slug = rawSlug || autoSlug
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(slug)) throw new Error('文章 Slug 格式錯誤。')
 
   // ── 7. 正文內容
   const content = await askMultiline('\n📄 請貼入文章正文（Markdown 格式）：')
@@ -179,12 +168,13 @@ ${content.trim()}
   )
 
   if (go === 'y') {
-    console.log('')
-    gitPush(title)
+    const publish = checkArticleBeforePublish(outputPath, true)
+    const safeTitle = title.replace(/['"]/g, '').slice(0, 60)
+    publish(`feat: add post - ${safeTitle}\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>`)
     console.log('\n🎉 文章已發布！Vercel 將在 1-2 分鐘內自動部署。')
   } else {
-    console.log('\n📝 .mdx 已建立但尚未發布。執行以下指令即可發布：')
-    console.log('   git add . && git commit -m "feat: add post" && git push origin main\n')
+    console.log('\n📝 .mdx 已建立。發布前請先執行連結檢查：')
+    console.log('   npm run check:publish-links -- --base origin/main\n')
   }
 }
 

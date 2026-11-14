@@ -142,12 +142,19 @@ cam-savant/
 Vercel 採用靜態生成（SSG）。新增或修改文章後需重新部署：
 
 ```bash
-git add content/posts/
+npm run check:publish-links
+git add content/posts/your-article.mdx
 git commit -m "add: new article"
 git push
 ```
 
-Vercel 會自動偵測並觸發重新建置。
+Vercel 會自動建置，並在正式部署前再次執行連結檢查。
+
+## 發布前連結檢查
+
+`npm run check:publish-links` 預設與上游分支比較，可用 `--base <Git 提交>` 指定基準。只檢查這次新增或修改、會出現在網站的中英文文章。站內網址與錨點依本次建置產物檢查，含術後專區。外站只做匿名 HTTP 檢查。正式 Vercel 建置會以同分支上一次成功部署的提交為基準，Git 資料無法取得時會中止建置並說明原因。 [Vercel 部署基準](https://vercel.com/docs/environment-variables/system-environment-variables#vercel_git_previous_sha)
+
+404、410、轉址迴圈或找不到站內 HTML 錨點會阻擋發布。外站 403、429、逾時及其他無法確認的回應列為待人工複查，發布檢查仍可通過。報告包含來源文章及轉址，寫入 `.seo-audit/publish-links.json`。Vercel 建置紀錄也會列出問題及來源頁。`npm run publish`、`npm run publish-post` 及 Wix 匯入指令在推送前會執行檢查。
 
 ---
 
